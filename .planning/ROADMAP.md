@@ -48,7 +48,13 @@ passwords (locked, deliberate) · **all 58 ADR decisions are LOCKED and must not
   2. Running the app creates **exactly two tables** (`users`, `figures`) via EF Core migrations applied automatically at startup — no `canvases` table, no `created_at` — carrying all three CHECK constraints, the `user_id` index, and the `COMMENT ON TABLE` that documents the circle convention.
   3. **The database itself refuses an illegal row**: a non-square or odd-sided circle, a zero-area rectangle, or a zero-length line is rejected by a CHECK constraint, not by application code.
   4. The three mandated tests pass: **clamp maths** (per-axis independence — a figure pinned to the right edge still moves vertically; inclusive bounds `0..1280 × 0..720`; the circle draw-clamp), **circle inscribed-square round-trip** (centre and radius come back exact after store + reload, and after translation), and **line normalisation** (an up-and-right diagonal does not come back as the opposite diagonal).
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — PostgreSQL 17 in Docker Compose with a named volume, and the .NET 10 two-project solution (wave 1)
+- [ ] 01-02-PLAN.md — The pure C# geometry core and the three mandated tests: normalise, clamp, circle inscribed-square, per-type min-size guard (wave 2)
+- [ ] 01-03-PLAN.md — EF Core schema and migrations applied at startup: two tables, three CHECK constraints, the index and the COMMENT (wave 2)
+- [ ] 01-04-PLAN.md — Prove the database itself refuses an illegal row, and that the min-size guard mirrors the CHECKs exactly (wave 3)
 
 **Notes for planning:**
 - The authoritative DDL is `CONSTRAINT-schema` in `.planning/intel/constraints.md`. **Never implement from D-12's sketch** — it still shows the dropped `created_at`.
