@@ -1,0 +1,24 @@
+{
+  "source_path": "D:/Project1/docs/DECISIONS.md",
+  "type": "ADR",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Decision Log",
+  "summary": "Consolidated ADR set of 58 numbered decisions (D-01…D-58) for a Blazor/PostgreSQL drawing-canvas web app, each with status, rationale, and rejected alternatives.",
+  "scope": [
+    "drawing-canvas web app",
+    "PostgreSQL datastore",
+    "Blazor Server (InteractiveServer) hosting",
+    "SVG drawing surface",
+    "figures schema and geometry storage",
+    "cross-tab live sync / broadcast message contract",
+    "toolbar and selection interaction",
+    "canvas edge clamping",
+    "identity, session cookie, routes",
+    "EF Core migrations, Docker Compose, .NET 10"
+  ],
+  "cross_refs": [],
+  "locked": true,
+  "precedence": 0,
+  "notes": "Manifest-declared ADR set; type not re-derived. Single-file ADR set, not one-decision-per-file. STALENESS MAP (from the file's own 'READ THIS FIRST' status index — superseded content must NOT be extracted as current): D-05 amended by D-13; D-07 'no HTTP code' claim retracted by D-34; D-11 'idempotent upsert' is a bug, amended by D-40/D-47/D-53/D-54; D-12 DDL sketch stale, use 'THE SCHEMA'; D-15 Delete-key superseded by D-33; D-16 superseded by D-30/D-33 (six toolbar buttons, not four); D-22 REVERSED — the REVISED inscribed-square version is authoritative (earlier centre+rim-point encoding is dead); D-23 'one shared guard' retracted by D-50; D-30 says five buttons, it is six (D-33). AUTHORITATIVE ARTIFACTS: the 'THE SCHEMA' section (canonical DDL, ~line 1674), D-22 (geometry storage, revised), D-53 (sync message contract). Entries are not in file order past D-32 (D-35/D-36/D-37 appear late). All D-entries carry explicit Status lines; every non-stale entry is Locked, hence locked: true for the set. No external document cross-references — the file states it is the only specification. Filename deviates from {slug}-{source_hash}.json: no shell/hashing tool available in this agent's toolset, so a path-derived suffix ('docs') was used; collision risk is nil for this unique filename."
+}

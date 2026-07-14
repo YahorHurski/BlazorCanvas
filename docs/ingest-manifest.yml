@@ -1,0 +1,4 @@
+docs:
+  - path: docs/DECISIONS.md
+    type: ADR
+    precedence: 0
