@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: database-schema-geometry-core
 status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-07-14T21:41:53.145Z"
+stopped_at: Completed 01-04-PLAN.md — Phase BC-01 fully executed, ready for verification
+last_updated: "2026-07-14T22:03:59.798Z"
 last_activity: 2026-07-14
 last_activity_desc: Phase BC-01 execution started
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
-  percent: 0
+  completed_plans: 4
+  percent: 20
 ---
 
 # Project State
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase BC-01 P01 | 5min | 2 tasks | 71 files |
 | Phase BC-01 P02 | 7min | 3 tasks | 12 files |
 | Phase BC-01 P03 | 15min | 3 tasks | 10 files |
+| Phase BC-01 P04 | 30min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,9 @@ The ones most likely to be violated by accident:
 - [Phase BC-01]: ClampDrawRadius rounds distance with MidpointRounding.AwayFromZero (10.5 -> 11) per D-24/D-29
 - [Phase BC-01]: MinSizeGuard is a literal per-type transcription of the three CHECK constraints (D-50); horizontal/vertical lines legal, zero-height rectangle/triangle illegal
 - [Phase BC-01]: D-27 port deviation (user-approved): Docker container host-published port moved 5432->5433; native postgresql-x64-18 Windows service permanently occupies 5432 on this dev machine. docs/DECISIONS.md D-27 text NOT amended -- open follow-up. — User explicitly chose to move the container port rather than touch the pre-existing native PostgreSQL 18 service
+- [Phase BC-01]: GuardMirrorsChecksTests proves MinSizeGuard and the three CHECK constraints agree exactly across a 32-case matrix, in both directions (D-50) -- no disagreement found
+- [Phase BC-01]: Volume-persistence proof (ROADMAP criterion 1, re-proven with real data) implemented as a real xUnit test that shells out to docker compose down/up -d --wait via Process.Start, not an external manual script
+- [Phase BC-01]: Aligned tests/BlazorCanvas.Tests.csproj EF Core package versions to 10.0.10 to fix a CS1705 compile error surfaced by direct DbContextOptionsBuilder usage in test code (Rule 3 blocking fix, no new package installed)
 
 ### Pending Todos
 
@@ -115,6 +119,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T21:40:43.680Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-07-14T22:03:50.459Z
+Stopped at: Completed 01-04-PLAN.md — Phase BC-01 fully executed, ready for verification
 Resume file: None

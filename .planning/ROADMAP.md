@@ -32,7 +32,7 @@ passwords (locked, deliberate) · **all 58 ADR decisions are LOCKED and must not
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Database, Schema & Geometry Core** - Postgres in Docker, the two-table schema whose CHECKs enforce the geometry, and the tested clamp/normalise/circle maths
+- [x] **Phase 1: Database, Schema & Geometry Core** - Postgres in Docker, the two-table schema whose CHECKs enforce the geometry, and the tested clamp/normalise/circle maths (completed 2026-07-14)
 - [ ] **Phase 2: Login, Session & Logout** - Static-SSR login, cookie auth with the `user_id` claim, and an authenticated shell that survives F5
 - [ ] **Phase 3: The Canvas & Drawing** - The 1280×720 SVG at (0,48), the six-button toolbar, and drawing all four shapes — persisted, and back after a refresh
 - [ ] **Phase 4: Select, Drag & Delete** - The three verbs complete: 3px click-vs-drag, edge clamping that slides, and a Delete button
@@ -52,7 +52,7 @@ passwords (locked, deliberate) · **all 58 ADR decisions are LOCKED and must not
   3. **The database itself refuses an illegal row**: a non-square or odd-sided circle, a zero-area rectangle, or a zero-length line is rejected by a CHECK constraint, not by application code.
   4. The three mandated tests pass: **clamp maths** (per-axis independence — a figure pinned to the right edge still moves vertically; inclusive bounds `0..1280 × 0..720`; the circle draw-clamp), **circle inscribed-square round-trip** (centre and radius come back exact after store + reload, and after translation), and **line normalisation** (an up-and-right diagonal does not come back as the opposite diagonal).
 
-**Plans**: 3/4 plans executed
+**Plans**: 4/4 plans complete
 
 Plans:
 **Wave 1**
@@ -66,7 +66,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-04-PLAN.md — Prove the database itself refuses an illegal row, and that the min-size guard mirrors the CHECKs exactly (wave 3)
+- [x] 01-04-PLAN.md — Prove the database itself refuses an illegal row, and that the min-size guard mirrors the CHECKs exactly (wave 3)
 
 **Notes for planning:**
 
@@ -191,7 +191,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Database, Schema & Geometry Core | 3/4 | In Progress|  |
+| 1. Database, Schema & Geometry Core | 4/4 | Complete   | 2026-07-14 |
 | 2. Login, Session & Logout | 0/TBD | Not started | - |
 | 3. The Canvas & Drawing | 0/TBD | Not started | - |
 | 4. Select, Drag & Delete | 0/TBD | Not started | - |
