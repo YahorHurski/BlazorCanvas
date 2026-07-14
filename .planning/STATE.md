@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 1
-current_phase_name: Database, Schema & Geometry Core
+current_phase: 01
+current_phase_name: database-schema-geometry-core
 status: executing
-stopped_at: Roadmap created and requirement coverage validated (15/15 mapped, 0 orphans)
-last_updated: "2026-07-14T20:53:00.087Z"
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-07-14T21:08:28.289Z"
 last_activity: 2026-07-14
-last_activity_desc: Ingested `docs/DECISIONS.md` (58 locked decisions); PROJECT.md, REQUIREMENTS.md and ROADMAP.md created
+last_activity_desc: Phase BC-01 execution started
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 4
+  completed_plans: 1
   percent: 0
 ---
 
@@ -25,14 +25,14 @@ See: .planning/PROJECT.md (updated 2026-07-14)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
-**Current focus:** Phase 1 — Database, Schema & Geometry Core
+**Current focus:** Phase BC-01 — database-schema-geometry-core
 
 ## Current Position
 
-Phase: 1 of 5 (Database, Schema & Geometry Core)
-Plan: 0 of TBD in current phase
-Status: Ready to execute
-Last activity: 2026-07-14 — Ingested `docs/DECISIONS.md` (58 locked decisions); PROJECT.md, REQUIREMENTS.md and ROADMAP.md created
+Phase: BC-01 (database-schema-geometry-core) — EXECUTING
+Plan: 2 of 4
+Status: Executing Phase BC-01
+Last activity: 2026-07-14 — Phase BC-01 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase BC-01 P01 | 5min | 2 tasks | 71 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,8 @@ The ones most likely to be violated by accident:
 
 - **D-08:** plaintext passwords are **deliberate and locked**. Do not "fix" this.
 - **No JavaScript anywhere** — load-bearing, not aesthetic. It is what forced D-18, D-33, D-37, D-57.
+- [Phase BC-01]: docker-compose.yml publishes 5432:5432 (not loopback-bound) per explicit user decision D-27
+- [Phase BC-01]: .NET 10's dotnet new sln defaults to .slnx -- regenerated with --format sln to satisfy plan requirement
 
 ### Pending Todos
 
@@ -107,6 +110,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14
-Stopped at: Roadmap created and requirement coverage validated (15/15 mapped, 0 orphans)
+Last session: 2026-07-14T21:08:28.280Z
+Stopped at: Completed 01-01-PLAN.md
 Resume file: None
