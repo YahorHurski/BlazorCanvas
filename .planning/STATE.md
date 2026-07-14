@@ -6,14 +6,14 @@ current_phase: 01
 current_phase_name: database-schema-geometry-core
 status: executing
 stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-07-14T21:20:54.239Z"
+last_updated: "2026-07-14T21:41:53.145Z"
 last_activity: 2026-07-14
 last_activity_desc: Phase BC-01 execution started
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -30,7 +30,7 @@ and every other tab shows it happening live, including a figure gliding in real 
 ## Current Position
 
 Phase: BC-01 (database-schema-geometry-core) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Executing Phase BC-01
 Last activity: 2026-07-14 — Phase BC-01 execution started
 
@@ -58,6 +58,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase BC-01 P01 | 5min | 2 tasks | 71 files |
 | Phase BC-01 P02 | 7min | 3 tasks | 12 files |
+| Phase BC-01 P03 | 15min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,7 @@ The ones most likely to be violated by accident:
 - [Phase BC-01]: .NET 10's dotnet new sln defaults to .slnx -- regenerated with --format sln to satisfy plan requirement
 - [Phase BC-01]: ClampDrawRadius rounds distance with MidpointRounding.AwayFromZero (10.5 -> 11) per D-24/D-29
 - [Phase BC-01]: MinSizeGuard is a literal per-type transcription of the three CHECK constraints (D-50); horizontal/vertical lines legal, zero-height rectangle/triangle illegal
+- [Phase BC-01]: D-27 port deviation (user-approved): Docker container host-published port moved 5432->5433; native postgresql-x64-18 Windows service permanently occupies 5432 on this dev machine. docs/DECISIONS.md D-27 text NOT amended -- open follow-up. — User explicitly chose to move the container port rather than touch the pre-existing native PostgreSQL 18 service
 
 ### Pending Todos
 
@@ -113,6 +115,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T21:20:02.648Z
+Last session: 2026-07-14T21:40:43.680Z
 Stopped at: Completed 01-01-PLAN.md
 Resume file: None

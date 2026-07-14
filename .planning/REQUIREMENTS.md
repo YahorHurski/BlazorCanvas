@@ -92,7 +92,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
   `SELECT * FROM figures WHERE user_id = @id ORDER BY id`. **User A cannot see user B's figures.**
   *(D-03, D-12, D-39)*
 
-- [ ] **DATA-02** *(REQ-persistence)* — Every operation writes to PostgreSQL the moment it completes.
+- [x] **DATA-02** *(REQ-persistence)* — Every operation writes to PostgreSQL the moment it completes.
   **There is no Save button.** Draw → INSERT; drag (on drop) → UPDATE; delete → DELETE. Schema is
   created by **EF Core migrations applied automatically at startup**, including the CHECK constraints
   and the `COMMENT ON TABLE` (they must be configured explicitly or they will silently not exist).

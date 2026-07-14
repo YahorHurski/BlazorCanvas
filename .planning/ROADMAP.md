@@ -52,7 +52,7 @@ passwords (locked, deliberate) · **all 58 ADR decisions are LOCKED and must not
   3. **The database itself refuses an illegal row**: a non-square or odd-sided circle, a zero-area rectangle, or a zero-length line is rejected by a CHECK constraint, not by application code.
   4. The three mandated tests pass: **clamp maths** (per-axis independence — a figure pinned to the right edge still moves vertically; inclusive bounds `0..1280 × 0..720`; the circle draw-clamp), **circle inscribed-square round-trip** (centre and radius come back exact after store + reload, and after translation), and **line normalisation** (an up-and-right diagonal does not come back as the opposite diagonal).
 
-**Plans**: 2/4 plans executed
+**Plans**: 3/4 plans executed
 
 Plans:
 **Wave 1**
@@ -62,7 +62,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 01-02-PLAN.md — The pure C# geometry core and the three mandated tests: normalise, clamp, circle inscribed-square, per-type min-size guard (wave 2)
-- [ ] 01-03-PLAN.md — EF Core schema and migrations applied at startup: two tables, three CHECK constraints, the index and the COMMENT (wave 2)
+- [x] 01-03-PLAN.md — EF Core schema and migrations applied at startup: two tables, three CHECK constraints, the index and the COMMENT (wave 2)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -191,7 +191,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Database, Schema & Geometry Core | 2/4 | In Progress|  |
+| 1. Database, Schema & Geometry Core | 3/4 | In Progress|  |
 | 2. Login, Session & Logout | 0/TBD | Not started | - |
 | 3. The Canvas & Drawing | 0/TBD | Not started | - |
 | 4. Select, Drag & Delete | 0/TBD | Not started | - |
