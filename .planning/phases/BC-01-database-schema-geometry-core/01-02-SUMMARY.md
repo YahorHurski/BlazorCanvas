@@ -194,3 +194,7 @@ None - no external service configuration required. This plan touches only `src/B
 ---
 *Phase: BC-01-database-schema-geometry-core*
 *Completed: 2026-07-14*
+
+## Self-Check: PASSED
+
+All 8 created implementation files and 4 created test files confirmed present on disk; all 6 task commits (`8e9822d`, `4f0dcf2`, `9219fa9`, `8af7d06`, `4fdb77f`, `1488ddf`) and the summary commit (`f0c0498`) confirmed present in git history.
