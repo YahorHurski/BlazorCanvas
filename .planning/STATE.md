@@ -6,14 +6,14 @@ current_phase: 01
 current_phase_name: database-schema-geometry-core
 status: executing
 stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-07-14T21:08:28.289Z"
+last_updated: "2026-07-14T21:20:54.239Z"
 last_activity: 2026-07-14
 last_activity_desc: Phase BC-01 execution started
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -30,7 +30,7 @@ and every other tab shows it happening live, including a figure gliding in real 
 ## Current Position
 
 Phase: BC-01 (database-schema-geometry-core) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Executing Phase BC-01
 Last activity: 2026-07-14 — Phase BC-01 execution started
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase BC-01 P01 | 5min | 2 tasks | 71 files |
+| Phase BC-01 P02 | 7min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,8 @@ The ones most likely to be violated by accident:
 - **No JavaScript anywhere** — load-bearing, not aesthetic. It is what forced D-18, D-33, D-37, D-57.
 - [Phase BC-01]: docker-compose.yml publishes 5432:5432 (not loopback-bound) per explicit user decision D-27
 - [Phase BC-01]: .NET 10's dotnet new sln defaults to .slnx -- regenerated with --format sln to satisfy plan requirement
+- [Phase BC-01]: ClampDrawRadius rounds distance with MidpointRounding.AwayFromZero (10.5 -> 11) per D-24/D-29
+- [Phase BC-01]: MinSizeGuard is a literal per-type transcription of the three CHECK constraints (D-50); horizontal/vertical lines legal, zero-height rectangle/triangle illegal
 
 ### Pending Todos
 
@@ -110,6 +113,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T21:08:28.280Z
+Last session: 2026-07-14T21:20:02.648Z
 Stopped at: Completed 01-01-PLAN.md
 Resume file: None

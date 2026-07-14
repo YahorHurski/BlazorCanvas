@@ -127,7 +127,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
 
 ### Tests
 
-- [ ] **TEST-01** *(REQ-tests)* — A small test project covering exactly the three **silent** failure
+- [x] **TEST-01** *(REQ-tests)* — A small test project covering exactly the three **silent** failure
   modes. (1) **Clamp maths** (D-36): per-axis independence, inclusive bounds `0..1280 × 0..720`,
   circle draw-clamp. (2) **Circle inscribed-square round-trip** (D-22): centre and radius return
   exactly after store + reload; translation preserves the radius. (3) **Line normalisation** (D-41):
@@ -187,6 +187,7 @@ Explicitly locked out by D-04, D-14, D-08. Not deferred — **excluded**.
 | DATA-04 | REQ-save-failure | Phase 5 | Pending |
 
 **Coverage:**
+
 - v1 requirements: **15** total
 - Mapped to phases: **15**
 - Unmapped: **0** ✓
