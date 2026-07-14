@@ -1,4 +1,7 @@
 {
   "granularity": "standard",
-  "project_code": "BC"
+  "project_code": "BC",
+  "workflow": {
+    "nyquist_validation": false
+  }
 }

@@ -39,29 +39,29 @@ All decisions below are **Locked** in `docs/DECISIONS.md`. IDs are the tracked c
 be visible in a plan.
 
 ### Infrastructure & runtime
-- **D-27** — Local PostgreSQL **17** via Docker Compose: port **5432**, database **`canvas`**,
+- **D-27 — Local PostgreSQL 17 via Docker Compose** port **5432**, database **`canvas`**,
   user/password `postgres`/`postgres`, **named volume**. `docker-compose.yml` at repo root;
   connection string in `appsettings.Development.json`.
-- **D-28** — **.NET 10**.
-- **D-49** — Project structure: **one Blazor Web App project + one narrow test project**. The
+- **D-28 — .NET 10** the pinned runtime.
+- **D-49 — Project structure: one Blazor Web App project + one narrow test project** The
   geometry core lives in the app project but must carry **no Blazor dependency**.
 
 ### Schema (authoritative DDL: `CONSTRAINT-schema` in `.planning/intel/constraints.md`)
-- **D-12** — **Two tables only** (`users`, `figures`). **No `canvases` table** — "the canvas" is just
+- **D-12 — Two tables only (`users`, `figures`)** **No `canvases` table** — "the canvas" is just
   the set of figures belonging to a user. ⚠️ **Never implement from D-12's own DDL sketch** — it is
   stale (still shows the dropped `created_at`). Implement from `CONSTRAINT-schema`.
-- **D-46** — **`type` is `text` + CHECK**, and there is **no `created_at`**. A PostgreSQL enum or an
+- **D-46 — `type` is text + CHECK; no `created_at`** A PostgreSQL enum or an
   int-mapped C# enum would **silently invalidate** the CHECKs, which are written as `type <> 'circle'`.
-- **D-39** — `figures.id` is a sequential integer and **it IS the z-order**. Load query is
+- **D-39 — `figures.id` is a sequential integer and it IS the z-order** Load query is
   `SELECT * FROM figures WHERE user_id = @id ORDER BY id`.
-- **D-42** — Schema via **EF Core migrations, applied on startup**. ⚠️ EF Core will **not** emit the
+- **D-42 — Schema via EF Core migrations, applied on startup** ⚠️ EF Core will **not** emit the
   CHECK constraints or the `COMMENT ON TABLE` on its own — configure them **explicitly** via
   `HasCheckConstraint` in `OnModelCreating`. **Every geometric guarantee in this design rests on
   them.** Forgetting them converts a machine-checked invariant back into a hoped-for convention.
-- **D-08** — Passwords stored and compared in **plaintext** (`password text NOT NULL`). Locked and
+- **D-08 — Passwords stored and compared in plaintext** (`password text NOT NULL`). Locked and
   deliberate: throwaway learning project only. **Do not "fix" this** without a new explicit decision.
   *(Phase 1 delivers the column; the login that fills it is Phase 2.)*
-- **D-44** — Usernames are case-insensitive: `username text NOT NULL UNIQUE`, stored **lowercased**,
+- **D-44 — Usernames are case-insensitive** `username text NOT NULL UNIQUE`, stored **lowercased**,
   trimmed, never empty. *(Phase 1 delivers the `UNIQUE` column; the lowercase-on-write lands with
   login in Phase 2.)*
 
@@ -78,17 +78,17 @@ The database itself must **refuse an illegal row**. Not application code.
   the canvas; bounds CHECKs would be belt-and-braces on a rule the app never breaks.
 
 ### Geometry core (pure C#)
-- **D-22** *(REVISED)* — **Geometry storage: four integers, always, and they are ALWAYS the bounding
-  box.** A **circle is stored as the square it is inscribed in**. Recovery on read:
+- **D-22 — Geometry storage: four integers, always, and they are ALWAYS the bounding box** *(REVISED)*
+  A **circle is stored as the square it is inscribed in**. Recovery on read:
   `r = (x2−x1)/2`, `cx = x1+r`, `cy = y1+r`. The earlier "centre + rim point" encoding is **dead**.
   A move is a uniform translation, so `d` cancels algebraically and the radius is **exactly**
   preserved across any number of drags (integers ⇒ no float drift).
-- **D-13** — A circle is **drawn centre-out** (press centre, drag for radius) but **stored as a
-  square**. Interaction and storage are different things.
-- **D-20** — Coordinates are **integers**.
-- **D-19** — Canvas is **1280 × 720**.
-- **D-21** — Triangle is derived from a 2-point drag box.
-- **D-41** — **Normalise on write — but NOT the same way for every shape.** Applied once, before the
+- **D-13 — A circle is drawn centre-out but stored as a square** (press centre, drag for radius).
+  Interaction and storage are different things.
+- **D-20 — Coordinates are integers** no floats anywhere in storage.
+- **D-19 — Canvas is 1280 × 720** the fixed drawing surface.
+- **D-21 — Triangle is derived from a 2-point drag box** the same bounding box as a rectangle.
+- **D-41 — Normalise on write, but NOT the same way for every shape** Applied once, before the
   INSERT, in **exactly one place**.
   - Rectangle / triangle / circle → sort the axes **independently**.
   - Line → **swap the WHOLE POINT PAIR** (if `x1 > x2`, or `x1 == x2` and `y1 > y2`).
@@ -96,7 +96,7 @@ The database itself must **refuse an illegal row**. Not application code.
     **the opposite diagonal**.
   - Post-condition: `x1 ≤ x2` for every shape; `y1 ≤ y2` for rectangle/triangle/circle but **not**
     for a line. This is exactly why the clamp keeps its min/max bounding-box computation.
-- **D-36** — **The clamp formula; bounds are INCLUSIVE** (`W=1280`, `H=720`, valid domain
+- **D-36 — The clamp formula; bounds are INCLUSIVE** (`W=1280`, `H=720`, valid domain
   `0..1280 × 0..720`). Clamp the movement **delta**, then translate all four coordinates uniformly:
   ```
   bx1 = min(x1,x2)  by1 = min(y1,y2)   bx2 = max(x1,x2)  by2 = max(y1,y2)
@@ -105,11 +105,13 @@ The database itself must **refuse an illegal row**. Not application code.
   ⚠️ **Never clamp `x2`/`y2` independently of `x1`/`y1`** — that resizes instead of moving.
   ⚠️ **Per-axis independence is required:** `dx'` never reads `y`. A figure pinned to the right edge
   must still slide up and down.
-- **D-24 / D-29** — Figures stop at the canvas edge; **drawing** also stops at the edge. Circle
-  draw-clamp (the one genuinely type-specific rule in the app):
+- **D-24 — Figures stop at the canvas edge** a move never carries a figure outside `0..1280 × 0..720`;
+  the operative formula is D-36's move clamp.
+- **D-29 — Drawing also stops at the canvas edge** which yields the circle draw-clamp, the one
+  genuinely type-specific rule in the app:
   `r = min( round(distance), cx, cy, W − cx, H − cy )`. Known and accepted consequence: pressing near
   an edge forces a tiny circle.
-- **D-50** — **The minimum-size guard is PER-TYPE**, not shared. It **mirrors the CHECK constraints
+- **D-50 — The minimum-size guard is PER-TYPE, not shared** It **mirrors the CHECK constraints
   exactly**, so *the app can never write a row the database would refuse*. Build the guard and the
   CHECKs together — they are two halves of one rule.
   - Line → rejected only when both endpoints are identical. **Horizontal/vertical lines are legal.**

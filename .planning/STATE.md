@@ -1,6 +1,14 @@
 ---
-gsd_state_version: '1.0'  # placeholder; syncStateFrontmatter overwrites on first state.* call
-status: planning
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+current_phase: 1
+current_phase_name: Database, Schema & Geometry Core
+status: executing
+stopped_at: Roadmap created and requirement coverage validated (15/15 mapped, 0 orphans)
+last_updated: "2026-07-14T20:53:00.087Z"
+last_activity: 2026-07-14
+last_activity_desc: Ingested `docs/DECISIONS.md` (58 locked decisions); PROJECT.md, REQUIREMENTS.md and ROADMAP.md created
 progress:
   total_phases: 5
   completed_phases: 0
@@ -23,7 +31,7 @@ and every other tab shows it happening live, including a figure gliding in real 
 
 Phase: 1 of 5 (Database, Schema & Geometry Core)
 Plan: 0 of TBD in current phase
-Status: Ready to plan
+Status: Ready to execute
 Last activity: 2026-07-14 — Ingested `docs/DECISIONS.md` (58 locked decisions); PROJECT.md, REQUIREMENTS.md and ROADMAP.md created
 
 Progress: [░░░░░░░░░░] 0%
@@ -31,6 +39,7 @@ Progress: [░░░░░░░░░░] 0%
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 0
 - Average duration: —
 - Total execution time: —
@@ -42,6 +51,7 @@ Progress: [░░░░░░░░░░] 0%
 | - | - | - | - |
 
 **Recent Trend:**
+
 - Last 5 plans: —
 - Trend: —
 
@@ -59,11 +69,14 @@ The ones most likely to be violated by accident:
 
 - **D-22 (REVISED):** a circle is stored as its **inscribed square**, not centre + rim point. The
   original encoding is REVERSED and dead.
+
 - **D-40:** a `move` broadcast is **UPDATE-ONLY, never insert.** D-11's original "idempotent upsert"
   was a **bug** — it resurrects deleted figures.
+
 - **D-54:** mid-drag, a tab discards **ALL** incoming broadcasts, not just those about the dragged figure.
 - **D-50:** the minimum-size guard is **per-type** — a zero-height *line* is legal (it is a horizontal
   line); a zero-height rectangle is not.
+
 - **D-08:** plaintext passwords are **deliberate and locked**. Do not "fix" this.
 - **No JavaScript anywhere** — load-bearing, not aesthetic. It is what forced D-18, D-33, D-37, D-57.
 
@@ -81,6 +94,7 @@ None yet.
   *Rejected*. **Fixed at source** in `docs/DECISIONS.md` — D-11's item 4 now states the blanket rule
   and matches D-54. The rule is: **mid-drag, a tab discards ALL incoming broadcasts.** Confirmed by
   the user; this was the option they explicitly chose.
+
 - ✅ **RESOLVED — `.planning/config.json`** now exists (`granularity: standard`, `project_code: BC`).
 
 ## Deferred Items

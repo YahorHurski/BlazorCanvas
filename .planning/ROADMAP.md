@@ -28,6 +28,7 @@ passwords (locked, deliberate) · **all 58 ADR decisions are LOCKED and must not
 ## Phases
 
 **Phase Numbering:**
+
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
@@ -40,23 +41,35 @@ passwords (locked, deliberate) · **all 58 ADR decisions are LOCKED and must not
 ## Phase Details
 
 ### Phase 1: Database, Schema & Geometry Core
+
 **Goal**: A running PostgreSQL holds a schema that *machine-enforces* the geometry laws, and the pure geometry maths those laws mirror is written and proven. The three silent failure modes are guarded before any UI exists to hide them.
 **Depends on**: Nothing (first phase)
 **Requirements**: DATA-02, TEST-01
 **Success Criteria** (what must be TRUE):
+
   1. `docker compose up` starts PostgreSQL 17 on port 5432 with database `canvas` and a **named volume** — rows survive a container restart.
   2. Running the app creates **exactly two tables** (`users`, `figures`) via EF Core migrations applied automatically at startup — no `canvases` table, no `created_at` — carrying all three CHECK constraints, the `user_id` index, and the `COMMENT ON TABLE` that documents the circle convention.
   3. **The database itself refuses an illegal row**: a non-square or odd-sided circle, a zero-area rectangle, or a zero-length line is rejected by a CHECK constraint, not by application code.
   4. The three mandated tests pass: **clamp maths** (per-axis independence — a figure pinned to the right edge still moves vertically; inclusive bounds `0..1280 × 0..720`; the circle draw-clamp), **circle inscribed-square round-trip** (centre and radius come back exact after store + reload, and after translation), and **line normalisation** (an up-and-right diagonal does not come back as the opposite diagonal).
+
 **Plans**: 4 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 01-01-PLAN.md — PostgreSQL 17 in Docker Compose with a named volume, and the .NET 10 two-project solution (wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 01-02-PLAN.md — The pure C# geometry core and the three mandated tests: normalise, clamp, circle inscribed-square, per-type min-size guard (wave 2)
 - [ ] 01-03-PLAN.md — EF Core schema and migrations applied at startup: two tables, three CHECK constraints, the index and the COMMENT (wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 01-04-PLAN.md — Prove the database itself refuses an illegal row, and that the min-size guard mirrors the CHECKs exactly (wave 3)
 
 **Notes for planning:**
+
 - The authoritative DDL is `CONSTRAINT-schema` in `.planning/intel/constraints.md`. **Never implement from D-12's sketch** — it still shows the dropped `created_at`.
 - `type` must be **`text`** + CHECK (D-46). A PostgreSQL enum or an int-mapped C# enum would *silently invalidate* the CHECKs, which are written as `type <> 'circle'`.
 - EF Core will **not** emit the CHECKs or the COMMENT on its own — configure them explicitly via `HasCheckConstraint` in `OnModelCreating` (D-42). Every geometric guarantee rests on them.
@@ -66,19 +79,23 @@ Plans:
 ---
 
 ### Phase 2: Login, Session & Logout
+
 **Goal**: A user can identify themselves, and the app knows whose canvas to load — across every tab in the browser and across F5.
 **Depends on**: Phase 1
 **Requirements**: AUTH-01, AUTH-02, AUTH-03
 **Success Criteria** (what must be TRUE):
+
   1. A **new** username at `/login` creates the account and lands on the canvas page; an existing username with the correct password lands on the same account; a wrong password shows an error. **There is no Register page.**
   2. "Egor" and "egor" are the **same account** (trimmed, lowercased, UNIQUE); an empty username or an empty password is rejected.
   3. After logging in, **F5 keeps the user logged in**, and a second tab in the same browser is already authenticated without logging in again. Closing the browser logs them out.
   4. An unauthenticated visit to `/` **redirects to `/login`**; the authenticated page reads `user_id` straight from the cookie claim with **no database lookup on page load**.
   5. A **right-aligned Logout form** in the 48px toolbar strip posts to `POST /logout`, clears the cookie, and returns to the login form — after which a different user can log in and land on their own, separate canvas.
+
 **Plans**: TBD
 **UI hint**: yes
 
 **Notes for planning:**
+
 - **This is the framework seam the ADR was originally silent about.** An InteractiveServer component **cannot set a cookie** — the HTTP response has already begun. `/login` is **static SSR** and its form POSTs; `POST /logout` is an endpoint; the canvas at `/` is InteractiveServer and `[Authorize]`. The app genuinely runs **two render modes** (D-34, D-51).
 - This is **cookie plumbing, not ASP.NET Core Identity** — D-08 rejects Identity.
 - D-44 (case-insensitivity) is not tidiness: Postgres's default collation is case-sensitive, so doing nothing would silently drop a returning user into a *different, empty canvas*, which reads as **"my work vanished"**.
@@ -88,19 +105,23 @@ Plans:
 ---
 
 ### Phase 3: The Canvas & Drawing
+
 **Goal**: A logged-in user sees their own canvas and can draw all four shapes on it — and the drawing is still there after a refresh.
 **Depends on**: Phase 2
 **Requirements**: DATA-01, CANV-01, CANV-02, FIG-01
 **Success Criteria** (what must be TRUE):
+
   1. `/` shows a **white 1280 × 720 SVG canvas anchored at document position (0, 48)** below the 48px toolbar, on a **light-grey page**, with **no CSS border**. One canvas unit is one CSS pixel on every screen, and the canvas does not rescale with the window.
   2. The toolbar shows **exactly six buttons** — pointer, line, rectangle, circle, triangle, delete — with **pointer armed on page load** and the armed button visibly active. Logout stays right-aligned and separate. The Delete button is greyed out (nothing is selectable yet).
   3. With a shape armed, dragging on the canvas **previews it live under the cursor** and commits it on release: line/rectangle/triangle **corner-to-corner**, circle **centre-out** (press = centre, drag = radius), triangle apex **top-centre**. Dragging on top of an existing figure **draws a new figure** rather than moving it — a small circle can be drawn *inside* a big rectangle.
   4. **Drawing stops at the canvas edge**: the shape stops growing at the boundary while the cursor keeps moving, and a circle **never renders as an oval**. A zero-size drag creates nothing, **silently** — but a **horizontal or vertical line still draws**.
   5. Every drawn figure is **INSERTed immediately** (there is no Save button), and after **F5** the whole canvas reloads in the same drawing order with the same overlap/occlusion. A second user logging in sees **only their own figures**.
+
 **Plans**: TBD
 **UI hint**: yes
 
 **Notes for planning:**
+
 - **Landmine: `PageX`/`PageY`, never `OffsetX`/`OffsetY`.** `OffsetX/Y` is relative to the *event target*, and every drag and every selection begins *on a figure*. `canvasX = PageX`, `canvasY = PageY − 48`.
 - **No CSS border on the SVG** — a border shifts the interior by its own width and turns the mapping into `PageY − 48 − 1`: the classic "the shape appears slightly off from where I clicked" bug.
 - The white **fill is load-bearing** (D-38): SVG does **not** register clicks inside an *unfilled* shape. Wireframe figures would make Phase 4's "press inside a rectangle grabs it" simply untrue.
@@ -111,19 +132,23 @@ Plans:
 ---
 
 ### Phase 4: Select, Drag & Delete
+
 **Goal**: The three verbs are complete — a figure can be picked up, moved anywhere inside the canvas, and removed. On one screen, the app is finished.
 **Depends on**: Phase 3
 **Requirements**: FIG-02, FIG-03, FIG-04
 **Success Criteria** (what must be TRUE):
+
   1. With pointer armed, clicking a figure **selects** it (red 2px outline; all others stay black on white); **clicking empty canvas deselects**; a click on overlapping figures hits the **topmost** — the one drawn last.
   2. Moving **< 3 px** before release is a **click** (select only, **no database write**); **≥ 3 px** is a **drag**, which also selects, and the figure **stays selected after the drop** — so it can be dragged and immediately deleted.
   3. A dragged figure **stops at the canvas edge and slides along it** — pinned against the right edge it still moves freely up and down — and it lands exactly where it was released. Postgres sees **exactly one UPDATE per drag**, on drop.
   4. Releasing the pointer **outside the window**, or **Alt-Tabbing away mid-drag**, commits the figure at its clamped position instead of leaving it stuck to the cursor. Nothing jumps.
   5. The **Delete button is greyed out until something is selected**; with a figure selected, clicking it removes the figure and its row. **There is no Delete-key handler.** After F5, every move and every deletion is still there.
+
 **Plans**: TBD
 **UI hint**: yes
 
 **Notes for planning:**
+
 - **The landmine of this phase: never clamp coordinates individually.** Clamp the movement **delta**, then translate all four uniformly. Clamping `x2` alone *resizes* the figure instead of moving it — and for rectangles it fails **silently** (for circles it now fails loudly against the CHECK, thanks to the D-22 reversal).
 - **Per-axis independence is the whole point** of the clamp: `dx'` never reads `y`. That is what makes a figure *slide along* the wall instead of sticking to it.
 - **No JavaScript, so no `setPointerCapture`** (D-37). Two markup-only rules: (1) `pointerleave` on the drag surface **commits** the drag; (2) the **`Buttons` guard** — on any `pointermove` while dragging, if the primary button is already up, commit and end. Put the handlers on a **page-spanning wrapper**, and use `pointerleave`, **not `pointerout`** (`pointerout` also fires when the cursor moves onto a child figure).
@@ -134,18 +159,22 @@ Plans:
 ---
 
 ### Phase 5: Live Cross-Tab Sync
+
 **Goal**: The user's other tabs mirror the canvas in real time — a figure **glides** on the second monitor as it is dragged on the first — and no open screen is ever left showing something the database does not hold.
 **Depends on**: Phase 4
 **Requirements**: SYNC-01, DATA-03, DATA-04
 **Success Criteria** (what must be TRUE):
+
   1. With the same user open in **two tabs**, drawing in one makes the figure appear in the other; deleting removes it from both. Closing a tab leaves the others working (no leaked subscribers, no `ObjectDisposedException`).
   2. **Dragging a figure in tab A makes it GLIDE in tab B in real time** — throttled to 50 ms, with the final position always arriving, so the glide never stops short. It does **not** merely jump on release. Meanwhile **Postgres sees exactly one UPDATE for the whole drag**.
   3. A tab **never reacts to its own broadcast**, **never shows another tab's draw preview**, and **discards all incoming broadcasts while its own drag is in progress**. A `move` for a figure a tab does not know is **ignored entirely** — a deleted figure is never resurrected.
   4. Dragging a figure that another tab already deleted **silently removes it** from this tab's view, and any tab still showing that ghost drops it too. No error, no prompt, no merge.
   5. If a save fails after retries, **every tab is restored to the figure's original coordinates**, and the user gets one modal — *"The change could not be saved. The canvas will be reloaded from the database."* — which reloads from PostgreSQL on OK. The app stays alive; the circuit does not crash.
+
 **Plans**: TBD
 
 **Notes for planning:**
+
 - **This phase is the definition of done.** It cannot be deferred, trimmed, or "phase 6'd".
 - **The nine irreducible sync rules (`CONSTRAINT-sync-core`) are ALL mandatory** — none is optional, and each one exists because its absence produced a specific bug. Read them before planning.
 - **`move` is UPDATE-ONLY, never insert.** The original D-11 said "idempotent upsert" — **that was a bug**: an upsert inserts when the row is absent, so a stale tab's drag broadcasts can *resurrect* a figure another tab correctly deleted. Only `draw` may ever create a figure (D-40, D-53).
