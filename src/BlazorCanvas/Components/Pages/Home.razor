@@ -1,7 +1,38 @@
-﻿@page "/"
+@page "/"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@inject Microsoft.AspNetCore.Components.Forms.AntiforgeryStateProvider Antiforgery
 
-<PageTitle>Home</PageTitle>
+<PageTitle>BlazorCanvas</PageTitle>
 
-<h1>Hello, world!</h1>
+@{ var token = Antiforgery.GetAntiforgeryToken(); }
 
-Welcome to your new app.
+<div class="toolbar">
+    <div class="toolbar-left"></div>
+    <form method="post" action="/logout" class="logout-form">
+        <input type="hidden" name="@token!.FormFieldName" value="@token.Value" />
+        <button type="submit" class="logout-button" aria-label="Log out">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 3H4.5A1.5 1.5 0 0 0 3 4.5v11A1.5 1.5 0 0 0 4.5 17H8" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M12 13.5 16.5 9 12 4.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M16.5 9H7" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </button>
+    </form>
+</div>
+
+<div class="canvas-area"></div>
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    // Read once and kept for Phase 3's figure queries (WHERE user_id = @userId) - no DB
+    // lookup happens here (D-51).
+    private int userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateTask!;
+        userId = int.Parse(state.User.FindFirst("user_id")!.Value);
+    }
+}
