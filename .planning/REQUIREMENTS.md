@@ -19,7 +19,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
 
 ### Authentication & Session
 
-- [ ] **AUTH-01** *(REQ-login)* — A single username + password form at `/login` (static SSR).
+- [x] **AUTH-01** *(REQ-login)* — A single username + password form at `/login` (static SSR).
   Existing username + correct password → the user's figures load. Wrong password → an error is shown.
   **Unknown username → the user is created and an empty canvas opens. No Register page.** Usernames
   are trimmed, lowercased, case-insensitive, UNIQUE and non-empty; passwords are non-empty and stored
@@ -32,7 +32,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
   database lookup on page load**. An unauthenticated visitor to `/` is redirected to `/login`.
   *(D-26, D-34, D-51)*
 
-- [ ] **AUTH-03** *(REQ-logout)* — A Logout control clears the session and returns to the login form.
+- [x] **AUTH-03** *(REQ-logout)* — A Logout control clears the session and returns to the login form.
   Right-aligned in the 48px toolbar strip, visually separated from the six tool buttons. Implemented
   as an **HTML form posting to `POST /logout`** — not an interactive button. After logout, a different
   user can log in and sees only their own figures. *(D-25, D-56, D-51)*

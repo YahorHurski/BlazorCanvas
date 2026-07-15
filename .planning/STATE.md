@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 01
-current_phase_name: database-schema-geometry-core
+current_phase: 02
+current_phase_name: login-session-logout
 status: executing
 stopped_at: Phase BC-02 planned — 3 plans, verified, ready to execute
-last_updated: "2026-07-15T18:36:59.491Z"
+last_updated: "2026-07-15T18:52:01.489Z"
 last_activity: 2026-07-15
-last_activity_desc: Phase BC-02 planning complete — 3 plans ready (verified)
+last_activity_desc: Phase BC-02 execution started
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 9
+  completed_plans: 7
   percent: 20
 ---
 
@@ -25,14 +25,14 @@ See: .planning/PROJECT.md (updated 2026-07-14)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
-**Current focus:** Phase BC-01 — database-schema-geometry-core
+**Current focus:** Phase BC-02 — login-session-logout
 
 ## Current Position
 
-Phase: BC-01 (database-schema-geometry-core) — READY FOR VERIFICATION
-Plan: 6 of 6 (all plans complete, including gap-closure plans 01-05 and 01-06)
-Status: Phase BC-01 execution complete; all three Critical defects from 01-REVIEW.md (CR-01, CR-02, CR-03) closed
-Last activity: 2026-07-15 — Completed 01-06-PLAN.md (CR-03 gap closure)
+Phase: BC-02 (login-session-logout) — EXECUTING
+Plan: 2 of 3
+Status: Executing Phase BC-02
+Last activity: 2026-07-15 — Phase BC-02 execution started
 Next: Phase BC-02 (login-session-logout) is PLANNED — 3 plans in 2 waves, verified by plan-checker; ready for `/gsd-execute-phase 2`
 
 Progress: [██████████] 100% (Phase BC-01) / [██░░░░░░░░] 20% (milestone, 1 of 5 phases)
@@ -63,6 +63,7 @@ Progress: [██████████] 100% (Phase BC-01) / [██░░░
 | Phase BC-01 P04 | 30min | 3 tasks | 5 files |
 | Phase BC-01 P05 | 15min | 2 tasks | 4 files |
 | Phase BC-01 P06 | 5min | 1 tasks | 1 files |
+| Phase BC-02 P01 | 8min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -97,6 +98,7 @@ The ones most likely to be violated by accident:
 - [Phase BC-01]: 01-05: The fix stays entirely in C# clamp maths (Movement.ClampDelta, CircleEncoding.ClampDrawRadius) -- no canvas-bounds CHECK constraint added, per locked D-36.
 - [Phase BC-01]: Removed the hardcoded Host=localhost;Port=5432;...;Username=postgres;Password=postgres fallback entirely -- CanvasDbContextFactory now throws an actionable InvalidOperationException on missing ConnectionStrings:Canvas instead of guessing (closes CR-03)
 - [Phase BC-01]: Added .AddEnvironmentVariables() to CanvasDbContextFactory's ConfigurationBuilder chain so the ConnectionStrings__Canvas escape hatch named in the exception message actually works
+- [Phase BC-02]: app.css's old Bootstrap-era font-family rule was dropped, not merged, in favor of the plan's margin:0 reset — 02-UI-SPEC.md defines its own font stack for 02-03's surfaces
 
 ### Pending Todos
 
@@ -125,6 +127,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T18:36:59.491Z
+Last session: 2026-07-15T18:49:29.205Z
 Stopped at: Phase BC-02 planned — 3 plans (02-01/02/03), verified, ready to execute
 Resume file: .planning/phases/BC-02-login-session-logout/02-01-PLAN.md
