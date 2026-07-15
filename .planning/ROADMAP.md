@@ -52,7 +52,7 @@ passwords (locked, deliberate) · **all 58 ADR decisions are LOCKED and must not
   3. **The database itself refuses an illegal row**: a non-square or odd-sided circle, a zero-area rectangle, or a zero-length line is rejected by a CHECK constraint, not by application code.
   4. The three mandated tests pass: **clamp maths** (per-axis independence — a figure pinned to the right edge still moves vertically; inclusive bounds `0..1280 × 0..720`; the circle draw-clamp), **circle inscribed-square round-trip** (centre and radius come back exact after store + reload, and after translation), and **line normalisation** (an up-and-right diagonal does not come back as the opposite diagonal).
 
-**Plans**: 5/6 plans executed
+**Plans**: 6/6 plans complete
 
 Plans:
 **Wave 1**
@@ -71,7 +71,7 @@ Plans:
 **Gap Closure** *(post-verification — closes the 3 Critical blockers in 01-VERIFICATION.md; run via `/gsd-execute-phase 1 --gaps-only`)*
 
 - [x] 01-05-PLAN.md — Harden the clamp/circle-encoding maths: floor ClampDrawRadius at 0 + clamp its centre (CR-01), guard ClampDelta's lo>hi inversion (CR-02), with regression tests (wave 1)
-- [ ] 01-06-PLAN.md — Make the design-time DbContext factory fail loudly instead of silently targeting the wrong PostgreSQL server on port 5432 (CR-03) (wave 1)
+- [x] 01-06-PLAN.md — Make the design-time DbContext factory fail loudly instead of silently targeting the wrong PostgreSQL server on port 5432 (CR-03) (wave 1)
 
 **Notes for planning:**
 
@@ -196,7 +196,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Database, Schema & Geometry Core | 5/6 | In Progress|  |
+| 1. Database, Schema & Geometry Core | 6/6 | Complete   | 2026-07-15 |
 | 2. Login, Session & Logout | 0/TBD | Not started | - |
 | 3. The Canvas & Drawing | 0/TBD | Not started | - |
 | 4. Select, Drag & Delete | 0/TBD | Not started | - |

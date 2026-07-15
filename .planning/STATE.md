@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: database-schema-geometry-core
 status: executing
-stopped_at: Phase 1 UI-SPEC approved (app MVP UI)
-last_updated: "2026-07-15T07:52:40.850Z"
+stopped_at: Completed BC-01-06-PLAN.md (CR-03 gap closure); Phase BC-01 all 6 plans done, ready for verification
+last_updated: "2026-07-15T08:06:26.693Z"
 last_activity: 2026-07-15
-last_activity_desc: Phase BC-01 execution resumed (wave continue)
+last_activity_desc: Completed 01-06-PLAN.md (CR-03 gap closure) -- Phase BC-01 all plans complete
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 6
-  completed_plans: 5
-  percent: 0
+  completed_plans: 6
+  percent: 20
 ---
 
 # Project State
@@ -29,12 +29,12 @@ and every other tab shows it happening live, including a figure gliding in real 
 
 ## Current Position
 
-Phase: BC-01 (database-schema-geometry-core) — EXECUTING
-Plan: 4 of 4
-Status: Executing Phase BC-01
-Last activity: 2026-07-15 — Phase BC-01 execution resumed (wave continue)
+Phase: BC-01 (database-schema-geometry-core) — READY FOR VERIFICATION
+Plan: 6 of 6 (all plans complete, including gap-closure plans 01-05 and 01-06)
+Status: Phase BC-01 execution complete; all three Critical defects from 01-REVIEW.md (CR-01, CR-02, CR-03) closed
+Last activity: 2026-07-15 — Completed 01-06-PLAN.md (CR-03 gap closure)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██████████] 100% (Phase BC-01) / [██░░░░░░░░] 20% (milestone, 1 of 5 phases)
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase BC-01 P03 | 15min | 3 tasks | 10 files |
 | Phase BC-01 P04 | 30min | 3 tasks | 5 files |
 | Phase BC-01 P05 | 15min | 2 tasks | 4 files |
+| Phase BC-01 P06 | 5min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,8 @@ The ones most likely to be violated by accident:
 - [Phase BC-01]: Volume-persistence proof (ROADMAP criterion 1, re-proven with real data) implemented as a real xUnit test that shells out to docker compose down/up -d --wait via Process.Start, not an external manual script
 - [Phase BC-01]: Aligned tests/BlazorCanvas.Tests.csproj EF Core package versions to 10.0.10 to fix a CS1705 compile error surfaced by direct DbContextOptionsBuilder usage in test code (Rule 3 blocking fix, no new package installed)
 - [Phase BC-01]: 01-05: The fix stays entirely in C# clamp maths (Movement.ClampDelta, CircleEncoding.ClampDrawRadius) -- no canvas-bounds CHECK constraint added, per locked D-36.
+- [Phase BC-01]: Removed the hardcoded Host=localhost;Port=5432;...;Username=postgres;Password=postgres fallback entirely -- CanvasDbContextFactory now throws an actionable InvalidOperationException on missing ConnectionStrings:Canvas instead of guessing (closes CR-03)
+- [Phase BC-01]: Added .AddEnvironmentVariables() to CanvasDbContextFactory's ConfigurationBuilder chain so the ConnectionStrings__Canvas escape hatch named in the exception message actually works
 
 ### Pending Todos
 
@@ -121,6 +124,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T07:52:16.636Z
-Stopped at: Phase 1 UI-SPEC approved (app MVP UI)
-Resume file: .planning/phases/BC-01-database-schema-geometry-core/01-UI-SPEC.md
+Last session: 2026-07-15T08:06:26.680Z
+Stopped at: Completed BC-01-06-PLAN.md (CR-03 gap closure); Phase BC-01 all 6 plans done, ready for verification
+Resume file: None
