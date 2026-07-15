@@ -96,7 +96,7 @@ Plans:
   4. An unauthenticated visit to `/` **redirects to `/login`**; the authenticated page reads `user_id` straight from the cookie claim with **no database lookup on page load**.
   5. A **right-aligned Logout form** in the 48px toolbar strip posts to `POST /logout`, clears the cookie, and returns to the login form — after which a different user can log in and land on their own, separate canvas.
 
-**Plans**: TBD
+**Plans**: 3 plans in 2 waves — Wave 1: 02-01 (drop the default template scaffold), 02-02 (cookie-auth backbone + `UsernameNormalizer`); Wave 2: 02-03 (login page + authenticated toolbar shell — checkpoint plan)
 **UI hint**: yes
 
 **Notes for planning:**
