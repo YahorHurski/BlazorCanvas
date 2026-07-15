@@ -172,9 +172,9 @@ Explicitly locked out by D-04, D-14, D-08. Not deferred — **excluded**.
 |-------------|----------------|-------|--------|
 | DATA-02 | REQ-persistence | Phase 1 | Pending |
 | TEST-01 | REQ-tests | Phase 1 | Pending |
-| AUTH-01 | REQ-login | Phase 2 | Pending |
-| AUTH-02 | REQ-session | Phase 2 | Pending |
-| AUTH-03 | REQ-logout | Phase 2 | Pending |
+| AUTH-01 | REQ-login | Phase 2 | Complete |
+| AUTH-02 | REQ-session | Phase 2 | Complete |
+| AUTH-03 | REQ-logout | Phase 2 | Complete |
 | DATA-01 | REQ-one-canvas-per-user | Phase 3 | Pending |
 | CANV-01 | REQ-canvas-surface | Phase 3 | Pending |
 | CANV-02 | REQ-toolbar | Phase 3 | Pending |

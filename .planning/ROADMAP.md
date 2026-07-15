@@ -33,7 +33,7 @@ passwords (locked, deliberate) · **all 58 ADR decisions are LOCKED and must not
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Database, Schema & Geometry Core** - Postgres in Docker, the two-table schema whose CHECKs enforce the geometry, and the tested clamp/normalise/circle maths (completed 2026-07-14)
-- [ ] **Phase 2: Login, Session & Logout** - Static-SSR login, cookie auth with the `user_id` claim, and an authenticated shell that survives F5
+- [x] **Phase 2: Login, Session & Logout** - Static-SSR login, cookie auth with the `user_id` claim, and an authenticated shell that survives F5 (completed 2026-07-15)
 - [ ] **Phase 3: The Canvas & Drawing** - The 1280×720 SVG at (0,48), the six-button toolbar, and drawing all four shapes — persisted, and back after a refresh
 - [ ] **Phase 4: Select, Drag & Delete** - The three verbs complete: 3px click-vs-drag, edge clamping that slides, and a Delete button
 - [ ] **Phase 5: Live Cross-Tab Sync** - The notifier, the real-time drag glide, and the consistency rules that stop any screen from lying
@@ -96,11 +96,11 @@ Plans:
   4. An unauthenticated visit to `/` **redirects to `/login`**; the authenticated page reads `user_id` straight from the cookie claim with **no database lookup on page load**.
   5. A **right-aligned Logout form** in the 48px toolbar strip posts to `POST /logout`, clears the cookie, and returns to the login form — after which a different user can log in and land on their own, separate canvas.
 
-**Plans**: 2/3 plans executed
+**Plans**: 3/3 plans complete
 
 - [x] 02-01-PLAN.md
 - [x] 02-02-PLAN.md
-- [ ] 02-03-PLAN.md
+- [x] 02-03-PLAN.md
 
 **UI hint**: yes
 
@@ -202,7 +202,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Database, Schema & Geometry Core | 6/6 | Complete   | 2026-07-15 |
-| 2. Login, Session & Logout | 2/3 | In Progress|  |
+| 2. Login, Session & Logout | 3/3 | Complete   | 2026-07-15 |
 | 3. The Canvas & Drawing | 0/TBD | Not started | - |
 | 4. Select, Drag & Delete | 0/TBD | Not started | - |
 | 5. Live Cross-Tab Sync | 0/TBD | Not started | - |

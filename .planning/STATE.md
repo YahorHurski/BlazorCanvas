@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 02
 current_phase_name: login-session-logout
 status: executing
-stopped_at: Phase BC-02 planned — 3 plans, verified, ready to execute
-last_updated: "2026-07-15T19:09:36.968Z"
+stopped_at: Completed 02-03-PLAN.md — Phase BC-02 (Login, Session & Logout) fully complete, all 3 plans executed and human-verified
+last_updated: "2026-07-15T19:37:55.050Z"
 last_activity: 2026-07-15
 last_activity_desc: Phase BC-02 execution started
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 9
-  completed_plans: 8
-  percent: 20
+  completed_plans: 9
+  percent: 40
 ---
 
 # Project State
@@ -29,13 +29,13 @@ and every other tab shows it happening live, including a figure gliding in real 
 
 ## Current Position
 
-Phase: BC-02 (login-session-logout) — EXECUTING
+Phase: BC-02 (login-session-logout) — COMPLETE
 Plan: 3 of 3
-Status: Executing Phase BC-02
-Last activity: 2026-07-15 — Phase BC-02 execution started
-Next: Phase BC-02 (login-session-logout) is PLANNED — 3 plans in 2 waves, verified by plan-checker; ready for `/gsd-execute-phase 2`
+Status: Phase complete — ready for verification
+Last activity: 2026-07-15 — Completed 02-03-PLAN.md, all 3 plans executed and human-verified
+Next: Phase BC-03 (The Canvas & Drawing) — not yet planned; run `/gsd-plan-phase 3` when ready
 
-Progress: [██████████] 100% (Phase BC-01) / [██░░░░░░░░] 20% (milestone, 1 of 5 phases)
+Progress: [██████████] 100% (Phase BC-02) / [████░░░░░░] 40% (milestone, 2 of 5 phases)
 
 ## Performance Metrics
 
@@ -65,6 +65,7 @@ Progress: [██████████] 100% (Phase BC-01) / [██░░░
 | Phase BC-01 P06 | 5min | 1 tasks | 1 files |
 | Phase BC-02 P01 | 8min | 2 tasks | 8 files |
 | Phase 02 P02 | 20min | 3 tasks | 3 files |
+| Phase 02 P03 | 12min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,7 @@ The ones most likely to be violated by accident:
 - [Phase 02]: IsPersistent left false at sign-in time (02-03) so the cookie stays a true session cookie per D-26 - ExpireTimeSpan=365d only bounds server-side ticket validity
 - [Phase 02]: UseAuthentication/UseAuthorization inserted directly before the pre-existing UseAntiforgery() call, matching RESEARCH Pitfall 4's exact ordering requirement
 - [Phase 02]: POST /logout uses Results.LocalRedirect (never a caller-supplied target) so an open redirect is structurally impossible
+- [Phase 02]: AntiforgeryStateProvider.GetAntiforgeryToken() field name is FormFieldName, not Name as 02-RESEARCH.md's Pattern 3 showed - verified against the installed .NET 10.0.9 assembly and corrected in Home.razor (02-03)
 
 ### Pending Todos
 
@@ -131,6 +133,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T19:07:10.071Z
-Stopped at: Phase BC-02 planned — 3 plans (02-01/02/03), verified, ready to execute
-Resume file: .planning/phases/BC-02-login-session-logout/02-01-PLAN.md
+Last session: 2026-07-15T19:37:55.039Z
+Stopped at: Completed 02-03-PLAN.md — Phase BC-02 (Login, Session & Logout) fully complete, all 3 plans executed and human-verified
+Resume file: None
