@@ -7,7 +7,13 @@ namespace BlazorCanvas.Geometry;
 /// </summary>
 public static class Movement
 {
-    public static int ClampDelta(int v, int lo, int hi) => Math.Min(Math.Max(v, lo), hi);
+    // lo > hi is the degenerate case: a box wider than the canvas (lo = -bx1, hi = W - bx2, so
+    // lo > hi reduces to width > W) or already partly out of bounds. Left unguarded, Min/Max
+    // order silently returns hi (which is < lo), producing a nonzero "clamped delta" for a
+    // zero-input delta and teleporting the figure (CR-02). An oversized/out-of-bounds box that
+    // cannot legally fit inside the canvas simply does not move.
+    public static int ClampDelta(int v, int lo, int hi) =>
+        lo > hi ? 0 : Math.Min(Math.Max(v, lo), hi);
 
     public static Box ClampMove(Box b, int dx, int dy)
     {

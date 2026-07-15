@@ -101,4 +101,32 @@ public class ClampTests
         Assert.Equal(-10, Movement.ClampDelta(-50, -10, 10));
         Assert.Equal(10, Movement.ClampDelta(50, -10, 10));
     }
+
+    [Fact]
+    public void ClampMove_OversizedWidthBox_ZeroDelta_IsIdentity()
+    {
+        // CR-02: width 2000 exceeds the canvas width of 1280, so lo (-bx1) > hi (W - bx2).
+        // Unguarded, ClampDelta silently inverted and returned a nonzero delta for a
+        // zero-input delta, teleporting the figure. A box that cannot fit must not move.
+        var result = Movement.ClampMove(new Box(0, 0, 2000, 100), dx: 0, dy: 0);
+
+        Assert.Equal(new Box(0, 0, 2000, 100), result);
+    }
+
+    [Fact]
+    public void ClampMove_OversizedHeightBox_ZeroDelta_IsIdentity()
+    {
+        // CR-02 y-axis mirror: height 900 exceeds the canvas height of 720.
+        var result = Movement.ClampMove(new Box(0, 0, 100, 900), dx: 0, dy: 0);
+
+        Assert.Equal(new Box(0, 0, 100, 900), result);
+    }
+
+    [Fact]
+    public void ClampDelta_WhenLoGreaterThanHi_ReturnsZero()
+    {
+        Assert.Equal(0, Movement.ClampDelta(0, 0, -720));
+        Assert.Equal(0, Movement.ClampDelta(50, 0, -720));
+        Assert.Equal(0, Movement.ClampDelta(-50, 0, -720));
+    }
 }
