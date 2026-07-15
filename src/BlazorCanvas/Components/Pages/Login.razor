@@ -1,0 +1,123 @@
+@page "/login"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.EntityFrameworkCore
+@using BlazorCanvas.Data
+@using BlazorCanvas.Auth
+@inject CanvasDbContext Db
+@inject NavigationManager Nav
+
+<PageTitle>Log in</PageTitle>
+
+<div class="login-page">
+    <div class="login-card">
+        <div class="wordmark">BlazorCanvas</div>
+        <h1 class="heading">Log in</h1>
+
+        @if (showRedirectBanner)
+        {
+            <div class="banner">Please log in to continue.</div>
+        }
+
+        <EditForm Model="Input" FormName="login" OnValidSubmit="LoginAsync">
+            <DataAnnotationsValidator />
+
+            <div class="field">
+                <label for="username">Username</label>
+                <InputText id="username" @bind-Value="Input!.Username" required />
+            </div>
+
+            <div class="field">
+                <label for="password">Password</label>
+                <InputText id="password" type="password" @bind-Value="Input!.Password" required />
+            </div>
+
+            @if (errorMessage is not null)
+            {
+                <p class="error">@errorMessage</p>
+            }
+
+            <button type="submit" class="cta">Log in</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] private HttpContext? HttpContext { get; set; }
+
+    [SupplyParameterFromForm]
+    private LoginFormModel? Input { get; set; }
+
+    private string? errorMessage;
+    private bool showRedirectBanner;
+
+    protected override void OnInitialized()
+    {
+        Input ??= new();
+        showRedirectBanner = !string.IsNullOrEmpty(HttpContext?.Request.Query["ReturnUrl"]);
+    }
+
+    private async Task LoginAsync()
+    {
+        var username = UsernameNormalizer.Normalize(Input!.Username);
+        if (username.Length == 0)
+        {
+            errorMessage = "Username is required.";
+            return;
+        }
+
+        if (string.IsNullOrEmpty(Input.Password))
+        {
+            errorMessage = "Password is required.";
+            return;
+        }
+
+        var user = await Db.Users.SingleOrDefaultAsync(u => u.Username == username);
+        if (user is null)
+        {
+            user = new User { Username = username, Password = Input.Password };
+            Db.Users.Add(user);
+            try
+            {
+                await Db.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+            {
+                // Two tabs raced to create the same new username (D-44's UNIQUE index won).
+                Db.Entry(user).State = EntityState.Detached;
+                user = await Db.Users.SingleAsync(u => u.Username == username);
+                if (user.Password != Input.Password)
+                {
+                    errorMessage = "Wrong password. Try again.";
+                    return;
+                }
+            }
+        }
+        else if (user.Password != Input.Password)
+        {
+            errorMessage = "Wrong password. Try again.";
+            return;
+        }
+
+        var identity = new ClaimsIdentity(
+            [new Claim("user_id", user.Id.ToString())],
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
+        await HttpContext!.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(identity));
+        // IsPersistent left at its default (false) - a session cookie, per D-26.
+
+        Nav.NavigateTo("/");
+    }
+
+    private static bool IsUniqueViolation(DbUpdateException ex) =>
+        ex.InnerException is Npgsql.PostgresException { SqlState: Npgsql.PostgresErrorCodes.UniqueViolation };
+
+    private class LoginFormModel
+    {
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+    }
+}
