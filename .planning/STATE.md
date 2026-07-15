@@ -6,14 +6,14 @@ current_phase: 02
 current_phase_name: login-session-logout
 status: executing
 stopped_at: Phase BC-02 planned — 3 plans, verified, ready to execute
-last_updated: "2026-07-15T18:52:01.489Z"
+last_updated: "2026-07-15T19:09:36.968Z"
 last_activity: 2026-07-15
 last_activity_desc: Phase BC-02 execution started
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
   percent: 20
 ---
 
@@ -30,7 +30,7 @@ and every other tab shows it happening live, including a figure gliding in real 
 ## Current Position
 
 Phase: BC-02 (login-session-logout) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Executing Phase BC-02
 Last activity: 2026-07-15 — Phase BC-02 execution started
 Next: Phase BC-02 (login-session-logout) is PLANNED — 3 plans in 2 waves, verified by plan-checker; ready for `/gsd-execute-phase 2`
@@ -64,6 +64,7 @@ Progress: [██████████] 100% (Phase BC-01) / [██░░░
 | Phase BC-01 P05 | 15min | 2 tasks | 4 files |
 | Phase BC-01 P06 | 5min | 1 tasks | 1 files |
 | Phase BC-02 P01 | 8min | 2 tasks | 8 files |
+| Phase 02 P02 | 20min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,9 @@ The ones most likely to be violated by accident:
 - [Phase BC-01]: Removed the hardcoded Host=localhost;Port=5432;...;Username=postgres;Password=postgres fallback entirely -- CanvasDbContextFactory now throws an actionable InvalidOperationException on missing ConnectionStrings:Canvas instead of guessing (closes CR-03)
 - [Phase BC-01]: Added .AddEnvironmentVariables() to CanvasDbContextFactory's ConfigurationBuilder chain so the ConnectionStrings__Canvas escape hatch named in the exception message actually works
 - [Phase BC-02]: app.css's old Bootstrap-era font-family rule was dropped, not merged, in favor of the plan's margin:0 reset — 02-UI-SPEC.md defines its own font stack for 02-03's surfaces
+- [Phase 02]: IsPersistent left false at sign-in time (02-03) so the cookie stays a true session cookie per D-26 - ExpireTimeSpan=365d only bounds server-side ticket validity
+- [Phase 02]: UseAuthentication/UseAuthorization inserted directly before the pre-existing UseAntiforgery() call, matching RESEARCH Pitfall 4's exact ordering requirement
+- [Phase 02]: POST /logout uses Results.LocalRedirect (never a caller-supplied target) so an open redirect is structurally impossible
 
 ### Pending Todos
 
@@ -127,6 +131,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T18:49:29.205Z
+Last session: 2026-07-15T19:07:10.071Z
 Stopped at: Phase BC-02 planned — 3 plans (02-01/02/03), verified, ready to execute
 Resume file: .planning/phases/BC-02-login-session-logout/02-01-PLAN.md

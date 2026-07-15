@@ -26,7 +26,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
   and compared as **plaintext**. On success the handler calls `SignInAsync` and redirects to the canvas.
   *(D-17, D-08, D-44, D-34, D-51, D-58)*
 
-- [ ] **AUTH-02** *(REQ-session)* — A session cookie (no expiry) identifies the user. Log in once →
+- [x] **AUTH-02** *(REQ-session)* — A session cookie (no expiry) identifies the user. Log in once →
   every tab in that browser is authenticated. **F5 keeps the user logged in.** Closing the browser
   logs them out. The numeric `user_id` is a cookie claim; the canvas circuit reads it with **no
   database lookup on page load**. An unauthenticated visitor to `/` is redirected to `/login`.
