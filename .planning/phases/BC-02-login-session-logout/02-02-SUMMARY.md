@@ -141,3 +141,10 @@ The cookie-auth backbone that 02-03 depends on is fully live: `LoginPath="/login
 ---
 *Phase: 02-login-session-logout*
 *Completed: 2026-07-15*
+
+## Self-Check: PASSED
+
+All created files verified present on disk (`src/BlazorCanvas/Auth/UsernameNormalizer.cs`,
+`tests/BlazorCanvas.Tests/Auth/UsernameNormalizerTests.cs`, `src/BlazorCanvas/Program.cs`,
+`02-02-SUMMARY.md`) and all 5 commits (`5683fcf`, `111b2f2`, `a6b1d4c`, `307c7d9`, `0ef0f1e`) verified
+present in `git log`.
