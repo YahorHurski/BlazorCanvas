@@ -133,3 +133,7 @@ None - no external service configuration required.
 ---
 *Phase: BC-01-database-schema-geometry-core*
 *Completed: 2026-07-15*
+
+## Self-Check: PASSED
+
+All 4 modified files confirmed present on disk; all 2 task commits (`93e485e`, `481ed64`) confirmed in git log.

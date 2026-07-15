@@ -6,15 +6,15 @@ current_phase: 01
 current_phase_name: database-schema-geometry-core
 status: executing
 stopped_at: Phase 1 UI-SPEC approved (app MVP UI)
-last_updated: "2026-07-15T02:32:41.258Z"
-last_activity: 2026-07-14
-last_activity_desc: Phase BC-01 execution started
+last_updated: "2026-07-15T07:52:40.850Z"
+last_activity: 2026-07-15
+last_activity_desc: Phase BC-01 execution resumed (wave continue)
 progress:
   total_phases: 5
-  completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
-  percent: 20
+  completed_phases: 0
+  total_plans: 6
+  completed_plans: 5
+  percent: 0
 ---
 
 # Project State
@@ -32,7 +32,7 @@ and every other tab shows it happening live, including a figure gliding in real 
 Phase: BC-01 (database-schema-geometry-core) — EXECUTING
 Plan: 4 of 4
 Status: Executing Phase BC-01
-Last activity: 2026-07-14 — Phase BC-01 execution started
+Last activity: 2026-07-15 — Phase BC-01 execution resumed (wave continue)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -60,6 +60,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase BC-01 P02 | 7min | 3 tasks | 12 files |
 | Phase BC-01 P03 | 15min | 3 tasks | 10 files |
 | Phase BC-01 P04 | 30min | 3 tasks | 5 files |
+| Phase BC-01 P05 | 15min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,7 @@ The ones most likely to be violated by accident:
 - [Phase BC-01]: GuardMirrorsChecksTests proves MinSizeGuard and the three CHECK constraints agree exactly across a 32-case matrix, in both directions (D-50) -- no disagreement found
 - [Phase BC-01]: Volume-persistence proof (ROADMAP criterion 1, re-proven with real data) implemented as a real xUnit test that shells out to docker compose down/up -d --wait via Process.Start, not an external manual script
 - [Phase BC-01]: Aligned tests/BlazorCanvas.Tests.csproj EF Core package versions to 10.0.10 to fix a CS1705 compile error surfaced by direct DbContextOptionsBuilder usage in test code (Rule 3 blocking fix, no new package installed)
+- [Phase BC-01]: 01-05: The fix stays entirely in C# clamp maths (Movement.ClampDelta, CircleEncoding.ClampDrawRadius) -- no canvas-bounds CHECK constraint added, per locked D-36.
 
 ### Pending Todos
 
@@ -119,6 +121,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T02:32:41.249Z
+Last session: 2026-07-15T07:52:16.636Z
 Stopped at: Phase 1 UI-SPEC approved (app MVP UI)
 Resume file: .planning/phases/BC-01-database-schema-geometry-core/01-UI-SPEC.md
