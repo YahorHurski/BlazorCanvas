@@ -178,6 +178,12 @@ of the viewport, max-width 360px, background `#FFFFFF`, `border: 1px solid #8B93
 **Content, top to bottom, each separated by `md`/`lg` gaps:**
 1. Display text (28px/600): **"BlazorCanvas"** — the app's one branding moment.
 2. Heading text (20px/600): **"Log in"**.
+2a. Redirect-reason banner (**only rendered when the visit was a bounce from a protected page**):
+   Body size (14px/400), `text.primary` (`#1F2937`) on a subtle `#DCE0E5` (Secondary) inset with
+   `4px` radius and `sm`/`md` internal padding, copy **"Please log in to continue."** Sits directly
+   below the "Log in" heading, above the form, with `md` gap. Informational, **not** the red error
+   slot. Rendered server-side from a query-string signal on the request (zero JS); absent on a direct
+   `/login` visit. See Copywriting Contract.
 3. Form: Username field, then Password field, each preceded by a Label-styled (12px/600) `<label>`
    sitting directly above its input with `xs` (4px) gap. `<label for="...">` correctly associated
    with each `<input id="...">` (native accessibility, zero JS).
@@ -224,8 +230,8 @@ page margin is 0 per D-43), background `#DCE0E5` (Secondary), `align-items: cent
 - **No armed/active state** — Logout is never "on," unlike a tool button.
 - Icon: **an open door with an outward-pointing arrow** (a standard "exit" glyph), 20×20 viewBox,
   `stroke="currentColor" stroke-width="1.5" fill="none"`, hand-authored inline SVG — matching Phase
-  3's icon-authoring approach (no external icon set, no network fetch). Flagged in Open Questions —
-  this specific glyph choice was not settled by any locked decision.
+  3's icon-authoring approach (no external icon set, no network fetch). Confirmed by user
+  (2026-07-15): the open-door / outward-arrow exit glyph.
 - `aria-label="Log out"` (no visible text label, consistent with the icon-only toolbar language
   Phase 3 establishes for the tool buttons).
 
@@ -237,10 +243,11 @@ page margin is 0 per D-43), background `#DCE0E5` (Secondary), `align-items: cent
 |---------|------|
 | Primary CTA | **"Log in"** — the login page's submit button (inherited from Phase 3's spec) |
 | Error — wrong password | **"Wrong password. Try again."** (locked in Phase 3's spec, reproduced here as it belongs to this phase's build) |
-| Error — empty username | **"Username is required."** — proposed default, see Open Questions |
-| Error — empty password | **"Password is required."** — proposed default, see Open Questions |
+| Error — empty username | **"Username is required."** — confirmed by user (2026-07-15) |
+| Error — empty password | **"Password is required."** — confirmed by user (2026-07-15) |
+| Redirect-reason banner | **"Please log in to continue."** — shown on `/login` only when bounced from a protected page; confirmed by user (2026-07-15) |
 | Empty state | Not applicable — see rationale below |
-| Destructive confirmation | Logout: **no confirmation dialog.** Proposed default, see Open Questions |
+| Destructive confirmation | Logout: **no confirmation dialog.** Confirmed by user (2026-07-15) |
 
 **All three error variants render in the same single error slot** described in the Login Page
 Component Spec (one at a time — whichever validation fails first). If both username and password are
@@ -260,7 +267,14 @@ worth narrating either — see "Scope of this phase's UI" above.
 low-consequence action (clears a session cookie; nothing is deleted, nothing is lost — the user's
 figures remain in Postgres regardless). Nothing in `docs/DECISIONS.md` calls for a confirmation
 step, and the project's guiding MinVP principle disfavors adding UI not named in the decision log.
-Proposed as the default; flagged below for explicit sign-off since it is a genuine judgment call.
+Confirmed by the user (2026-07-15): one-click logout, no confirmation dialog.
+
+**Rationale — redirect-reason banner (confirmed by user, 2026-07-15):** when an unauthenticated
+visit to `/` is bounced to `/login` (D-51), the login card shows an informational banner reading
+**"Please log in to continue."** so the redirect is not silent and unexplained. The banner is
+distinct from the destructive error slot: it is informational (not red), rendered server-side only
+when a query-string signal is present on the request (e.g. the redirect target carries a `?reason`
+marker) — a zero-JS conditional render. A direct visit to `/login` (no redirect) shows no banner.
 
 ---
 
@@ -296,36 +310,36 @@ Proposed as the default; flagged below for explicit sign-off since it is a genui
 
 ## Open Questions
 
-Genuinely open judgment calls, not settled by any locked decision. Proposed defaults are recorded
-above and used unless the human overrides them.
+Four of the five judgment calls below were resolved with the user on 2026-07-15 and folded into the
+contract above. One (item 4, the Bootstrap/MainLayout scaffold) remains open — it is a cross-phase
+decision carried over from Phase 3's spec and unresolved there too.
 
-1. **Empty-field error copy** — "Username is required." / "Password is required." are proposed,
-   not locked. No ADR specifies exact wording for these two cases (only the *rejection behaviour*
-   is locked, D-44/D-58).
-2. **No confirmation dialog on Logout** — proposed default per the Copywriting Contract rationale
-   above. A one-click logout is consistent with D-25's framing as a low-stakes, testability-driven
-   feature.
-3. **Logout icon glyph** — an open-door/exit icon is proposed. Any other standard "log out" glyph
-   (e.g., an arrow through a doorway, a power-symbol) would be equally consistent with the icon
-   language Phase 3 establishes; this is a free choice within that language, not a locked value.
-4. **Drop the Bootstrap/MainLayout scaffold for `/login` and the authenticated shell** — same open
-   question carried over from Phase 3's spec (not yet resolved there either, per that document's own
-   Open Questions). Proposed: yes, build both from this document's and Phase 3's tokens in dedicated
-   `*.razor.css` files.
-5. **No redirect-reason banner on `/login`** — when an unauthenticated visit to `/` redirects to
-   `/login` (D-51), the plain login form renders with no "please log in to continue" banner.
-   Proposed as the minimal default (nothing in the ADR calls for one); flagged since it's a genuine
-   choice, not a locked value.
+1. ✅ **RESOLVED (2026-07-15) — Empty-field error copy** → **"Username is required." /
+   "Password is required."** No ADR specifies exact wording (only the *rejection behaviour* is
+   locked, D-44/D-58); the user confirmed the field-specific wording.
+2. ✅ **RESOLVED (2026-07-15) — Logout confirmation** → **no confirmation dialog** (one-click).
+   Consistent with D-25's framing of Logout as a low-stakes, testability-driven feature.
+3. ✅ **RESOLVED (2026-07-15) — Logout icon glyph** → **open-door / outward-arrow exit glyph**,
+   hand-authored inline SVG within Phase 3's icon language.
+4. ⏳ **OPEN — Drop the Bootstrap/MainLayout scaffold for `/login` and the authenticated shell** —
+   cross-phase question carried over from Phase 3's spec (not yet resolved there either). Proposed:
+   yes, build both from this document's and Phase 3's tokens in dedicated `*.razor.css` files.
+   Deferred to planning; resolve once for both phases.
+5. ✅ **RESOLVED (2026-07-15) — Redirect-reason banner on `/login`** → **shown.** When an
+   unauthenticated visit to `/` is bounced to `/login` (D-51), the card renders an informational
+   **"Please log in to continue."** banner (server-side, query-string-gated, zero JS). A direct
+   `/login` visit shows no banner. See the Login Page Component Spec and Copywriting Contract.
 
 ---
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** APPROVED by gsd-ui-checker (2026-07-15) — 6/6 dimensions PASS. Open Questions 1, 2, 3, 5
+resolved with the user the same day; item 4 (scaffold) deferred to planning.
