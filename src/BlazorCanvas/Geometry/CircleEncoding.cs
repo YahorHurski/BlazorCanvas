@@ -26,12 +26,22 @@ public static class CircleEncoding
     /// </summary>
     public static int ClampDrawRadius(int cx, int cy, double distance)
     {
+        // The centre is the press point: it must be inside the canvas before it can cap
+        // anything. An off-canvas centre would otherwise make one of the four edge-distance
+        // terms below negative (CR-01).
+        var clampedCx = Movement.ClampDelta(cx, 0, CanvasBounds.Width);
+        var clampedCy = Movement.ClampDelta(cy, 0, CanvasBounds.Height);
+
         var rounded = (int)Math.Round(distance, MidpointRounding.AwayFromZero);
 
-        return Math.Min(
+        var capped = Math.Min(
             rounded,
             Math.Min(
-                Math.Min(cx, cy),
-                Math.Min(CanvasBounds.Width - cx, CanvasBounds.Height - cy)));
+                Math.Min(clampedCx, clampedCy),
+                Math.Min(CanvasBounds.Width - clampedCx, CanvasBounds.Height - clampedCy)));
+
+        // Never negative — a negative radius normalises into a legal-looking off-canvas circle
+        // that every guard and CHECK constraint accepts (CR-01).
+        return Math.Max(0, capped);
     }
 }

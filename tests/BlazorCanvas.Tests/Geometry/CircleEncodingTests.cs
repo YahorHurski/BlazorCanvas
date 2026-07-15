@@ -106,4 +106,39 @@ public class CircleEncodingTests
     {
         Assert.Equal(11, CircleEncoding.ClampDrawRadius(cx: 100, cy: 100, distance: 10.5));
     }
+
+    public static IEnumerable<object[]> OffCanvasCentres()
+    {
+        yield return new object[] { -5, 360 };
+        yield return new object[] { 1285, 360 };
+        yield return new object[] { 640, -5 };
+        yield return new object[] { 640, 725 };
+    }
+
+    [Theory]
+    [MemberData(nameof(OffCanvasCentres))]
+    public void ClampDrawRadius_OffCanvasCentre_IsNeverNegative(int cx, int cy)
+    {
+        // CR-01: an off-canvas centre must never produce a negative radius.
+        var r = CircleEncoding.ClampDrawRadius(cx, cy, distance: 50);
+
+        Assert.True(r >= 0);
+        Assert.Equal(0, r);
+    }
+
+    [Fact]
+    public void ClampDrawRadius_OffCanvasCentre_ProducesNoLegalCircle()
+    {
+        // CR-01, reproduced live against the database in 01-VERIFICATION.md: on the pre-fix
+        // code, ClampDrawRadius(-5, 360, 50) returns -5, and Normalisation silently turns the
+        // resulting inverted box into a legal-looking off-canvas square (-10,355,0,365) that
+        // both MinSizeGuard and the circle_is_a_circle CHECK accept.
+        var r = CircleEncoding.ClampDrawRadius(cx: -5, cy: 360, distance: 50);
+        Assert.Equal(0, r);
+
+        var box = CircleEncoding.FromCentreRadius(-5, 360, r);
+        var normalised = Normalisation.Normalise(FigureType.Circle, box);
+
+        Assert.False(MinSizeGuard.IsDrawable(FigureType.Circle, normalised));
+    }
 }
