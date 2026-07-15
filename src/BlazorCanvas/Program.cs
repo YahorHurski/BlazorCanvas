@@ -1,5 +1,7 @@
 using BlazorCanvas.Components;
 using BlazorCanvas.Data;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -11,6 +13,19 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddDbContext<CanvasDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Canvas")));
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/login";
+        // Session cookie (D-26): IsPersistent stays false at sign-in time (02-03), so no
+        // Expires/Max-Age is ever written to the cookie - it dies with the browser. ExpireTimeSpan
+        // below only bounds the encrypted ticket's server-side validity; it is not what makes the
+        // cookie a "session" cookie.
+        options.ExpireTimeSpan = TimeSpan.FromDays(365);
+    });
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
 
 var app = builder.Build();
 
@@ -47,6 +62,9 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseAntiforgery();
 
