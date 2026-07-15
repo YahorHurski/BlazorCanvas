@@ -19,10 +19,18 @@ public class CanvasDbContextFactory : IDesignTimeDbContextFactory<CanvasDbContex
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true)
             .AddJsonFile("appsettings.Development.json", optional: true)
+            .AddEnvironmentVariables()
             .Build();
 
+        // Refuse to guess: a config miss must fail loudly, never fall back to a hardcoded
+        // connection string. Port 5432 on this machine is a DIFFERENT PostgreSQL server (the
+        // native postgresql-x64-18 service, D-27) and applying migrations to it would corrupt it.
         var connectionString = configuration.GetConnectionString("Canvas")
-            ?? "Host=localhost;Port=5432;Database=canvas;Username=postgres;Password=postgres";
+            ?? throw new InvalidOperationException(
+                "ConnectionStrings:Canvas is not configured. Run `dotnet ef` from src/BlazorCanvas/ " +
+                "(so appsettings.Development.json is found) or set the ConnectionStrings__Canvas " +
+                "environment variable. Refusing to guess a connection string: port 5432 on this " +
+                "machine is a DIFFERENT PostgreSQL server and applying migrations to it would corrupt it.");
 
         var optionsBuilder = new DbContextOptionsBuilder<CanvasDbContext>();
         optionsBuilder.UseNpgsql(connectionString);
