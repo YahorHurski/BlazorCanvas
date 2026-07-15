@@ -30,13 +30,12 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 
 ### Validated
 
-(None yet — ship to validate.)
+- [x] **AUTH-01/02/03** — Login (unknown username self-registers), session cookie, logout — Validated in Phase BC-02: Login, Session & Logout (2026-07-15)
 
 ### Active
 
 See `.planning/REQUIREMENTS.md` for the full, traceable set (15 requirements, all v1).
 
-- [ ] **AUTH-01/02/03** — Login (unknown username self-registers), session cookie, logout
 - [ ] **CANV-01/02** — The 1280 × 720 SVG canvas at (0, 48); the six-button toolbar
 - [ ] **DATA-01/02/03/04** — One canvas per user; per-operation persistence; staleness guard; save-failure rollback
 - [ ] **FIG-01/02/03/04** — Draw, select, drag (with edge clamping), delete
@@ -230,4 +229,4 @@ sentence of confirmation before Phase 5 — an implementer following D-11's chec
 build the rejected filter.
 
 ---
-*Last updated: 2026-07-14 after ingest of `docs/DECISIONS.md` (58 locked decisions)*
+*Last updated: 2026-07-15 — Phase BC-02 (Login, Session & Logout) complete; AUTH-01/02/03 validated.*
