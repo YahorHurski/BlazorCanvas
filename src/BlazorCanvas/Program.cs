@@ -1,5 +1,6 @@
 using BlazorCanvas.Components;
 using BlazorCanvas.Data;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -71,5 +72,17 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapPost("/logout", async (HttpContext context, IAntiforgery antiforgery) =>
+{
+    // Minimal-API endpoints are NOT automatically antiforgery-protected the way Razor
+    // Components/EditForm endpoints are (RESEARCH Pitfall 4 / A2) - validate explicitly, before
+    // signing out.
+    await antiforgery.ValidateRequestAsync(context);
+    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    // Results.LocalRedirect - local path only, never a caller-supplied target - so this endpoint
+    // can never be turned into an open redirect.
+    return Results.LocalRedirect("/login");
+});
 
 app.Run();
