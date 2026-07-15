@@ -260,12 +260,13 @@ that phase needs it.
 - No separate heading — the message carries the whole content, Body size but weight 600 for emphasis:
   **"The change could not be saved. The canvas will be reloaded from the database."**
   (verbatim locked copy, D-52).
-- `md` (16px) gap below the message, then a single button, right-aligned: **"OK"**, styled identically
-  to the login page's primary CTA (Accent fill, white text) — since clicking OK is an
-  acknowledgement/reload action, not itself destructive, it does not use the Destructive red.
-- The OK button carries the native HTML `autofocus` attribute so it receives focus the moment the
-  modal renders — this is plain HTML, not a JS focus trap, and is the closest compliant approximation
-  to "focus moves into the modal."
+- `md` (16px) gap below the message, then a single button, right-aligned: **"Reload Canvas"**, styled
+  identically to the login page's primary CTA (Accent fill, white text) — the label names the action
+  the click performs (reload the canvas from the database); since it is a reload, not itself
+  destructive, it does not use the Destructive red.
+- The "Reload Canvas" button carries the native HTML `autofocus` attribute so it receives focus the
+  moment the modal renders — this is plain HTML, not a JS focus trap, and is the closest compliant
+  approximation to "focus moves into the modal."
 
 ---
 
@@ -278,6 +279,7 @@ that phase needs it.
 | Empty state body | Not applicable — see rationale below |
 | Error state (login) | "Wrong password. Try again." — states the problem and the only possible next step in one short sentence |
 | Error state (save failure) | "The change could not be saved. The canvas will be reloaded from the database." (verbatim, locked by D-52) |
+| Save-failure modal button | "Reload Canvas" — names the action the click performs; replaces the earlier generic "OK" per UI-checker Dimension 1 (user-confirmed) |
 | Destructive confirmation | Delete: **no confirmation dialog** — deletion is immediate on click. See Open Questions — this is a proposed default, not a locked decision. |
 
 **Rationale — no empty-state copy on the canvas:** a brand-new user's canvas is simply blank —
