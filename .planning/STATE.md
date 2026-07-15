@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: database-schema-geometry-core
 status: executing
-stopped_at: Completed 01-04-PLAN.md — Phase BC-01 fully executed, ready for verification
-last_updated: "2026-07-14T22:03:59.798Z"
+stopped_at: Phase 1 UI-SPEC approved (app MVP UI)
+last_updated: "2026-07-15T02:32:41.258Z"
 last_activity: 2026-07-14
 last_activity_desc: Phase BC-01 execution started
 progress:
@@ -119,6 +119,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-14T22:03:50.459Z
-Stopped at: Completed 01-04-PLAN.md — Phase BC-01 fully executed, ready for verification
-Resume file: None
+Last session: 2026-07-15T02:32:41.249Z
+Stopped at: Phase 1 UI-SPEC approved (app MVP UI)
+Resume file: .planning/phases/BC-01-database-schema-geometry-core/01-UI-SPEC.md

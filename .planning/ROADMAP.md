@@ -68,6 +68,11 @@ Plans:
 
 - [x] 01-04-PLAN.md — Prove the database itself refuses an illegal row, and that the min-size guard mirrors the CHECKs exactly (wave 3)
 
+**Gap Closure** *(post-verification — closes the 3 Critical blockers in 01-VERIFICATION.md; run via `/gsd-execute-phase 1 --gaps-only`)*
+
+- [ ] 01-05-PLAN.md — Harden the clamp/circle-encoding maths: floor ClampDrawRadius at 0 + clamp its centre (CR-01), guard ClampDelta's lo>hi inversion (CR-02), with regression tests (wave 1)
+- [ ] 01-06-PLAN.md — Make the design-time DbContext factory fail loudly instead of silently targeting the wrong PostgreSQL server on port 5432 (CR-03) (wave 1)
+
 **Notes for planning:**
 
 - The authoritative DDL is `CONSTRAINT-schema` in `.planning/intel/constraints.md`. **Never implement from D-12's sketch** — it still shows the dropped `created_at`.
