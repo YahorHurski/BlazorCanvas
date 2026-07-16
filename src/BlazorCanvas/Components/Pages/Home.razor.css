@@ -1,46 +1,20 @@
-.toolbar {
-    display: flex;
-    align-items: center;
-    height: 48px;
-    width: 100%;
-    background: #DCE0E5;
-    box-sizing: border-box;
-}
-
-.toolbar-left {
-    width: 8px;
-    flex-shrink: 0;
-}
-
-.logout-form {
-    margin-left: auto;
-    margin-right: 4px;
-}
-
-.logout-button {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    color: #1F2937;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: 120ms ease;
-}
-
-.logout-button:hover {
-    background: #CBD1D8;
-}
-
-.logout-button:focus-visible {
-    outline: 2px solid #1D4ED8;
-    outline-offset: 2px;
-}
-
 .canvas-area {
     background: #DCE0E5;
     min-height: calc(100vh - 48px);
+}
+
+/* This is not cosmetic - an SVG is inline by default, and inline elements sit on a text
+   baseline with descender space, which offsets the element and adds a phantom gap. */
+.canvas-surface {
+    display: block;
+    background: #FFFFFF;
+    cursor: default;
+}
+
+/* Any shape tool armed (line/rectangle/circle/triangle): crosshair over the entire surface,
+   including over existing figures - a shape tool draws on top of them (D-30), so the cursor
+   must not lie about that. No drag-affordance cursor rules here: nothing is selectable or
+   draggable until Phase 4. */
+.canvas-surface.shape-armed {
+    cursor: crosshair;
 }
