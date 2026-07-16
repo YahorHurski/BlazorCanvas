@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: the-canvas-drawing
 status: executing
-stopped_at: Completed 03-03-PLAN.md — Toolbar and FigureShape components (Tool enum, six-button toolbar with migrated Logout form, four-shape SVG renderer)
-last_updated: "2026-07-16T12:38:42.069Z"
+stopped_at: Completed 03-04-PLAN.md — Canvas page assembly (Toolbar mounted, 1280x720 borderless SVG at document 0,48, user figures loaded via FigureStore.LoadAsync)
+last_updated: "2026-07-16T12:50:39.188Z"
 last_activity: 2026-07-16
 last_activity_desc: Phase BC-03 execution started
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 14
-  completed_plans: 12
+  completed_plans: 13
   percent: 40
 ---
 
@@ -30,7 +30,7 @@ and every other tab shows it happening live, including a figure gliding in real 
 ## Current Position
 
 Phase: BC-03 (the-canvas-drawing) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Executing Phase BC-03
 Last activity: 2026-07-16 — Phase BC-03 execution started
 Next: Phase BC-03 (The Canvas & Drawing) — not yet planned; run `/gsd-plan-phase 3` when ready
@@ -69,6 +69,7 @@ Progress: [██████████] 100% (Phase BC-02) / [████░
 | Phase BC-03 P01 | 12min | 2 tasks | 4 files |
 | Phase BC-03 P02 | 20min | 3 tasks | 4 files |
 | Phase BC-03 P03 | 12min | 3 tasks | 4 files |
+| Phase BC-03 P04 | 25min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,8 @@ The ones most likely to be violated by accident:
 - [Phase BC-03]: [Phase BC-03] Tool is a separate enum from FigureType; Pointer is first so default(Tool) == Tool.Pointer (D-31); no Tool.Delete member since deletion is an action button, not an armable mode (D-33)
 - [Phase BC-03]: [Phase BC-03] FigureShape opacity uses a computed OpacityValue property rather than duplicating shape markup per preview state, keeping fill/stroke attribute counts exact while still toggling opacity
 - [Phase BC-03]: [Phase BC-03] Toolbar's Logout submit button carries both tool-button and logout-button CSS classes so it inherits base icon-button styling instead of re-declaring border/size rules
+- [Phase BC-03]: Canvas surface shape-armed cursor class named 'shape-armed' verbatim, matching plan terminology
+- [Phase BC-03]: app.css html,body rule kept strictly additive (background added, margin: 0 untouched) so Phase 2's shipped login page styling is not disturbed
 
 ### Pending Todos
 
@@ -143,6 +146,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-16T12:38:42.060Z
-Stopped at: Completed 03-03-PLAN.md — Toolbar and FigureShape components (Tool enum, six-button toolbar with migrated Logout form, four-shape SVG renderer)
+Last session: 2026-07-16T12:50:39.176Z
+Stopped at: Completed 03-04-PLAN.md — Canvas page assembly (Toolbar mounted, 1280x720 borderless SVG at document 0,48, user figures loaded via FigureStore.LoadAsync)
 Resume file: None

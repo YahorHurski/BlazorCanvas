@@ -127,7 +127,7 @@ Plans:
   4. **Drawing stops at the canvas edge**: the shape stops growing at the boundary while the cursor keeps moving, and a circle **never renders as an oval**. A zero-size drag creates nothing, **silently** — but a **horizontal or vertical line still draws**.
   5. Every drawn figure is **INSERTed immediately** (there is no Save button), and after **F5** the whole canvas reloads in the same drawing order with the same overlap/occlusion. A second user logging in sees **only their own figures**.
 
-**Plans**: 3/5 plans executed
+**Plans**: 4/5 plans executed
 
 Plans:
 **Wave 1** *(three independent plans — no shared files)*
@@ -138,7 +138,7 @@ Plans:
 
 **Wave 2** *(blocked on 03-02, 03-03)*
 
-- [ ] 03-04-PLAN.md — The canvas page: mount the toolbar, the 1280×720 borderless SVG at (0, 48) on a grey page, and the user's own figures in creation order (wave 2)
+- [x] 03-04-PLAN.md — The canvas page: mount the toolbar, the 1280×720 borderless SVG at (0, 48) on a grey page, and the user's own figures in creation order (wave 2)
 
 **Wave 3** *(blocked on 03-01, 03-04)*
 
@@ -219,7 +219,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Database, Schema & Geometry Core | 6/6 | Complete   | 2026-07-15 |
 | 2. Login, Session & Logout | 3/3 | Complete    | 2026-07-15 |
-| 3. The Canvas & Drawing | 3/5 | In Progress|  |
+| 3. The Canvas & Drawing | 4/5 | In Progress|  |
 | 4. Select, Drag & Delete | 0/TBD | Not started | - |
 | 5. Live Cross-Tab Sync | 0/TBD | Not started | - |
 
