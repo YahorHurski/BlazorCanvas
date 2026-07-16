@@ -115,7 +115,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
 
 ### Sync
 
-- [ ] **SYNC-01** *(REQ-live-sync)* — Changes in one tab appear live in the same user's other tabs;
+- [x] **SYNC-01** *(REQ-live-sync)* — Changes in one tab appear live in the same user's other tabs;
   a drag **glides in real time**. A **DI singleton notifier keyed by `user_id`**; tabs subscribe on
   init and **unsubscribe in `Dispose()`**. Message kinds exactly: `draw`, `move`, `delete`, `rollback`
   — **no `drop` kind**. **`move` is UPDATE-ONLY and never inserts** — an unknown figure means ignore
@@ -182,7 +182,7 @@ Explicitly locked out by D-04, D-14, D-08. Not deferred — **excluded**.
 | FIG-02 | REQ-select-figure | Phase 4 | Complete |
 | FIG-03 | REQ-drag-figure | Phase 4 | Complete |
 | FIG-04 | REQ-delete-figure | Phase 4 | Complete |
-| SYNC-01 | REQ-live-sync | Phase 5 | Pending |
+| SYNC-01 | REQ-live-sync | Phase 5 | Complete |
 | DATA-03 | REQ-staleness-guard | Phase 5 | Pending |
 | DATA-04 | REQ-save-failure | Phase 5 | Pending |
 
