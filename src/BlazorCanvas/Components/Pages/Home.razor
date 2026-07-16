@@ -1,38 +1,46 @@
 @page "/"
 @rendermode InteractiveServer
 @attribute [Authorize]
-@inject Microsoft.AspNetCore.Components.Forms.AntiforgeryStateProvider Antiforgery
+@using BlazorCanvas.Tools
+@using BlazorCanvas.Components.Canvas
+@using BlazorCanvas.Data
+@using BlazorCanvas.Geometry
+@inject FigureStore Figures
 
 <PageTitle>BlazorCanvas</PageTitle>
 
-@{ var token = Antiforgery.GetAntiforgeryToken(); }
+<Toolbar @bind-Armed="armedTool" />
 
-<div class="toolbar">
-    <div class="toolbar-left"></div>
-    <form method="post" action="/logout" class="logout-form">
-        <input type="hidden" name="@token!.FormFieldName" value="@token.Value" />
-        <button type="submit" class="logout-button" aria-label="Log out">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 3H4.5A1.5 1.5 0 0 0 3 4.5v11A1.5 1.5 0 0 0 4.5 17H8" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M12 13.5 16.5 9 12 4.5" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M16.5 9H7" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-        </button>
-    </form>
+<div class="canvas-area">
+    <svg class="@CanvasSurfaceClass" width="1280" height="720">
+        @foreach (var f in figures)
+        {
+            <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" Box="new Box(f.X1, f.Y1, f.X2, f.Y2)" />
+        }
+    </svg>
 </div>
-
-<div class="canvas-area"></div>
 
 @code {
     [CascadingParameter] private Task<AuthenticationState>? AuthStateTask { get; set; }
 
-    // Read once and kept for Phase 3's figure queries (WHERE user_id = @userId) - no DB
-    // lookup happens here (D-51).
+    // Read once from the signed authentication cookie's claim (D-51) - the sole source of userId.
+    // No database lookup happens here; the figures query below is the page's one and only read.
     private int userId;
+
+    // Explicit default, even though Tool.Pointer is also default(Tool): D-31 makes "the pointer
+    // tool is armed on page load" a locked behavioural rule and this should read as such.
+    private Tool armedTool = Tool.Pointer;
+
+    private List<Figure> figures = new();
+
+    // The shape-armed class drives the crosshair cursor rule in Home.razor.css. The pointer tool
+    // keeps the default cursor, matching 03-UI-SPEC's Canvas & Cursor Spec.
+    private string CanvasSurfaceClass => armedTool != Tool.Pointer ? "canvas-surface shape-armed" : "canvas-surface";
 
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateTask!;
         userId = int.Parse(state.User.FindFirst("user_id")!.Value);
+        figures = await Figures.LoadAsync(userId);
     }
 }
