@@ -15,7 +15,7 @@
     <svg class="@CanvasSurfaceClass" width="1280" height="720" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
         @foreach (var f in figures)
         {
-            <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" Box="new Box(f.X1, f.Y1, f.X2, f.Y2)" />
+            <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" Box="new Box(f.X1, f.Y1, f.X2, f.Y2)" Selected="@(f.Id == selectedId)" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
         }
         @if (drawing)
         {
@@ -37,6 +37,7 @@
 
     private List<Figure> figures = new();
     private bool drawing;
+    private int? selectedId;
     private FigureType previewType;
     private int pressX;
     private int pressY;
@@ -58,6 +59,11 @@
         var type = ToolMap.ToFigureType(armedTool);
         if (type is null)
         {
+            if (e.Button == 0)
+            {
+                selectedId = null;
+            }
+
             return;
         }
 
@@ -72,6 +78,16 @@
         previewType = type.Value;
         previewBox = DrawGesture.Build(previewType, pressX, pressY, pressX, pressY);
         drawing = true;
+    }
+
+    private void HandleFigurePointerDown(int figureId, PointerEventArgs e)
+    {
+        if (e.Button != 0)
+        {
+            return;
+        }
+
+        selectedId = figureId;
     }
 
     private async Task OnPointerMove(PointerEventArgs e)
