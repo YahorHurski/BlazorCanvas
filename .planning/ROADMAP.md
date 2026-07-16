@@ -171,13 +171,13 @@ Plans:
   4. Releasing the pointer **outside the window**, or **Alt-Tabbing away mid-drag**, commits the figure at its clamped position instead of leaving it stuck to the cursor. Nothing jumps.
   5. The **Delete button is greyed out until something is selected**; with a figure selected, clicking it removes the figure and its row. **There is no Delete-key handler.** After F5, every move and every deletion is still there.
 
-**Plans**: 1/4 plans executed
+**Plans**: 2/4 plans executed
 
 Plans:
 **Wave 1** *(two independent plans — no shared files)*
 
 - [x] 04-01-PLAN.md — The write path: `FigureStore.UpdateAsync`/`DeleteAsync` via `ExecuteUpdateAsync`/`ExecuteDeleteAsync`, owner-filtered and affected-row-count returning, with the IDOR and zero-row proofs (wave 1)
-- [ ] 04-02-PLAN.md — The presentation surfaces: `FigureShape`'s `Selected`/`Selectable`/`OnPointerDown` and the red outline; `Toolbar`'s `OnDelete` (wave 1)
+- [x] 04-02-PLAN.md — The presentation surfaces: `FigureShape`'s `Selected`/`Selectable`/`OnPointerDown` and the red outline; `Toolbar`'s `OnDelete` (wave 1)
 
 **Wave 2** *(blocked on 04-01, 04-02)*
 
@@ -236,7 +236,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Database, Schema & Geometry Core | 6/6 | Complete   | 2026-07-15 |
 | 2. Login, Session & Logout | 3/3 | Complete    | 2026-07-15 |
 | 3. The Canvas & Drawing | 5/5 | Complete    | 2026-07-16 |
-| 4. Select, Drag & Delete | 1/4 | In Progress|  |
+| 4. Select, Drag & Delete | 2/4 | In Progress|  |
 | 5. Live Cross-Tab Sync | 0/TBD | Not started | - |
 
 ## Requirement Coverage

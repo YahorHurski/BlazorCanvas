@@ -65,7 +65,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
   must still be drawable**. Completion is `INSERT` → get `id` → broadcast `draw`; the broadcast cannot
   be fired optimistically. *(D-04, D-05, D-13, D-21, D-35, D-29, D-36, D-41, D-50, D-09, D-39)*
 
-- [ ] **FIG-02** *(REQ-select-figure)* — With the pointer tool armed, clicking a figure selects it.
+- [x] **FIG-02** *(REQ-select-figure)* — With the pointer tool armed, clicking a figure selects it.
   A selected figure is drawn with a **red 2px outline**; all others keep black 2px on white fill.
   **Clicking empty canvas deselects.** Overlapping figures: a click hits the **topmost**, which is
   whichever was drawn last (z-order = `id`). A click is a movement of **< 3 px** before release and
@@ -179,7 +179,7 @@ Explicitly locked out by D-04, D-14, D-08. Not deferred — **excluded**.
 | CANV-01 | REQ-canvas-surface | Phase 3 | Pending |
 | CANV-02 | REQ-toolbar | Phase 3 | Pending |
 | FIG-01 | REQ-draw-figure | Phase 3 | Complete |
-| FIG-02 | REQ-select-figure | Phase 4 | Pending |
+| FIG-02 | REQ-select-figure | Phase 4 | Complete |
 | FIG-03 | REQ-drag-figure | Phase 4 | Complete |
 | FIG-04 | REQ-delete-figure | Phase 4 | Complete |
 | SYNC-01 | REQ-live-sync | Phase 5 | Pending |
