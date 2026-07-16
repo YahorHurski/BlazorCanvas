@@ -1,5 +1,6 @@
 using BlazorCanvas.Components;
 using BlazorCanvas.Data;
+using BlazorCanvas.Sync;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -23,6 +24,12 @@ builder.Services.AddDbContextFactory<CanvasDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Canvas")));
 
 builder.Services.AddScoped<FigureStore>();
+// D-11's cross-tab bridge is this Singleton lifetime. Every Blazor Server tab is its own circuit
+// and DI scope, so a Scoped notifier would give each tab a private bucket and sync would silently
+// never cross tabs. This deliberately differs from Microsoft's single-circuit scoped notifier
+// example. The service is safe process-wide because it has no constructor dependencies and stores
+// no per-user state outside its user_id-keyed subscriber buckets.
+builder.Services.AddSingleton<CanvasSyncNotifier>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
