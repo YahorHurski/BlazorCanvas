@@ -156,3 +156,8 @@ None - no external service configuration required. The PostgreSQL dev database w
 ---
 *Phase: BC-03-the-canvas-drawing*
 *Completed: 2026-07-16*
+
+## Self-Check: PASSED
+
+All 3 modified files (`Home.razor`, `Home.razor.css`, `app.css`) and this SUMMARY.md verified present
+on disk; all 3 commit hashes (`e19b28e`, `bb0c1f3`, `76bd27b`) verified present in git log.
