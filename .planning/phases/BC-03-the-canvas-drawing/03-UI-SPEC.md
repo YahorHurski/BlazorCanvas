@@ -14,6 +14,21 @@ created: 2026-07-15
 > look) that Phase 2 (Login, Session & Logout) inherits, per explicit instruction — Phase 2 has not
 > yet been executed, so no conflicting Phase 2 artifact exists to reconcile against.
 
+> ⚠️ **SCOPE CORRECTION — 2026-07-16, applies to everything below.** The premise in the paragraph
+> above is **out of date and must not be acted on.** Phase 2 *has* been executed and human-verified
+> (completed 2026-07-15), and it shipped against its own `02-UI-SPEC.md`. This document did **not**
+> become Phase 2's design base, and Phase 2 never inherited from it.
+>
+> **This spec is binding for the canvas and toolbar only — the surfaces Phase 3 creates.** Its
+> Phase-2-facing content (notably [Login Page Base Look](#login-page-base-look-phase-2-inheritance),
+> and any login-specific token usage) is **historical, not a contract.** Do **not** restyle Phase 2's
+> shipped login page to match it, and do **not** overwrite `app.css` rules Phase 2 depends on — add
+> to that file only. Where this document and Phase 2's shipped code disagree about a Phase 2 surface,
+> **the shipped code wins.**
+>
+> Decided by the user at plan time for Phase 3. Both UI-SPECs remain `status: draft`; that is
+> consistent with Phase 2, which shipped and passed verification 10/10 while its own spec was draft.
+
 **Aesthetic direction:** a precise drafting tool, not a consumer app. Minimal, restrained, tool-like,
 unobtrusive — the canvas is the star. No decoration for its own sake.
 
@@ -213,6 +228,11 @@ keyboard activation (Enter/Space), and disabled semantics all come free from the
 ---
 
 ## Login Page Base Look (Phase 2 inheritance)
+
+> ⚠️ **HISTORICAL — NOT A CONTRACT. Phase 3 must not implement this section.** It was written
+> expecting Phase 2 to inherit from it, but Phase 2 shipped and was human-verified against
+> `02-UI-SPEC.md` before this spec was ever applied. Phase 2's shipped login page is the source of
+> truth for the login surface. See the Scope Correction at the top of this file.
 
 Static-SSR page (D-34) — no interactivity beyond the native form POST, so every state below is
 achievable with plain CSS (`:hover`, `:focus-visible`) and native HTML validation attributes.
