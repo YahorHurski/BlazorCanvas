@@ -31,14 +31,16 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 ### Validated
 
 - [x] **AUTH-01/02/03** — Login (unknown username self-registers), session cookie, logout — Validated in Phase BC-02: Login, Session & Logout (2026-07-15)
+- [x] **CANV-01/02** — The 1280 × 720 SVG canvas at (0, 48); the six-button toolbar — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16)
+- [x] **DATA-01** — One canvas per user; load `WHERE user_id ORDER BY id`; cross-user isolation — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16)
+- [x] **FIG-01** — Draw all four shapes: live preview, edge clamp, silent degenerate rejection, immediate insert — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16)
 
 ### Active
 
 See `.planning/REQUIREMENTS.md` for the full, traceable set (15 requirements, all v1).
 
-- [ ] **CANV-01/02** — The 1280 × 720 SVG canvas at (0, 48); the six-button toolbar
-- [ ] **DATA-01/02/03/04** — One canvas per user; per-operation persistence; staleness guard; save-failure rollback
-- [ ] **FIG-01/02/03/04** — Draw, select, drag (with edge clamping), delete
+- [ ] **DATA-02/03/04** — Per-operation persistence; staleness guard; save-failure rollback
+- [ ] **FIG-02/03/04** — Select, drag (with edge clamping), delete
 - [ ] **SYNC-01** — Live cross-tab sync with real-time drag glide
 - [ ] **TEST-01** — The three mandated tests for the three *silent* failure modes
 

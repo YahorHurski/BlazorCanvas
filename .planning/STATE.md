@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 03
-current_phase_name: the-canvas-drawing
-status: ready_for_verification
+current_phase: 4
+current_phase_name: Select, Drag & Delete
+status: verifying
 stopped_at: Completed 03-05-PLAN.md — Draw gesture commit path verified
-last_updated: "2026-07-16T14:58:12.467Z"
+last_updated: "2026-07-16T15:35:06.257Z"
 last_activity: 2026-07-16
-last_activity_desc: Phase BC-03 execution started
+last_activity_desc: Phase BC-03 complete, transitioned to Phase 4
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 14
   completed_plans: 14
-  percent: 40
+  percent: 60
 ---
 
 # Project State
@@ -29,10 +29,10 @@ and every other tab shows it happening live, including a figure gliding in real 
 
 ## Current Position
 
-Phase: BC-03 (the-canvas-drawing) — EXECUTING
-Plan: 5 of 5
+Phase: 4 — Select, Drag & Delete
+Plan: Not started
 Status: Ready for verification Phase BC-03
-Last activity: 2026-07-16 — Phase BC-03 execution started
+Last activity: 2026-07-16 — Phase BC-03 complete, transitioned to Phase 4
 Next: Phase BC-03 (The Canvas & Drawing) — not yet planned; run `/gsd-plan-phase 3` when ready
 
 Progress: [██████████] 100% (Phase BC-02) / [████░░░░░░] 40% (milestone, 2 of 5 phases)
@@ -41,7 +41,7 @@ Progress: [██████████] 100% (Phase BC-02) / [████░
 
 **Velocity:**
 
-- Total plans completed: 3
+- Total plans completed: 8
 - Average duration: —
 - Total execution time: —
 
@@ -50,6 +50,7 @@ Progress: [██████████] 100% (Phase BC-02) / [████░
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | BC-02 | 3 | - | - |
+| BC-03 | 5 | - | - |
 
 **Recent Trend:**
 

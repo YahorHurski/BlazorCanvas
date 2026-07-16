@@ -35,7 +35,7 @@ passwords (locked, deliberate) · **all 58 ADR decisions are LOCKED and must not
 
 - [x] **Phase 1: Database, Schema & Geometry Core** - Postgres in Docker, the two-table schema whose CHECKs enforce the geometry, and the tested clamp/normalise/circle maths (completed 2026-07-14)
 - [x] **Phase 2: Login, Session & Logout** - Static-SSR login, cookie auth with the `user_id` claim, and an authenticated shell that survives F5 (completed 2026-07-15)
-- [ ] **Phase 3: The Canvas & Drawing** - The 1280×720 SVG at (0,48), the six-button toolbar, and drawing all four shapes — persisted, and back after a refresh
+- [x] **Phase 3: The Canvas & Drawing** - The 1280×720 SVG at (0,48), the six-button toolbar, and drawing all four shapes — persisted, and back after a refresh (completed 2026-07-16)
 - [ ] **Phase 4: Select, Drag & Delete** - The three verbs complete: 3px click-vs-drag, edge clamping that slides, and a Delete button
 - [ ] **Phase 5: Live Cross-Tab Sync** - The notifier, the real-time drag glide, and the consistency rules that stop any screen from lying
 
@@ -220,7 +220,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Database, Schema & Geometry Core | 6/6 | Complete   | 2026-07-15 |
 | 2. Login, Session & Logout | 3/3 | Complete    | 2026-07-15 |
-| 3. The Canvas & Drawing | 5/5 | In Progress|  |
+| 3. The Canvas & Drawing | 5/5 | Complete    | 2026-07-16 |
 | 4. Select, Drag & Delete | 0/TBD | Not started | - |
 | 5. Live Cross-Tab Sync | 0/TBD | Not started | - |
 
