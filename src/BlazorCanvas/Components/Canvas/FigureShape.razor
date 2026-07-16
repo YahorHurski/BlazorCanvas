@@ -1,0 +1,52 @@
+@using BlazorCanvas.Geometry
+
+@switch (Type)
+{
+    case FigureType.Line:
+        <line x1="@Box.X1" y1="@Box.Y1" x2="@Box.X2" y2="@Box.Y2" stroke="#000000" stroke-width="2" stroke-opacity="@OpacityValue" />
+        break;
+    case FigureType.Rectangle:
+        <rect x="@Box.X1" y="@Box.Y1" width="@Box.Width" height="@Box.Height" fill="#FFFFFF" stroke="#000000" stroke-width="2" fill-opacity="@OpacityValue" stroke-opacity="@OpacityValue" />
+        break;
+    case FigureType.Circle:
+        <circle cx="@CircleCentreRadius.Cx" cy="@CircleCentreRadius.Cy" r="@CircleCentreRadius.R" fill="#FFFFFF" stroke="#000000" stroke-width="2" fill-opacity="@OpacityValue" stroke-opacity="@OpacityValue" />
+        break;
+    case FigureType.Triangle:
+        <polygon points="@TrianglePoints" fill="#FFFFFF" stroke="#000000" stroke-width="2" fill-opacity="@OpacityValue" stroke-opacity="@OpacityValue" />
+        break;
+}
+
+@code {
+    // Renders one figure — or one live draw preview — as bare SVG child elements. Never emits a
+    // nested SVG root element of its own: that would establish a new coordinate system and break
+    // the 1:1 page-to-canvas mapping the whole phase rests on (D-18). The parent SVG element is
+    // supplied by Home.razor (plan 03-04).
+
+    [Parameter, EditorRequired]
+    public FigureType Type { get; set; }
+
+    [Parameter, EditorRequired]
+    public Box Box { get; set; }
+
+    [Parameter]
+    public bool Preview { get; set; }
+
+    // Preview mode renders at stroke-opacity="0.7" fill-opacity="0.7" (03-UI-SPEC) so it reads as
+    // "not yet real" without inventing a new colour, which D-14 forbids. A committed figure (the
+    // default) renders fully opaque.
+    private string OpacityValue => Preview ? "0.7" : "1";
+
+    // A circle is STORED as its inscribed square (D-22, REVISED) and must be decoded through
+    // CircleEncoding, never by reading a centre and a rim point out of the columns.
+    private (int Cx, int Cy, int R) CircleCentreRadius => CircleEncoding.ToCentreRadius(Box);
+
+    // The triangle apex x is the single fractional coordinate in this file — apex ((X1+X2)/2.0, Y1),
+    // base-left (X1, Y2), base-right (X2, Y2): apex top-centre, base along the bottom, always
+    // isosceles, always upward (D-21). CultureInfo.CurrentCulture on a Blazor Server circuit is the
+    // server's OS culture unless request localization is configured; on a comma-decimal locale,
+    // 13.5 would format as 13,5 and the browser would silently reparse the points list as different
+    // coordinates. Formatted through InvariantCulture so that can never happen. Integer division is
+    // deliberately NOT used instead — that would make odd-width triangles non-isosceles (D-21).
+    private string TrianglePoints => FormattableString.Invariant(
+        $"{(Box.X1 + Box.X2) / 2.0},{Box.Y1} {Box.X1},{Box.Y2} {Box.X2},{Box.Y2}");
+}
