@@ -9,6 +9,7 @@
     display: block;
     background: #FFFFFF;
     cursor: default;
+    user-select: none;
 }
 
 /* Any shape tool armed (line/rectangle/circle/triangle): crosshair over the entire surface,
