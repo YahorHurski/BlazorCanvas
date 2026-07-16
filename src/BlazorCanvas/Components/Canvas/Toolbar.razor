@@ -1,0 +1,77 @@
+@using BlazorCanvas.Tools
+@inject Microsoft.AspNetCore.Components.Forms.AntiforgeryStateProvider Antiforgery
+
+@{ var token = Antiforgery.GetAntiforgeryToken(); }
+
+<div class="toolbar">
+    <div class="toolbar-left"></div>
+
+    <button type="button" class="@ToolButtonClass(Tool.Pointer)" aria-pressed="@(Armed == Tool.Pointer)" aria-label="Pointer tool" @onclick="() => ArmedChanged.InvokeAsync(Tool.Pointer)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 3 16 9 11 11 9 16 4 3Z" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+    </button>
+
+    <button type="button" class="@ToolButtonClass(Tool.Line)" aria-pressed="@(Armed == Tool.Line)" aria-label="Draw line" @onclick="() => ArmedChanged.InvokeAsync(Tool.Line)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+            <line x1="4" y1="16" x2="16" y2="4" stroke-linecap="round" />
+        </svg>
+    </button>
+
+    <button type="button" class="@ToolButtonClass(Tool.Rectangle)" aria-pressed="@(Armed == Tool.Rectangle)" aria-label="Draw rectangle" @onclick="() => ArmedChanged.InvokeAsync(Tool.Rectangle)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="5" width="14" height="10" rx="1" />
+        </svg>
+    </button>
+
+    <button type="button" class="@ToolButtonClass(Tool.Circle)" aria-pressed="@(Armed == Tool.Circle)" aria-label="Draw circle" @onclick="() => ArmedChanged.InvokeAsync(Tool.Circle)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="10" cy="10" r="7" />
+        </svg>
+    </button>
+
+    <button type="button" class="@ToolButtonClass(Tool.Triangle)" aria-pressed="@(Armed == Tool.Triangle)" aria-label="Draw triangle" @onclick="() => ArmedChanged.InvokeAsync(Tool.Triangle)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="10,3 3,17 17,17" stroke-linejoin="round" />
+        </svg>
+    </button>
+
+    <button type="button" class="tool-button delete-button" disabled="@(!DeleteEnabled)" aria-label="Delete selected figure">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6h12M8 6V4h4v2M6 6l1 10a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1l1-10" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+    </button>
+
+    <div class="tool-divider"></div>
+
+    <form method="post" action="/logout" class="logout-form">
+        <input type="hidden" name="@token!.FormFieldName" value="@token.Value" />
+        <button type="submit" class="tool-button logout-button" aria-label="Log out">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 3H4.5A1.5 1.5 0 0 0 3 4.5v11A1.5 1.5 0 0 0 4.5 17H8" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M12 13.5 16.5 9 12 4.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M16.5 9H7" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </button>
+    </form>
+</div>
+
+@code {
+    // Defaults to Tool.Pointer, which is also default(Tool) since Pointer is the enum's first
+    // member (D-31: the pointer tool is armed on page load, so a stray first click cannot create
+    // a figure).
+    [Parameter]
+    public Tool Armed { get; set; } = Tool.Pointer;
+
+    [Parameter]
+    public EventCallback<Tool> ArmedChanged { get; set; }
+
+    // Defaults to false. Do NOT hardcode the sixth button as permanently disabled: D-58's rule is
+    // "greyed out and unclickable when nothing is selected", and this parameter is that rule. In
+    // Phase 3 nothing is ever selected, so the caller leaves it at its default; Phase 4 supplies
+    // the selection fact and adds the click callback.
+    [Parameter]
+    public bool DeleteEnabled { get; set; }
+
+    private string ToolButtonClass(Tool tool) => Armed == tool ? "tool-button is-armed" : "tool-button";
+}

@@ -1,0 +1,76 @@
+.toolbar {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    width: 100%;
+    background: #DCE0E5;
+    box-sizing: border-box;
+}
+
+.toolbar-left {
+    width: 8px;
+    flex-shrink: 0;
+}
+
+.tool-button {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 4px 0;
+    background: transparent;
+    color: #1F2937;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 120ms ease;
+}
+
+.tool-button + .tool-button {
+    margin-left: 4px;
+}
+
+.tool-button:hover {
+    background: #CBD1D8;
+}
+
+.tool-button:focus-visible {
+    outline: 2px solid #1D4ED8;
+    outline-offset: 2px;
+}
+
+.tool-button.is-armed {
+    background: #1D4ED8;
+    color: #FFFFFF;
+}
+
+.tool-button:disabled {
+    background: transparent;
+    color: #9CA3AF;
+    cursor: not-allowed;
+}
+
+.delete-button:enabled:hover,
+.delete-button:enabled:focus-visible {
+    color: #B91C1C;
+}
+
+.tool-divider {
+    width: 1px;
+    height: 24px;
+    background: #B8BFC7;
+    margin: 0 16px;
+}
+
+.logout-form {
+    margin-left: auto;
+    margin-right: 4px;
+}
+
+/* Shares the 40x40 icon-button treatment with .tool-button (03-UI-SPEC point 5) -- the button
+   element carries both classes so it inherits size, background, color, borderless styling,
+   radius, cursor and transition without repeating those declarations. No armed state ever
+   applies to Logout, so this rule intentionally declares nothing further. */
+.logout-button {
+}
