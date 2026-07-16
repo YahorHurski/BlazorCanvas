@@ -87,7 +87,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
 
 ### Data & Persistence
 
-- [ ] **DATA-01** *(REQ-one-canvas-per-user)* — Each user has exactly one canvas: the set of figures
+- [x] **DATA-01** *(REQ-one-canvas-per-user)* — Each user has exactly one canvas: the set of figures
   with their `user_id`. No canvas list, no "new canvas", no naming, no switching. Load query is
   `SELECT * FROM figures WHERE user_id = @id ORDER BY id`. **User A cannot see user B's figures.**
   *(D-03, D-12, D-39)*

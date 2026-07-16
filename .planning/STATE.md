@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: the-canvas-drawing
 status: executing
-stopped_at: Completed 02-03-PLAN.md — Phase BC-02 (Login, Session & Logout) fully complete, all 3 plans executed and human-verified
-last_updated: "2026-07-16T12:03:28.800Z"
+stopped_at: Completed 03-02-PLAN.md — FigureStore data path (IDbContextFactory, load/insert, cross-user isolation tests)
+last_updated: "2026-07-16T12:18:49.680Z"
 last_activity: 2026-07-16
 last_activity_desc: Phase BC-03 execution started
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 14
-  completed_plans: 10
+  completed_plans: 11
   percent: 40
 ---
 
@@ -30,7 +30,7 @@ and every other tab shows it happening live, including a figure gliding in real 
 ## Current Position
 
 Phase: BC-03 (the-canvas-drawing) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Executing Phase BC-03
 Last activity: 2026-07-16 — Phase BC-03 execution started
 Next: Phase BC-03 (The Canvas & Drawing) — not yet planned; run `/gsd-plan-phase 3` when ready
@@ -67,6 +67,7 @@ Progress: [██████████] 100% (Phase BC-02) / [████░
 | Phase 02 P02 | 20min | 3 tasks | 3 files |
 | Phase 02 P03 | 12min | 2 tasks | 5 files |
 | Phase BC-03 P01 | 12min | 2 tasks | 4 files |
+| Phase BC-03 P02 | 20min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -108,6 +109,8 @@ The ones most likely to be violated by accident:
 - [Phase 02]: AntiforgeryStateProvider.GetAntiforgeryToken() field name is FormFieldName, not Name as 02-RESEARCH.md's Pattern 3 showed - verified against the installed .NET 10.0.9 assembly and corrected in Home.razor (02-03)
 - [Phase BC-03]: DrawGesture never calls MinSizeGuard.IsDrawable -- that decision belongs to the caller (plan 03-05), so a not-yet-drawable gesture can still render a live preview (D-35, D-50)
 - [Phase BC-03]: Circle centre/radius is computed from clamped press/cursor points then passed through CircleEncoding only, never Normalisation.Normalise, preserving the even-sided guarantee
+- [Phase BC-03]: DbContext lifetime (IDbContextFactory vs scoped) was engineering discretion — docs/DECISIONS.md is silent on it — short-lived per-call contexts chosen to avoid captive-dependency and cross-circuit staleness in the InteractiveServer circuit
+- [Phase BC-03]: Test-side IDbContextFactory<CanvasDbContext> adapter is a hand-written nested class over DatabaseFixture.CreateContext(), not a DI/mocking package (D-49 test-project scope cap)
 
 ### Pending Todos
 
@@ -136,6 +139,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-16T12:02:42.896Z
-Stopped at: Completed 02-03-PLAN.md — Phase BC-02 (Login, Session & Logout) fully complete, all 3 plans executed and human-verified
+Last session: 2026-07-16T12:18:49.671Z
+Stopped at: Completed 03-02-PLAN.md — FigureStore data path (IDbContextFactory, load/insert, cross-user isolation tests)
 Resume file: None
