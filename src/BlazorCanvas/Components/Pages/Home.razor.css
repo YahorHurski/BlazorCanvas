@@ -37,3 +37,66 @@
 }
 
 
+
+/* Fixed positioning keeps the failure UI out of document flow so D-43's PageY - 48
+   coordinate mapping remains true while the database-reload flow is forced. */
+.save-failed-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 100;
+}
+
+/* This surface copies the app-authored login card tokens because UI-05-04 makes the
+   modal a sibling of that surface, not of the framework scaffolded reconnect UI. */
+.save-failed-modal {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    height: fit-content;
+    z-index: 101;
+    background: #FFFFFF;
+    border: 1px solid #8B939E;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    padding: 32px;
+    max-width: 360px;
+    box-sizing: border-box;
+}
+
+/* The modal has one locked body string and no heading; this preserves the established
+   body type scale and the required 16px message-to-button gap. */
+.save-failed-modal p {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #1F2937;
+    margin: 0 0 16px;
+}
+
+/* UI-05-01 deliberately leaves both the modal and synced SVG figures without a motion
+   layer; the OK button reuses the login CTA values exactly. */
+.save-failed-modal button {
+    background: #1D4ED8;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 600;
+    height: 40px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    padding: 0 24px;
+}
+
+.save-failed-modal button:hover {
+    background: #1E40AF;
+}
+
+.save-failed-modal button:active {
+    background: #1E3A8A;
+}
+
+.save-failed-modal button:focus-visible {
+    outline: 2px solid #1D4ED8;
+    outline-offset: 2px;
+}
