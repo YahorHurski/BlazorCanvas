@@ -186,4 +186,156 @@ public class FigureStoreTests
         // simply by having successfully read them back after the producing context is disposed.
         Assert.Single(loaded);
     }
+
+    [Fact]
+    public async Task UpdateAsync_MovesFigure_ReturnsOneAffectedRow()
+    {
+        var store = CreateStore();
+
+        int userId;
+        await using (var context = _fixture.CreateContext())
+        {
+            userId = await DatabaseFixture.CreateTestUserAsync(context);
+        }
+
+        var inserted = await store.InsertAsync(userId, FigureType.Rectangle, Rect);
+
+        var affected = await store.UpdateAsync(userId, inserted.Id, new Box(20, 20, 30, 30));
+
+        Assert.Equal(1, affected);
+        var loaded = await store.LoadAsync(userId);
+        var moved = Assert.Single(loaded, f => f.Id == inserted.Id);
+        Assert.Equal(20, moved.X1);
+        Assert.Equal(20, moved.Y1);
+        Assert.Equal(30, moved.X2);
+        Assert.Equal(30, moved.Y2);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_Circle_TranslationPreservesTheInscribedSquare()
+    {
+        var store = CreateStore();
+
+        int userId;
+        await using (var context = _fixture.CreateContext())
+        {
+            userId = await DatabaseFixture.CreateTestUserAsync(context);
+        }
+
+        var inserted = await store.InsertAsync(userId, FigureType.Circle, SquareCircle);
+        var before = CircleEncoding.ToCentreRadius(SquareCircle);
+
+        var affected = await store.UpdateAsync(userId, inserted.Id, new Box(200, 200, 240, 240));
+
+        Assert.Equal(1, affected);
+        var loaded = await store.LoadAsync(userId);
+        var moved = Assert.Single(loaded, f => f.Id == inserted.Id);
+        var after = CircleEncoding.ToCentreRadius(new Box(moved.X1, moved.Y1, moved.X2, moved.Y2));
+
+        Assert.Equal(before.R, after.R);
+        Assert.Equal(before.Cx + 100, after.Cx);
+        Assert.Equal(before.Cy + 100, after.Cy);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ForMissingFigure_ReturnsZeroAndThrowsNothing()
+    {
+        var store = CreateStore();
+
+        int userId;
+        await using (var context = _fixture.CreateContext())
+        {
+            userId = await DatabaseFixture.CreateTestUserAsync(context);
+        }
+
+        var affected = await store.UpdateAsync(userId, 999_999, new Box(20, 20, 30, 30));
+
+        Assert.Equal(0, affected);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_NeverTouchesAnotherUsersFigure()
+    {
+        var store = CreateStore();
+
+        int userA, userB;
+        await using (var context = _fixture.CreateContext())
+        {
+            userA = await DatabaseFixture.CreateTestUserAsync(context);
+            userB = await DatabaseFixture.CreateTestUserAsync(context);
+        }
+
+        var figureA = await store.InsertAsync(userA, FigureType.Rectangle, Rect);
+
+        // IDOR proof for T-04-01: userB names userA's real figure id and still matches no row.
+        var affected = await store.UpdateAsync(userB, figureA.Id, new Box(20, 20, 30, 30));
+
+        Assert.Equal(0, affected);
+        var loaded = await store.LoadAsync(userA);
+        var unchanged = Assert.Single(loaded, f => f.Id == figureA.Id);
+        Assert.Equal(0, unchanged.X1);
+        Assert.Equal(0, unchanged.Y1);
+        Assert.Equal(10, unchanged.X2);
+        Assert.Equal(10, unchanged.Y2);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_RemovesFigure_ReturnsOneAffectedRow()
+    {
+        var store = CreateStore();
+
+        int userId;
+        await using (var context = _fixture.CreateContext())
+        {
+            userId = await DatabaseFixture.CreateTestUserAsync(context);
+        }
+
+        var deleted = await store.InsertAsync(userId, FigureType.Rectangle, Rect);
+        var kept = await store.InsertAsync(userId, FigureType.Line, Rect);
+
+        var affected = await store.DeleteAsync(userId, deleted.Id);
+
+        Assert.Equal(1, affected);
+        var loaded = await store.LoadAsync(userId);
+        Assert.DoesNotContain(loaded, f => f.Id == deleted.Id);
+        Assert.Contains(loaded, f => f.Id == kept.Id);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_ForMissingFigure_ReturnsZeroAndThrowsNothing()
+    {
+        var store = CreateStore();
+
+        int userId;
+        await using (var context = _fixture.CreateContext())
+        {
+            userId = await DatabaseFixture.CreateTestUserAsync(context);
+        }
+
+        var affected = await store.DeleteAsync(userId, 999_999);
+
+        Assert.Equal(0, affected);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_NeverDeletesAnotherUsersFigure()
+    {
+        var store = CreateStore();
+
+        int userA, userB;
+        await using (var context = _fixture.CreateContext())
+        {
+            userA = await DatabaseFixture.CreateTestUserAsync(context);
+            userB = await DatabaseFixture.CreateTestUserAsync(context);
+        }
+
+        var figureA = await store.InsertAsync(userA, FigureType.Rectangle, Rect);
+
+        // IDOR proof for T-04-01: userB names userA's real figure id and still deletes nothing.
+        var affected = await store.DeleteAsync(userB, figureA.Id);
+
+        Assert.Equal(0, affected);
+        var loaded = await store.LoadAsync(userA);
+        Assert.Contains(loaded, f => f.Id == figureA.Id);
+    }
 }
