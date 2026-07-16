@@ -99,7 +99,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
   **Two tables only** (`users`, `figures`); no `canvases` table, no `created_at`. After F5, figures
   reload in creation order (`ORDER BY id`), preserving z-order. *(D-09, D-42, D-46, D-39, D-12)*
 
-- [ ] **DATA-03** *(REQ-staleness-guard)* — A stale tab must never operate on a figure that no longer
+- [x] **DATA-03** *(REQ-staleness-guard)* — A stale tab must never operate on a figure that no longer
   exists. `ExecuteUpdateAsync`/`ExecuteDeleteAsync` affected-row counts are checked on every write.
   A **zero-row UPDATE silently removes the figure from that tab's view and broadcasts a `delete`** so
   any tab that acquired a ghost drops it too. No message, no prompt, no merge. F5 is the documented
@@ -183,7 +183,7 @@ Explicitly locked out by D-04, D-14, D-08. Not deferred — **excluded**.
 | FIG-03 | REQ-drag-figure | Phase 4 | Complete |
 | FIG-04 | REQ-delete-figure | Phase 4 | Complete |
 | SYNC-01 | REQ-live-sync | Phase 5 | Complete |
-| DATA-03 | REQ-staleness-guard | Phase 5 | Pending |
+| DATA-03 | REQ-staleness-guard | Phase 5 | Complete |
 | DATA-04 | REQ-save-failure | Phase 5 | Complete |
 
 **Coverage:**
