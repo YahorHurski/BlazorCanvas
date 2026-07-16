@@ -9,19 +9,22 @@
 
 <PageTitle>BlazorCanvas</PageTitle>
 
-<Toolbar @bind-Armed="armedTool" />
+<div class="app-shell" @onpointermove="OnWrapperPointerMove" @onpointerup="OnWrapperPointerUp" @onpointerleave="OnWrapperPointerLeave">
+    <Toolbar @bind-Armed="armedTool" />
 
-<div class="canvas-area">
-    <svg class="@CanvasSurfaceClass" width="1280" height="720" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
-        @foreach (var f in figures)
-        {
-            <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" Box="new Box(f.X1, f.Y1, f.X2, f.Y2)" Selected="@(f.Id == selectedId)" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
-        }
-        @if (drawing)
-        {
-            <FigureShape Type="previewType" Box="previewBox" Preview="true" />
-        }
-    </svg>
+    <div class="canvas-area">
+        <svg class="@CanvasSurfaceClass" width="1280" height="720" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
+            @foreach (var f in figures)
+            {
+                var box = dragging && f.Id == dragFigureId ? dragCurrentBox : new Box(f.X1, f.Y1, f.X2, f.Y2);
+                <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" Box="box" Selected="@(f.Id == selectedId)" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
+            }
+            @if (drawing)
+            {
+                <FigureShape Type="previewType" Box="previewBox" Preview="true" />
+            }
+        </svg>
+    </div>
 </div>
 
 @code {
@@ -38,14 +41,41 @@
     private List<Figure> figures = new();
     private bool drawing;
     private int? selectedId;
+    private bool dragging;
+    private int? dragFigureId;
+
+    // The figure's box at press time. It is assigned exactly once per drag and retained until the
+    // drag commits, so Phase 5 can use it as D-52's rollback source if a save later fails.
+    private Box dragOriginalBox;
+    private Box dragCurrentBox;
+    private int dragPressX;
+    private int dragPressY;
+    private bool dragMoved;
     private FigureType previewType;
     private int pressX;
     private int pressY;
     private Box previewBox;
 
-    // The shape-armed class drives the crosshair cursor rule in Home.razor.css. The pointer tool
-    // keeps the default cursor, matching 03-UI-SPEC's Canvas & Cursor Spec.
-    private string CanvasSurfaceClass => armedTool != Tool.Pointer ? "canvas-surface shape-armed" : "canvas-surface";
+    // The shape-armed class drives the crosshair cursor rule in Home.razor.css. Dragging adds a
+    // second state class for the grab/grabbing affordance without changing shape-tool behaviour.
+    private string CanvasSurfaceClass
+    {
+        get
+        {
+            var classes = "canvas-surface";
+            if (armedTool != Tool.Pointer)
+            {
+                classes += " shape-armed";
+            }
+
+            if (dragging)
+            {
+                classes += " is-dragging";
+            }
+
+            return classes;
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -88,6 +118,63 @@
         }
 
         selectedId = figureId;
+
+        var figure = figures.FirstOrDefault(f => f.Id == figureId);
+        if (figure is null)
+        {
+            return;
+        }
+
+        dragFigureId = figureId;
+        dragOriginalBox = new Box(figure.X1, figure.Y1, figure.X2, figure.Y2);
+        dragCurrentBox = dragOriginalBox;
+
+        var point = CanvasCoordinates.FromPage(e.PageX, e.PageY);
+        dragPressX = point.X;
+        dragPressY = point.Y;
+        dragging = true;
+        dragMoved = false;
+    }
+
+    private async Task OnWrapperPointerMove(PointerEventArgs e)
+    {
+        if (!dragging)
+        {
+            return;
+        }
+
+        if ((e.Buttons & 1) == 0)
+        {
+            await CommitDragAsync();
+            return;
+        }
+
+        var point = CanvasCoordinates.FromPage(e.PageX, e.PageY);
+        var dx = point.X - dragPressX;
+        var dy = point.Y - dragPressY;
+
+        if (!dragMoved)
+        {
+            dragMoved = Math.Sqrt((double)(dx * dx + dy * dy)) >= 3;
+        }
+
+        dragCurrentBox = Movement.ClampMove(dragOriginalBox, dx, dy);
+    }
+
+    private async Task OnWrapperPointerUp(PointerEventArgs e)
+    {
+        if (dragging)
+        {
+            await CommitDragAsync();
+        }
+    }
+
+    private async Task OnWrapperPointerLeave(PointerEventArgs e)
+    {
+        if (dragging)
+        {
+            await CommitDragAsync();
+        }
     }
 
     private async Task OnPointerMove(PointerEventArgs e)
@@ -136,5 +223,37 @@
 
         var figure = await Figures.InsertAsync(userId, type, box);
         figures.Add(figure);
+    }
+
+    private async Task CommitDragAsync()
+    {
+        dragging = false;
+        var figureId = dragFigureId;
+        var moved = dragMoved;
+        var box = dragCurrentBox;
+
+        if (!figureId.HasValue || !moved)
+        {
+            return;
+        }
+
+        var figure = figures.FirstOrDefault(f => f.Id == figureId.Value);
+        if (figure is not null)
+        {
+            figure.X1 = box.X1;
+            figure.Y1 = box.Y1;
+            figure.X2 = box.X2;
+            figure.Y2 = box.Y2;
+        }
+
+        var affected = await Figures.UpdateAsync(userId, figureId.Value, box);
+        if (affected == 0)
+        {
+            figures.RemoveAll(f => f.Id == figureId.Value);
+            if (selectedId == figureId.Value)
+            {
+                selectedId = null;
+            }
+        }
     }
 }
