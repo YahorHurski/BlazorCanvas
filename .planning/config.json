@@ -3,6 +3,8 @@
   "project_code": "BC",
   "workflow": {
     "nyquist_validation": false,
-    "_auto_chain_active": false
+    "_auto_chain_active": false,
+    "build_command": "dotnet build BlazorCanvas.sln",
+    "test_command": "dotnet test BlazorCanvas.sln --nologo"
   }
 }
