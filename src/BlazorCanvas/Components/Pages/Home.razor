@@ -10,7 +10,7 @@
 <PageTitle>BlazorCanvas</PageTitle>
 
 <div class="app-shell" @onpointermove="OnWrapperPointerMove" @onpointerup="OnWrapperPointerUp" @onpointerleave="OnWrapperPointerLeave">
-    <Toolbar @bind-Armed="armedTool" />
+    <Toolbar @bind-Armed="armedTool" DeleteEnabled="selectedId.HasValue" OnDelete="HandleDeleteAsync" />
 
     <div class="canvas-area">
         <svg class="@CanvasSurfaceClass" width="1280" height="720" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
@@ -256,4 +256,21 @@
             }
         }
     }
+
+    private async Task HandleDeleteAsync()
+    {
+        if (!selectedId.HasValue)
+        {
+            return;
+        }
+
+        var figureId = selectedId.Value;
+        selectedId = null;
+        figures.RemoveAll(f => f.Id == figureId);
+
+        // D-10: DELETE-of-a-ghost is already the requested end state, so the returned count is
+        // not a branch point here. Only UPDATE needs the explicit zero-row local cleanup guard.
+        await Figures.DeleteAsync(userId, figureId);
+    }
 }
+

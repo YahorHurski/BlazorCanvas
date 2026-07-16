@@ -23,4 +23,17 @@
 .canvas-surface.shape-armed {
     cursor: crosshair;
 }
+/* The child SVG elements are emitted by FigureShape, so the deep selector is required for CSS isolation to
+   scope the selector on this canvas while still matching those unscoped child elements. */
+.canvas-surface:not(.shape-armed):not(.is-dragging) ::deep :is(rect, line, circle, polygon):hover {
+    cursor: grab;
+}
+
+/* The innermost figure element is under the pointer during a drag, so the grabbing cursor is set
+   on both the canvas state and the child SVG elements. */
+.canvas-surface.is-dragging,
+.canvas-surface.is-dragging ::deep :is(rect, line, circle, polygon) {
+    cursor: grabbing;
+}
+
 
