@@ -20,8 +20,19 @@ builder.Services.AddRazorComponents()
 // now creates and disposes its own short-lived context via this factory. Only the factory is
 // registered - registering CanvasDbContext as well would produce a captive-dependency failure
 // (a scoped DbContextOptions<CanvasDbContext> alongside the factory's singleton one).
+//
+// The retry policy is D-52's save-failure boundary: the provider decides what is transient via
+// provider metadata, so the app has no hand-written exception classifier. A zero-row
+// UPDATE never reaches this strategy because it is not an exception (D-10). Configuring the shared
+// factory also makes LoadAsync retry transient failures, which is an accepted D-45 resilience side
+// effect rather than a separate read-path feature.
 builder.Services.AddDbContextFactory<CanvasDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Canvas")));
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("Canvas"),
+        npgsql => npgsql.EnableRetryOnFailure(
+            maxRetryCount: 2,
+            maxRetryDelay: TimeSpan.FromMilliseconds(200),
+            errorCodesToAdd: null)));
 
 builder.Services.AddScoped<FigureStore>();
 // D-11's cross-tab bridge is this Singleton lifetime. Every Blazor Server tab is its own circuit
