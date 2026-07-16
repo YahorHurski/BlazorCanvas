@@ -175,10 +175,10 @@ Explicitly locked out by D-04, D-14, D-08. Not deferred — **excluded**.
 | AUTH-01 | REQ-login | Phase 2 | Complete |
 | AUTH-02 | REQ-session | Phase 2 | Complete |
 | AUTH-03 | REQ-logout | Phase 2 | Complete |
-| DATA-01 | REQ-one-canvas-per-user | Phase 3 | Pending |
+| DATA-01 | REQ-one-canvas-per-user | Phase 3 | Complete |
 | CANV-01 | REQ-canvas-surface | Phase 3 | Pending |
 | CANV-02 | REQ-toolbar | Phase 3 | Pending |
-| FIG-01 | REQ-draw-figure | Phase 3 | Pending |
+| FIG-01 | REQ-draw-figure | Phase 3 | Complete |
 | FIG-02 | REQ-select-figure | Phase 4 | Pending |
 | FIG-03 | REQ-drag-figure | Phase 4 | Pending |
 | FIG-04 | REQ-delete-figure | Phase 4 | Pending |
