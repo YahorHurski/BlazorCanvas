@@ -3,16 +3,16 @@
 @switch (Type)
 {
     case FigureType.Line:
-        <line x1="@Box.X1" y1="@Box.Y1" x2="@Box.X2" y2="@Box.Y2" stroke="#000000" stroke-width="2" stroke-opacity="@OpacityValue" />
+        <line x1="@Box.X1" y1="@Box.Y1" x2="@Box.X2" y2="@Box.Y2" stroke="@StrokeColor" stroke-width="2" stroke-opacity="@OpacityValue" @onpointerdown="HandlePointerDown" @onpointerdown:stopPropagation="Selectable" />
         break;
     case FigureType.Rectangle:
-        <rect x="@Box.X1" y="@Box.Y1" width="@Box.Width" height="@Box.Height" fill="#FFFFFF" stroke="#000000" stroke-width="2" fill-opacity="@OpacityValue" stroke-opacity="@OpacityValue" />
+        <rect x="@Box.X1" y="@Box.Y1" width="@Box.Width" height="@Box.Height" fill="#FFFFFF" stroke="@StrokeColor" stroke-width="2" fill-opacity="@OpacityValue" stroke-opacity="@OpacityValue" @onpointerdown="HandlePointerDown" @onpointerdown:stopPropagation="Selectable" />
         break;
     case FigureType.Circle:
-        <circle cx="@CircleCentreRadius.Cx" cy="@CircleCentreRadius.Cy" r="@CircleCentreRadius.R" fill="#FFFFFF" stroke="#000000" stroke-width="2" fill-opacity="@OpacityValue" stroke-opacity="@OpacityValue" />
+        <circle cx="@CircleCentreRadius.Cx" cy="@CircleCentreRadius.Cy" r="@CircleCentreRadius.R" fill="#FFFFFF" stroke="@StrokeColor" stroke-width="2" fill-opacity="@OpacityValue" stroke-opacity="@OpacityValue" @onpointerdown="HandlePointerDown" @onpointerdown:stopPropagation="Selectable" />
         break;
     case FigureType.Triangle:
-        <polygon points="@TrianglePoints" fill="#FFFFFF" stroke="#000000" stroke-width="2" fill-opacity="@OpacityValue" stroke-opacity="@OpacityValue" />
+        <polygon points="@TrianglePoints" fill="#FFFFFF" stroke="@StrokeColor" stroke-width="2" fill-opacity="@OpacityValue" stroke-opacity="@OpacityValue" @onpointerdown="HandlePointerDown" @onpointerdown:stopPropagation="Selectable" />
         break;
 }
 
@@ -31,10 +31,24 @@
     [Parameter]
     public bool Preview { get; set; }
 
+    [Parameter]
+    public bool Selected { get; set; }
+
+    [Parameter]
+    public bool Selectable { get; set; }
+
+    [Parameter]
+    public EventCallback<PointerEventArgs> OnPointerDown { get; set; }
+
     // Preview mode renders at stroke-opacity="0.7" fill-opacity="0.7" (03-UI-SPEC) so it reads as
     // "not yet real" without inventing a new colour, which D-14 forbids. A committed figure (the
     // default) renders fully opaque.
     private string OpacityValue => Preview ? "0.7" : "1";
+
+    private string StrokeColor => Selected ? "#B91C1C" : "#000000";
+
+    private Task HandlePointerDown(PointerEventArgs e) =>
+        Selectable ? OnPointerDown.InvokeAsync(e) : Task.CompletedTask;
 
     // A circle is STORED as its inscribed square (D-22, REVISED) and must be decoded through
     // CircleEncoding, never by reading a centre and a rim point out of the columns.
