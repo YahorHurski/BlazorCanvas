@@ -13,7 +13,8 @@ created: 2026-07-16
 > There is no `CONTEXT.md` for this phase and this agent has no interactive question tool — every
 > decision below is traced to a Phase 4 ROADMAP Success Criterion, a locked `docs/DECISIONS.md`
 > entry (cited by D-XX), `03-UI-SPEC.md`'s inherited baseline, or `04-RESEARCH.md`. Where none of
-> those settles a value, it is recorded under **Open Questions**, not decided here.
+> those settles a value, it was recorded rather than decided here — and then put to the user. All
+> such values are now ratified under **Resolved Questions** (user sign-off 2026-07-16).
 
 ## Scope — this is a DELTA spec
 
@@ -23,7 +24,7 @@ baseline** — it is fully inherited by reference. Only what Phase 4 introduces 
 specified below:
 
 1. The selected-figure red outline (new **state**, existing token).
-2. Drag cursor affordance (new interaction states — exact selector is an Open Question).
+2. Drag cursor affordance (new interaction states — `grab`/`grabbing`, confirmed 2026-07-16).
 3. The Delete button's disabled→enabled *behavioral* transition (the visual states already exist
    in `03-UI-SPEC.md` and are already implemented in `Toolbar.razor`/`Toolbar.razor.css` — Phase 4
    only wires the click behavior; there is no new visual token).
@@ -157,7 +158,11 @@ reasoning. Record this as a known, conscious tradeoff; do not "fix" it in the ex
 
 ---
 
-## Cursor Spec — OPEN QUESTION, not settled by any locked decision
+## Cursor Spec — RESOLVED: Option 2 confirmed by user 2026-07-16
+
+**Decision: implement Option 2 below** (`grab`/`grabbing`). This was not settled by any locked
+decision, so it was put to the user and ratified — see Resolved Questions §1. Option 1 is retained
+below only to record what was rejected and why the choice was real.
 
 `docs/DECISIONS.md` does not mandate a `grab`/`grabbing` cursor affordance anywhere, and no ROADMAP
 Phase 4 Success Criterion names one. `04-RESEARCH.md` (Open Question 3) flags this explicitly:
@@ -220,7 +225,7 @@ selected") as written and as shipped.
 | Primary CTA | Not applicable — this phase adds no new labelled button. The Delete button's accessible name (`aria-label="Delete selected figure"`) is unchanged, already shipped. |
 | Empty state heading/body | Not applicable — unchanged from `03-UI-SPEC.md`'s rationale (a blank canvas needs no empty-state copy); this phase does not change that surface. |
 | Error state | Not applicable — this phase introduces no new error path. A zero-row DELETE/UPDATE is expected staleness (D-10), not an error, and is handled **silently** with no message (per D-10, D-58; see Accessibility note below). |
-| Destructive confirmation | **Delete: no confirmation dialog — deletion is immediate on click.** Carried forward, now load-bearing, from `03-UI-SPEC.md`'s Open Question 3, which proposed this as a default (not settled by any D-XX entry) and it was never overridden. REQUIREMENTS.md FIG-04 and the Out of Scope table give no indication a confirmation step exists. **Re-flagged below as an Open Question** because Phase 4 is the phase where Delete becomes clickable for the first time — this default is now actually exercised, not merely theoretical. |
+| Destructive confirmation | **Delete: no confirmation dialog — deletion is immediate on click.** Carried forward, now load-bearing, from `03-UI-SPEC.md`'s Open Question 3, which proposed this as a default (not settled by any D-XX entry) and it was never overridden. REQUIREMENTS.md FIG-04 and the Out of Scope table give no indication a confirmation step exists. **Ratified by explicit user sign-off 2026-07-16** (see Resolved Questions §2) — re-raised rather than silently inherited because Phase 4 is the phase where Delete becomes clickable for the first time, so the default is now actually exercised. The user accepted the stated cost: with D-04 excluding undo/redo, a misclick permanently destroys a figure with no recourse. Do not add a confirmation step. |
 
 ---
 
@@ -254,31 +259,32 @@ Inherits `03-UI-SPEC.md`'s Accessibility section in full (focus-visible ring, di
 
 ---
 
-## Open Questions
+## Resolved Questions
 
-Genuinely open judgment calls this document could not settle from a ROADMAP Success Criterion, a
-locked `docs/DECISIONS.md` entry, `03-UI-SPEC.md`'s baseline, or `04-RESEARCH.md`. Nothing below was
-silently decided — each is flagged `[ASSUMED]` wherever a recommendation is used as a placeholder.
+These were judgment calls this document could not settle from a ROADMAP Success Criterion, a locked
+`docs/DECISIONS.md` entry, `03-UI-SPEC.md`'s baseline, or `04-RESEARCH.md`. None was silently
+decided. **All three were put to the user and answered on 2026-07-16 (`/gsd-ui-phase 4`); each is
+now CONFIRMED and carries no `[ASSUMED]` marker.** The planner must treat these as locked.
 
-1. **Cursor affordance for the pointer tool (`grab`/`grabbing`).** See the Cursor Spec section above
-   for the two candidate options and the exact CSS selector proposed for Option 2. **[ASSUMED:
-   Option 2, per `04-RESEARCH.md`'s own "safe to leave to implementation-time discretion" framing]**
-   — awaiting explicit confirmation; the planner may proceed with the assumed default if none is
-   given, since neither option affects any ROADMAP Success Criterion.
+1. **Cursor affordance for the pointer tool (`grab`/`grabbing`).** **[CONFIRMED 2026-07-16: Option
+   2]** — the `grab`/`grabbing` affordance, scoped exactly as the Cursor Spec section above
+   specifies. The executor must add the toggled `is-dragging` class to the canvas root for the
+   duration of an active drag, wired from the `dragging` boolean in `04-RESEARCH.md`'s architecture.
+   Note the `.tool-pointer` selector sketched in `03-UI-SPEC.md` does **not** exist in shipped code;
+   use the real `.canvas-surface` / `.shape-armed` selectors given above.
 
-2. **No confirmation dialog on Delete — now load-bearing.** Carried forward from `03-UI-SPEC.md`'s
-   Open Question 3 (proposed there as a default, never overridden). **[ASSUMED: no confirmation,
-   immediate delete on click]** — consistent with the MinVP guiding principle and the absence of any
-   undo mechanism either way (D-04 excludes undo/redo, so a confirmation step would be the *only*
-   safety net in an otherwise undo-less app — a real product decision, not a stylistic one).
-   Re-flagged here rather than silently inherited because this is the first phase where the choice
-   is actually exercised.
+2. **No confirmation dialog on Delete.** **[CONFIRMED 2026-07-16: no confirmation, immediate delete
+   on click]** — carried forward from `03-UI-SPEC.md`'s Open Question 3 and now explicitly ratified,
+   not merely inherited. The user was shown the full cost before deciding: D-04 excludes undo/redo,
+   so there is **no safety net** — a misclick permanently destroys a figure and its row. Accepted as
+   consistent with the MinVP guiding principle. Do **not** add a confirmation step, and do not treat
+   its absence as an oversight to be "fixed" during execution.
 
-3. **3px click-vs-drag distance formula: Euclidean vs. per-axis (Chebyshev).** Carried forward from
-   `04-RESEARCH.md` Assumption A1. D-48's text ("move less than 3 px") does not specify a formula.
-   **[ASSUMED: Euclidean distance, `sqrt(dx²+dy²) >= 3`]** — matches the distance formula
-   `DrawGesture.Build` already uses for the circle radius, keeping the app's one "distance" concept
-   consistent. Low-risk either way per `04-RESEARCH.md`'s own risk assessment.
+3. **3px click-vs-drag distance formula.** **[CONFIRMED 2026-07-16: Euclidean, `sqrt(dx²+dy²) >= 3`]**
+   — D-48's text ("move less than 3 px") does not specify a formula; Euclidean was chosen over
+   per-axis/Chebyshev to match the distance formula `DrawGesture.Build` already uses for the circle
+   radius, keeping the app to a single consistent "distance" concept. The threshold is therefore
+   radial — identical in every direction.
 
 ---
 
