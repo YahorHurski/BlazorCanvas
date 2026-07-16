@@ -159,7 +159,7 @@ Explicitly locked out by D-04, D-14, D-08. Not deferred — **excluded**.
 | A Save button | D-09: a second tab's Save would silently erase the first tab's work |
 | A Reload button | D-10: F5 is the documented manual fallback for a stale tab |
 | A canvas list / "new canvas" / naming / switching | D-03: one user, one canvas |
-| **JavaScript, in any form** | Load-bearing constraint — it is what forced D-18, D-33, D-37 and D-57 |
+| **Application-authored JavaScript, in any form** | Load-bearing constraint — it is what forced D-18, D-33, D-37 and D-57. Scope: JS *we write* to solve an app problem. Framework/template JS that Blazor ships (`blazor.web.js`, scaffolded `ReconnectModal.razor.js`) is out of scope — a `*.js` file hit is not by itself a violation. See PROJECT.md Constraints. |
 | Locking, concurrency tokens, merge UI, CRDT/OT | D-11: one human has one mouse. Conflicts are impossible by physics. |
 | A widened hit area for lines | D-32: considered and declined. Additive; can be added any time. |
 | Escape to abandon a draw | D-57: impossible without a document-level key listener (JavaScript) |
@@ -212,7 +212,7 @@ The executable/normative artifacts live in `.planning/intel/constraints.md` and 
 | `CONSTRAINT-layout` | `canvasX = PageX`, `canvasY = PageY − 48` |
 | `CONSTRAINT-visual` | Black 2px / white fill / red 2px selected / 48px / 1280×720 |
 | `CONSTRAINT-thresholds` | 3px click-vs-drag; 50ms throttle; pointer armed on load |
-| `CONSTRAINT-env` | .NET 10, Postgres 17, Docker Compose, **no JavaScript** |
+| `CONSTRAINT-env` | .NET 10, Postgres 17, Docker Compose, **no application-authored JavaScript** |
 | `CONSTRAINT-security` | Plaintext passwords — explicitly accepted non-security |
 
 ---

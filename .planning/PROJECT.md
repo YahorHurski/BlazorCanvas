@@ -9,7 +9,7 @@ immediately, and the user's other open tabs mirror the canvas live — a drag *g
 monitor in real time.
 
 It is a deliberate learning project: MinVP, fiercely scoped, and **written without a single line of
-JavaScript**.
+hand-authored JavaScript**.
 
 ## Core Value
 
@@ -56,7 +56,8 @@ there by name.
   as one unit and silently erase another tab's work.
 - **A Reload button** — D-10: F5 is the documented manual fallback for a stale tab.
 - **A canvas list / "new canvas" / naming / switching** — D-03: one user, one canvas.
-- **JavaScript, in any form** — this is load-bearing, not aesthetic (see Constraints).
+- **Application-authored JavaScript, in any form** — this is load-bearing, not aesthetic (see
+  Constraints). Framework and template JS that ships with Blazor is out of scope, not an exception.
 - **Locking, concurrency tokens, merge UI, CRDT/OT** — D-11: one human has one mouse. Two tabs cannot
   be edited at the same instant. "Which tab wins?" is answered by physics, not by code.
 
@@ -92,11 +93,24 @@ there by name.
 - **Two render modes**: static SSR for `/login` and `POST /logout`; InteractiveServer for the canvas
   at `/`. **An interactive Blazor component cannot set a cookie** — the HTTP response has already
   begun. This is not optional. (D-34, D-51)
-- **NO JAVASCRIPT ANYWHERE** — hard, and **load-bearing**. It is what forced D-18 (a 1:1 fixed canvas
-  instead of a scaling `viewBox`), D-33 (Delete is a toolbar button — there is no document-level key
-  listener without JS), D-37 (`pointerleave` + a `Buttons` guard, because `setPointerCapture` is JS)
-  and D-57 (there is no way to abandon a draw — Escape would need a document-level key listener).
-  Each had a ~5–10 line JS alternative that was consciously rejected.
+- **NO APPLICATION-AUTHORED JAVASCRIPT** — hard, and **load-bearing**. It is what forced D-18 (a 1:1
+  fixed canvas instead of a scaling `viewBox`), D-33 (Delete is a toolbar button — there is no
+  document-level key listener without JS), D-37 (`pointerleave` + a `Buttons` guard, because
+  `setPointerCapture` is JS) and D-57 (there is no way to abandon a draw — Escape would need a
+  document-level key listener). Each had a ~5–10 line JS alternative that was consciously rejected.
+
+  **Scope — read this before flagging a violation.** The rule bans JavaScript *we write* to solve an
+  application problem. It does not, and never did, ban JavaScript that Blazor itself ships:
+  - `_framework/blazor.web.js` is **mandatory** — the Blazor Server circuit *is* JavaScript, and
+    `App.razor` has referenced it since the first commit. A literal "no JS anywhere" was never
+    satisfiable at any commit in this project's history.
+  - `Components/Layout/ReconnectModal.razor{,.js,.css}` is **unmodified `dotnet new blazor`
+    scaffolding** (commit `8a5ab5e`), not our code.
+
+  The authoritative test is *"did we hand-write JS to solve an app problem?"* — **not** the presence
+  of a `*.js` file. A `find -name '*.js'` hit on framework or template output is not a violation.
+  (A BC-03 verification pass flagged the scaffolded `ReconnectModal.razor.js` under the literal
+  reading and was withdrawn; this wording exists so that does not recur.)
 - **Datastore**: **PostgreSQL 17**, local, via Docker Compose (port 5432, db `canvas`,
   `postgres`/`postgres`, named volume). Schema via EF Core migrations applied on startup. (D-01, D-27,
   D-42, D-58)

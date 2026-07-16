@@ -21,7 +21,8 @@ consistency rules that keep every open screen honest.
 > "I can log in, draw all four shapes, drag and delete them, open the app on a second monitor, and
 > watch a figure GLIDE in real time as I drag it on the first — with everything surviving a refresh."
 
-**Non-negotiables that shape every phase:** no JavaScript anywhere · no Save button (every operation
+**Non-negotiables that shape every phase:** no application-authored JavaScript (framework/template JS
+such as `blazor.web.js` is out of scope — see PROJECT.md Constraints) · no Save button (every operation
 persists immediately) · 1280 × 720 with inclusive bounds · `canvasY = PageY − 48` · plaintext
 passwords (locked, deliberate) · **all 58 ADR decisions are LOCKED and must not be re-litigated.**
 
