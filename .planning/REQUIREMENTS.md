@@ -105,7 +105,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
   any tab that acquired a ghost drops it too. No message, no prompt, no merge. F5 is the documented
   manual fallback; **no Reload button is built**. *(D-10, D-40)*
 
-- [ ] **DATA-04** *(REQ-save-failure)* — A failed save must never leave the screen lying about the
+- [x] **DATA-04** *(REQ-save-failure)* — A failed save must never leave the screen lying about the
   database. Transient failures retry up to **2 additional times** with short delays. **Non-transient
   failures are never retried** (validation, CHECK violations, missing figure, zero-row UPDATE). On
   final failure: **broadcast `rollback` with the original coordinates** → restore locally → show the
@@ -184,7 +184,7 @@ Explicitly locked out by D-04, D-14, D-08. Not deferred — **excluded**.
 | FIG-04 | REQ-delete-figure | Phase 4 | Complete |
 | SYNC-01 | REQ-live-sync | Phase 5 | Complete |
 | DATA-03 | REQ-staleness-guard | Phase 5 | Pending |
-| DATA-04 | REQ-save-failure | Phase 5 | Pending |
+| DATA-04 | REQ-save-failure | Phase 5 | Complete |
 
 **Coverage:**
 

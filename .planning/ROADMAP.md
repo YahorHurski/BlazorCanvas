@@ -213,7 +213,7 @@ Plans:
   4. Dragging a figure that another tab already deleted **silently removes it** from this tab's view, and any tab still showing that ghost drops it too. No error, no prompt, no merge.
   5. If a save fails after retries, **every tab is restored to the figure's original coordinates**, and the user gets one modal — *"The change could not be saved. The canvas will be reloaded from the database."* — which reloads from PostgreSQL on OK. The app stays alive; the circuit does not crash.
 
-**Plans**: 1/5 plans executed
+**Plans**: 2/5 plans executed
 
 Plans:
 **Wave 1**
@@ -222,7 +222,7 @@ Plans:
 
 **Wave 2** *(blocked on 05-01 — needs the notifier type)*
 
-- [ ] 05-02-PLAN.md — `Program.cs`: the Singleton registration (the lifetime IS the feature) and D-52's bounded transient retry via `EnableRetryOnFailure(2, 200ms)` (wave 2)
+- [x] 05-02-PLAN.md — `Program.cs`: the Singleton registration (the lifetime IS the feature) and D-52's bounded transient retry via `EnableRetryOnFailure(2, 200ms)` (wave 2)
 
 **Wave 3** *(blocked on 05-01, 05-02)*
 
@@ -258,7 +258,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Login, Session & Logout | 3/3 | Complete    | 2026-07-15 |
 | 3. The Canvas & Drawing | 5/5 | Complete    | 2026-07-16 |
 | 4. Select, Drag & Delete | 4/4 | Complete    | 2026-07-16 |
-| 5. Live Cross-Tab Sync | 1/5 | In Progress|  |
+| 5. Live Cross-Tab Sync | 2/5 | In Progress|  |
 
 ## Requirement Coverage
 
