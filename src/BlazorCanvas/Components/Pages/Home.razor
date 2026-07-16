@@ -5,7 +5,10 @@
 @using BlazorCanvas.Components.Canvas
 @using BlazorCanvas.Data
 @using BlazorCanvas.Geometry
+@using BlazorCanvas.Sync
 @inject FigureStore Figures
+@inject CanvasSyncNotifier Notifier
+@implements IDisposable
 
 <PageTitle>BlazorCanvas</PageTitle>
 
@@ -43,6 +46,9 @@
     private int? selectedId;
     private bool dragging;
     private int? dragFigureId;
+    private readonly Guid _sender = Guid.NewGuid();
+    private IDisposable? _subscription;
+    private long _lastBroadcastTicks = long.MinValue;
 
     // The figure's box at press time. It is assigned exactly once per drag and retained until the
     // drag commits, so Phase 5 can use it as D-52's rollback source if a save later fails.
@@ -82,7 +88,15 @@
         var state = await AuthStateTask!;
         userId = int.Parse(state.User.FindFirst("user_id")!.Value);
         figures = await Figures.LoadAsync(userId);
+        _subscription = Notifier.Subscribe(userId, HandleRemoteMessage);
     }
+
+    /// <summary>
+    /// D-11 rule 1: closed tabs must unsubscribe so later publishes cannot keep invoking a
+    /// torn-down circuit. The null conditional covers an async initialization that ended before
+    /// the subscribe line.
+    /// </summary>
+    public void Dispose() => _subscription?.Dispose();
 
     private void OnPointerDown(PointerEventArgs e)
     {
@@ -159,6 +173,13 @@
         }
 
         dragCurrentBox = Movement.ClampMove(dragOriginalBox, dx, dy);
+
+        var now = Environment.TickCount64;
+        if (dragMoved && now - _lastBroadcastTicks >= 50)
+        {
+            _lastBroadcastTicks = now;
+            Notifier.Publish(userId, SyncMessage.Move(dragFigureId!.Value, dragCurrentBox, _sender));
+        }
     }
 
     private async Task OnWrapperPointerUp(PointerEventArgs e)
@@ -210,6 +231,11 @@
         }
     }
 
+    /// <summary>
+    /// Commits a finished draw. D-39 forces insert -> get id -> broadcast: the id does not exist
+    /// until the INSERT completes, so no draw message can be optimistic. D-35 keeps the live preview
+    /// local-only; rejected draws return silently before any insert or broadcast (D-50).
+    /// </summary>
     private async Task CommitAsync()
     {
         drawing = false;
@@ -223,6 +249,7 @@
 
         var figure = await Figures.InsertAsync(userId, type, box);
         figures.Add(figure);
+        Notifier.Publish(userId, SyncMessage.Draw(figure, _sender));
     }
 
     private async Task CommitDragAsync()
@@ -246,6 +273,8 @@
             figure.Y2 = box.Y2;
         }
 
+        Notifier.Publish(userId, SyncMessage.Move(figureId.Value, box, _sender));
+
         var affected = await Figures.UpdateAsync(userId, figureId.Value, box);
         if (affected == 0)
         {
@@ -254,9 +283,16 @@
             {
                 selectedId = null;
             }
+
+            Notifier.Publish(userId, SyncMessage.Delete(figureId.Value, _sender));
         }
     }
 
+    /// <summary>
+    /// Deletes after the database confirms the write, then broadcasts. This extends D-39's
+    /// non-optimistic discipline to delete while preserving D-10: DELETE-of-a-ghost is naturally
+    /// idempotent and already the requested end state, so the affected-row count is not a branch.
+    /// </summary>
     private async Task HandleDeleteAsync()
     {
         if (!selectedId.HasValue)
@@ -265,12 +301,91 @@
         }
 
         var figureId = selectedId.Value;
-        selectedId = null;
-        figures.RemoveAll(f => f.Id == figureId);
 
         // D-10: DELETE-of-a-ghost is already the requested end state, so the returned count is
         // not a branch point here. Only UPDATE needs the explicit zero-row local cleanup guard.
         await Figures.DeleteAsync(userId, figureId);
+        selectedId = null;
+        figures.RemoveAll(f => f.Id == figureId);
+        Notifier.Publish(userId, SyncMessage.Delete(figureId, _sender));
+    }
+
+    /// <summary>
+    /// Notifier callbacks run on the publisher's circuit. D-11 requires marshalling back through
+    /// InvokeAsync, then filtering echoes by the per-circuit sender and discarding every incoming
+    /// message while this tab is dragging (D-54's blanket rule).
+    /// </summary>
+    private void HandleRemoteMessage(SyncMessage msg)
+    {
+        _ = InvokeAsync(() =>
+        {
+            try
+            {
+                if (msg.Sender == _sender)
+                {
+                    return;
+                }
+
+                if (dragging)
+                {
+                    return;
+                }
+
+                ApplyMessage(msg);
+                StateHasChanged();
+            } catch (ObjectDisposedException)
+            {
+            }
+        });
+    }
+
+    /// <summary>
+    /// Applies D-53's four message kinds. Only draw may create a figure; move and rollback are
+    /// update-only by D-40, so an unknown id is ignored instead of resurrected.
+    /// </summary>
+    private void ApplyMessage(SyncMessage msg)
+    {
+        switch (msg.Kind)
+        {
+            case "draw":
+                if (!figures.Any(f => f.Id == msg.Id))
+                {
+                    figures.Add(new Figure
+                    {
+                        Id = msg.Id,
+                        UserId = userId,
+                        Type = msg.Type!,
+                        X1 = msg.X1!.Value,
+                        Y1 = msg.Y1!.Value,
+                        X2 = msg.X2!.Value,
+                        Y2 = msg.Y2!.Value,
+                    });
+                }
+
+                break;
+            case "move":
+            case "rollback":
+                var existing = figures.FirstOrDefault(f => f.Id == msg.Id);
+                if (existing is null)
+                {
+                    return;
+                }
+
+                existing.X1 = msg.X1!.Value;
+                existing.Y1 = msg.Y1!.Value;
+                existing.X2 = msg.X2!.Value;
+                existing.Y2 = msg.Y2!.Value;
+                break;
+            case "delete":
+                figures.RemoveAll(f => f.Id == msg.Id);
+                if (selectedId == msg.Id)
+                {
+                    selectedId = null;
+                }
+
+                break;
+        }
     }
 }
+
 
