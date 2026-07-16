@@ -171,7 +171,7 @@ Plans:
   4. Releasing the pointer **outside the window**, or **Alt-Tabbing away mid-drag**, commits the figure at its clamped position instead of leaving it stuck to the cursor. Nothing jumps.
   5. The **Delete button is greyed out until something is selected**; with a figure selected, clicking it removes the figure and its row. **There is no Delete-key handler.** After F5, every move and every deletion is still there.
 
-**Plans**: 3/4 plans executed
+**Plans**: 4/4 plans executed
 
 Plans:
 **Wave 1** *(two independent plans — no shared files)*
@@ -185,7 +185,7 @@ Plans:
 
 **Wave 3** *(blocked on 04-03)*
 
-- [ ] 04-04-PLAN.md — Human verification of the five success criteria on a real screen (wave 3, blocking checkpoint)
+- [x] 04-04-PLAN.md — Human verification of the five success criteria on a real screen (wave 3, blocking checkpoint)
 
 **UI hint**: yes
 
@@ -236,7 +236,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Database, Schema & Geometry Core | 6/6 | Complete   | 2026-07-15 |
 | 2. Login, Session & Logout | 3/3 | Complete    | 2026-07-15 |
 | 3. The Canvas & Drawing | 5/5 | Complete    | 2026-07-16 |
-| 4. Select, Drag & Delete | 3/4 | In Progress|  |
+| 4. Select, Drag & Delete | 4/4 | In Progress|  |
 | 5. Live Cross-Tab Sync | 0/TBD | Not started | - |
 
 ## Requirement Coverage
