@@ -46,7 +46,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
   visible). Coordinates derive as `canvasX = PageX`, `canvasY = PageY − 48`, **using `PageX`/`PageY`
   only**. A circle never renders as an oval on any screen size. *(D-06, D-18, D-19, D-43, D-55, D-38)*
 
-- [ ] **CANV-02** *(REQ-toolbar)* — A six-button toolbar:
+- [x] **CANV-02** *(REQ-toolbar)* — A six-button toolbar:
   `[pointer] [line] [rectangle] [circle] [triangle] [delete]`. **Exactly six buttons.** The armed
   button stays visibly active. The **pointer tool is armed on page load**. The **Delete button is
   greyed out and unclickable when nothing is selected**. Logout is present in the strip but is not one

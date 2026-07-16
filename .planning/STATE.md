@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: the-canvas-drawing
 status: executing
-stopped_at: Completed 03-02-PLAN.md — FigureStore data path (IDbContextFactory, load/insert, cross-user isolation tests)
-last_updated: "2026-07-16T12:18:49.680Z"
+stopped_at: Completed 03-03-PLAN.md — Toolbar and FigureShape components (Tool enum, six-button toolbar with migrated Logout form, four-shape SVG renderer)
+last_updated: "2026-07-16T12:38:42.069Z"
 last_activity: 2026-07-16
 last_activity_desc: Phase BC-03 execution started
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 14
-  completed_plans: 11
+  completed_plans: 12
   percent: 40
 ---
 
@@ -30,7 +30,7 @@ and every other tab shows it happening live, including a figure gliding in real 
 ## Current Position
 
 Phase: BC-03 (the-canvas-drawing) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Executing Phase BC-03
 Last activity: 2026-07-16 — Phase BC-03 execution started
 Next: Phase BC-03 (The Canvas & Drawing) — not yet planned; run `/gsd-plan-phase 3` when ready
@@ -68,6 +68,7 @@ Progress: [██████████] 100% (Phase BC-02) / [████░
 | Phase 02 P03 | 12min | 2 tasks | 5 files |
 | Phase BC-03 P01 | 12min | 2 tasks | 4 files |
 | Phase BC-03 P02 | 20min | 3 tasks | 4 files |
+| Phase BC-03 P03 | 12min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,9 @@ The ones most likely to be violated by accident:
 - [Phase BC-03]: Circle centre/radius is computed from clamped press/cursor points then passed through CircleEncoding only, never Normalisation.Normalise, preserving the even-sided guarantee
 - [Phase BC-03]: DbContext lifetime (IDbContextFactory vs scoped) was engineering discretion — docs/DECISIONS.md is silent on it — short-lived per-call contexts chosen to avoid captive-dependency and cross-circuit staleness in the InteractiveServer circuit
 - [Phase BC-03]: Test-side IDbContextFactory<CanvasDbContext> adapter is a hand-written nested class over DatabaseFixture.CreateContext(), not a DI/mocking package (D-49 test-project scope cap)
+- [Phase BC-03]: [Phase BC-03] Tool is a separate enum from FigureType; Pointer is first so default(Tool) == Tool.Pointer (D-31); no Tool.Delete member since deletion is an action button, not an armable mode (D-33)
+- [Phase BC-03]: [Phase BC-03] FigureShape opacity uses a computed OpacityValue property rather than duplicating shape markup per preview state, keeping fill/stroke attribute counts exact while still toggling opacity
+- [Phase BC-03]: [Phase BC-03] Toolbar's Logout submit button carries both tool-button and logout-button CSS classes so it inherits base icon-button styling instead of re-declaring border/size rules
 
 ### Pending Todos
 
@@ -139,6 +143,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-16T12:18:49.671Z
-Stopped at: Completed 03-02-PLAN.md — FigureStore data path (IDbContextFactory, load/insert, cross-user isolation tests)
+Last session: 2026-07-16T12:38:42.060Z
+Stopped at: Completed 03-03-PLAN.md — Toolbar and FigureShape components (Tool enum, six-button toolbar with migrated Logout form, four-shape SVG renderer)
 Resume file: None

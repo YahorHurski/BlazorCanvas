@@ -128,3 +128,7 @@ None - no external service configuration required.
 - `Tool`, `ToolMap`, `Toolbar.razor`, and `FigureShape.razor` are built, build clean, and pass every acceptance criterion in 03-03-PLAN.md, but nothing mounts them yet (`Home.razor` still owns its own inline toolbar markup and no canvas SVG exists) - that wiring is plan 03-04's job.
 - Plan 03-04 will bind `Toolbar`'s `Armed`/`ArmedChanged`/`DeleteEnabled` parameters and place `FigureShape` inside the canvas's real SVG root; only then does a human-verify checkpoint (end of plan 03-05) become meaningful for these components.
 - `dotnet build` and `dotnet test` both pass clean (388/388 tests) after this plan; no new packages were added to either csproj.
+
+## Self-Check: PASSED
+
+All 4 created files verified present on disk; all 4 commit hashes (18f0448, 5dd3c94, 50bd816, 741da51) verified present in git log.

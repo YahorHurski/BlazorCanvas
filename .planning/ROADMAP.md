@@ -127,14 +127,14 @@ Plans:
   4. **Drawing stops at the canvas edge**: the shape stops growing at the boundary while the cursor keeps moving, and a circle **never renders as an oval**. A zero-size drag creates nothing, **silently** — but a **horizontal or vertical line still draws**.
   5. Every drawn figure is **INSERTed immediately** (there is no Save button), and after **F5** the whole canvas reloads in the same drawing order with the same overlap/occlusion. A second user logging in sees **only their own figures**.
 
-**Plans**: 2/5 plans executed
+**Plans**: 3/5 plans executed
 
 Plans:
 **Wave 1** *(three independent plans — no shared files)*
 
 - [x] 03-01-PLAN.md — The pure draw maths: `CanvasCoordinates` (the `PageY − 48` mapping) and `DrawGesture` (clamp → type dispatch → normalise), with tests (wave 1)
 - [x] 03-02-PLAN.md — The data path: `IDbContextFactory` for the long-lived circuit, `FigureStore` (load `WHERE user_id ORDER BY id`, insert → get id), and the cross-user isolation test (wave 1)
-- [ ] 03-03-PLAN.md — The presentation components: the `Tool` enum, the six-button `Toolbar` (Logout migrated in), and `FigureShape` (all four types + preview) (wave 1)
+- [x] 03-03-PLAN.md — The presentation components: the `Tool` enum, the six-button `Toolbar` (Logout migrated in), and `FigureShape` (all four types + preview) (wave 1)
 
 **Wave 2** *(blocked on 03-02, 03-03)*
 
@@ -219,7 +219,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Database, Schema & Geometry Core | 6/6 | Complete   | 2026-07-15 |
 | 2. Login, Session & Logout | 3/3 | Complete    | 2026-07-15 |
-| 3. The Canvas & Drawing | 2/5 | In Progress|  |
+| 3. The Canvas & Drawing | 3/5 | In Progress|  |
 | 4. Select, Drag & Delete | 0/TBD | Not started | - |
 | 5. Live Cross-Tab Sync | 0/TBD | Not started | - |
 
