@@ -72,7 +72,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
   performs **no database write**. Selection is **local UI state only** — never persisted, never
   broadcast. *(D-15, D-30, D-31, D-38, D-48, D-58)*
 
-- [ ] **FIG-03** *(REQ-drag-figure)* — With the pointer tool armed, dragging a figure moves it.
+- [x] **FIG-03** *(REQ-drag-figure)* — With the pointer tool armed, dragging a figure moves it.
   Movement of **≥ 3 px** is a drag; starting a drag also selects, and it stays selected after the drop.
   The figure **stops at the canvas edge and slides along it** (per-axis independent delta clamp).
   Exactly **one `UPDATE` on drop** — no intermediate writes. `pointerleave` on the drag surface commits
@@ -80,7 +80,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
   Alt-Tab case). **No JavaScript.** A zero-row UPDATE means the figure is gone: remove it from the view
   silently **and broadcast a delete**. *(D-04, D-24, D-36, D-37, D-48, D-09, D-10, D-52)*
 
-- [ ] **FIG-04** *(REQ-delete-figure)* — Select a figure, then click the toolbar Delete button.
+- [x] **FIG-04** *(REQ-delete-figure)* — Select a figure, then click the toolbar Delete button.
   **No Delete-key handler exists** (it would require focus management or JavaScript). Deleting issues
   `DELETE` on that row; deleting an already-gone figure is a silent no-op. The button is disabled
   whenever nothing is selected. *(D-04, D-33, D-15, D-58, D-09)*
@@ -180,8 +180,8 @@ Explicitly locked out by D-04, D-14, D-08. Not deferred — **excluded**.
 | CANV-02 | REQ-toolbar | Phase 3 | Pending |
 | FIG-01 | REQ-draw-figure | Phase 3 | Complete |
 | FIG-02 | REQ-select-figure | Phase 4 | Pending |
-| FIG-03 | REQ-drag-figure | Phase 4 | Pending |
-| FIG-04 | REQ-delete-figure | Phase 4 | Pending |
+| FIG-03 | REQ-drag-figure | Phase 4 | Complete |
+| FIG-04 | REQ-delete-figure | Phase 4 | Complete |
 | SYNC-01 | REQ-live-sync | Phase 5 | Pending |
 | DATA-03 | REQ-staleness-guard | Phase 5 | Pending |
 | DATA-04 | REQ-save-failure | Phase 5 | Pending |

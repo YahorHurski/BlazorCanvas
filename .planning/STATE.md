@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 4
 current_phase_name: Select, Drag & Delete
-status: verifying
-stopped_at: Phase 4 UI-SPEC approved
-last_updated: "2026-07-16T16:20:14.037Z"
+status: executing
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-07-16T17:21:13.072Z"
 last_activity: 2026-07-16
-last_activity_desc: Phase BC-03 complete, transitioned to Phase 4
+last_activity_desc: Completed 04-01 write-path plan
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 14
-  completed_plans: 14
-  percent: 60
+  total_plans: 18
+  completed_plans: 15
+  percent: 83
 ---
 
 # Project State
@@ -25,17 +25,17 @@ See: .planning/PROJECT.md (updated 2026-07-14)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
-**Current focus:** Phase BC-03 — the-canvas-drawing
+**Current focus:** Phase 4 — Select, Drag & Delete
 
 ## Current Position
 
 Phase: 4 — Select, Drag & Delete
-Plan: Not started
-Status: Ready for verification Phase BC-03
-Last activity: 2026-07-16 — Phase BC-03 complete, transitioned to Phase 4
-Next: Phase BC-03 (The Canvas & Drawing) — not yet planned; run `/gsd-plan-phase 3` when ready
+Plan: 04-02 next
+Status: Executing Phase 4
+Last activity: 2026-07-16 — Completed 04-01 write-path plan
+Next: Phase 4 Plan 04-02 — presentation surfaces
 
-Progress: [██████████] 100% (Phase BC-02) / [████░░░░░░] 40% (milestone, 2 of 5 phases)
+Progress: [███░░░░░░░] 25% (Phase 4, 1 of 4 plans) / [████████░░] 83% (milestone, 15 of 18 plans)
 
 ## Performance Metrics
 
@@ -147,6 +147,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-16T16:20:14.025Z
-Stopped at: Phase 4 UI-SPEC approved
-Resume file: .planning/phases/BC-04-select-drag-delete/04-UI-SPEC.md
+Last session: 2026-07-16T17:21:13.058Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: None
