@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 4
 current_phase_name: Select, Drag & Delete
 status: verifying
-stopped_at: Completed 03-05-PLAN.md — Draw gesture commit path verified
-last_updated: "2026-07-16T15:35:06.257Z"
+stopped_at: Phase 4 UI-SPEC approved
+last_updated: "2026-07-16T16:20:14.037Z"
 last_activity: 2026-07-16
 last_activity_desc: Phase BC-03 complete, transitioned to Phase 4
 progress:
@@ -147,6 +147,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-16T14:58:12.457Z
-Stopped at: Completed 03-05-PLAN.md — Draw gesture commit path verified
-Resume file: None
+Last session: 2026-07-16T16:20:14.025Z
+Stopped at: Phase 4 UI-SPEC approved
+Resume file: .planning/phases/BC-04-select-drag-delete/04-UI-SPEC.md
