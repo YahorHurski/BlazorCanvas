@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 3
-current_phase_name: The Canvas & Drawing
-status: verifying
+current_phase: 03
+current_phase_name: the-canvas-drawing
+status: executing
 stopped_at: Completed 02-03-PLAN.md — Phase BC-02 (Login, Session & Logout) fully complete, all 3 plans executed and human-verified
-last_updated: "2026-07-15T19:45:57.096Z"
-last_activity: 2026-07-15
-last_activity_desc: Phase BC-02 complete, transitioned to Phase 3
+last_updated: "2026-07-16T12:03:28.800Z"
+last_activity: 2026-07-16
+last_activity_desc: Phase BC-03 execution started
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 14
+  completed_plans: 10
   percent: 40
 ---
 
@@ -25,14 +25,14 @@ See: .planning/PROJECT.md (updated 2026-07-14)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
-**Current focus:** Phase BC-02 — login-session-logout
+**Current focus:** Phase BC-03 — the-canvas-drawing
 
 ## Current Position
 
-Phase: 3 — The Canvas & Drawing
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-07-15 — Phase BC-02 complete, transitioned to Phase 3
+Phase: BC-03 (the-canvas-drawing) — EXECUTING
+Plan: 2 of 5
+Status: Executing Phase BC-03
+Last activity: 2026-07-16 — Phase BC-03 execution started
 Next: Phase BC-03 (The Canvas & Drawing) — not yet planned; run `/gsd-plan-phase 3` when ready
 
 Progress: [██████████] 100% (Phase BC-02) / [████░░░░░░] 40% (milestone, 2 of 5 phases)
@@ -66,6 +66,7 @@ Progress: [██████████] 100% (Phase BC-02) / [████░
 | Phase BC-02 P01 | 8min | 2 tasks | 8 files |
 | Phase 02 P02 | 20min | 3 tasks | 3 files |
 | Phase 02 P03 | 12min | 2 tasks | 5 files |
+| Phase BC-03 P01 | 12min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -105,6 +106,8 @@ The ones most likely to be violated by accident:
 - [Phase 02]: UseAuthentication/UseAuthorization inserted directly before the pre-existing UseAntiforgery() call, matching RESEARCH Pitfall 4's exact ordering requirement
 - [Phase 02]: POST /logout uses Results.LocalRedirect (never a caller-supplied target) so an open redirect is structurally impossible
 - [Phase 02]: AntiforgeryStateProvider.GetAntiforgeryToken() field name is FormFieldName, not Name as 02-RESEARCH.md's Pattern 3 showed - verified against the installed .NET 10.0.9 assembly and corrected in Home.razor (02-03)
+- [Phase BC-03]: DrawGesture never calls MinSizeGuard.IsDrawable -- that decision belongs to the caller (plan 03-05), so a not-yet-drawable gesture can still render a live preview (D-35, D-50)
+- [Phase BC-03]: Circle centre/radius is computed from clamped press/cursor points then passed through CircleEncoding only, never Normalisation.Normalise, preserving the even-sided guarantee
 
 ### Pending Todos
 
@@ -133,6 +136,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-15T19:37:55.039Z
+Last session: 2026-07-16T12:02:42.896Z
 Stopped at: Completed 02-03-PLAN.md — Phase BC-02 (Login, Session & Logout) fully complete, all 3 plans executed and human-verified
 Resume file: None

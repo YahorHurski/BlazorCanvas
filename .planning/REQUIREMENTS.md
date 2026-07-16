@@ -39,7 +39,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
 
 ### Canvas & Toolbar
 
-- [ ] **CANV-01** *(REQ-canvas-surface)* — A fixed **1280 × 720 SVG canvas at document position
+- [x] **CANV-01** *(REQ-canvas-surface)* — A fixed **1280 × 720 SVG canvas at document position
   (0, 48)**, rendered at 1:1. One canvas unit = one CSS pixel on every screen; the canvas does not
   scale to the window. Anchored top-left, no `margin: auto`, **no CSS border** on the SVG. Canvas is
   white; the page background is light grey (this contrast is the only thing that makes the edge
@@ -54,7 +54,7 @@ acceptance criterion, none is asserted. There are no competing acceptance varian
 
 ### Figures — the three verbs
 
-- [ ] **FIG-01** *(REQ-draw-figure)* — With a shape tool armed, dragging on the canvas draws that
+- [x] **FIG-01** *(REQ-draw-figure)* — With a shape tool armed, dragging on the canvas draws that
   shape — **even on top of existing figures**. Four types. Line/rectangle/triangle are drawn
   **corner-to-corner**; the **circle is drawn centre-out** (press = centre, drag distance = radius).
   The triangle's apex is top-centre (always isosceles, always upward). **Live preview** under the
