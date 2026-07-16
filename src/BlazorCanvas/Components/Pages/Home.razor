@@ -91,13 +91,34 @@
         previewBox = DrawGesture.Build(previewType, pressX, pressY, point.X, point.Y);
     }
 
-    private Task OnPointerUp(PointerEventArgs e) => drawing ? CommitAsync() : Task.CompletedTask;
+    private async Task OnPointerUp(PointerEventArgs e)
+    {
+        if (drawing)
+        {
+            await CommitAsync();
+        }
+    }
 
-    private Task OnPointerLeave(PointerEventArgs e) => drawing ? CommitAsync() : Task.CompletedTask;
+    private async Task OnPointerLeave(PointerEventArgs e)
+    {
+        if (drawing)
+        {
+            await CommitAsync();
+        }
+    }
 
-    private Task CommitAsync()
+    private async Task CommitAsync()
     {
         drawing = false;
-        return Task.CompletedTask;
+        var type = previewType;
+        var box = previewBox;
+
+        if (!MinSizeGuard.IsDrawable(type, box))
+        {
+            return;
+        }
+
+        var figure = await Figures.InsertAsync(userId, type, box);
+        figures.Add(figure);
     }
 }
