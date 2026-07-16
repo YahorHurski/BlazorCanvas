@@ -5,7 +5,7 @@
 @using Microsoft.EntityFrameworkCore
 @using BlazorCanvas.Data
 @using BlazorCanvas.Auth
-@inject CanvasDbContext Db
+@inject IDbContextFactory<CanvasDbContext> DbFactory
 @inject NavigationManager Nav
 
 <PageTitle>Log in</PageTitle>
@@ -73,20 +73,22 @@
             return;
         }
 
-        var user = await Db.Users.SingleOrDefaultAsync(u => u.Username == username);
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        var user = await db.Users.SingleOrDefaultAsync(u => u.Username == username);
         if (user is null)
         {
             user = new User { Username = username, Password = Input.Password };
-            Db.Users.Add(user);
+            db.Users.Add(user);
             try
             {
-                await Db.SaveChangesAsync();
+                await db.SaveChangesAsync();
             }
             catch (DbUpdateException ex) when (IsUniqueViolation(ex))
             {
                 // Two tabs raced to create the same new username (D-44's UNIQUE index won).
-                Db.Entry(user).State = EntityState.Detached;
-                user = await Db.Users.SingleAsync(u => u.Username == username);
+                db.Entry(user).State = EntityState.Detached;
+                user = await db.Users.SingleAsync(u => u.Username == username);
                 if (user.Password != Input.Password)
                 {
                     errorMessage = "Wrong password. Try again.";

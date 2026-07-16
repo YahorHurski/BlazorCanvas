@@ -12,8 +12,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddDbContext<CanvasDbContext>(options =>
+// IDbContextFactory, not a scoped context (T-03-03): the InteractiveServer circuit's DI scope
+// lives for the whole circuit (hours, not milliseconds), so a scoped CanvasDbContext would
+// accumulate tracked entities for the tab's lifetime and throw "A second operation was started
+// on this context instance" the first time two awaited handlers overlap. Every query and write
+// now creates and disposes its own short-lived context via this factory. Only the factory is
+// registered - registering CanvasDbContext as well would produce a captive-dependency failure
+// (a scoped DbContextOptions<CanvasDbContext> alongside the factory's singleton one).
+builder.Services.AddDbContextFactory<CanvasDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Canvas")));
+
+builder.Services.AddScoped<FigureStore>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -38,12 +47,13 @@ var app = builder.Build();
     const int maxAttempts = 10;
     var delay = TimeSpan.FromSeconds(2);
 
+    var dbContextFactory = app.Services.GetRequiredService<IDbContextFactory<CanvasDbContext>>();
+
     for (var attempt = 1; attempt <= maxAttempts; attempt++)
     {
         try
         {
-            using var scope = app.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<CanvasDbContext>();
+            await using var db = dbContextFactory.CreateDbContext();
             db.Database.Migrate();
             break;
         }
