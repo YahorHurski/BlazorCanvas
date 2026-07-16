@@ -162,6 +162,11 @@
 
     private async Task OnWrapperPointerMove(PointerEventArgs e)
     {
+        await ContinueDragAsync(e);
+    }
+
+    private async Task ContinueDragAsync(PointerEventArgs e)
+    {
         if (!dragging)
         {
             return;
@@ -210,6 +215,12 @@
 
     private async Task OnPointerMove(PointerEventArgs e)
     {
+        if (dragging)
+        {
+            await ContinueDragAsync(e);
+            return;
+        }
+
         if (!drawing)
         {
             return;
@@ -227,6 +238,12 @@
 
     private async Task OnPointerUp(PointerEventArgs e)
     {
+        if (dragging)
+        {
+            await CommitDragAsync();
+            return;
+        }
+
         if (drawing)
         {
             await CommitAsync();
@@ -235,6 +252,12 @@
 
     private async Task OnPointerLeave(PointerEventArgs e)
     {
+        if (dragging)
+        {
+            await CommitDragAsync();
+            return;
+        }
+
         if (drawing)
         {
             await CommitAsync();
@@ -377,9 +400,32 @@
     /// </summary>
     private async Task ReloadFromDatabaseAsync()
     {
+        var beforeReloadIds = figures.Select(f => f.Id).ToHashSet();
         figures = await Figures.LoadAsync(userId);
+        BroadcastReloadedSnapshot(beforeReloadIds);
         selectedId = null;
         showSaveFailedModal = false;
+    }
+
+    /// <summary>
+    /// D-52 reloads the acting tab from PostgreSQL. Publishing that canonical snapshot makes every
+    /// other tab converge too, including tabs that missed the earlier rollback while showing an
+    /// optimistic final drag position.
+    /// </summary>
+    private void BroadcastReloadedSnapshot(HashSet<int> beforeReloadIds)
+    {
+        var afterReloadIds = figures.Select(f => f.Id).ToHashSet();
+
+        foreach (var removedId in beforeReloadIds.Except(afterReloadIds))
+        {
+            Notifier.Publish(userId, SyncMessage.Delete(removedId, _sender));
+        }
+
+        foreach (var figure in figures)
+        {
+            Notifier.Publish(userId, SyncMessage.Draw(figure, _sender));
+            Notifier.Publish(userId, SyncMessage.Move(figure.Id, new Box(figure.X1, figure.Y1, figure.X2, figure.Y2), _sender));
+        }
     }
 
     /// <summary>
