@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BlazorCanvas.Data;
 
 /// <summary>
-/// The app's only figure load/insert path. "The canvas" is not a row or an entity — it is the
+/// The app's only figure load/insert/update/delete path. "The canvas" is not a row or an entity — it is the
 /// `WHERE user_id = @id ORDER BY id` query in <see cref="LoadAsync"/> (D-03, D-12). Every method
 /// takes its own short-lived <see cref="CanvasDbContext"/> from the runtime
 /// <see cref="IDbContextFactory{TContext}"/> (Task 1), never a long-lived one, so this store is
@@ -12,7 +12,8 @@ namespace BlazorCanvas.Data;
 ///
 /// This store never normalises, clamps, or guards geometry, and it never discovers whose canvas
 /// it is on its own — `userId` is always a parameter, supplied by the caller from the `user_id`
-/// cookie claim (T-03-01). It also never updates or deletes; those are Phase 4 (FIG-03, FIG-04).
+/// cookie claim (T-03-01). It owns all three persistence verbs while geometry rules stay with
+/// the caller and the database constraints.
 /// </summary>
 public sealed class FigureStore(IDbContextFactory<CanvasDbContext> factory)
 {
@@ -34,7 +35,7 @@ public sealed class FigureStore(IDbContextFactory<CanvasDbContext> factory)
     }
 
     /// <summary>
-    /// Inserts one figure and returns it AFTER `SaveChangesAsync`, so EF Core has populated
+    /// Inserts one figure and returns it after saving, so EF Core has populated
     /// `Id` from the database identity column. This ordering is D-39 and it is load-bearing for
     /// Phase 5: the id does not exist until the INSERT completes, so the `draw` broadcast can
     /// never be fired optimistically.
@@ -57,5 +58,39 @@ public sealed class FigureStore(IDbContextFactory<CanvasDbContext> factory)
         await db.SaveChangesAsync();
 
         return figure;
+    }
+
+    /// <summary>
+    /// Persists the single database write made by a whole drag: one UPDATE on drop, never on
+    /// pointer-move (D-09). The affected-row count is D-10's staleness guard: 0 means the
+    /// figure is already gone, not that this call failed. The `userId` term in the filter is
+    /// the IDOR guard, so a caller can only move figures from their own canvas.
+    /// </summary>
+    public async Task<int> UpdateAsync(int userId, int figureId, Box box)
+    {
+        await using var db = await factory.CreateDbContextAsync();
+
+        return await db.Figures
+            .Where(f => f.Id == figureId && f.UserId == userId)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(f => f.X1, box.X1)
+                .SetProperty(f => f.Y1, box.Y1)
+                .SetProperty(f => f.X2, box.X2)
+                .SetProperty(f => f.Y2, box.Y2));
+    }
+
+    /// <summary>
+    /// Deletes one owned figure and returns the affected-row count. Delete-of-a-ghost is
+    /// naturally idempotent (D-10 says only UPDATE needs the guard), so the count is returned
+    /// for symmetry with <see cref="UpdateAsync"/> and for tests rather than because the caller
+    /// must branch on it.
+    /// </summary>
+    public async Task<int> DeleteAsync(int userId, int figureId)
+    {
+        await using var db = await factory.CreateDbContextAsync();
+
+        return await db.Figures
+            .Where(f => f.Id == figureId && f.UserId == userId)
+            .ExecuteDeleteAsync();
     }
 }
