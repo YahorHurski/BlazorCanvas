@@ -213,7 +213,28 @@ Plans:
   4. Dragging a figure that another tab already deleted **silently removes it** from this tab's view, and any tab still showing that ghost drops it too. No error, no prompt, no merge.
   5. If a save fails after retries, **every tab is restored to the figure's original coordinates**, and the user gets one modal — *"The change could not be saved. The canvas will be reloaded from the database."* — which reloads from PostgreSQL on OK. The app stays alive; the circuit does not crash.
 
-**Plans**: TBD
+**Plans**: 0/5 plans complete
+
+Plans:
+**Wave 1**
+
+- [ ] 05-01-PLAN.md — The sync primitives: the D-53 `SyncMessage` contract and the `CanvasSyncNotifier` DI singleton keyed by `user_id`, with the cross-user isolation and unsubscribe proofs (wave 1)
+
+**Wave 2** *(blocked on 05-01 — needs the notifier type)*
+
+- [ ] 05-02-PLAN.md — `Program.cs`: the Singleton registration (the lifetime IS the feature) and D-52's bounded transient retry via `EnableRetryOnFailure(2, 200ms)` (wave 2)
+
+**Wave 3** *(blocked on 05-01, 05-02)*
+
+- [ ] 05-03-PLAN.md — `Home.razor`'s sync wiring: subscribe/dispose, echo filter, D-54's blanket mid-drag discard, D-40's update-only apply, the 50ms glide with its guaranteed trailing edge, and the zero-row delete broadcast (wave 3)
+
+**Wave 4** *(blocked on 05-03 — same file)*
+
+- [ ] 05-04-PLAN.md — The save-failure path: try/catch on all three write paths, D-52's forced `rollback` broadcast, the one locked modal string, the reload-from-Postgres, and the modal's CSS (wave 4)
+
+**Wave 5** *(blocked on 05-04)*
+
+- [ ] 05-05-PLAN.md — Human verification of the five success criteria and the definition of done on two real screens (wave 5, blocking checkpoint)
 
 **Notes for planning:**
 
@@ -237,7 +258,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Login, Session & Logout | 3/3 | Complete    | 2026-07-15 |
 | 3. The Canvas & Drawing | 5/5 | Complete    | 2026-07-16 |
 | 4. Select, Drag & Delete | 4/4 | Complete    | 2026-07-16 |
-| 5. Live Cross-Tab Sync | 0/TBD | Not started | - |
+| 5. Live Cross-Tab Sync | 0/5 | Planned | - |
 
 ## Requirement Coverage
 
