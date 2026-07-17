@@ -4,10 +4,10 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 05
 status: completed
-stopped_at: Completed BC-05-04-PLAN.md
-last_updated: "2026-07-17T00:41:09.045Z"
+stopped_at: Milestone v1.0 complete — all 5 phases verified
+last_updated: "2026-07-17T03:05:00.000Z"
 last_activity: 2026-07-17
-last_activity_desc: Phase BC-05 complete
+last_activity_desc: BC-01 re-verified after gap closure (passed, 6/6)
 progress:
   total_phases: 5
   completed_phases: 5
@@ -24,23 +24,23 @@ See: .planning/PROJECT.md (updated 2026-07-14)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
-**Current focus:** Phase 5 — Live Cross-Tab Sync
+**Current focus:** Milestone v1.0 complete — awaiting milestone close
 
 ## Current Position
 
-Phase: BC-05
-Plan: Not started
-Status: All phases complete
-Last activity: 2026-07-17 — Phase BC-05 complete
-Next: Phase 5 planning
+Phase: BC-05 (final phase)
+Plan: 5 of 5 complete
+Status: All phases complete — all 5 verifications passed
+Last activity: 2026-07-17 — BC-01 re-verified after gap closure (passed, 6/6)
+Next: `/gsd-complete-milestone` — archive v1.0 and prepare for the next milestone
 
-Progress: [██████████] 96% (Phase 4 complete) / [████████░░] 80% (milestone, 4 of 5 phases)
+Progress: [██████████] 100% (all 23 plans) / [██████████] 100% (milestone, 5 of 5 phases)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 17
+- Total plans completed: 23
 - Average duration: —
 - Total execution time: —
 
@@ -108,7 +108,7 @@ The ones most likely to be violated by accident:
 - [Phase BC-01]: .NET 10's dotnet new sln defaults to .slnx -- regenerated with --format sln to satisfy plan requirement
 - [Phase BC-01]: ClampDrawRadius rounds distance with MidpointRounding.AwayFromZero (10.5 -> 11) per D-24/D-29
 - [Phase BC-01]: MinSizeGuard is a literal per-type transcription of the three CHECK constraints (D-50); horizontal/vertical lines legal, zero-height rectangle/triangle illegal
-- [Phase BC-01]: D-27 port deviation (user-approved): Docker container host-published port moved 5432->5433; native postgresql-x64-18 Windows service permanently occupies 5432 on this dev machine. docs/DECISIONS.md D-27 text NOT amended -- open follow-up. — User explicitly chose to move the container port rather than touch the pre-existing native PostgreSQL 18 service
+- [Phase BC-01]: D-27 port deviation (user-approved): Docker container host-published port moved 5432->5433; native postgresql-x64-18 Windows service permanently occupies 5432 on this dev machine. User explicitly chose to move the container port rather than touch the pre-existing native PostgreSQL 18 service. **CLOSED 2026-07-17** — docs/DECISIONS.md D-27 ("Docker Compose") now records the amendment; the CR-03 fix makes the wrong-server hazard structurally unreachable.
 - [Phase BC-01]: GuardMirrorsChecksTests proves MinSizeGuard and the three CHECK constraints agree exactly across a 32-case matrix, in both directions (D-50) -- no disagreement found
 - [Phase BC-01]: Volume-persistence proof (ROADMAP criterion 1, re-proven with real data) implemented as a real xUnit test that shells out to docker compose down/up -d --wait via Process.Start, not an external manual script
 - [Phase BC-01]: Aligned tests/BlazorCanvas.Tests.csproj EF Core package versions to 10.0.10 to fix a CS1705 compile error surfaced by direct DbContextOptionsBuilder usage in test code (Rule 3 blocking fix, no new package installed)
@@ -157,6 +157,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-16T22:33:52.465Z
-Stopped at: Completed BC-05-04-PLAN.md
+Last session: 2026-07-17T03:05:00.000Z
+Stopped at: Milestone v1.0 complete — all 23 plans executed, all 5 verifications passed
 Resume file: None
