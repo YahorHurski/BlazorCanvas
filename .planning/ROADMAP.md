@@ -37,7 +37,7 @@ passwords (locked, deliberate) · **all 58 ADR decisions are LOCKED and must not
 - [x] **Phase 2: Login, Session & Logout** - Static-SSR login, cookie auth with the `user_id` claim, and an authenticated shell that survives F5 (completed 2026-07-15)
 - [x] **Phase 3: The Canvas & Drawing** - The 1280×720 SVG at (0,48), the six-button toolbar, and drawing all four shapes — persisted, and back after a refresh (completed 2026-07-16)
 - [x] **Phase 4: Select, Drag & Delete** - The three verbs complete: 3px click-vs-drag, edge clamping that slides, and a Delete button (completed 2026-07-16)
-- [ ] **Phase 5: Live Cross-Tab Sync** - The notifier, the real-time drag glide, and the consistency rules that stop any screen from lying
+- [x] **Phase 5: Live Cross-Tab Sync** - The notifier, the real-time drag glide, and the consistency rules that stop any screen from lying (completed 2026-07-17)
 
 ## Phase Details
 
@@ -234,7 +234,7 @@ Plans:
 
 **Wave 5** *(blocked on 05-04)*
 
-- [ ] 05-05-PLAN.md — Human verification of the five success criteria and the definition of done on two real screens (wave 5, blocking checkpoint)
+- [x] 05-05-PLAN.md — Human verification of the five success criteria and the definition of done on two real screens (wave 5, blocking checkpoint)
 
 **Notes for planning:**
 
@@ -258,7 +258,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Login, Session & Logout | 3/3 | Complete    | 2026-07-15 |
 | 3. The Canvas & Drawing | 5/5 | Complete    | 2026-07-16 |
 | 4. Select, Drag & Delete | 4/4 | Complete    | 2026-07-16 |
-| 5. Live Cross-Tab Sync | 4/5 | In Progress|  |
+| 5. Live Cross-Tab Sync | 5/5 | Complete    | 2026-07-17 |
 
 ## Requirement Coverage
 

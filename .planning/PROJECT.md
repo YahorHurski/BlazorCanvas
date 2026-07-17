@@ -34,14 +34,15 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 - [x] **CANV-01/02** — The 1280 × 720 SVG canvas at (0, 48); the six-button toolbar — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16)
 - [x] **DATA-01** — One canvas per user; load `WHERE user_id ORDER BY id`; cross-user isolation — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16)
 - [x] **FIG-01** — Draw all four shapes: live preview, edge clamp, silent degenerate rejection, immediate insert — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16)
+- [x] **FIG-02/03/04** — Select, drag with edge clamping, and delete — Validated in Phase BC-04: Select, Drag & Delete (2026-07-16)
+- [x] **DATA-03/04** — Staleness guard and save-failure rollback/reload recovery — Validated in Phase BC-05: Live Cross-Tab Sync (2026-07-17)
+- [x] **SYNC-01** — Live cross-tab sync with real-time drag glide — Validated in Phase BC-05: Live Cross-Tab Sync (2026-07-17)
 
 ### Active
 
 See `.planning/REQUIREMENTS.md` for the full, traceable set (15 requirements, all v1).
 
-- [ ] **DATA-02/03/04** — Per-operation persistence; staleness guard; save-failure rollback
-- [ ] **FIG-02/03/04** — Select, drag (with edge clamping), delete
-- [ ] **SYNC-01** — Live cross-tab sync with real-time drag glide
+- [ ] **DATA-02** — Per-operation persistence
 - [ ] **TEST-01** — The three mandated tests for the three *silent* failure modes
 
 ### Out of Scope
@@ -245,4 +246,4 @@ sentence of confirmation before Phase 5 — an implementer following D-11's chec
 build the rejected filter.
 
 ---
-*Last updated: 2026-07-15 — Phase BC-02 (Login, Session & Logout) complete; AUTH-01/02/03 validated.*
+*Last updated: 2026-07-17 — Phase BC-05 (Live Cross-Tab Sync) complete; SYNC-01, DATA-03, and DATA-04 validated.*
