@@ -58,7 +58,7 @@
     private int? dragFigureId;
     private readonly Guid _sender = Guid.NewGuid();
     private IDisposable? _subscription;
-    private long _lastBroadcastTicks = long.MinValue;
+    private long _lastBroadcastTicks;
 
     // The figure's box at press time. It is assigned exactly once per drag and retained until the
     // drag commits, so Phase 5 can use it as D-52's rollback source if a save later fails.
@@ -158,6 +158,7 @@
         dragPressY = point.Y;
         dragging = true;
         dragMoved = false;
+        _lastBroadcastTicks = 0;
     }
 
     private async Task OnWrapperPointerMove(PointerEventArgs e)
@@ -190,7 +191,7 @@
         dragCurrentBox = Movement.ClampMove(dragOriginalBox, dx, dy);
 
         var now = Environment.TickCount64;
-        if (dragMoved && now - _lastBroadcastTicks >= 50)
+        if (dragMoved && (_lastBroadcastTicks == 0 || now - _lastBroadcastTicks >= 50))
         {
             _lastBroadcastTicks = now;
             Notifier.Publish(userId, SyncMessage.Move(dragFigureId!.Value, dragCurrentBox, _sender));
