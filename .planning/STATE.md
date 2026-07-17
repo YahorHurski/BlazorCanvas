@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
+milestone_name: MinVP
 current_phase: 0
-status: Awaiting next milestone
-stopped_at: Milestone v1.0 complete — all 23 plans executed, all 5 verifications passed
-last_updated: "2026-07-17T02:12:12.444Z"
+status: Shipped — v1.0 archived and tagged
+stopped_at: Milestone v1.0 complete — all 23 plans executed, all 5 verifications passed, audit passed
+last_updated: "2026-07-17T02:15:00.000Z"
 last_activity: 2026-07-17
 last_activity_desc: Milestone v1.0 completed and archived
 progress:
@@ -21,18 +21,20 @@ current_phase_name: Live Cross-Tab Sync
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-14)
+See: .planning/PROJECT.md (updated 2026-07-17 after v1.0)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
-**Current focus:** Milestone v1.0 complete — awaiting milestone close
+**Current focus:** None — v1.0 shipped. BlazorCanvas is a terminal MinVP with no v2 requirement set;
+a future milestone would begin by amending `docs/DECISIONS.md`, not by planning phases.
 
 ## Current Position
 
-Phase: Milestone v1.0 complete
+Phase: Milestone v1.0 complete (5/5 phases, 23/23 plans, 15/15 requirements)
 Plan: —
-Status: Awaiting next milestone
+Status: Shipped — archived to `.planning/milestones/`, tagged `v1.0`
 Last activity: 2026-07-17 — Milestone v1.0 completed and archived
+Retrospective: `.planning/RETROSPECTIVE.md`
 
 ## Performance Metrics
 
@@ -102,31 +104,17 @@ The ones most likely to be violated by accident:
 
 - **D-08:** plaintext passwords are **deliberate and locked**. Do not "fix" this.
 - **No JavaScript anywhere** — load-bearing, not aesthetic. It is what forced D-18, D-33, D-37, D-57.
-- [Phase BC-01]: docker-compose.yml publishes 5432:5432 (not loopback-bound) per explicit user decision D-27
-- [Phase BC-01]: .NET 10's dotnet new sln defaults to .slnx -- regenerated with --format sln to satisfy plan requirement
-- [Phase BC-01]: ClampDrawRadius rounds distance with MidpointRounding.AwayFromZero (10.5 -> 11) per D-24/D-29
-- [Phase BC-01]: MinSizeGuard is a literal per-type transcription of the three CHECK constraints (D-50); horizontal/vertical lines legal, zero-height rectangle/triangle illegal
-- [Phase BC-01]: D-27 port deviation (user-approved): Docker container host-published port moved 5432->5433; native postgresql-x64-18 Windows service permanently occupies 5432 on this dev machine. User explicitly chose to move the container port rather than touch the pre-existing native PostgreSQL 18 service. **CLOSED 2026-07-17** — docs/DECISIONS.md D-27 ("Docker Compose") now records the amendment; the CR-03 fix makes the wrong-server hazard structurally unreachable.
-- [Phase BC-01]: GuardMirrorsChecksTests proves MinSizeGuard and the three CHECK constraints agree exactly across a 32-case matrix, in both directions (D-50) -- no disagreement found
-- [Phase BC-01]: Volume-persistence proof (ROADMAP criterion 1, re-proven with real data) implemented as a real xUnit test that shells out to docker compose down/up -d --wait via Process.Start, not an external manual script
-- [Phase BC-01]: Aligned tests/BlazorCanvas.Tests.csproj EF Core package versions to 10.0.10 to fix a CS1705 compile error surfaced by direct DbContextOptionsBuilder usage in test code (Rule 3 blocking fix, no new package installed)
-- [Phase BC-01]: 01-05: The fix stays entirely in C# clamp maths (Movement.ClampDelta, CircleEncoding.ClampDrawRadius) -- no canvas-bounds CHECK constraint added, per locked D-36.
-- [Phase BC-01]: Removed the hardcoded Host=localhost;Port=5432;...;Username=postgres;Password=postgres fallback entirely -- CanvasDbContextFactory now throws an actionable InvalidOperationException on missing ConnectionStrings:Canvas instead of guessing (closes CR-03)
-- [Phase BC-01]: Added .AddEnvironmentVariables() to CanvasDbContextFactory's ConfigurationBuilder chain so the ConnectionStrings__Canvas escape hatch named in the exception message actually works
-- [Phase BC-02]: app.css's old Bootstrap-era font-family rule was dropped, not merged, in favor of the plan's margin:0 reset — 02-UI-SPEC.md defines its own font stack for 02-03's surfaces
-- [Phase 02]: IsPersistent left false at sign-in time (02-03) so the cookie stays a true session cookie per D-26 - ExpireTimeSpan=365d only bounds server-side ticket validity
-- [Phase 02]: UseAuthentication/UseAuthorization inserted directly before the pre-existing UseAntiforgery() call, matching RESEARCH Pitfall 4's exact ordering requirement
-- [Phase 02]: POST /logout uses Results.LocalRedirect (never a caller-supplied target) so an open redirect is structurally impossible
-- [Phase 02]: AntiforgeryStateProvider.GetAntiforgeryToken() field name is FormFieldName, not Name as 02-RESEARCH.md's Pattern 3 showed - verified against the installed .NET 10.0.9 assembly and corrected in Home.razor (02-03)
-- [Phase BC-03]: DrawGesture never calls MinSizeGuard.IsDrawable -- that decision belongs to the caller (plan 03-05), so a not-yet-drawable gesture can still render a live preview (D-35, D-50)
-- [Phase BC-03]: Circle centre/radius is computed from clamped press/cursor points then passed through CircleEncoding only, never Normalisation.Normalise, preserving the even-sided guarantee
-- [Phase BC-03]: DbContext lifetime (IDbContextFactory vs scoped) was engineering discretion — docs/DECISIONS.md is silent on it — short-lived per-call contexts chosen to avoid captive-dependency and cross-circuit staleness in the InteractiveServer circuit
-- [Phase BC-03]: Test-side IDbContextFactory<CanvasDbContext> adapter is a hand-written nested class over DatabaseFixture.CreateContext(), not a DI/mocking package (D-49 test-project scope cap)
-- [Phase BC-03]: [Phase BC-03] Tool is a separate enum from FigureType; Pointer is first so default(Tool) == Tool.Pointer (D-31); no Tool.Delete member since deletion is an action button, not an armable mode (D-33)
-- [Phase BC-03]: [Phase BC-03] FigureShape opacity uses a computed OpacityValue property rather than duplicating shape markup per preview state, keeping fill/stroke attribute counts exact while still toggling opacity
-- [Phase BC-03]: [Phase BC-03] Toolbar's Logout submit button carries both tool-button and logout-button CSS classes so it inherits base icon-button styling instead of re-declaring border/size rules
-- [Phase BC-03]: Canvas surface shape-armed cursor class named 'shape-armed' verbatim, matching plan terminology
-- [Phase BC-03]: app.css html,body rule kept strictly additive (background added, margin: 0 untouched) so Phase 2's shipped login page styling is not disturbed
+  Scope: JS *we* write. Framework JS (`blazor.web.js`, scaffolded `ReconnectModal.razor.js`) is **not**
+  a violation — see PROJECT.md Constraints.
+
+**One amendment to the locked set, user-approved:** D-27/D-58's Docker port. The compose file
+publishes **host 5433 → container 5432**; a native `postgresql-x64-18` service permanently occupies
+5432 on this machine. Recorded in `docs/DECISIONS.md` § "Docker Compose (D-27)" and PROJECT.md
+Constraints. Intent untouched.
+
+**Per-phase implementation decisions (v1.0):** cleared at milestone close. The full log lives in each
+phase's `*-SUMMARY.md` under `key-decisions`, preserved in
+`.planning/milestones/v1.0-ROADMAP.md` and in git history.
 
 ### Pending Todos
 
@@ -134,16 +122,16 @@ None yet.
 
 ### Blockers/Concerns
 
-**None. Both items raised at ingest are closed.**
+**None open.** Both items raised at ingest were closed during v1.0 and are cleared here at milestone
+close (detail preserved in `.planning/milestones/v1.0-ROADMAP.md` and git history):
 
-- ✅ **RESOLVED — the D-11 / D-54 contradiction.** `INGEST-CONFLICTS.md` raised one WARNING: D-11's
-  checklist item 4 summarised D-54 *backwards*, claiming D-54 had narrowed the mid-drag receive filter
-  to only the dragged figure. D-54 decides the **opposite** and lists the narrow filter under
-  *Rejected*. **Fixed at source** in `docs/DECISIONS.md` — D-11's item 4 now states the blanket rule
-  and matches D-54. The rule is: **mid-drag, a tab discards ALL incoming broadcasts.** Confirmed by
-  the user; this was the option they explicitly chose.
+- The **D-11/D-54 contradiction** — fixed at source in `docs/DECISIONS.md`; D-54's blanket mid-drag
+  discard was built in BC-05-03 and re-confirmed by the v1.0 integration audit.
+- **`.planning/config.json`** — created (`granularity: standard`, `project_code: BC`).
 
-- ✅ **RESOLVED — `.planning/config.json`** now exists (`granularity: standard`, `project_code: BC`).
+**Carried forward (not blocking):** ~11 low-severity items from `01-REVIEW.md` (WR-03…WR-07, WR-09,
+IN-01…IN-05), recorded in `.planning/milestones/v1.0-MILESTONE-AUDIT.md`. None blocks a requirement.
+WR-01 and WR-08 are locked-by-design (D-36, D-08) and are **not** debt.
 
 ## Deferred Items
 
@@ -161,4 +149,7 @@ Resume file: None
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- **Nothing required.** v1.0 shipped and is archived; BlazorCanvas is a terminal MinVP by design.
+- If a v1.1+ is ever wanted, it starts by amending `docs/DECISIONS.md` — adding the feature **by
+  name** — and only then `/gsd-new-milestone`. Anything not named in the ADR is out of scope.
+- Optional: triage the ~11 low-severity `01-REVIEW.md` items into a backlog.
