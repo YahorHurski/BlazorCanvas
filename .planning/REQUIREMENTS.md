@@ -170,14 +170,14 @@ Explicitly locked out by D-04, D-14, D-08. Not deferred — **excluded**.
 
 | Requirement | Synthesis name | Phase | Status |
 |-------------|----------------|-------|--------|
-| DATA-02 | REQ-persistence | Phase 1 | Pending |
-| TEST-01 | REQ-tests | Phase 1 | Pending |
+| DATA-02 | REQ-persistence | Phase 1 | Complete |
+| TEST-01 | REQ-tests | Phase 1 | Complete |
 | AUTH-01 | REQ-login | Phase 2 | Complete |
 | AUTH-02 | REQ-session | Phase 2 | Complete |
 | AUTH-03 | REQ-logout | Phase 2 | Complete |
 | DATA-01 | REQ-one-canvas-per-user | Phase 3 | Complete |
-| CANV-01 | REQ-canvas-surface | Phase 3 | Pending |
-| CANV-02 | REQ-toolbar | Phase 3 | Pending |
+| CANV-01 | REQ-canvas-surface | Phase 3 | Complete |
+| CANV-02 | REQ-toolbar | Phase 3 | Complete |
 | FIG-01 | REQ-draw-figure | Phase 3 | Complete |
 | FIG-02 | REQ-select-figure | Phase 4 | Complete |
 | FIG-03 | REQ-drag-figure | Phase 4 | Complete |
@@ -217,4 +217,4 @@ The executable/normative artifacts live in `.planning/intel/constraints.md` and 
 
 ---
 *Requirements defined: 2026-07-14*
-*Last updated: 2026-07-14 after roadmap creation (traceability populated)*
+*Last updated: 2026-07-17 — traceability Status column reconciled at v1.0 close (all 15 verified complete)*
