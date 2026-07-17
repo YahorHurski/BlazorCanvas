@@ -37,13 +37,16 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 - [x] **FIG-02/03/04** — Select, drag with edge clamping, and delete — Validated in Phase BC-04: Select, Drag & Delete (2026-07-16)
 - [x] **DATA-03/04** — Staleness guard and save-failure rollback/reload recovery — Validated in Phase BC-05: Live Cross-Tab Sync (2026-07-17)
 - [x] **SYNC-01** — Live cross-tab sync with real-time drag glide — Validated in Phase BC-05: Live Cross-Tab Sync (2026-07-17)
+- [x] **DATA-02** — Per-operation persistence; no Save button; migrations at startup; two tables only — Validated in Phase BC-01: Database, Schema & Geometry Core (2026-07-15)
+- [x] **TEST-01** — The three mandated tests for the three *silent* failure modes — Validated in Phase BC-01: Database, Schema & Geometry Core (2026-07-15)
+
+**All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
 
 ### Active
 
-See `.planning/REQUIREMENTS.md` for the full, traceable set (15 requirements, all v1).
-
-- [ ] **DATA-02** — Per-operation persistence
-- [ ] **TEST-01** — The three mandated tests for the three *silent* failure modes
+None. v1.0 shipped the complete v1 requirement set, and **this project has no v2** — it is a
+deliberately terminal MinVP. Anything not named in `docs/DECISIONS.md` is out until it is added
+there **by name**.
 
 ### Out of Scope
 
@@ -114,9 +117,13 @@ there by name.
   of a `*.js` file. A `find -name '*.js'` hit on framework or template output is not a violation.
   (A BC-03 verification pass flagged the scaffolded `ReconnectModal.razor.js` under the literal
   reading and was withdrawn; this wording exists so that does not recur.)
-- **Datastore**: **PostgreSQL 17**, local, via Docker Compose (port 5432, db `canvas`,
-  `postgres`/`postgres`, named volume). Schema via EF Core migrations applied on startup. (D-01, D-27,
-  D-42, D-58)
+- **Datastore**: **PostgreSQL 17**, local, via Docker Compose (**host port 5433** → container 5432,
+  db `canvas`, `postgres`/`postgres`, named volume). Schema via EF Core migrations applied on startup.
+  (D-01, D-27, D-42, D-58)
+  > **Port amended in BC-01, user-approved.** D-27/D-58 originally specified host port 5432; a native
+  > `postgresql-x64-18` Windows service permanently occupies it on this machine, so compose publishes
+  > `"5433:5432"`. See `docs/DECISIONS.md` § "Docker Compose (D-27)". `CanvasDbContextFactory` throws
+  > rather than guessing a connection string, so `dotnet ef` cannot silently hit the wrong server.
 - **Two tables only** — `users` and `figures`. "The canvas" is not an entity in the database; it is
   simply the set of figures belonging to a user. Canonical DDL in
   `.planning/intel/constraints.md` → `CONSTRAINT-schema`. (D-12, D-46)
@@ -224,7 +231,7 @@ re-ask, or "improve" them. Full text: `.planning/intel/decisions.md`; original: 
 | D-38 | **White fill, black outline.** **The fill is load-bearing:** SVG does **not** register clicks inside an *unfilled* shape. Had figures been wireframes, D-30's entire rationale would have collapsed. Accepted cost: overlapping figures fully occlude each other. |
 | D-43 | **Page layout: a 48px toolbar, no canvas border.** Margin 0; toolbar exactly 48px at the top; canvas immediately below at document position (0, 48), anchored top-left. **No CSS border on the SVG** — a border shifts the interior by its own width, making the mapping `PageY − 48 − 1`: one more constant that can be silently forgotten. **`canvasX = PageX`, `canvasY = PageY − 48`.** |
 | D-55 | **Page background: light grey.** **Not cosmetic:** D-43 gives the canvas no border, so contrast with the page is the *only* thing that makes the canvas boundary visible. On a white default, "figures stop at the edge" would look like an inexplicable bug. |
-| D-58 | **The remaining constants.** Figure outline **black, 2px**; fill **white**; **selected outline red, 2px**; page background light grey; canvas white 1280×720, no border; toolbar 48px. 2px (not 1px) is deliberate — the stroke is the only click target a line has. **The Delete button is greyed out and unclickable when nothing is selected.** **Passwords must be non-empty.** Docker Compose: Postgres **17**, port **5432**, db **`canvas`**, **`postgres`/`postgres`**, **named volume**. |
+| D-58 | **The remaining constants.** Figure outline **black, 2px**; fill **white**; **selected outline red, 2px**; page background light grey; canvas white 1280×720, no border; toolbar 48px. 2px (not 1px) is deliberate — the stroke is the only click target a line has. **The Delete button is greyed out and unclickable when nothing is selected.** **Passwords must be non-empty.** Docker Compose: Postgres **17**, port **5432**, db **`canvas`**, **`postgres`/`postgres`**, **named volume**. *(Port amended in BC-01, user-approved: host **5433** → container 5432; a native `postgresql-x64-18` service owns 5432 on this machine. Intent untouched — see Constraints.)* |
 
 ### Dead versions — never re-introduce
 D-05 (all four shapes share one draw gesture) · D-07 ("no HTTP code to write") · D-11 ("idempotent
@@ -236,14 +243,33 @@ Full history: `.planning/intel/decisions.md` § "Superseded history".
 
 </decisions>
 
-### One resolved contradiction, carried forward
+### One resolved contradiction — CLOSED
 
-`INGEST-CONFLICTS.md` raised **one WARNING**: D-11's own checklist summarises D-54 *backwards*
+`INGEST-CONFLICTS.md` raised **one WARNING**: D-11's own checklist summarised D-54 *backwards*
 (claiming D-54 narrowed the mid-drag filter to only the dragged figure). **D-54 decides the
 opposite** and explicitly lists the narrow filter under *Rejected*. Synthesis applied **D-54 wins**:
-mid-drag, a tab discards **ALL** incoming broadcasts. This is what will be built. It is worth one
-sentence of confirmation before Phase 5 — an implementer following D-11's checklist verbatim would
-build the rejected filter.
+mid-drag, a tab discards **ALL** incoming broadcasts.
+
+**Closed.** The user confirmed D-54 as the intended rule, D-11's item 4 was corrected at source in
+`docs/DECISIONS.md`, and BC-05-03 built the blanket discard (`if (_dragging) return;`). The v1.0
+integration audit re-confirmed it in `Home.razor`'s `HandleRemoteMessage`. The rejected narrow
+filter was never built.
+
+## Current State
+
+**v1.0 shipped 2026-07-17.** The definition of done is met — verified both by an end-to-end code
+trace (v1.0 milestone audit) and by live human verification on two real screens (BC-05-05).
+
+- **Delivered:** 5 phases, 23 plans, all 15 v1 requirements validated.
+- **Codebase:** ~2,500 LOC application (C#/Razor/CSS) + ~2,000 LOC tests; 405 tests passing.
+- **Stack:** .NET 10 Blazor Server, EF Core/Npgsql, PostgreSQL 17 in Docker Compose, SVG rendering.
+  Zero hand-authored JavaScript — the constraint held for the entire build.
+- **Verification:** all 5 phases `passed`; cross-phase integration audited clean, with the
+  highest-risk seam (DATA-03's zero-row-UPDATE → delete-broadcast handoff, built across two phases)
+  confirmed correctly wired.
+- **Known tech debt:** ~11 low-severity items from `01-REVIEW.md` (WR-03…WR-07, WR-09, IN-01…IN-05).
+  None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
+- **Next milestone:** none planned. This is a terminal MinVP by design.
 
 ---
-*Last updated: 2026-07-17 — Phase BC-05 (Live Cross-Tab Sync) complete; SYNC-01, DATA-03, and DATA-04 validated.*
+*Last updated: 2026-07-17 after v1.0 milestone — all 15 requirements validated, milestone audit passed.*

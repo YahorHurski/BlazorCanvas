@@ -2,17 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 05
-status: completed
-stopped_at: Milestone v1.0 complete — all 5 phases verified
-last_updated: "2026-07-17T03:05:00.000Z"
+current_phase: 0
+status: Awaiting next milestone
+stopped_at: Milestone v1.0 complete — all 23 plans executed, all 5 verifications passed
+last_updated: "2026-07-17T02:12:12.444Z"
 last_activity: 2026-07-17
-last_activity_desc: BC-01 re-verified after gap closure (passed, 6/6)
+last_activity_desc: Milestone v1.0 completed and archived
 progress:
   total_phases: 5
   completed_phases: 5
   total_plans: 23
   completed_plans: 23
+  percent: 100
 current_phase_name: Live Cross-Tab Sync
 ---
 
@@ -28,13 +29,10 @@ and every other tab shows it happening live, including a figure gliding in real 
 
 ## Current Position
 
-Phase: BC-05 (final phase)
-Plan: 5 of 5 complete
-Status: All phases complete — all 5 verifications passed
-Last activity: 2026-07-17 — BC-01 re-verified after gap closure (passed, 6/6)
-Next: `/gsd-complete-milestone` — archive v1.0 and prepare for the next milestone
-
-Progress: [██████████] 100% (all 23 plans) / [██████████] 100% (milestone, 5 of 5 phases)
+Phase: Milestone v1.0 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-17 — Milestone v1.0 completed and archived
 
 ## Performance Metrics
 
@@ -160,3 +158,7 @@ Items acknowledged and carried forward from previous milestone close:
 Last session: 2026-07-17T03:05:00.000Z
 Stopped at: Milestone v1.0 complete — all 23 plans executed, all 5 verifications passed
 Resume file: None
+
+## Operator Next Steps
+
+- Start the next milestone with /gsd-new-milestone
