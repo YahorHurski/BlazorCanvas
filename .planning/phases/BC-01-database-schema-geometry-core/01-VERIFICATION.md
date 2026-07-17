@@ -1,40 +1,27 @@
 ---
 phase: BC-01-database-schema-geometry-core
-verified: 2026-07-15T00:00:00Z
-status: gaps_found
-score: 4/6 must-haves verified
+verified: 2026-07-17T00:00:00Z
+status: passed
+score: 6/6 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
-gaps:
-  - truth: "The clamp and circle-draw maths robustly keep every figure inside the canvas (D-24/D-29/D-36) — the exact premise the schema relies on to justify having NO canvas-bounds CHECK constraint"
-    status: failed
-    reason: "CircleEncoding.ClampDrawRadius has no lower bound and Movement.ClampDelta silently inverts when lo > hi. Both were confirmed by direct code inspection (2026-07-15) and independently reproduced live against the running database: INSERT INTO figures (..., 'circle', -10, 355, 0, 365) — the exact off-canvas box CR-01 predicts from ClampDrawRadius(cx: -5, cy: 360, distance: 50) — succeeds and satisfies circle_is_a_circle, because it is a valid square (side 10, even, x2>x1) that merely happens to sit outside 0..1280x0..720. Neither MinSizeGuard nor any CHECK constraint rejects it. This is a live, reproducible instance of the exact class of silent failure the phase exists to guard against (D-50's own framing), located in the same clamp code the phase's mandated tests were meant to prove correct — the tests just don't reach this input region."
-    artifacts:
-      - path: src/BlazorCanvas/Geometry/CircleEncoding.cs
-        issue: "ClampDrawRadius (lines 27-36) has no Math.Max(0, ...) floor and does not clamp the centre into the canvas first; a centre outside 0..1280x0..720 (reachable from raw pointer coordinates per BC-02's future drag handler) produces a negative radius, which FromCentreRadius + Normalisation then turn into a legal-looking off-canvas circle that both MinSizeGuard and circle_is_a_circle accept."
-      - path: src/BlazorCanvas/Geometry/Movement.cs
-        issue: "ClampDelta (line 10) is `Math.Min(Math.Max(v, lo), hi)` with no guard for lo > hi. ClampMove(box, 0, 0) is therefore NOT the identity for any box wider/taller than the canvas, or already partly out of bounds — a zero-delta move silently teleports the figure. Confirmed no existing test exercises this: `dotnet test --filter FullyQualifiedName~ClampMove` lists no test with an out-of-canvas or oversized input box."
-    missing:
-      - "Floor ClampDrawRadius's return at 0, or clamp the centre into the canvas before capping (01-REVIEW.md CR-01's suggested fix)"
-      - "Guard ClampDelta's lo > hi case so a degenerate/oversized box does not move (01-REVIEW.md CR-02's suggested fix)"
-      - "A regression test for both: a negative-radius-inducing centre, and ClampMove(oversizedBox, 0, 0) == oversizedBox — none of the current 145 tests cover either input region"
-  - truth: "dotnet ef design-time tooling reliably targets this project's own PostgreSQL 17 container, never the unrelated native PostgreSQL 18 service that also listens on this exact machine"
-    status: failed
-    reason: "CanvasDbContextFactory.CreateDbContext falls back to a hardcoded `Host=localhost;Port=5432;...` connection string whenever ConnectionStrings:Canvas cannot be found (both AddJsonFile calls are optional:true and the base path is Directory.GetCurrentDirectory(), not the project directory). Confirmed by direct code read (src/BlazorCanvas/Data/CanvasDbContextFactory.cs:25). Port 5432 on this machine is the native postgresql-x64-18 Windows service, not this project's container — which plan 01-03 deliberately moved to port 5433 for exactly this reason (see 01-03-SUMMARY.md's documented deviation). Running `dotnet ef migrations add` / `database update` from the repository root (rather than src/BlazorCanvas/) silently applies migration DDL to the wrong PostgreSQL server with no warning."
-    artifacts:
-      - path: src/BlazorCanvas/Data/CanvasDbContextFactory.cs
-        issue: "Line 25: `?? \"Host=localhost;Port=5432;Database=canvas;Username=postgres;Password=postgres\"` — a silent wrong-server fallback. Does not affect the running app (Program.cs's own registration is separate and correctly reads Port=5433 from appsettings.Development.json), but is reachable by any `dotnet ef` invocation from the repo root."
-    missing:
-      - "Throw an actionable InvalidOperationException instead of falling back when ConnectionStrings:Canvas is unavailable at design time (01-REVIEW.md CR-03's suggested fix)"
+re_verification:
+  previous_status: gaps_found
+  previous_score: 4/6
+  gaps_closed:
+    - "The clamp and circle-draw maths robustly keep every figure inside the canvas (D-24/D-29/D-36) — CR-01 (CircleEncoding.ClampDrawRadius negative radius) and CR-02 (Movement.ClampDelta lo>hi inversion)"
+    - "dotnet ef design-time tooling reliably targets this project's own PostgreSQL 17 container, never the unrelated native PostgreSQL 18 service on port 5432 — CR-03 (CanvasDbContextFactory hardcoded fallback)"
+  gaps_remaining: []
+  regressions: []
 ---
 
 # Phase BC-01: Database, Schema & Geometry Core Verification Report
 
 **Phase Goal:** A running PostgreSQL holds a schema that *machine-enforces* the geometry laws, and the pure geometry maths those laws mirror is written and proven. The three silent failure modes are guarded before any UI exists to hide them.
 
-**Verified:** 2026-07-15
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-07-17
+**Status:** passed
+**Re-verification:** Yes — this supersedes the 2026-07-15 initial report (`status: gaps_found`, 4/6), which recorded three Critical defects (CR-01, CR-02, CR-03) in `01-REVIEW.md`. Two gap-closure plans (`01-05` for CR-01/CR-02, `01-06` for CR-03) subsequently ran; this report independently re-verifies their claims against the current codebase and a live database, rather than trusting `01-05-SUMMARY.md` / `01-06-SUMMARY.md`.
 
 ## Goal Achievement
 
@@ -42,87 +29,86 @@ gaps:
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | `docker compose up` starts PostgreSQL 17, database `canvas`, named volume; rows survive a container restart (ROADMAP SC1) | ✓ VERIFIED | `docker exec canvas-postgres psql -c "select version()"` → `PostgreSQL 17.10`. `docker volume ls` → `project1_canvas-pgdata` (named, not anonymous). Container reported `Up ... (healthy)`. Persistence with real EF-written data re-proven by `GuardMirrorsChecksTests.FiguresWrittenViaEfCore_SurviveContainerTeardown`, which shells a real `docker compose down`/`up -d --wait`. **Known deviation:** host port is 5433, not the D-27/ROADMAP-documented 5432, because a native `postgresql-x64-18` Windows service permanently occupies 5432 on this machine. This is a user-approved deviation from a checkpoint (see 01-03-SUMMARY.md); `docs/DECISIONS.md` D-27 was not amended to match — flagged as open documentation drift, not a functional gap. |
-| 2 | Exactly two tables (`users`, `figures`) via EF Core migrations applied automatically at startup — no `canvases`, no `created_at` — carrying the CHECK constraints, the `user_id` index, and the circle-convention `COMMENT ON TABLE` (ROADMAP SC2) | ✓ VERIFIED | Live query: `select table_name from information_schema.tables where table_schema='public'` → exactly `__EFMigrationsHistory`, `figures`, `users`. `figures` columns → exactly `id, user_id, type, x1, y1, x2, y2` (7, `type` is `text`). `users` columns → exactly `id, username, password` (3). `pg_constraint` → exactly 4 CHECKs: `box_is_a_box`, `circle_is_a_circle`, `figures_type_is_known`, `line_is_a_line` (3 geometry CHECKs + the type-validity CHECK, matching `CONSTRAINT-schema`). `pg_indexes` → `ix_figures_user_id` present. `obj_description('figures'::regclass)` → contains "inscribed in". `pg_type` enum count → 0. `id` columns are `is_identity = YES`. `users.username` has a `UNIQUE` index; FK `user_id → users.id` is `ON DELETE CASCADE`. All confirmed by direct `psql` queries against the live container, independent of the test suite and the SUMMARY claims. |
-| 3 | The database itself refuses an illegal row — non-square/odd-sided circle, zero-area rectangle, zero-length line — rejected by a CHECK constraint, not application code (ROADMAP SC3) | ✓ VERIFIED | Live, raw-SQL reproduction (bypassing the app and the C# guard entirely, transaction rolled back): `('circle',0,0,10,8)` → `ERROR: violates check constraint "circle_is_a_circle"`. `('circle',0,0,9,9)` (odd-sided) → same constraint. `('rectangle',10,10,90,10)` (zero height) → `ERROR: violates check constraint "box_is_a_box"`. `('line',10,10,10,10)` (zero length) → `ERROR: violates check constraint "line_is_a_line"`. `('line',10,10,90,10)` (horizontal, legal) → inserts successfully, confirming the CHECKs discriminate rather than blanket-reject. `CheckConstraintTests.cs` independently confirms this pattern (13 rejection cases + acceptance cases) via `PostgresException.SqlState == "23514"` assertions, bypassing `MinSizeGuard`/`Normalisation` per its own file comment (line 9), confirmed by inspection. |
-| 4 | The three mandated TEST-01 tests pass: clamp maths, circle inscribed-square round-trip, line normalisation (ROADMAP SC4) | ✓ VERIFIED | Confirmed by test enumeration (`dotnet test --list-tests`): `NormalisationTests.Line_UpAndRightDiagonal_IsNotFlippedToOppositeDiagonal`, `ClampTests.FlushRightEdge_XClippedToZero_YPassesThroughAtFullDelta`, `CircleEncodingTests.Radius_SurvivesTenSuccessiveTranslations_IncludingTwoEdgeClipped` all exist and match the mandated assertions verbatim. Spot-check run (single named test, not full suite): `dotnet test --filter FullyQualifiedName~Line_UpAndRightDiagonal_IsNotFlippedToOppositeDiagonal` → 1 passed. Orchestrator-confirmed full run: `dotnet test BlazorCanvas.sln` → 145/145 passing, 0 build warnings. `Normalisation.cs` and `MinSizeGuard.cs` source read directly and matches `CONSTRAINT-schema`'s predicates character-for-character with the live `pg_constraint` SQL text. |
-| 5 | The clamp/circle-draw maths robustly keeps every figure inside the canvas — the premise the schema relies on for having no bounds CHECK (D-24/D-29/D-36, underlying the "three silent failure modes are guarded" framing of the phase goal) | ✗ FAILED | Two unresolved Critical defects, both confirmed independently of 01-REVIEW.md by direct code read and (for the circle case) live reproduction against the running database. See Gaps. |
-| 6 | `dotnet ef` design-time tooling cannot silently target the wrong PostgreSQL server on this machine | ✗ FAILED | `CanvasDbContextFactory.CreateDbContext` falls back to a hardcoded `Port=5432` connection string, confirmed by direct code read. See Gaps. |
+| 1 | `docker compose up` starts PostgreSQL 17, database `canvas`, named volume; rows survive a container restart (ROADMAP SC1) | ✓ VERIFIED | `docker exec canvas-postgres psql -c "select version()"` → `PostgreSQL 17.10`. `docker ps` shows `canvas-postgres` `Up ... (healthy)` on `0.0.0.0:5433->5432`. `docker volume ls` → `project1_canvas-pgdata` (named). Unchanged since the initial report; re-confirmed live, not assumed. Port 5433 (not 5432) remains a user-approved deviation from D-27 — documentation drift in `docs/DECISIONS.md`, not a functional gap (unchanged open item, not re-litigated). |
+| 2 | Exactly two tables (`users`, `figures`) via EF Core migrations, carrying the CHECK constraints, the `user_id` index, and the circle-convention `COMMENT ON TABLE` (ROADMAP SC2) | ✓ VERIFIED | Live query: `select table_name from information_schema.tables where table_schema='public'` → exactly `__EFMigrationsHistory`, `figures`, `users`. `pg_constraint` on `figures` → exactly `box_is_a_box`, `circle_is_a_circle`, `figures_type_is_known`, `line_is_a_line` (plus PK/FK) — identical to the initial report; no schema drift from the CR-01/CR-02/CR-03 gap-closure plans (both plans' scope fences explicitly forbade schema changes, and this was independently confirmed, not just trusted). |
+| 3 | The database refuses an illegal row — non-square/odd-sided circle, zero-area rectangle, zero-length line — rejected by a CHECK constraint (ROADMAP SC3) | ✓ VERIFIED | Live, raw-SQL re-reproduction (rolled back): `('circle',0,0,10,8)` → `ERROR: violates check constraint "circle_is_a_circle"`. `('rectangle',10,10,90,10)` (zero height) → `ERROR: violates check constraint "box_is_a_box"`. `('line',10,10,10,10)` (zero length) → `ERROR: violates check constraint "line_is_a_line"`. Identical behaviour to the initial report — no regression. |
+| 4 | The three mandated TEST-01 tests pass: clamp maths, circle inscribed-square round-trip, line normalisation (ROADMAP SC4) | ✓ VERIFIED | `dotnet test --filter "FullyQualifiedName~BlazorCanvas.Tests.Geometry\|FullyQualifiedName~BlazorCanvas.Tests.Database"` → 372/372 passed. Full solution `dotnet test BlazorCanvas.sln` → 405/405 passed, 0 failures (the total grew from 153 to 405 because Phases BC-02 through BC-05 have since executed and added their own tests — not a BC-01 regression signal; the BC-01-scoped subset was isolated and re-run above). |
+| 5 | The clamp/circle-draw maths robustly keeps every figure inside the canvas — CR-01 and CR-02 | ✓ VERIFIED (closed) | **Re-read `src/BlazorCanvas/Geometry/CircleEncoding.cs` directly (current state, not the SUMMARY's description):** `ClampDrawRadius` now clamps the centre via `Movement.ClampDelta(cx, 0, CanvasBounds.Width)` / `(cy, 0, CanvasBounds.Height)` *before* computing the four edge-distance terms, and wraps the final cap in `Math.Max(0, capped)` — confirmed by direct inspection, lines 32-45. **Re-read `src/BlazorCanvas/Geometry/Movement.cs`:** `ClampDelta` is now `lo > hi ? 0 : Math.Min(Math.Max(v, lo), hi)` — confirmed by direct inspection, line 16. **Behavioural re-proof (not assumed from the plan's acceptance criteria):** ran the single named test `ClampDrawRadius_OffCanvasCentre_ProducesNoLegalCircle` in isolation — 1 passed — which asserts exactly `ClampDrawRadius(-5, 360, 50) == 0` (was -5) and that the resulting normalised box is rejected by `MinSizeGuard.IsDrawable`. All 8 new regression tests (5 named, 4 of which are theory cases) enumerated via `--list-tests` and confirmed present. Full BC-01-scoped suite green. |
+| 6 | `dotnet ef` design-time tooling cannot silently target the wrong PostgreSQL server on this machine (CR-03) | ✓ VERIFIED (closed) | **Re-read `src/BlazorCanvas/Data/CanvasDbContextFactory.cs` directly:** the hardcoded `Host=localhost;Port=5432;...` fallback and the `Username=postgres;Password=postgres` literal are both gone; `configuration.GetConnectionString("Canvas") ?? throw new InvalidOperationException(...)` is now in place (confirmed by inspection, lines 28-33; `grep -c 'Port=5432'` / `grep -c 'Username=postgres'` → 0 matches in this file). `.AddEnvironmentVariables()` is present in the `ConfigurationBuilder` chain (line 22). **Live behavioural reproduction (executed independently, not taken from the SUMMARY):** temporarily moved `src/BlazorCanvas/appsettings.Development.json` aside, ran `dotnet ef migrations list` from `src/BlazorCanvas/` — it failed with exactly the actionable message `"ConnectionStrings:Canvas is not configured. Run \`dotnet ef\` from src/BlazorCanvas/ ... Refusing to guess a connection string: port 5432 on this machine is a DIFFERENT PostgreSQL server..."` — then restored the file; `git status`/`git diff` on that file confirmed byte-for-byte clean afterward. Ran `dotnet ef migrations list` again with the file restored — exit 0, lists `20260714212457_InitialSchema` against the correct port-5433 container. |
 
-**Score:** 4/6 truths verified (0 present, behavior-unverified)
+**Score:** 6/6 truths verified (0 present, behavior-unverified)
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `docker-compose.yml` | PostgreSQL 17, named volume, `canvas` db | ✓ VERIFIED | Present, correct image/env/named volume/healthcheck. Port `5433:5432` per approved deviation. |
-| `BlazorCanvas.sln` + 2 projects | Two-project net10.0 solution | ✓ VERIFIED | Confirmed via `dotnet sln list` claims in 01-01-SUMMARY.md and file presence; build/test independently spot-checked green. |
-| `src/BlazorCanvas/Geometry/*.cs` (8 files) | Pure C# geometry core | ✓ VERIFIED | All 8 files present, read in full (Box, CanvasBounds, FigureType, FigureTypeNames, Normalisation, MinSizeGuard, Movement, CircleEncoding). Zero non-`System` usings. |
-| `src/BlazorCanvas/Data/*.cs` | Entities, DbContext, design-time factory | ✓ VERIFIED (with defect) | `User.cs`, `Figure.cs`, `CanvasDbContext.cs` present and correct (CHECK predicates verified live). `CanvasDbContextFactory.cs` present but carries CR-03's defect (see Gaps). |
-| `src/BlazorCanvas/Migrations/*` | Initial migration, applied at startup | ✓ VERIFIED | Live schema matches the migration's intent exactly (verified via `pg_constraint`/`information_schema`, not the migration source alone). |
-| `tests/BlazorCanvas.Tests/Geometry/*.cs` (4 files) | TEST-01 mandated tests | ✓ VERIFIED | All 4 files present; test names enumerated and match plan's mandated assertions; one spot-run confirmed passing. |
-| `tests/BlazorCanvas.Tests/Database/*.cs` (4 files) | DB-refuses-illegal-row + D-50 mirror tests | ✓ VERIFIED | All 4 files present; `CheckConstraintTests` confirmed to bypass the guard (grep + live reproduction of its core assertions). |
+| `docker-compose.yml` | PostgreSQL 17, named volume, `canvas` db | ✓ VERIFIED | Unchanged since initial report; port `5433:5432` per approved deviation. Gap-closure plans did not touch this file (confirmed: neither `01-05` nor `01-06`'s `files_modified` list it, and it is untouched in the diffs read). |
+| `src/BlazorCanvas/Geometry/CircleEncoding.cs` | Robust circle draw-clamp, no negative radius | ✓ VERIFIED | Read in full; centre-clamp + zero-floor present and correct (Truth 5). Zero non-`System` usings (purity check: `grep -h '^using' src/BlazorCanvas/Geometry/*.cs \| grep -v '^using System' \| wc -l` → 0). |
+| `src/BlazorCanvas/Geometry/Movement.cs` | Robust `ClampDelta`, no `lo > hi` inversion | ✓ VERIFIED | Read in full; `lo > hi` guard present and correct (Truth 5). |
+| `src/BlazorCanvas/Data/CanvasDbContextFactory.cs` | Fails loudly, no wrong-server fallback | ✓ VERIFIED | Read in full; throw present, fallback and credential literal both removed, `.AddEnvironmentVariables()` added (Truth 6). |
+| `tests/BlazorCanvas.Tests/Geometry/ClampTests.cs` | 3 new CR-02 regression tests | ✓ VERIFIED | `ClampMove_OversizedWidthBox_ZeroDelta_IsIdentity`, `ClampMove_OversizedHeightBox_ZeroDelta_IsIdentity`, `ClampDelta_WhenLoGreaterThanHi_ReturnsZero` all enumerated via `--list-tests` and pass. |
+| `tests/BlazorCanvas.Tests/Geometry/CircleEncodingTests.cs` | 2 new CR-01 regression tests (one a 4-case theory) | ✓ VERIFIED | `ClampDrawRadius_OffCanvasCentre_IsNeverNegative` (4 theory cases: `(-5,360)`, `(1285,360)`, `(640,-5)`, `(640,725)`) and `ClampDrawRadius_OffCanvasCentre_ProducesNoLegalCircle` all enumerated and pass. |
+| `src/BlazorCanvas/Program.cs` | Untouched by either gap-closure plan | ✓ VERIFIED | Neither `01-05` nor `01-06`'s `files_modified` lists it; commit diffs (`93e485e`, `481ed64`, `ae9d772`) confirm only the claimed files changed. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 |------|----|----|--------|---------|
-| `docker-compose.yml` | `appsettings.Development.json` | port/db/credentials match | ✓ WIRED | Both use `Port=5433` (moved from 5432 together, consistently, per 01-03's deviation). |
-| `CanvasDbContext.OnModelCreating` (`HasCheckConstraint` x4) | live `figures` table | migration → `pg_constraint` | ✓ WIRED | All 4 named constraints present live, predicates match source character-for-character. |
-| `MinSizeGuard.IsDrawable` | the 3 named CHECK constraints | D-50 mirror | ✓ WIRED (bounded) | Confirmed by direct predicate comparison (matches 01-REVIEW.md's own table) and by `GuardMirrorsChecksTests`'s 32-case matrix — but the matrix (per 01-REVIEW.md and my own confirmation via `dotnet test --list-tests`) only probes coordinates in `[-20, 1300]`-ish ranges without a dedicated negative-radius or oversized-box case that isolates CR-01/CR-02, so agreement is proven within a bounded, non-adversarial region, not universally. |
-| `CircleEncoding.FromCentreRadius`/`Normalisation.Normalise` | `MinSizeGuard`/`circle_is_a_circle` | round-trip validity | ⚠️ HOLLOW (edge case) | Holds for every centre inside the canvas (proven). Fails to holds for a centre outside the canvas: `ClampDrawRadius` produces a negative radius that `Normalisation` silently turns into a *valid-looking* off-canvas circle both the guard and the CHECK accept. Reproduced live (see Gaps). |
+| `CircleEncoding.ClampDrawRadius` (centre clamp) | `Movement.ClampDelta` | direct call, same assembly | ✓ WIRED | Confirmed by source read: `ClampDrawRadius` calls `Movement.ClampDelta(cx, 0, CanvasBounds.Width)` and `(cy, 0, CanvasBounds.Height)` before computing the cap — reuses the hardened primitive rather than duplicating clamp logic. |
+| `CircleEncoding.FromCentreRadius`/`Normalisation.Normalise` | `MinSizeGuard.IsDrawable`/`circle_is_a_circle` | round-trip validity | ✓ WIRED (closed) | Previously ⚠️ HOLLOW for off-canvas centres (CR-01). Now: an off-canvas centre yields radius 0 → a degenerate box → rejected by `MinSizeGuard.IsDrawable`, proven by the passing `ClampDrawRadius_OffCanvasCentre_ProducesNoLegalCircle` test, re-run in isolation as part of this verification. |
+| `Movement.ClampDelta` (lo > hi guard) | `Movement.ClampMove` | oversized box → zero delta | ✓ WIRED (closed) | Previously defeatable (CR-02). Now: `ClampMove(oversizedBox, 0, 0)` is the identity, proven by the two oversized-box regression tests, re-run and confirmed passing. |
+| `CanvasDbContextFactory.CreateDbContext` | `dotnet ef` design-time tooling | missing config → throw | ✓ WIRED (closed) | Previously fell back to `Port=5432` (CR-03). Now: confirmed by live reproduction (config removed → throw fires with the exact actionable message → config restored → command succeeds against port 5433). |
+| `MinSizeGuard.IsDrawable` | the 3 named CHECK constraints | D-50 mirror | ✓ WIRED | Unchanged and re-confirmed live; predicates still match character-for-character. |
 
 ### Requirements Coverage
 
 | Requirement | Source Plan | Description | Status | Evidence |
 |-------------|-------------|-------------|--------|----------|
-| DATA-02 | 01-01, 01-03 | Every operation writes to PostgreSQL; no Save button; schema via EF Core migrations at startup, incl. CHECKs/comment; two tables only | ✓ SATISFIED | Schema, migrations, and persistence proven live (Truths 1-2). The runtime write-policy half of DATA-02 (INSERT/UPDATE/DELETE, no Save button) is explicitly out of scope for this phase (01-CONTEXT.md `<deferred>`) — correctly deferred to Phases 3-5, not a gap here. |
-| TEST-01 | 01-02, 01-04 | Three mandated silent-failure-mode tests: clamp maths, circle round-trip, line normalisation | ✓ SATISFIED (narrowly) | The three tests exist, are named correctly, and pass (Truth 4). **Caveat:** the phase's own stated purpose — "the three silent failure modes are guarded before any UI exists to hide them" — is only partially true: the mandated tests' literal scope passes, but the same clamp/circle-encoding code has two independently-confirmed unresolved Critical defects (CR-01, CR-02) in the exact functions TEST-01 exists to validate, reachable by ordinary off-canvas pointer input the moment BC-02 wires up drawing. See Truth 5 / Gaps. |
+| DATA-02 | 01-01, 01-03, 01-06 | Schema via EF Core migrations at startup, incl. CHECKs/comment; two tables only; design-time tooling cannot silently target the wrong server | ✓ SATISFIED | Schema, migrations, and persistence proven live (Truths 1-3). CR-03 closure confirmed live (Truth 6). Runtime write-policy (INSERT/UPDATE/DELETE, no Save button) remains correctly deferred to later phases per `01-CONTEXT.md`. |
+| TEST-01 | 01-02, 01-04, 01-05 | Three mandated silent-failure-mode tests, hardened against the input region the original suite never probed | ✓ SATISFIED | The three mandated tests still exist and pass (Truth 4). The two Critical gaps in the exact functions TEST-01 exists to validate (CR-01, CR-02) are now closed and proven by named regression tests that were RED on the pre-fix code (Truth 5) — the phase's own stated purpose ("the three silent failure modes are guarded before any UI exists to hide them") is now fully, not narrowly, satisfied. |
 
-No orphaned requirements — `REQUIREMENTS.md`'s traceability table maps only DATA-02 and TEST-01 to Phase 1/BC-01, and both are declared in plan frontmatter (`01-01-PLAN.md`, `01-02-PLAN.md`, `01-03-PLAN.md`, `01-04-PLAN.md`).
+`REQUIREMENTS.md`'s traceability table maps only DATA-02 and TEST-01 to Phase 1/BC-01; both are declared across plan frontmatter (`01-01`, `01-02`, `01-03`, `01-04`, `01-05`, `01-06`). No orphaned requirements.
 
 ### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 |----------|---------|--------|--------|
-| Mandated test 3 (line normalisation) passes | `dotnet test tests/BlazorCanvas.Tests --filter FullyQualifiedName~Line_UpAndRightDiagonal_IsNotFlippedToOppositeDiagonal --no-build` | 1 passed | ✓ PASS |
-| No test covers `ClampMove` identity for an out-of-canvas/oversized box (CR-02 gap) | `dotnet test --filter FullyQualifiedName~ClampMove_ZeroDelta --no-build` | "No test matches the given filter" | ✓ PASS (confirms the gap — absence proven, not assumed) |
-| Database rejects a non-square circle, odd-sided circle, zero-area rectangle, zero-length line; accepts a horizontal line | Raw `psql` INSERT/ROLLBACK against `figures` (see Truth 3) | All 4 illegal cases rejected by name; horizontal line accepted | ✓ PASS |
-| CR-01 reproduced live: off-canvas circle box `(-10,355,0,365)` passes every guard/CHECK | Raw `psql` INSERT/ROLLBACK against `figures` with that exact box | `INSERT 0 1` — succeeded | ✗ FAIL (confirms the gap) |
-| Out-of-canvas rectangle `(-99999,-99999,999999,999999)` is accepted (WR-01, intentional per D-36 — no bounds CHECK exists by design) | Raw `psql` INSERT/ROLLBACK | `INSERT 0 1` — succeeded | ℹ️ INFO (expected per locked D-36; not itself a gap, but the context in which Truth 5's gap matters) |
+| CR-02 closed: `ClampDelta_WhenLoGreaterThanHi_ReturnsZero` passes | `dotnet test --filter FullyQualifiedName~ClampDelta_WhenLoGreaterThanHi_ReturnsZero --no-build` | 1 passed | ✓ PASS |
+| CR-02 closed: both oversized-box identity tests pass | `dotnet test --filter FullyQualifiedName~ClampMove_Oversized --no-build` | 2 passed | ✓ PASS |
+| CR-01 closed: negative-radius regression test passes | `dotnet test --filter FullyQualifiedName~ClampDrawRadius_OffCanvasCentre --no-build` | 5 passed (1 test + 4 theory cases) | ✓ PASS |
+| CR-01 closed: exact live repro from the initial report | `dotnet test --filter FullyQualifiedName~ClampDrawRadius_OffCanvasCentre_ProducesNoLegalCircle --no-build` | 1 passed | ✓ PASS |
+| CR-03 closed: missing config throws the actionable message, does not fall back | Moved `appsettings.Development.json` aside; ran `dotnet ef migrations list` from `src/BlazorCanvas/`; restored the file | Threw `"ConnectionStrings:Canvas is not configured. ... Refusing to guess..."`; file restored byte-for-byte (`git diff` clean) | ✓ PASS |
+| CR-03 regression check: legitimate path (port 5433) still works | `dotnet ef migrations list` from `src/BlazorCanvas/` with config intact | Exit 0, lists `20260714212457_InitialSchema` | ✓ PASS |
+| Database still rejects the three illegal-row classes (SC3 unaffected) | Raw `psql` INSERT/ROLLBACK — non-square circle, zero-height box, zero-length line | All 3 rejected by name (`circle_is_a_circle`, `box_is_a_box`, `line_is_a_line`) | ✓ PASS |
+| Full BC-01-scoped suite green (no regressions from the gap-closure plans) | `dotnet test --filter "FullyQualifiedName~BlazorCanvas.Tests.Geometry\|FullyQualifiedName~BlazorCanvas.Tests.Database" --no-build` | 372 passed, 0 failed | ✓ PASS |
+| Full solution suite green | `dotnet test BlazorCanvas.sln` | 405 passed, 0 failed, 0 build warnings | ✓ PASS |
+| Geometry core purity unaffected by the CircleEncoding→Movement composition | `grep -h '^using' src/BlazorCanvas/Geometry/*.cs \| grep -v '^using System' \| wc -l` | `0` | ✓ PASS |
 
 ### Anti-Patterns Found
 
-| File | Line | Pattern | Severity | Impact |
-|------|------|---------|----------|--------|
-| `src/BlazorCanvas/Geometry/CircleEncoding.cs` | 27-36 | Missing lower-bound clamp (CR-01) | 🛑 Blocker | Off-canvas circle passes every guard and CHECK — see Gaps |
-| `src/BlazorCanvas/Geometry/Movement.cs` | 10 | `lo > hi` inversion (CR-02) | 🛑 Blocker | Zero-delta move can teleport an out-of-bounds figure — see Gaps |
-| `src/BlazorCanvas/Data/CanvasDbContextFactory.cs` | 25 | Hardcoded wrong-server fallback (CR-03) | 🛑 Blocker | `dotnet ef` from repo root can silently DDL the wrong PostgreSQL server — see Gaps |
+None in the files touched by the gap-closure plans. `grep -iE "TBD|FIXME|XXX|TODO|HACK|PLACEHOLDER"` against `CircleEncoding.cs`, `Movement.cs`, `CanvasDbContextFactory.cs`, `ClampTests.cs`, `CircleEncodingTests.cs` returns no matches. The three previously-flagged 🛑 Blockers (CR-01, CR-02, CR-03) are resolved and are not re-listed here — see Truths 5-6 for closure evidence.
 
-No `TBD`/`FIXME`/`XXX`/`TODO`/`HACK`/`PLACEHOLDER` markers found in any file touched by this phase (`src/BlazorCanvas/Geometry`, `src/BlazorCanvas/Data`, `src/BlazorCanvas/Program.cs`, `docker-compose.yml`, `tests/BlazorCanvas.Tests/{Geometry,Database}`).
-
-The 9 Warnings and 5 Info items from `01-REVIEW.md` (WR-01 through WR-09, IN-01 through IN-05) are not repeated here individually — they are lower severity than the three Critical items above, are not required by any PLAN.md must-have, and do not block the phase goal on their own. They remain open follow-up work.
+The 9 Warnings and 5 Info items from `01-REVIEW.md` (WR-01 through WR-09, IN-01 through IN-05) remain open, lower-severity follow-up items — unchanged since the initial report, not re-litigated individually here, and none block the phase goal.
 
 ### Human Verification Required
 
-None. Every item above was verifiable programmatically (source inspection, live database queries, and test enumeration/execution) — no visual, real-time, or subjective judgment was needed to resolve these findings.
+None. Every item above was verifiable programmatically (direct source inspection of the current file state, live database queries against the running `canvas-postgres` container, live `dotnet ef` reproduction with config removed/restored, and isolated test execution) — no visual, real-time, or subjective judgment was needed.
 
 ### Gaps Summary
 
-Three of the four ROADMAP success criteria (1, 2, 3) hold cleanly and were independently re-verified against the live database and repository, not merely trusted from SUMMARY.md. Success criterion 4 ("the three mandated tests pass") is also literally true — the tests exist, are correctly named, and pass.
+All three Critical defects recorded in the 2026-07-15 initial report are closed, and this closure was independently re-verified against the current codebase and a live database rather than trusted from `01-05-SUMMARY.md` / `01-06-SUMMARY.md`:
 
-However, the phase's own framing of its purpose — *"the three silent failure modes are guarded before any UI exists to hide them"* — is not fully achieved. Two independently-confirmed, unresolved **Critical** defects (`01-REVIEW.md` CR-01 and CR-02, both re-verified here by direct code reading and, for CR-01, live database reproduction) sit in the exact clamp/circle-encoding functions the mandated tests were meant to prove sound:
+- **CR-01 (closed):** `CircleEncoding.ClampDrawRadius` now clamps the press centre into the canvas via `Movement.ClampDelta` before computing the cap, and floors the result at 0. Re-read directly from `src/BlazorCanvas/Geometry/CircleEncoding.cs` (current state). The exact live repro from the initial report — `ClampDrawRadius(-5, 360, 50)` — is now proven to return 0 (not -5) and to be rejected by `MinSizeGuard.IsDrawable`, via the isolated, passing `ClampDrawRadius_OffCanvasCentre_ProducesNoLegalCircle` test.
+- **CR-02 (closed):** `Movement.ClampDelta` now returns 0 when `lo > hi`. Re-read directly from `src/BlazorCanvas/Geometry/Movement.cs`. `ClampMove(oversizedBox, 0, 0)` is now the identity, proven by two isolated, passing regression tests covering both the width and height axes.
+- **CR-03 (closed):** `CanvasDbContextFactory.CreateDbContext` no longer falls back to a hardcoded `Port=5432` connection string; it throws an actionable `InvalidOperationException`. Re-read directly from `src/BlazorCanvas/Data/CanvasDbContextFactory.cs`, and independently reproduced live: with `appsettings.Development.json` temporarily removed, `dotnet ef migrations list` failed loudly with the exact message rather than silently targeting the native `postgresql-x64-18` service on port 5432; the legitimate port-5433 path still works with the file restored.
 
-- **CR-01** — `CircleEncoding.ClampDrawRadius` has no floor at zero. A centre outside the canvas (reachable the moment BC-02 wires up raw pointer drag input) produces a negative radius, which `Normalisation` silently turns into a *valid-looking* off-canvas circle that both `MinSizeGuard` and `circle_is_a_circle` accept. Reproduced live: `INSERT INTO figures (..., 'circle', -10, 355, 0, 365)` succeeds.
-- **CR-02** — `Movement.ClampDelta` inverts when `lo > hi` (an out-of-canvas or oversized box). `ClampMove(box, 0, 0)` is therefore not the identity, meaning a zero-delta drag interaction can silently teleport a figure. No existing test covers this input region — confirmed by filtering the test suite for a matching name and finding none.
+All four ROADMAP success criteria (SC1-SC4) continue to hold, re-confirmed live against the database and were not affected by the gap-closure plans' changes (both plans' scope fences forbade schema changes, and no `src/BlazorCanvas/Data` or `src/BlazorCanvas/Migrations` file besides `CanvasDbContextFactory.cs` was touched). The full solution test suite is green (405/405 — grown from 153 because later phases BC-02 through BC-05 have since executed; the BC-01-scoped subset, 372 tests, was isolated and independently confirmed green).
 
-A third Critical defect, **CR-03**, does not affect the running app (which reads the correct port-5433 connection string) but means `dotnet ef` tooling run from the repository root will silently target the wrong PostgreSQL server on this exact machine (the native `postgresql-x64-18` service on port 5432) — a real, not hypothetical, risk given that exact port conflict is what forced the documented D-27 deviation in the first place.
+The phase's stated purpose — *"the three silent failure modes are guarded before any UI exists to hide them"* — is now fully achieved, not narrowly. The 9 Warnings / 5 Info items from `01-REVIEW.md` remain open as lower-severity follow-up work, unchanged and not re-litigated here.
 
-None of these three defects are required by any PLAN.md `must_haves` entry, and none cause a currently-existing test to fail — which is precisely why they are dangerous: they are new instances of the same *silent* failure category (D-50's framing) that this phase exists to eliminate, hiding in the 8-hand-picked-box `GuardMirrorsChecksTests` matrix's blind spot (no negative or out-of-canvas coordinates), not caught by anything.
-
-**Recommendation:** These are genuine, reproducible defects with known fixes already drafted in `01-REVIEW.md`. Given the phase's central claim is specifically about eliminating silent geometric failure modes, closing CR-01/CR-02 (and ideally CR-03) before Phase BC-02 starts consuming this geometry core for live pointer input is strongly advised — BC-02's drag handler is exactly the code path that will first produce an off-canvas centre. If the team decides these can be deferred (e.g., tracked as BC-02 prerequisites rather than BC-01 blockers), that is a legitimate call — but it should be a conscious, recorded decision (an override or an explicit ROADMAP note), not a silent pass.
+**No gaps remain. This phase is verified as `passed`.**
 
 ---
 
-_Verified: 2026-07-15_
+_Verified: 2026-07-17_
 _Verifier: Claude (gsd-verifier)_
