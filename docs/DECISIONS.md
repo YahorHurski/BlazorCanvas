@@ -1667,9 +1667,22 @@ lines, so the stroke itself is the only click target a line has. 2px makes that 
 
 ### Docker Compose (D-27)
 
-Postgres **17**, port **5432**, database **`canvas`**, user/password **`postgres`/`postgres`**,
-with a **named volume** so figures survive a container restart. Connection string in
-`appsettings.Development.json`.
+Postgres **17**, host port **5433** → container port **5432**, database **`canvas`**,
+user/password **`postgres`/`postgres`**, with a **named volume** so figures survive a
+container restart. Connection string in `appsettings.Development.json`.
+
+> **Amended in Phase BC-01 (2026-07-15), user-approved.** As originally locked, this entry
+> specified host port **5432**. On the development machine a native `postgresql-x64-18`
+> Windows service permanently occupies 5432, so the compose file publishes **`"5433:5432"`**
+> instead: the container still listens on 5432 internally, only the host-published port moved.
+> The user explicitly chose to move the container's port rather than disturb the pre-existing
+> native service. This is a deviation of *fact*, not of intent — D-27 decides that Postgres
+> runs in Docker Compose with a named volume, and that decision is untouched.
+>
+> **The port is load-bearing in exactly one way:** `dotnet ef` tooling that guesses a
+> connection string would silently target the *wrong* PostgreSQL server on this machine.
+> That hazard is closed structurally — `CanvasDbContextFactory` throws instead of guessing
+> (BC-01 gap closure, CR-03).
 
 *(Rejected: no volume — a fully disposable database. Cleaner for testing migrations from
 scratch, but every `docker compose down` would erase your drawings.)*
