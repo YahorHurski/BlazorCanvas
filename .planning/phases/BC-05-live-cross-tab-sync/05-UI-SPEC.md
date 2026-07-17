@@ -323,13 +323,17 @@ strictly worse than D-45's rejected "letting it crash": the user would believe t
 
 OK is not a confirmation. It is the acknowledgement that gates the reload. There is no second path.
 
-### Autofocus rationale
+### Autofocus decision
 
-The OK button is the only interactive element in the modal and the only way out of a forced flow.
-Focusing it on open means Enter and Space work immediately, and it satisfies the focus-management
-half of `aria-modal` without any focus-trap machinery — **there is only one focusable element, so the
-trap is structural.** No JavaScript is required: the `autofocus` attribute on the button inside a
-native `<dialog>` is markup-only.
+Human verification showed the markup-only `autofocus` attribute is not reliable when Blazor inserts
+this dialog into an already-loaded document: the OK button can appear visually focused while Enter
+does not activate it. The approved Phase 5 checkpoint decision is **option-a: accept no guaranteed
+autofocus and amend the contract**.
+
+The OK button remains the only interactive element and the only way out of the forced reload flow.
+Keyboard-only users may need to press Tab once before activating OK. This preserves the locked
+no-application-authored-JavaScript constraint and follows the same tradeoff precedent as D-33, D-37,
+and D-57: a worse interaction is accepted rather than adding browser-focus code.
 
 ### Visual treatment
 
@@ -383,8 +387,8 @@ reason not to inherit from it.)
 |----------|-------|
 | Role | `alertdialog` — an assertive announcement requiring acknowledgement |
 | `aria-modal` | `true` |
-| Focus on open | The OK button (`autofocus`) |
-| Focus trap | Structural — exactly one focusable element |
+| Focus on open | Best-effort only; not guaranteed. Keyboard users may need Tab before OK. |
+| Focus trap | No scripted trap; exactly one focusable element remains reachable by Tab |
 | Accessible name | The message paragraph, via `aria-describedby` (or the dialog's own text content) |
 | Contrast | `#FFFFFF` on `#1D4ED8` and `#1F2937` on `#FFFFFF` — both already shipped and in use |
 
@@ -438,7 +442,9 @@ reason not to inherit from it.)
   applicable — this phase installs no new packages"). The only new symbols are .NET BCL types.
 - **No third-party UI code enters the contract.** Every component is hand-written in this repository.
 - **No application-authored JavaScript** (locked, load-bearing — it is what forced D-18, D-33, D-37,
-  D-57). The modal is markup-only: a native `<dialog>` with an `autofocus` attribute. The scaffolded
+  D-57). The modal is markup-only: a native `<dialog>` and button. Human verification showed the
+  `autofocus` attribute is not a reliable guarantee after Blazor inserts the dialog, and the approved
+  option-a decision accepts that limitation rather than adding browser-focus code. The scaffolded
   `ReconnectModal.razor.js` is framework template JS and is out of scope per PROJECT.md Constraints —
   this phase neither adds to it nor depends on it.
 
@@ -457,7 +463,7 @@ re-derive, soften, or "improve" them during planning, execution, or review.**
 | **UI-05-01** | **Glide renders as a raw, immediate SVG position update. No CSS transition.** | Zero risk of a tween still being in flight when the next broadcast lands; the final unconditional position is always exact. Accepted tradeoff: visible ~20fps stepping. Spec'd explicitly so an implementer does not add a transition later thinking it is an improvement. | § Motion & Glide |
 | **UI-05-02** | **Remote-origin figures get no visual distinction at all.** | Extends D-14/D-38's single fixed style (black 2px / white fill) to sync, and keeps red reserved solely for local selection. The absence of a cue is the decision, not an omission. | § Remote-Origin Figures |
 | **UI-05-03** | **The save-failure modal dismisses via the OK button only** — no backdrop click, no Escape. | The flow is forced because there is nothing valid to cancel back to: until the reload runs, the tab's view is known to disagree with the database. | § Save-Failure Modal |
-| **UI-05-04** | **The save-failure modal matches the login card, with autofocus on OK.** Native `<dialog>`, white surface, `#1D4ED8` OK button matching the login CTA, dimmed backdrop, 4px radius, centered. | A visual sibling of the app's own established surface rather than the framework's blue-toned `ReconnectModal`, whose tokens belong to none of this app's design language. Autofocus makes Enter/Space work immediately and satisfies focus management structurally. | § Save-Failure Modal |
+| **UI-05-04** | **The save-failure modal matches the login card; autofocus is best-effort only.** Native `<dialog>`, white surface, `#1D4ED8` OK button matching the login CTA, dimmed backdrop, 4px radius, centered. | A visual sibling of the app's own established surface rather than the framework's blue-toned `ReconnectModal`, whose tokens belong to none of this app's design language. Human verification chose option-a: accept no guaranteed autofocus rather than add browser-focus code. | § Save-Failure Modal |
 
 ---
 
