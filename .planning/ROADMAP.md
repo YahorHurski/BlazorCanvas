@@ -157,7 +157,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 3. The Canvas & Drawing | v1.0 | 5/5 | Complete | 2026-07-16 |
 | 4. Select, Drag & Delete | v1.0 | 4/4 | Complete | 2026-07-16 |
 | 5. Live Cross-Tab Sync | v1.0 | 5/5 | Complete | 2026-07-17 |
-| 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete | 2026-07-20 |
+| 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete    | 2026-07-20 |
 | 7. Selection Lifecycle & Restyle | v1.1 | 0/TBD | Not started | - |
 | 8. Architecture Constraint Cleanup | v1.1 | 0/TBD | Not started | - |
 

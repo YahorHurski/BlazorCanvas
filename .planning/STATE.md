@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Canvas resize · selection UX · no-JS removal
-current_phase: 6
-current_phase_name: Canvas Resize to 1472×828
+current_phase: 7
+current_phase_name: Selection Lifecycle & Restyle
 status: planning
 stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-07-20T22:25:10.369Z"
+last_updated: "2026-07-20T22:29:53.851Z"
 last_activity: 2026-07-21
-last_activity_desc: Phase 6 planned (06-01) and verified; ready for /gsd-execute-phase 6
+last_activity_desc: Phase BC-06 complete, transitioned to Phase 7
 progress:
   total_phases: 3
   completed_phases: 1
@@ -35,10 +35,10 @@ scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 
 ## Current Position
 
-Phase: 6 of 8 (Canvas Resize to 1472×828) — first phase of v1.1
-Plan: 06-01-PLAN.md (1 plan, wave 1, autonomous) — verified by plan-checker, ready to execute
-Status: Phase 6 complete — ready for Phase 7
-Last activity: 2026-07-20 — Phase 6 completed (06-01); ready for Phase 7
+Phase: 7 of 8 (Selection Lifecycle & Restyle)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-07-21 — Phase BC-06 complete, transitioned to Phase 7
 
 Progress: [███░░░░░░░] 33%
 
@@ -46,7 +46,7 @@ Progress: [███░░░░░░░] 33%
 
 **Velocity:**
 
-- Total plans completed: 23
+- Total plans completed: 18
 - Average duration: —
 - Total execution time: —
 
@@ -58,6 +58,7 @@ Progress: [███░░░░░░░] 33%
 | BC-03 | 5 | - | - |
 | BC-04 | 4 | - | - |
 | BC-05 | 5 | - | - |
+| BC-06 | 1 | - | - |
 
 **Recent Trend:**
 
