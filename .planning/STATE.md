@@ -165,6 +165,12 @@ Resume file: None
 
 ## Operator Next Steps
 
+- **⚠️ BRANCH WORKFLOW (user-directed):** ALL work stays on branch **`NewBranch`** — **never commit
+  to `master` directly.** `git.branching_strategy = "none"` (config.json), so GSD commits to the
+  current branch; **stay checked out on `NewBranch`** for every GSD command. `master` is updated only
+  via a **single reviewed PR (`NewBranch → master`) at `/gsd-ship`**. Push `NewBranch` after each phase
+  so progress is visible on GitHub. Do NOT set branching_strategy to phase/milestone (those fork off
+  `origin/master`, which lacks the v1.1 amendments).
 - **Run `/gsd-new-milestone`** to open v1.1 formally: it will read PROJECT.md (Requirements → Active
   already lists CANV-03, SEL-01, SEL-02, ARCH-01), assign final REQ-IDs, and spawn the roadmapper to
   produce the phase plan. The decision amendments it would normally prompt for are **already done**
