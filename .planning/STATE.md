@@ -2,20 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Canvas resize · selection UX · no-JS removal
-current_phase: 0
-status: v1.1 planned — decisions amended 2026-07-20; roadmap pending `/gsd-new-milestone`
-stopped_at: v1.1 decisions amended across docs/DECISIONS.md + PROJECT.md + intel; v1.2 scoped to backlog. Next: /gsd-new-milestone to assign REQ-IDs and roadmap phases.
-last_updated: "2026-07-20T00:00:00.000Z"
+status: planning
+last_updated: "2026-07-20T20:30:02.517Z"
 last_activity: 2026-07-20
-last_activity_desc: v1.1 decisions amended (canvas 1472x828, selection UX + restyle, no-JS rule removed); v1.2 scoped to backlog
 progress:
   total_phases: 0
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
   percent: 0
-current_phase_name: (roadmap pending)
-prev_milestone: v1.0 (MinVP) — shipped 2026-07-17, 5 phases / 23 plans / 15 requirements
 ---
 
 # Project State
@@ -36,12 +31,10 @@ scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 
 ## Current Position
 
-Phase: v1.1 — decisions amended, **roadmap pending** (`/gsd-new-milestone` not yet run)
+Phase: Not started (defining requirements)
 Plan: —
-Status: v1.1 planned; no code changed yet; no DB migration needed
-Last activity: 2026-07-20 — v1.1 decisions amended; v1.2 scoped to backlog
-Prev: v1.0 (MinVP) shipped 2026-07-17 — archived to `.planning/milestones/`, tagged `v1.0`
-Retrospective: `.planning/RETROSPECTIVE.md`
+Status: Defining requirements
+Last activity: 2026-07-20 — Milestone v1.1 started
 
 ## Performance Metrics
 
@@ -116,10 +109,12 @@ The ones most likely to be violated by accident:
 
 **v1.1 amendments to the locked set (user-approved, 2026-07-20)** — recorded in `docs/DECISIONS.md`
 with inline `⚠️ v1.1` notes, mirrored in PROJECT.md + intel:
+
 - **D-19/D-36/D-58/D-18** — canvas **1280×720 → 1472×828** (may grow, never shrink; no migration).
 - **D-31/D-58** — selection **red outline → blue+white dashed trace on the figure's own outline,
   topmost**, plus a lifecycle (tool stays armed; one selection at a time; deselect on
   canvas-outside-figure / arm-tool / toolbar-except-Delete).
+
 - **D-06/D-18/D-33/D-37/D-57** — the **"no JavaScript" rule removed**; motivations corrected to MVP
   simplicity. Permissive, no code change.
 
@@ -143,6 +138,7 @@ close (detail preserved in `.planning/milestones/v1.0-ROADMAP.md` and git histor
 
 - The **D-11/D-54 contradiction** — fixed at source in `docs/DECISIONS.md`; D-54's blanket mid-drag
   discard was built in BC-05-03 and re-confirmed by the v1.0 integration audit.
+
 - **`.planning/config.json`** — created (`granularity: standard`, `project_code: BC`).
 
 **Carried forward (not blocking):** ~11 low-severity items from `01-REVIEW.md` (WR-03…WR-07, WR-09,
@@ -171,13 +167,17 @@ Resume file: None
   via a **single reviewed PR (`NewBranch → master`) at `/gsd-ship`**. Push `NewBranch` after each phase
   so progress is visible on GitHub. Do NOT set branching_strategy to phase/milestone (those fork off
   `origin/master`, which lacks the v1.1 amendments).
+
 - **Run `/gsd-new-milestone`** to open v1.1 formally: it will read PROJECT.md (Requirements → Active
   already lists CANV-03, SEL-01, SEL-02, ARCH-01), assign final REQ-IDs, and spawn the roadmapper to
   produce the phase plan. The decision amendments it would normally prompt for are **already done**
   (this session), so discussion is effectively pre-completed — the changes are small enough that some
   phases may suit `/gsd-quick`.
+
 - **v1.1 scope (all decided, no migration):** canvas → 1472×828; selection lifecycle + blue-dashed
   restyle; remove the no-JS rule. Details in PROJECT.md and `docs/DECISIONS.md` (v1.1 notes inline).
+
 - **v1.2 is scoped and waiting** in `.planning/backlog/v1.2-figures-and-toolbar.md` — start it only
   after v1.1 ships; its decision amendments happen at that point.
+
 - Optional/independent: triage the ~11 low-severity `01-REVIEW.md` items.

@@ -43,11 +43,11 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
 
-### Active — v1.1 (decisions amended; roadmap pending `/gsd-new-milestone`)
+### Active — v1.1 (milestone opened; roadmap created via `/gsd-new-milestone`)
 
 v1.0 shipped the v1 set. **v1.1 is now the active milestone** — four user-approved changes, all
-recorded in `docs/DECISIONS.md`. REQ-IDs below are provisional (they will be finalised when
-`/gsd-new-milestone` runs). No database migration is needed for any of them.
+recorded in `docs/DECISIONS.md`. The REQ-IDs below are **final** (assigned when
+`/gsd-new-milestone` ran, 2026-07-20). No database migration is needed for any of them.
 
 - [ ] **CANV-03** — **Canvas enlarged to 1472 × 828** (16:9; fits a maximized window on a 1920×1080
   monitor with no scroll). Existing figures keep their position; **shrinking remains forbidden**.
@@ -279,6 +279,10 @@ changes are recorded in `docs/DECISIONS.md` and in *Requirements → Active* abo
 step: run `/gsd-new-milestone` to assign REQ-IDs and produce the phase roadmap. No code has changed
 yet; no database migration is required.
 
+**v1.1 milestone opened 2026-07-20** via `/gsd-new-milestone`: the four changes are finalised as
+REQ-IDs **CANV-03, SEL-01, SEL-02, ARCH-01**, and the phase roadmap continues numbering from BC-06.
+See `.planning/REQUIREMENTS.md` and `.planning/ROADMAP.md`.
+
 **v1.0 shipped 2026-07-17.** The definition of done was met — verified both by an end-to-end code
 trace (v1.0 milestone audit) and by live human verification on two real screens (BC-05-05).
 
@@ -295,6 +299,25 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   **v1.2 scoped** (new figures + dynamic toolbar) in `.planning/backlog/v1.2-figures-and-toolbar.md`.
   The "terminal MinVP" framing no longer applies — the project has resumed.
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
-*Last updated: 2026-07-20 — v1.1 decisions amended (canvas resize, selection UX/restyle, no-JS rule
-removed); v1.2 scoped to backlog. Roadmap pending `/gsd-new-milestone`. (Prev: 2026-07-17, v1.0 shipped.)*
+*Last updated: 2026-07-20 — v1.1 milestone opened via `/gsd-new-milestone`: REQ-IDs finalised
+(CANV-03, SEL-01, SEL-02, ARCH-01), roadmap created (continues from BC-06). Decisions were amended
+earlier the same day (canvas resize, selection UX/restyle, no-JS rule removed); v1.2 scoped to
+backlog. (Prev: 2026-07-17, v1.0 shipped.)*
