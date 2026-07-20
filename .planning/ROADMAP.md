@@ -72,7 +72,8 @@ larger surface.
      1280 × 720 boundary used to stop it.
   4. `CanvasBounds.cs` exposes only the new 1472 × 828 constant (no configurable shrink path), and
      the geometry/clamp test suite — updated for the new bounds — passes with zero regressions.
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 06-01-PLAN.md — Enlarge CanvasBounds to 1472×828 + bind the Home.razor SVG + classify-and-re-pin the geometry edge tests
 **UI hint**: yes
 
 ---
@@ -134,7 +135,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 3. The Canvas & Drawing | v1.0 | 5/5 | Complete | 2026-07-16 |
 | 4. Select, Drag & Delete | v1.0 | 4/4 | Complete | 2026-07-16 |
 | 5. Live Cross-Tab Sync | v1.0 | 5/5 | Complete | 2026-07-17 |
-| 6. Canvas Resize to 1472×828 | v1.1 | 0/TBD | Not started | - |
+| 6. Canvas Resize to 1472×828 | v1.1 | 0/1 | Planned | - |
 | 7. Selection Lifecycle & Restyle | v1.1 | 0/TBD | Not started | - |
 | 8. Architecture Constraint Cleanup | v1.1 | 0/TBD | Not started | - |
 
