@@ -16,7 +16,7 @@
     <Toolbar @bind-Armed="armedTool" DeleteEnabled="selectedId.HasValue" OnDelete="HandleDeleteAsync" />
 
     <div class="canvas-area">
-        <svg class="@CanvasSurfaceClass" width="1280" height="720" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
+        <svg class="@CanvasSurfaceClass" width="@CanvasBounds.Width" height="@CanvasBounds.Height" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
             @foreach (var f in figures)
             {
                 var box = dragging && f.Id == dragFigureId ? dragCurrentBox : new Box(f.X1, f.Y1, f.X2, f.Y2);
