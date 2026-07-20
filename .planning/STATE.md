@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Canvas resize · selection UX · no-JS removal
 status: planning
-last_updated: "2026-07-20T20:30:02.517Z"
+last_updated: "2026-07-20T21:00:00.000Z"
 last_activity: 2026-07-20
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -31,10 +31,14 @@ scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-07-20 — Milestone v1.1 started
+Phase: 6 of 8 (Canvas Resize to 1472×828) — first phase of v1.1
+Plan: — (roadmap created; no plans yet)
+Status: Ready to plan
+Last activity: 2026-07-20 — Roadmap created for v1.1 (Phases 6–8: Canvas Resize, Selection
+Lifecycle & Restyle, Architecture Constraint Cleanup); REQUIREMENTS.md traceability filled
+(4/4 mapped, 0 unmapped)
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -127,6 +131,12 @@ Constraints. Intent untouched.
 phase's `*-SUMMARY.md` under `key-decisions`, preserved in
 `.planning/milestones/v1.0-ROADMAP.md` and in git history.
 
+**Roadmap decisions (v1.1, this session):** CANV-03 is Phase 6 (independent — `CanvasBounds.cs` +
+`Home.razor` SVG + geometry/clamp tests). SEL-01 + SEL-02 are combined into Phase 7 (both touch the
+selection overlay in `Home.razor`; sequenced after Phase 6 to avoid overlapping edits to the same
+file). ARCH-01 is its own tiny Phase 8 (doc/constraint verification only — no code) since its work
+is unrelated in kind to the other two; likely a `/gsd-quick` candidate.
+
 ### Pending Todos
 
 None yet.
@@ -155,8 +165,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-17T03:05:00.000Z
-Stopped at: Milestone v1.0 complete — all 23 plans executed, all 5 verifications passed
+Last session: 2026-07-20T21:00:00.000Z
+Stopped at: v1.1 roadmap created — Phases 6, 7, 8 written to ROADMAP.md; REQUIREMENTS.md
+traceability filled (4/4 mapped, 0 unmapped); awaiting roadmap approval.
 Resume file: None
 
 ## Operator Next Steps
@@ -168,14 +179,10 @@ Resume file: None
   so progress is visible on GitHub. Do NOT set branching_strategy to phase/milestone (those fork off
   `origin/master`, which lacks the v1.1 amendments).
 
-- **Run `/gsd-new-milestone`** to open v1.1 formally: it will read PROJECT.md (Requirements → Active
-  already lists CANV-03, SEL-01, SEL-02, ARCH-01), assign final REQ-IDs, and spawn the roadmapper to
-  produce the phase plan. The decision amendments it would normally prompt for are **already done**
-  (this session), so discussion is effectively pre-completed — the changes are small enough that some
-  phases may suit `/gsd-quick`.
-
-- **v1.1 scope (all decided, no migration):** canvas → 1472×828; selection lifecycle + blue-dashed
-  restyle; remove the no-JS rule. Details in PROJECT.md and `docs/DECISIONS.md` (v1.1 notes inline).
+- **Roadmap created.** v1.1 has 3 phases: **Phase 6** (Canvas Resize to 1472×828, CANV-03),
+  **Phase 7** (Selection Lifecycle & Restyle, SEL-01/SEL-02), **Phase 8** (Architecture Constraint
+  Cleanup, ARCH-01). Full detail in `.planning/ROADMAP.md`. Next: review/approve the roadmap, then
+  `/gsd-plan-phase 6`. Phases 7 and 8 are small enough that `/gsd-quick` may suit them.
 
 - **v1.2 is scoped and waiting** in `.planning/backlog/v1.2-figures-and-toolbar.md` — start it only
   after v1.1 ships; its decision amendments happen at that point.

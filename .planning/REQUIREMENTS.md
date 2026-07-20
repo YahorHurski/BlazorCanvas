@@ -71,16 +71,17 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CANV-03 | Phase [N] | Pending |
-| SEL-01 | Phase [N] | Pending |
-| SEL-02 | Phase [N] | Pending |
-| ARCH-01 | Phase [N] | Pending |
+| CANV-03 | Phase 6 | Pending |
+| SEL-01 | Phase 7 | Pending |
+| SEL-02 | Phase 7 | Pending |
+| ARCH-01 | Phase 8 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 4 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 4 ⚠️
+- Mapped to phases: 4 (Phase 6: CANV-03 · Phase 7: SEL-01, SEL-02 · Phase 8: ARCH-01)
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-20*
-*Last updated: 2026-07-20 after v1.1 milestone open (`/gsd-new-milestone`)*
+*Last updated: 2026-07-20 after roadmap creation (`/gsd-new-milestone` → roadmapper) — phases 6–8
+assigned, 4/4 requirements mapped, 0 unmapped.*
