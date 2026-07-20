@@ -7,6 +7,13 @@ an acceptance criterion, none is asserted.
 
 Because there is only one source document, there are **no competing acceptance variants**.
 
+> ⚠️ **v1.1 AMENDMENTS (2026-07-20)** — these v1.0-derived requirements are partly superseded.
+> Authority: `docs/DECISIONS.md` + `.planning/PROJECT.md` (Requirements → Active). Changed:
+> **canvas 1472×828** (was 1280×720); **selection = blue+white dashed trace on the figure's own
+> outline** + a **selection lifecycle** (tool stays armed, one selection at a time, deselect on
+> canvas-outside-figure / arm-tool / toolbar-except-Delete); **the no-JS requirement is dropped**
+> (hand-authored JS permitted). New v1.1 REQ-IDs (CANV-03, SEL-01, SEL-02, ARCH-01) are in PROJECT.md.
+
 ---
 
 ## REQ-login
@@ -53,7 +60,7 @@ Acceptance:
 
 ## REQ-canvas-surface
 source: docs/DECISIONS.md (D-06, D-18, D-19, D-43, D-55, D-38)
-A fixed 1280 × 720 SVG canvas at document position (0, 48), rendered at 1:1.
+A fixed **1472 × 828** *(v1.1; was 1280 × 720)* SVG canvas at document position (0, 48), rendered at 1:1.
 
 Acceptance:
 - One canvas unit = one CSS pixel on every screen; the canvas does not scale to the window.
@@ -94,12 +101,18 @@ Acceptance:
 source: docs/DECISIONS.md (D-15, D-30, D-31, D-38, D-48, D-58)
 With the pointer tool armed, clicking a figure selects it.
 
-Acceptance:
-- A selected figure is drawn with a **red 2px outline**; all others keep black 2px on white fill.
-- **Clicking empty canvas deselects.**
+Acceptance *(v1.1 amended — SEL-01/SEL-02)*:
+- The selected figure is marked by a **~1px blue+white dashed trace on its own outline**, drawn as
+  the **topmost layer** (`pointer-events:none`), visible even when it slides behind a larger figure
+  *(v1.1; was a red 2px outline)*.
+- **At most one figure is selected at a time.** **Drawing a figure selects it** and **the tool stays
+  armed**; the just-drawn figure stays selected until the next gesture.
+- **Deselect triggers:** pressing the canvas outside the selected figure; arming any tool; pressing
+  the toolbar **except the Delete button**. Pressing another figure selects that one instead.
 - Overlapping figures: a click hits the **topmost**, which is whichever was drawn last (z-order = `id`).
 - A click is a movement of **< 3 px** before release, and performs **no database write**.
-- Selection is **local UI state only** — never persisted, never broadcast to other tabs.
+- Selection is **local UI state only** — never persisted, never broadcast; a figure arriving via sync
+  is not selected in the receiving tab.
 
 ## REQ-drag-figure
 source: docs/DECISIONS.md (D-04, D-24, D-36, D-37, D-48, D-09, D-10, D-52)
@@ -110,7 +123,8 @@ Acceptance:
 - The figure **stops at the canvas edge and slides along it** (per-axis independent delta clamp).
 - Exactly **one `UPDATE` on drop** — no intermediate writes.
 - `pointerleave` on the drag surface commits the drag at its current clamped position; a
-  `Buttons`-up check on `pointermove` also commits (the Alt-Tab case). No JavaScript.
+  `Buttons`-up check on `pointermove` also commits (the Alt-Tab case). *(v1.1: this exists to prevent
+  a hanging/stranded drag, not to avoid JS.)*
 - A zero-row UPDATE means the figure is gone: remove it from the view silently **and broadcast a delete**.
 
 ## REQ-delete-figure
@@ -118,7 +132,9 @@ source: docs/DECISIONS.md (D-04, D-33, D-15, D-58, D-09)
 Select a figure, then click the toolbar Delete button.
 
 Acceptance:
-- No Delete-key handler exists (it would require focus management or JavaScript).
+- No Delete-key handler exists *(chosen for MVP simplicity + unambiguous behaviour; a pure-Blazor
+  `@onkeydown` breaks when focus moves to a toolbar button. v1.1: a Delete-key shortcut could be added
+  later now that JS is permitted — out of scope for now)*.
 - Deleting issues `DELETE` on that row; deleting an already-gone figure is a silent no-op.
 - The button is disabled whenever nothing is selected.
 
@@ -178,7 +194,7 @@ source: docs/DECISIONS.md (D-49)
 A small test project covering exactly the three **silent** failure modes.
 
 Acceptance:
-- Clamp maths (D-36): per-axis independence, inclusive bounds `0..1280 × 0..720`, circle draw-clamp.
+- Clamp maths (D-36): per-axis independence, inclusive bounds `0..1472 × 0..828` *(v1.1; was `0..1280 × 0..720`)*, circle draw-clamp.
 - Circle inscribed-square round-trip (D-22): centre and radius return exactly after store + reload;
   translation preserves the radius.
 - Line normalisation (D-41): an up-and-right diagonal does **not** come back as the opposite diagonal.
@@ -189,6 +205,9 @@ Acceptance:
 
 resize · rotate · undo/redo · z-order control · colours / stroke styling · multi-select ·
 copy/paste · zoom / pan · export · real authentication · password hashing · a Save button ·
-a Reload button · a canvas list · JavaScript of any kind.
+a Reload button · a canvas list. *(v1.1: "JavaScript of any kind" is **no longer** out of scope —
+the no-JS rule was removed; hand-authored JS is permitted, just not currently needed.)*
 
-Anything not named in `docs/DECISIONS.md` is out until it is added there by name.
+Anything not named in `docs/DECISIONS.md` is out until it is added there by name. *(v1.1 added:
+canvas resize, selection lifecycle + restyle, no-JS removal. v1.2 scoped: new figures + toolbar —
+see `.planning/backlog/`.)*

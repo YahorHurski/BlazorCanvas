@@ -4,6 +4,12 @@ Extracted from the single ADR set `docs/DECISIONS.md`. These are the executable/
 artifacts: schema, contracts, formulas, and fixed constants. Where a constraint has a canonical
 form in the source, it is reproduced verbatim.
 
+> ⚠️ **v1.1 AMENDMENTS (2026-07-20).** Superseding facts (authority: `docs/DECISIONS.md`): canvas
+> **W=1472, H=828** and valid domain **`0..1472 × 0..828`** (was 1280×720 / `0..1280 × 0..720`) —
+> the formula is unchanged, only the constants; **selected-figure indicator = ~1px blue+white dashed
+> trace on the figure's own outline, topmost, `pointer-events:none`** (was red 2px); **the no-JS
+> rule is removed** (hand-authored JS permitted). No DB migration.
+
 ---
 
 ## CONSTRAINT-schema — The canonical DDL
@@ -121,7 +127,7 @@ refuse.** A rejected draw fails **silently** — no message, no error.
 type: invariant / nfr
 source: docs/DECISIONS.md (D-36; operative spec for D-24 and D-29)
 
-`W = 1280`, `H = 720`. **Bounds are INCLUSIVE: valid domain `0..1280 × 0..720`.**
+`W = 1472`, `H = 828` *(v1.1; was 1280 × 720)*. **Bounds are INCLUSIVE: valid domain `0..1472 × 0..828`.**
 
 Move clamp:
 ```
@@ -240,9 +246,9 @@ source: docs/DECISIONS.md (D-58, D-38, D-55, D-19, D-43)
 |---|---|
 | Figure outline | black, **2px** |
 | Figure fill | **white** (makes the interior clickable — SVG does not register clicks inside an unfilled shape) |
-| Selected figure outline | **red, 2px** |
+| Selected figure indicator | **~1px blue+white dashed trace on the figure's own outline, topmost, `pointer-events:none`** *(v1.1; was red 2px)* |
 | Page background | **light grey** (the only thing that makes the borderless canvas edge visible) |
-| Canvas | white, **1280 × 720**, **no border** |
+| Canvas | white, **1472 × 828** *(v1.1; was 1280 × 720)*, **no border** |
 | Toolbar | **48px** tall, six buttons: `[pointer] [line] [rectangle] [circle] [triangle] [delete]`, logout right-aligned |
 
 - 2px (not 1px) is deliberate: the stroke is the only click target a line has (D-32 declined a

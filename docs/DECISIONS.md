@@ -23,7 +23,7 @@ superseded, or reversed.** Every amended entry carries a ⚠️ banner naming it
 |----|-------|--------|
 | D-01…D-04 | Postgres · Blazor · one canvas per user · draw/drag/delete | Locked |
 | **D-05** | Figure types | ⚠️ **Amended by D-13** — the four shapes do *not* share one draw interaction |
-| D-06 | SVG, not `<canvas>` | Locked |
+| D-06 | SVG, not `<canvas>` | Locked (⚠️ v1.1: "no JS" perk phrasing removed; SVG choice stands) |
 | **D-07** | Blazor Server hosting | ⚠️ **Claim retracted by D-34** — "no HTTP code" was false |
 | D-08…D-10 | Plaintext passwords · per-operation saves · zero-row guard | Locked |
 | **D-11** | Live cross-tab sync | ⚠️ **Amended by D-40, D-47, D-53, D-54** — the "idempotent upsert" it describes is a **bug** |
@@ -32,18 +32,26 @@ superseded, or reversed.** Every amended entry carries a ⚠️ banner naming it
 | D-14 | One fixed style | Locked (values in D-38, D-58) |
 | **D-15** | Delete | ⚠️ **Delete *key* superseded by D-33** (toolbar button) |
 | **D-16** | Toolbar | ⚠️ **Superseded** — six buttons, not four (D-30, D-33) |
-| D-17…D-21 | Login · canvas 1:1 · 1280×720 · integers · triangle | Locked |
+| D-17…D-21 | Login · canvas 1:1 · **1472×828** · integers · triangle | Locked (⚠️ D-18/D-19 amended in v1.1: size + motivation) |
 | **D-22** | **Geometry storage** | Locked — **REVISED**. Circle = its **inscribed square**. *(The earlier "centre + rim point" was reversed.)* |
 | **D-23** | Guards | ⚠️ Its "one shared guard" claim is **retracted by D-50** |
 | D-24 | Figures stop at the edge | Locked (formula in **D-36**) |
 | D-25…D-29 | Logout · session cookie · Docker · .NET 10 · draw clamps | Locked |
 | **D-30** | Pointer tool | ⚠️ Says "five buttons" — **it is six** (D-33) |
-| D-31, D-32 | Selection behaviour · accepted usability costs | Locked |
-| D-33…D-35 | Delete button · SSR login · draw preview | Locked |
-| **D-36** | **The clamp formula + inclusive bounds** | Locked — *appears late in the file* |
-| **D-37** | **Drag termination (no JS)** | Locked — *appears late in the file* |
+| D-31, D-32 | Selection behaviour · accepted usability costs | Locked (⚠️ **D-31 amended in v1.1**: blue dashed trace + selection lifecycle) |
+| D-33…D-35 | Delete button · SSR login · draw preview | Locked (⚠️ **D-33 motivation corrected in v1.1**) |
+| **D-36** | **The clamp formula + inclusive bounds** | Locked — *appears late in the file* (⚠️ v1.1: W×H now 1472×828) |
+| **D-37** | **Drag termination** | Locked — *appears late in the file* (⚠️ v1.1: motivation corrected) |
 | D-38…D-49 | Fill · z-order · resurrection fix · normalisation · migrations · layout · usernames · errors · columns · throttle · click-vs-drag · project structure | Locked |
-| D-50…D-58 | Per-type guard · identity & routes · save-failure policy · **message contract** · mid-drag rule · background · logout · draw abort · constants | Locked |
+| D-50…D-58 | Per-type guard · identity & routes · save-failure policy · **message contract** · mid-drag rule · background · logout · draw abort · constants | Locked (⚠️ v1.1: **D-57 motivation corrected**, **D-58 selection style + canvas size amended**) |
+
+> ⚠️ **v1.1 milestone note (see `.planning/PROJECT.md` for the full summary):** the
+> **"no hand-authored JavaScript" rule is REMOVED.** It was never the real motivation (MVP
+> simplicity was); it is corrected in-place at D-06, D-18, D-33, D-37, D-57. Removal is
+> permissive — it changes no code today and only re-opens future options (Delete-key,
+> `setPointerCapture` drag, Escape-to-cancel). Also amended: **canvas 1280×720 → 1472×828**
+> (D-19/D-36/D-58/D-18) and **selection red outline → blue dashed trace + lifecycle** (D-31/D-58).
+> Framework JS (`blazor.web.js`, scaffolded `ReconnectModal.js`) was never in scope either way.
 
 ## The three landmines
 
@@ -125,13 +133,18 @@ Figures are C# objects rendered by Blazor as SVG elements in the DOM.
 
 **Why:** the brief said "холст" as a *concept* — the literal `<canvas>` element was
 never a requirement. With SVG, drag and delete come almost free: each figure is a real
-DOM element with its own click handler. `<canvas>` would mean writing hit-testing by
-hand (given a click at x,y, which figure is under it?) and redrawing the whole scene
-through JS interop on every change — materially more code for exactly the three verbs
-we want. No JavaScript is needed anywhere in the SVG approach.
+DOM element with its own click handler, so hit-testing and redraw are handled by the
+browser. `<canvas>` would mean writing hit-testing by hand (given a click at x,y, which
+figure is under it?) and redrawing the whole scene on every change — materially more code
+for exactly the three verbs we want. **The motivation is simply less code / free DOM
+hit-testing.**
 
-**Rejected:** HTML5 `<canvas>` + JS interop. Only worth it if learning the canvas API
-were itself a goal, or if figure counts reached the thousands. Neither applies.
+> ⚠️ **v1.1 note:** an earlier version of this decision cited "no JavaScript" as a benefit
+> here. That framing is removed — the no-JS rule has been lifted (it was never the real
+> motivation; MVP simplicity was). SVG remains the right choice on its own merits above.
+
+**Rejected:** HTML5 `<canvas>`. Only worth it if learning the canvas API were itself a
+goal, or if figure counts reached the thousands. Neither applies.
 
 ---
 
@@ -468,14 +481,15 @@ but it is a whole second page and second form for an app that has no real accoun
 
 ---
 
-## D-18 — Canvas: fixed size, 1:1, no JavaScript
+## D-18 — Canvas: fixed size, 1:1
 
-**Status:** Locked
+**Status:** Locked — ⚠️ **v1.1: motivation corrected** (fixed size is for MVP simplicity, not
+"no JavaScript"; that rule is lifted). Size is now 1472 × 828 (D-19).
 
-The canvas is a **fixed-size bordered rectangle** (exact dimensions: see Q-12). One canvas
-unit = one CSS pixel, on every screen. It does **not** scale to the browser window.
+The canvas is a **fixed-size rectangle** (exact dimensions: D-19). One canvas unit = one CSS
+pixel, on every screen. It does **not** scale to the browser window.
 
-### The geometric fact that forced this choice
+### Technical caveat — a FIXED ASPECT RATIO is not optional (kept regardless of JS)
 
 The user's three hard requirements were: (1) a figure on a big monitor appears in the same
 relative place on a small one, (2) size proportions preserved, (3) **a circle must never
@@ -485,20 +499,26 @@ render as an oval.**
 Two windows have different *shapes*. Filling both edge-to-edge while keeping relative
 positions means scaling X and Y by different factors — and scaling the axes differently
 *is* the definition of turning a circle into an oval. No technology escapes this. The
-canvas must therefore have one fixed aspect ratio everywhere.
+canvas must therefore have one fixed aspect ratio everywhere. **This is geometry, not a
+JavaScript constraint — it holds even now that hand-authored JS is permitted.** If a
+window-filling canvas is ever added, it MUST preserve aspect ratio (a letterbox), never
+stretch to fit.
 
-### Why 1:1 rather than a scaling letterbox
+### Why a FIXED SIZE (1:1) rather than a scaling letterbox — MVP simplicity
 
-A scaling canvas (SVG `viewBox` + `preserveAspectRatio="xMidYMid meet"`) would satisfy all
-three requirements *and* grow to fill the window with letterbox bars. It was **rejected**
-because it requires JavaScript: once the canvas scales, one screen pixel is no longer one
-canvas unit, and the conversion factor depends on the browser window size — **a number the
-Blazor server cannot know.** It exists only in the browser. Bridging it needs a ~10-line
-JS shim to measure the canvas per gesture.
+Both a fixed 1:1 canvas and an aspect-preserving *scaling letterbox* (SVG `viewBox` +
+`preserveAspectRatio="xMidYMid meet"`) satisfy all three requirements above. The fixed 1:1
+canvas was chosen for **MVP simplicity**: at 1:1 the scale factor is pinned to exactly 1, so
+the page-to-canvas mapping is two constant subtractions (`canvasX = PageX`,
+`canvasY = PageY − toolbar`) with nothing to measure and nothing that can drift.
 
-At 1:1 that entire problem evaporates: **the scale factor is pinned to exactly 1.**
+> ⚠️ **v1.1:** the older text rejected the scaling letterbox *because it needed JavaScript*
+> (the render scale factor lives only in the browser and would need a ~10-line interop shim to
+> read). The no-JS rule is now lifted, so a scaling letterbox is technically available — but the
+> canvas stays **fixed 1:1** anyway: it is simpler, and enlarging the fixed size to 1472 × 828
+> (D-19) already gave the wanted extra room without the added complexity.
 
-### Mechanism — how coordinates get in, without JS
+### Mechanism — how coordinates get in
 
 Anchor the canvas at a **known constant document position**: page margin 0, a toolbar of a
 fixed chosen height, canvas immediately below it. Then a pointer event's canvas coordinate
@@ -545,20 +565,25 @@ schema is identical either way. Nothing built for D-18 would be thrown away.
 
 ---
 
-## D-19 — Canvas dimensions: 1280 × 720
+## D-19 — Canvas dimensions: 1472 × 828
 
-**Status:** Locked
+**Status:** Locked — ⚠️ **amended in v1.1** (was 1280 × 720; enlarged, user-approved)
 
-The fixed canvas (D-18) is **1280 × 720** logical units — which, at 1:1, are literal CSS
-pixels. 16:9, matching the shape of most monitors.
+The fixed canvas (D-18) is **1472 × 828** logical units — which, at 1:1, are literal CSS
+pixels. 16:9 (92×16 by 92×9), matching the shape of most monitors. Sized to fit a maximized
+browser window on a 1920 × 1080 monitor — toolbar and browser chrome included — with no
+scrolling.
 
-**Accepted cost:** on a typical 1366×768 laptop this is slightly taller than the visible
-window once browser chrome is accounted for, so the page may scroll a little vertically.
-Browser zoom (Ctrl −) is the free escape hatch; it scales the page uniformly and therefore
-distorts nothing.
+**Enlarging was safe; shrinking would not be.** `0..1280 × 0..720` is a strict subset of
+`0..1472 × 0..828`, so every figure stored under the old size stayed legal and kept its exact
+position (it now sits in the top-left region of the larger canvas). No migration was needed.
+**Shrinking the canvas is still forbidden** — it would push existing figures off the surface,
+where they are unreachable and unclampable. That asymmetry is the real content of the old
+"this number must never change" rule: coordinates are only meaningful relative to the size, so
+the size may grow but must never shrink.
 
-**This number must never change.** Stored coordinates are only meaningful relative to it —
-altering it later would relocate every existing figure.
+*(v1.0 value, for history: 1280 × 720. The old "accepted cost" — a 1366×768 laptop scrolling
+slightly — is obsolete; the new size targets 1080p specifically.)*
 
 ---
 
@@ -996,25 +1021,47 @@ the rectangle. You would have to draw the circle outside and drag it in.
 
 ## D-31 — Selection appearance and behaviour
 
-**Status:** Locked
+**Status:** Locked — ⚠️ **amended in v1.1** (new indicator style + explicit selection lifecycle)
 
-- **A selected figure is drawn with a RED, 2px outline** (D-58 — pinned there), while every
-  other figure keeps the fixed default style of a black 2px outline on white (D-38, D-58).
-  Impossible to confuse with a figure's own appearance, since figures have no colour of their
-  own.
-- **Clicking empty canvas deselects.**
+### Appearance (v1.1)
+
+- **A selected figure is marked by a thin (~1px) blue + white dashed trace drawn along the
+  figure's OWN outline** — not a bounding box — rendered as the **topmost layer** with
+  `pointer-events: none` (values pinned in D-58). Because it rides the actual shape and sits on
+  top of everything, the selection stays visible even when the figure is dragged *behind* a
+  larger figure. Blue is consistent with the app's existing accent (`#1D4ED8`, the login CTA);
+  the white under-stroke keeps it legible on the black outline, the white fill, and the grey page.
+- The trace lives in a single overlay layer (rendered after all figures), not inside each
+  figure's own element — that is what guarantees it is never occluded, and it tracks the live
+  drag position.
+- *(v1.0 was: a solid **red, 2px** outline on the figure itself. Replaced — red was the palette's
+  only outlier and read as "danger" next to the Delete button; it also mutated the figure so
+  "selected" and "the figure is red" were ambiguous.)*
+
+### Selection lifecycle (v1.1 — previously unspecified)
+
 - **The pointer tool is armed on page load.** The app opens ready to select and move, not to
-  draw — so a stray first click cannot create a figure. (As in Figma, Paint, and most
-  editors.)
-- **Overlapping figures:** a click hits the topmost, which in SVG is whichever was drawn
-  last. This comes free from the DOM (D-06); no code required.
-- Selection is **local UI state only** — never persisted, never broadcast to other tabs
-  (D-11). Your other monitor does not show what you have selected.
+  draw — so a stray first click cannot create a figure. (As in Figma, Paint, and most editors.)
+- **At most ONE figure is ever selected.** The rules below preserve this invariant automatically.
+- **Drawing a figure selects it** (the tab that drew it — never broadcast, see below), and **the
+  tool stays armed** so you can keep drawing. The just-drawn figure stays selected until you start
+  the next gesture. This is the draw-gesture analog of D-48 ("starting a drag also selects, and it
+  stays selected after the drop").
+- **Deselection triggers — any of these clears the current selection:** pressing the canvas
+  outside the selected figure; arming any tool; pressing anywhere on the **toolbar EXCEPT the
+  Delete button** (Delete stops propagation so it can act on the selection). Pressing a figure
+  selects *that* figure instead.
+- **Overlapping figures:** a click hits the topmost, which in SVG is whichever was drawn last.
+  This comes free from the DOM (D-06); no code required.
+- Selection is **local UI state only** — never persisted, never broadcast to other tabs (D-11).
+  Your other monitor does not show what you have selected; a figure arriving via sync is **not**
+  selected in the receiving tab.
 
-**Rejected:** a thicker stroke as the highlight (reads as a different-looking figure rather
-than a selected one). **Rejected:** a dashed bounding box (looks like it implies resize
-handles — and there is no resize (D-04) — which would mislead the user into trying to drag
-its corners).
+**Still rejected:** a thicker stroke as the highlight (reads as a different-looking figure).
+**Still rejected — and this is why the v1.1 indicator is a trace, not a box:** a dashed
+*bounding box* implies resize handles at its corners, and there is no resize (D-04). The v1.1
+indicator deliberately traces the figure's own outline instead, so it never suggests a corner to
+drag.
 
 ---
 
@@ -1056,16 +1103,22 @@ it can be added at any time.
 
 ## D-33 — Delete is a toolbar button, not the Delete key
 
-**Status:** Locked — supersedes the Delete-key half of D-15
+**Status:** Locked — supersedes the Delete-key half of D-15.
+⚠️ **v1.1: motivation corrected** (MVP simplicity, not "no JavaScript").
 
-**The problem:** in Blazor **there is no document-level key listener without JavaScript.**
-`@onkeydown` fires only on a *focused* element. Making the Delete key work would mean giving
-the canvas `tabindex`, taking focus on click, and then living with this: click any toolbar
-button and focus moves to that button, so **pressing Delete does nothing** until you click
-the canvas again. Subtly broken in a way that reads as a bug.
+**Motivation — MVP simplicity and unambiguous behaviour:** select a figure, then click a
+**Delete button in the toolbar.** No focus dependencies, works the same everywhere, obvious at
+a glance (the button greys out when nothing is selected, D-58).
 
-**Resolution:** select a figure, then click a **Delete button in the toolbar.** No focus
-problem, no JavaScript, completely unambiguous.
+**Why not the Delete key (still a real caveat):** a pure-Blazor `@onkeydown` fires only on a
+*focused* element, so a keyboard Delete would need the canvas to hold `tabindex`/focus — and the
+moment you click any toolbar button, focus moves there and Delete silently stops working until
+you click the canvas again. Subtly broken in a way that reads as a bug. The toolbar button has
+none of that.
+
+> ⚠️ **v1.1:** the older text rejected the Delete key partly *because a robust version needed
+> JavaScript* (a document-level key listener). That rule is now lifted, so a **Delete-key
+> shortcut could be added later** as its own decision — the toolbar button stays regardless.
 
 The toolbar is therefore **six buttons**:
 
@@ -1621,16 +1674,21 @@ depends on.** Not worth it.
 
 ## D-57 — Leaving the surface mid-DRAW commits the figure
 
-**Status:** Locked — extends D-37 (which covered dragging) to drawing
+**Status:** Locked — extends D-37 (which covered dragging) to drawing.
+⚠️ **v1.1: motivation corrected** (abandoning a draw is simply out of MVP scope, not "impossible
+because of no JS").
 
 Releasing the mouse outside the window, or leaving the drag surface, **commits the
 in-progress figure** at its clamped preview position — exactly the rule D-37 applies to
 dragging. **One consistent rule for both gestures.**
 
-> ⚠️ **Consequence: there is NO way to abandon a draw once started.** Escape is impossible —
-> it would need a document-level key listener, which requires JavaScript (the same constraint
-> that produced D-33's toolbar Delete button). If you start a shape and change your mind, you
-> **draw it and then delete it.**
+> **Consequence: there is no way to abandon a draw once started.** Abandoning a draw is simply
+> **not an MVP feature** — if you start a shape and change your mind, you **draw it and then
+> delete it.**
+>
+> ⚠️ **v1.1:** the older text said an Escape-to-cancel was *impossible because it needs a
+> document-level key listener (JavaScript)*. That rule is now lifted, so **Escape-to-cancel
+> could be added later** as its own decision. It is still out of scope for now.
 
 **Rejected:** cancelling the draw on leaving the surface. It would have given a genuine escape
 hatch (start a shape, sweep out of the canvas, it vanishes) — but the two gestures would then
@@ -1640,7 +1698,7 @@ behave *differently*: a drag commits on leave, a draw cancels. One rule beats tw
 
 ## D-58 — The remaining constants
 
-**Status:** Locked
+**Status:** Locked — ⚠️ **amended in v1.1** (selection style + canvas size; see D-31, D-19)
 
 ### Visual
 
@@ -1648,13 +1706,15 @@ behave *differently*: a drag commits on leave, a draw cancels. One rule beats tw
 |----------|-------|
 | Figure outline | **black, 2px** |
 | Figure fill | **white** (D-38) |
-| **Selected** figure outline | **red, 2px** |
+| **Selected** figure indicator | **~1px blue + white dashed trace on the figure's own outline**, drawn topmost, `pointer-events: none` (D-31) — *(v1.0 was: red, 2px outline)* |
 | Page background | **light grey** (D-55) |
-| Canvas | **white, 1280 × 720, no border** (D-19, D-38, D-43) |
+| Canvas | **white, 1472 × 828, no border** (D-19, D-38, D-43) — *(v1.0 was: 1280 × 720)* |
 | Toolbar | **48px tall** (D-43) |
 
-A **2px** stroke (not 1px) is deliberate: D-32 declined the invisible widened hit-area for
-lines, so the stroke itself is the only click target a line has. 2px makes that survivable.
+A **2px** stroke (not 1px) is deliberate for *figure* outlines: D-32 declined the invisible
+widened hit-area for lines, so the stroke itself is the only click target a line has. 2px makes
+that survivable. (The **selection trace** is thinner, ~1px, on purpose — on a rectangle it would
+otherwise sit exactly on top of the figure's own 2px outline; see D-31.)
 
 ### Behaviour
 
@@ -1741,12 +1801,14 @@ what reconstructs z-order after a refresh (D-39).
 
 ## D-36 — The clamp: exact formula, and bounds are inclusive
 
-**Status:** Locked — this is the operative specification for D-24 and D-29
+**Status:** Locked — this is the operative specification for D-24 and D-29.
+⚠️ **v1.1: canvas is now `W = 1472`, `H = 828`** (was 1280 × 720; see D-19). The formula is
+unchanged — only the two constants moved.
 
-Canvas is `W = 1280`, `H = 720` (D-19). **Bounds are INCLUSIVE: the valid domain is
-`0..1280 × 0..720`.** SVG coordinates are geometric edge positions on a continuum, not pixel
-cells — so a rectangle with `x2 = 1280` has its right edge exactly *on* the boundary, which
-is precisely the "stopped at the edge" state D-24 describes. (An exclusive `0..1279` domain
+Canvas is `W = 1472`, `H = 828` (D-19). **Bounds are INCLUSIVE: the valid domain is
+`0..1472 × 0..828`.** SVG coordinates are geometric edge positions on a continuum, not pixel
+cells — so a rectangle with `x2 = 1472` has its right edge exactly *on* the boundary, which
+is precisely the "stopped at the edge" state D-24 describes. (An exclusive `0..1471` domain
 would mean a figure could never actually touch the right or bottom edge.)
 
 ### The move clamp
@@ -1813,23 +1875,24 @@ a rule the app never breaks.
 
 ---
 
-## D-37 — Drag termination without JavaScript
+## D-37 — Drag termination
 
-**Status:** Locked — closes the audit's second blocker
+**Status:** Locked — closes the audit's second blocker.
+⚠️ **v1.1: motivation corrected** (this exists to *prevent unexpected behaviour*, not to avoid JS).
 
-**The problem:** `setPointerCapture` — the browser API that keeps mouse events flowing once
-the cursor leaves an element — **is JavaScript.** Without it, pointer events stop when the
-cursor exits the drag surface, and a mouse-release outside the browser window is never
-delivered at all. Left unhandled, the drag hangs forever: the D-09 write never fires, and
-every other tab shows the figure stranded at a position that was never persisted.
+**The problem — a drag that never ends:** if pointer events stop when the cursor exits the drag
+surface (and a mouse-release outside the browser window is never delivered at all), the drag
+**hangs forever**: the D-09 write never fires, and every other tab shows the figure stranded at
+a position that was never persisted. Preventing that stranded/hanging state is the whole point of
+this decision.
 
-**Resolution — no JavaScript. Two markup-only rules:**
+**Resolution — two markup-only rules:**
 
 1. **`pointerleave` on the drag surface commits the drag** at its current clamped position.
 2. **The `Buttons` guard:** on any `pointermove` while dragging, if `PointerEventArgs.Buttons`
    shows the primary button is already **up**, commit and end the drag. This catches the
    Alt-Tab case — the button released while the window lost focus, with the cursor never
-   having left the surface. `Buttons` is available in Blazor with no JS.
+   having left the surface.
 
 ### Why this is coherent rather than a hack — and it is D-36 that makes it so
 
@@ -1855,10 +1918,13 @@ a child figure, which would end drags constantly.
 **Accepted cost:** overshooting the drag surface commits the drag early. The figure lands
 where you see it, but you must re-grab to continue. With the page-wide wrapper this is rare.
 
-**Rejected:** a ~5-line JS shim calling `setPointerCapture`. It is the correct tool and would
-behave exactly like a professional editor (wander anywhere, the figure stays grabbed). It was
-rejected because the clamp already handles the case gracefully, and it would have been the
-project's only JavaScript.
+**Not pursued:** `setPointerCapture` (which keeps the figure grabbed as the cursor wanders
+anywhere, exactly like a professional editor). The clamp already handles termination gracefully,
+so the current markup-only approach is enough for the MVP.
+
+> ⚠️ **v1.1:** the older text also rejected `setPointerCapture` because *it is JavaScript* and
+> would have been the project's only JS. That rule is now lifted, so a `setPointerCapture`-based
+> "keep grabbed anywhere" upgrade **could be added later** as its own decision.
 
 ---
 
@@ -1888,8 +1954,8 @@ drawing anything to a deliberate size would be pure guesswork every single time.
 | ID | Question | Status |
 |----|----------|--------|
 | Q-17 | Should D-22 be reversed? | ✅ **Closed — YES.** D-22 rewritten: circle = its inscribed square. |
-| Q-18 | Exact clamp formula and inclusive bounds. | ✅ **Closed — D-36.** Bounds inclusive (0..1280 × 0..720). |
-| Q-19 | How does a drag terminate without `setPointerCapture`? | ✅ **Closed — D-37.** No JavaScript; the edge-clamp made it coherent. |
+| Q-18 | Exact clamp formula and inclusive bounds. | ✅ **Closed — D-36.** Bounds inclusive (0..1472 × 0..828 *(v1.1; was 0..1280 × 0..720)*). |
+| Q-19 | How does a drag terminate without `setPointerCapture`? | ✅ **Closed — D-37.** The edge-clamp made `pointerleave`-commit coherent. *(v1.1: no longer a no-JS constraint; `setPointerCapture` could be added later.)* |
 | Q-20 | Filled or hollow figures? | ✅ **Closed — D-38.** White fill, black outline. |
 | Q-23 | Render order after F5. | ✅ **Closed — D-39.** Sequential integer id; `ORDER BY id`. |
 | Q-24 | The resurrection hole. | ✅ **Closed — D-40.** Both fixes: move is update-only, *and* a 0-row UPDATE broadcasts a delete. |
@@ -1920,9 +1986,9 @@ drawing anything to a deliberate size would be pure guesswork every single time.
 | Q-07 | Geometry columns | **D-22 (REVISED)** — four coordinates always; circle = **its inscribed square**. *(The original "centre + rim point" answer was reversed — see D-22.)* |
 | Q-08 | Shape selection | **D-16 → superseded by D-30 + D-33** — a **six**-button toolbar |
 | Q-09 | Login flow | **D-17** — one form, unknown username creates the account |
-| Q-10 | Canvas sizing | **D-18 / D-19** — fixed 1280×720 at 1:1, no JavaScript |
+| Q-10 | Canvas sizing | **D-18 / D-19** — fixed 1472×828 at 1:1 *(v1.1; was 1280×720)* |
 | Q-11 | Triangle geometry | **D-21** — derived from a drag, apex top-centre |
-| Q-12 | Canvas dimensions | **D-19** — 1280×720 |
+| Q-12 | Canvas dimensions | **D-19** — 1472×828 *(v1.1; was 1280×720)* |
 | Q-13 | Figures off the canvas edge | **D-24** — they stop at the edge |
 | Q-14 | Drawing off the canvas edge | **D-29** — also stops at the edge |
 | Q-15 | How does the app tell "select a figure" from "draw a new one"? | **D-30** — a **pointer tool** in the toolbar |
@@ -1933,11 +1999,12 @@ drawing anything to a deliberate size would be pure guesswork every single time.
 # Summary — what is being built
 
 A Blazor Server web app (.NET 10) where a user draws simple geometric figures on a fixed
-1280×720 canvas rendered as SVG. Each user has exactly one canvas. Figures can be **drawn,
-dragged and deleted** — nothing else.
+1472×828 canvas rendered as SVG *(v1.1; was 1280×720)*. Each user has exactly one canvas.
+Figures can be **drawn, dragged and deleted** — nothing else.
 
 **The stack:** Blazor Server (InteractiveServer) · SVG · PostgreSQL via EF Core/Npgsql ·
-Docker Compose for local Postgres · no JavaScript.
+Docker Compose for local Postgres. *(v1.1: the earlier "no hand-authored JavaScript" rule has
+been removed — see the v1.1 notes at D-06/D-18/D-33/D-37/D-57.)*
 
 **The database:** two tables. `users` (username + **plaintext** password — throwaway project
 only). `figures` (four integer coordinates, always non-null, plus a type).

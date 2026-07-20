@@ -5,6 +5,16 @@ Entry point for downstream consumers (`gsd-roadmapper`). Produced by `gsd-doc-sy
 Mode: **new** (net-new bootstrap — no pre-existing `.planning/` context).
 Precedence: `ADR > SPEC > PRD > DOC` (unused — single-document ingest).
 
+> ⚠️ **v1.1 AMENDMENTS (2026-07-20) — this v1.0-synthesized intel is partly superseded.**
+> Authoritative now: `docs/DECISIONS.md` (inline `⚠️ v1.1` notes) and `.planning/PROJECT.md`.
+> Changed: **canvas 1280×720 → 1472×828** (size may GROW, never SHRINK); **selection indicator =
+> thin blue+white dashed trace on the figure's own outline, topmost** (was red 2px) + a **selection
+> lifecycle** (tool stays armed after a draw, one figure selected at a time, deselect on
+> canvas-outside-figure / arm-tool / toolbar-press-except-Delete); **the "no hand-authored
+> JavaScript" rule is REMOVED** (never load-bearing — MVP simplicity was the real motivation;
+> D-06/18/33/37/57 re-worded). Next milestone **v1.2** (new figures + dynamic toolbar) is scoped in
+> `.planning/backlog/v1.2-figures-and-toolbar.md`.
+
 ---
 
 ## Input
@@ -107,8 +117,9 @@ exactly where the three mandated tests point (D-49): the clamp maths, the circle
 round-trip, and the line-normalisation landmine.
 
 Hard project-wide constraints that shape every phase:
-- **No JavaScript anywhere** (load-bearing — it forced D-18, D-33, D-37, D-57)
+- ~~No JavaScript anywhere~~ **REMOVED in v1.1** — hand-authored JS/interop is now permitted; the
+  rule was never load-bearing (D-06/18/33/37/57 re-worded to MVP-simplicity motivations)
 - **No Save button; every operation persists immediately** (D-09)
 - **Plaintext passwords, locked and deliberate** (D-08) — do not "fix" without a new decision
-- **1280 × 720, inclusive bounds, 48px toolbar** — `canvasY = PageY − 48` is the constant every
-  coordinate flows through (D-19, D-36, D-43)
+- **1472 × 828** *(v1.1; was 1280 × 720)***, inclusive bounds, 48px toolbar** — `canvasY = PageY − 48`
+  is the constant every coordinate flows through (D-19, D-36, D-43)

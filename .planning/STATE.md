@@ -1,39 +1,46 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: MinVP
+milestone: v1.1
+milestone_name: Canvas resize · selection UX · no-JS removal
 current_phase: 0
-status: Shipped — v1.0 archived and tagged
-stopped_at: Milestone v1.0 complete — all 23 plans executed, all 5 verifications passed, audit passed
-last_updated: "2026-07-17T02:15:00.000Z"
-last_activity: 2026-07-17
-last_activity_desc: Milestone v1.0 completed and archived
+status: v1.1 planned — decisions amended 2026-07-20; roadmap pending `/gsd-new-milestone`
+stopped_at: v1.1 decisions amended across docs/DECISIONS.md + PROJECT.md + intel; v1.2 scoped to backlog. Next: /gsd-new-milestone to assign REQ-IDs and roadmap phases.
+last_updated: "2026-07-20T00:00:00.000Z"
+last_activity: 2026-07-20
+last_activity_desc: v1.1 decisions amended (canvas 1472x828, selection UX + restyle, no-JS rule removed); v1.2 scoped to backlog
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 23
-  completed_plans: 23
-  percent: 100
-current_phase_name: Live Cross-Tab Sync
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
+current_phase_name: (roadmap pending)
+prev_milestone: v1.0 (MinVP) — shipped 2026-07-17, 5 phases / 23 plans / 15 requirements
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-17 after v1.0)
+See: .planning/PROJECT.md (updated 2026-07-20 — v1.1 requirements + amended constraints)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
-**Current focus:** None — v1.0 shipped. BlazorCanvas is a terminal MinVP with no v2 requirement set;
-a future milestone would begin by amending `docs/DECISIONS.md`, not by planning phases.
+**Current focus:** **v1.1** — four user-approved changes, decisions already amended in
+`docs/DECISIONS.md` (see PROJECT.md → *Requirements → Active*): (1) canvas enlarged to **1472 × 828**;
+(2) **selection lifecycle** fix (tool stays armed, one selection at a time, toolbar-press deselects
+except Delete); (3) **selection restyle** to a blue+white dashed trace on the figure's own shape;
+(4) **no-JS rule removed** (motivations corrected on D-06/18/33/37/57). No migration; mostly geometry
+tests + a selection-overlay refactor. **Next milestone v1.2** (new figures + dynamic toolbar) is
+scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 
 ## Current Position
 
-Phase: Milestone v1.0 complete (5/5 phases, 23/23 plans, 15/15 requirements)
+Phase: v1.1 — decisions amended, **roadmap pending** (`/gsd-new-milestone` not yet run)
 Plan: —
-Status: Shipped — archived to `.planning/milestones/`, tagged `v1.0`
-Last activity: 2026-07-17 — Milestone v1.0 completed and archived
+Status: v1.1 planned; no code changed yet; no DB migration needed
+Last activity: 2026-07-20 — v1.1 decisions amended; v1.2 scoped to backlog
+Prev: v1.0 (MinVP) shipped 2026-07-17 — archived to `.planning/milestones/`, tagged `v1.0`
 Retrospective: `.planning/RETROSPECTIVE.md`
 
 ## Performance Metrics
@@ -103,11 +110,20 @@ The ones most likely to be violated by accident:
   line); a zero-height rectangle is not.
 
 - **D-08:** plaintext passwords are **deliberate and locked**. Do not "fix" this.
-- **No JavaScript anywhere** — load-bearing, not aesthetic. It is what forced D-18, D-33, D-37, D-57.
-  Scope: JS *we* write. Framework JS (`blazor.web.js`, scaffolded `ReconnectModal.razor.js`) is **not**
-  a violation — see PROJECT.md Constraints.
+- ~~**No JavaScript anywhere**~~ — **REMOVED in v1.1.** Hand-authored JS/interop is now permitted;
+  the rule was never load-bearing (MVP simplicity was the real motivation; D-06/18/33/37/57 re-worded
+  in `docs/DECISIONS.md`). It changed no code and is simply not *needed* for anything built so far.
 
-**One amendment to the locked set, user-approved:** D-27/D-58's Docker port. The compose file
+**v1.1 amendments to the locked set (user-approved, 2026-07-20)** — recorded in `docs/DECISIONS.md`
+with inline `⚠️ v1.1` notes, mirrored in PROJECT.md + intel:
+- **D-19/D-36/D-58/D-18** — canvas **1280×720 → 1472×828** (may grow, never shrink; no migration).
+- **D-31/D-58** — selection **red outline → blue+white dashed trace on the figure's own outline,
+  topmost**, plus a lifecycle (tool stays armed; one selection at a time; deselect on
+  canvas-outside-figure / arm-tool / toolbar-except-Delete).
+- **D-06/D-18/D-33/D-37/D-57** — the **"no JavaScript" rule removed**; motivations corrected to MVP
+  simplicity. Permissive, no code change.
+
+**Earlier amendment (v1.0-era, user-approved):** D-27/D-58's Docker port. The compose file
 publishes **host 5433 → container 5432**; a native `postgresql-x64-18` service permanently occupies
 5432 on this machine. Recorded in `docs/DECISIONS.md` § "Docker Compose (D-27)" and PROJECT.md
 Constraints. Intent untouched.
@@ -149,7 +165,13 @@ Resume file: None
 
 ## Operator Next Steps
 
-- **Nothing required.** v1.0 shipped and is archived; BlazorCanvas is a terminal MinVP by design.
-- If a v1.1+ is ever wanted, it starts by amending `docs/DECISIONS.md` — adding the feature **by
-  name** — and only then `/gsd-new-milestone`. Anything not named in the ADR is out of scope.
-- Optional: triage the ~11 low-severity `01-REVIEW.md` items into a backlog.
+- **Run `/gsd-new-milestone`** to open v1.1 formally: it will read PROJECT.md (Requirements → Active
+  already lists CANV-03, SEL-01, SEL-02, ARCH-01), assign final REQ-IDs, and spawn the roadmapper to
+  produce the phase plan. The decision amendments it would normally prompt for are **already done**
+  (this session), so discussion is effectively pre-completed — the changes are small enough that some
+  phases may suit `/gsd-quick`.
+- **v1.1 scope (all decided, no migration):** canvas → 1472×828; selection lifecycle + blue-dashed
+  restyle; remove the no-JS rule. Details in PROJECT.md and `docs/DECISIONS.md` (v1.1 notes inline).
+- **v1.2 is scoped and waiting** in `.planning/backlog/v1.2-figures-and-toolbar.md` — start it only
+  after v1.1 ships; its decision amendments happen at that point.
+- Optional/independent: triage the ~11 low-severity `01-REVIEW.md` items.
