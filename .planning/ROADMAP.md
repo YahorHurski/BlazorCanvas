@@ -116,7 +116,11 @@ overlapping edits to the same file)
 
   5. The old solid **red 2px** selection outline no longer appears anywhere in the app.
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+- [ ] 07-01-PLAN.md — SEL-01 lifecycle (auto-select on draw, tool stays armed, one-at-a-time deselect rules) + SEL-02 restyle (remove the red outline; new topmost blue+white dashed `SelectionTrace` on the figure's own outline)
+- [ ] 07-02-PLAN.md — Human-verify the five Phase 7 criteria + the two-tab remote-delete concurrency edge
+
 **UI hint**: yes
 
 ---
@@ -158,7 +162,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 4. Select, Drag & Delete | v1.0 | 4/4 | Complete | 2026-07-16 |
 | 5. Live Cross-Tab Sync | v1.0 | 5/5 | Complete | 2026-07-17 |
 | 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete    | 2026-07-21 |
-| 7. Selection Lifecycle & Restyle | v1.1 | 0/TBD | Not started | - |
+| 7. Selection Lifecycle & Restyle | v1.1 | 0/2 | Not started | - |
 | 8. Architecture Constraint Cleanup | v1.1 | 0/TBD | Not started | - |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
