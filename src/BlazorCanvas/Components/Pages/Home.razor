@@ -20,11 +20,22 @@
             @foreach (var f in figures)
             {
                 var box = dragging && f.Id == dragFigureId ? dragCurrentBox : new Box(f.X1, f.Y1, f.X2, f.Y2);
-                <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" Box="box" Selected="@(f.Id == selectedId)" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
+                <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" Box="box" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
             }
             @if (drawing)
             {
                 <FigureShape Type="previewType" Box="previewBox" Preview="true" />
+            }
+            @if (selectedId is int selectedFigureId)
+            {
+                var selected = figures.FirstOrDefault(f => f.Id == selectedFigureId);
+                if (selected is not null)
+                {
+                    var selectedBox = dragging && selected.Id == dragFigureId
+                        ? dragCurrentBox
+                        : new Box(selected.X1, selected.Y1, selected.X2, selected.Y2);
+                    <SelectionTrace Type="FigureTypeNames.Parse(selected.Type)" Box="selectedBox" />
+                }
             }
         </svg>
     </div>
