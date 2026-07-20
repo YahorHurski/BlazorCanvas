@@ -117,8 +117,12 @@ overlapping edits to the same file)
   5. The old solid **red 2px** selection outline no longer appears anywhere in the app.
 
 **Plans**: 2 plans
+**Wave 1**
 
 - [ ] 07-01-PLAN.md — SEL-01 lifecycle (auto-select on draw, tool stays armed, one-at-a-time deselect rules) + SEL-02 restyle (remove the red outline; new topmost blue+white dashed `SelectionTrace` on the figure's own outline)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 07-02-PLAN.md — Human-verify the five Phase 7 criteria + the two-tab remote-delete concurrency edge
 
 **UI hint**: yes

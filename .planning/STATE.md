@@ -4,9 +4,9 @@ milestone: v1.1
 milestone_name: Canvas resize · selection UX · no-JS removal
 current_phase: 7
 current_phase_name: Selection Lifecycle & Restyle
-status: planning
+status: executing
 stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-07-20T22:29:53.851Z"
+last_updated: "2026-07-20T23:34:09.576Z"
 last_activity: 2026-07-21
 last_activity_desc: Phase BC-06 complete, transitioned to Phase 7
 progress:
@@ -37,7 +37,7 @@ scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 
 Phase: 7 of 8 (Selection Lifecycle & Restyle)
 Plan: Not started
-Status: Ready to plan
+Status: Ready to execute
 Last activity: 2026-07-21 — Phase BC-06 complete, transitioned to Phase 7
 
 Progress: [███░░░░░░░] 33%
