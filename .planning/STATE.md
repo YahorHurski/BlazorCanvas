@@ -32,11 +32,9 @@ scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 ## Current Position
 
 Phase: 6 of 8 (Canvas Resize to 1472×828) — first phase of v1.1
-Plan: — (roadmap created; no plans yet)
-Status: Ready to plan
-Last activity: 2026-07-20 — Roadmap created for v1.1 (Phases 6–8: Canvas Resize, Selection
-Lifecycle & Restyle, Architecture Constraint Cleanup); REQUIREMENTS.md traceability filled
-(4/4 mapped, 0 unmapped)
+Plan: 06-01-PLAN.md (1 plan, wave 1, autonomous) — verified by plan-checker, ready to execute
+Status: Planned — plan-checker VERIFICATION PASSED (no blockers/warnings)
+Last activity: 2026-07-21 — Phase 6 planned (06-01) and verified; ready for /gsd-execute-phase 6
 
 Progress: [░░░░░░░░░░] 0%
 
