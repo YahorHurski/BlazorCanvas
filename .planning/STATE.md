@@ -2,15 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Canvas resize · selection UX · no-JS removal
+current_phase: 6
+current_phase_name: Canvas Resize to 1472×828
 status: planning
-last_updated: "2026-07-20T21:00:00.000Z"
-last_activity: 2026-07-20
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-07-20T22:25:10.369Z"
+last_activity: 2026-07-21
+last_activity_desc: Phase 6 planned (06-01) and verified; ready for /gsd-execute-phase 6
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 33
 ---
 
 # Project State
@@ -33,10 +37,10 @@ scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 
 Phase: 6 of 8 (Canvas Resize to 1472×828) — first phase of v1.1
 Plan: 06-01-PLAN.md (1 plan, wave 1, autonomous) — verified by plan-checker, ready to execute
-Status: Planned — plan-checker VERIFICATION PASSED (no blockers/warnings)
-Last activity: 2026-07-21 — Phase 6 planned (06-01) and verified; ready for /gsd-execute-phase 6
+Status: Phase 6 complete — ready for Phase 7
+Last activity: 2026-07-20 — Phase 6 completed (06-01); ready for Phase 7
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███░░░░░░░] 33%
 
 ## Performance Metrics
 
@@ -83,6 +87,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase BC-05 P02 | 35min | 2 tasks | 1 files |
 | Phase BC-05 P03 | 35min | 3 tasks | 1 files |
 | Phase BC-05 P04 | 35min | 3 tasks | 2 files |
+| Phase BC-06 P01 | 6min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -135,6 +140,8 @@ selection overlay in `Home.razor`; sequenced after Phase 6 to avoid overlapping 
 file). ARCH-01 is its own tiny Phase 8 (doc/constraint verification only — no code) since its work
 is unrelated in kind to the other two; likely a `/gsd-quick` candidate.
 
+- [Phase BC-06]: Bound the Home.razor SVG dimensions to CanvasBounds instead of repeating numeric literals, keeping rendered size and clamp size from drifting. — This preserves D-18/D-19/D-36 as one source of truth after the canvas resize.
+
 ### Pending Todos
 
 None yet.
@@ -163,9 +170,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-20T21:00:00.000Z
-Stopped at: v1.1 roadmap created — Phases 6, 7, 8 written to ROADMAP.md; REQUIREMENTS.md
-traceability filled (4/4 mapped, 0 unmapped); awaiting roadmap approval.
+Last session: 2026-07-20T22:25:02.891Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
 
 ## Operator Next Steps

@@ -19,12 +19,16 @@ v1.1 requirements: [`REQUIREMENTS.md`](REQUIREMENTS.md)
 - [x] **Phase 1: Database, Schema & Geometry Core** (6/6 plans) — completed 2026-07-15
       Postgres 17 in Docker, the two-table schema whose CHECKs enforce the geometry, and the tested
       clamp/normalise/circle maths.
+
 - [x] **Phase 2: Login, Session & Logout** (3/3 plans) — completed 2026-07-15
       Static-SSR login, cookie auth with the `user_id` claim, and an authenticated shell surviving F5.
+
 - [x] **Phase 3: The Canvas & Drawing** (5/5 plans) — completed 2026-07-16
       The 1280×720 SVG at (0,48), the six-button toolbar, and drawing all four shapes — persisted.
+
 - [x] **Phase 4: Select, Drag & Delete** (4/4 plans) — completed 2026-07-16
       The three verbs complete: 3px click-vs-drag, edge clamping that slides, and a Delete button.
+
 - [x] **Phase 5: Live Cross-Tab Sync** (5/5 plans) — completed 2026-07-17
       The notifier, the real-time drag glide, and the consistency rules that stop any screen lying.
 
@@ -48,37 +52,45 @@ written this milestone). All four changes are user-approved and already amended 
 `docs/DECISIONS.md`. Phase numbering continues from v1.0's Phase 5 (directories will be
 `BC-06-…`, `BC-07-…`, `BC-08-…`, matching the established `BC-01-…`…`BC-05-…` pattern).
 
-- [ ] **Phase 6: Canvas Resize to 1472×828** - Enlarge the canvas surface with no migration and no shrink path; existing figures keep their exact position.
+- [x] **Phase 6: Canvas Resize to 1472×828** - Enlarge the canvas surface with no migration and no shrink path; existing figures keep their exact position.
 - [ ] **Phase 7: Selection Lifecycle & Restyle** - Armed-tool persistence after drawing, one-selection-at-a-time deselect rules, and a topmost blue+white dashed trace replacing the red outline.
 - [ ] **Phase 8: Architecture Constraint Cleanup** - Remove the "no hand-authored JavaScript" constraint from every project doc/comment; correct D-06/D-18/D-33/D-37/D-57 motivations to MVP simplicity.
 
 ## Phase Details
 
 ### Phase 6: Canvas Resize to 1472×828
+
 **Goal**: The canvas surface is enlarged to 1472 × 828 (16:9) with no shrink path and no database
 migration — every figure stored under the old 1280 × 720 size keeps its exact position on the
 larger surface.
 **Depends on**: Nothing (first phase of v1.1)
 **Requirements**: CANV-03
 **Success Criteria** (what must be TRUE):
+
   1. The SVG canvas at `/` measures **1472 × 828**, still anchored at document position (0, 48)
      below the 48px toolbar with no CSS border — a maximized browser window on a 1920 × 1080
      monitor shows the entire canvas with **no scrollbar**.
+
   2. Figures that existed before the resize render at the **exact same** `(x1, y1, x2, y2)` they
      had under the old 1280 × 720 size — **no migration script runs**, and no figure shifts,
      resizes, or gets clipped.
+
   3. Drawing and dragging both clamp against the new inclusive bounds `0..1472 × 0..828` — a
      figure can be drawn or dragged flush to the new right/bottom edge, past where the old
      1280 × 720 boundary used to stop it.
+
   4. `CanvasBounds.cs` exposes only the new 1472 × 828 constant (no configurable shrink path), and
      the geometry/clamp test suite — updated for the new bounds — passes with zero regressions.
-**Plans**: 1 plan
-- [ ] 06-01-PLAN.md — Enlarge CanvasBounds to 1472×828 + bind the Home.razor SVG + classify-and-re-pin the geometry edge tests
+**Plans**: 1/1 plans executed
+
+- [x] 06-01-PLAN.md — Enlarge CanvasBounds to 1472×828 + bind the Home.razor SVG + classify-and-re-pin the geometry edge tests
+
 **UI hint**: yes
 
 ---
 
 ### Phase 7: Selection Lifecycle & Restyle
+
 **Goal**: Selection behaves predictably — the armed tool stays armed after a draw, the just-drawn
 figure is selected, and at most one figure is ever selected, with clear deselect rules — and is
 visibly a calm blue + white trace on the figure's own outline rather than a red "danger" outline.
@@ -86,24 +98,31 @@ visibly a calm blue + white trace on the figure's own outline rather than a red 
 overlapping edits to the same file)
 **Requirements**: SEL-01, SEL-02
 **Success Criteria** (what must be TRUE):
+
   1. Drawing any figure leaves its tool **armed** (the toolbar button still shows active) and
      **automatically selects** the figure just drawn.
+
   2. **At most one figure is ever selected** — selecting a different figure or drawing a new one
      always clears any prior selection first.
+
   3. The current selection **clears** when the user presses the canvas outside the selected
      figure, arms a different tool, or presses any toolbar button **except Delete**; Delete still
      acts on the current selection.
+
   4. The selected figure shows a **~1px blue + white dashed trace** following its own outline
      (not a bounding box), rendered as the **topmost layer** with `pointer-events: none` —
      remaining visible even when the selected figure was drawn earlier and now sits behind a
      later, larger figure.
+
   5. The old solid **red 2px** selection outline no longer appears anywhere in the app.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ---
 
 ### Phase 8: Architecture Constraint Cleanup
+
 **Goal**: Every project doc and source comment consistently reflects that the "no hand-authored
 JavaScript" rule is gone and that D-06/D-18/D-33/D-37/D-57 read as MVP-simplicity decisions —
 verified true with zero runtime or JS change introduced this milestone.
@@ -111,13 +130,16 @@ verified true with zero runtime or JS change introduced this milestone.
 once the v1.1 code changes have landed)
 **Requirements**: ARCH-01
 **Success Criteria** (what must be TRUE):
+
   1. `docs/DECISIONS.md` and `.planning/PROJECT.md` state the "no hand-authored JavaScript"
      constraint as **removed**, with D-06, D-18, D-33, D-37, D-57 each carrying a corrected
      **MVP-simplicity** motivation — no "because no JS" phrasing remains as an active rule on any
      of the five.
+
   2. A repository-wide search for "no hand-authored JavaScript" / "no JS" / "hand-authored" turns
      up zero hits outside historical/superseded notes explicitly marked as such — no other doc,
      README, or source comment contradicts the removal.
+
   3. `dotnet build BlazorCanvas.sln` and `dotnet test BlazorCanvas.sln` both pass unchanged from
      before this phase — proving the removal was **permissive-only**, with no new JavaScript and
      no runtime behavior change shipped this milestone.
@@ -135,7 +157,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 3. The Canvas & Drawing | v1.0 | 5/5 | Complete | 2026-07-16 |
 | 4. Select, Drag & Delete | v1.0 | 4/4 | Complete | 2026-07-16 |
 | 5. Live Cross-Tab Sync | v1.0 | 5/5 | Complete | 2026-07-17 |
-| 6. Canvas Resize to 1472×828 | v1.1 | 0/1 | Planned | - |
+| 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete | 2026-07-20 |
 | 7. Selection Lifecycle & Restyle | v1.1 | 0/TBD | Not started | - |
 | 8. Architecture Constraint Cleanup | v1.1 | 0/TBD | Not started | - |
 

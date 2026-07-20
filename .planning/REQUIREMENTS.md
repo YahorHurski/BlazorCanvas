@@ -13,7 +13,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (Traceab
 
 ### Canvas
 
-- [ ] **CANV-03**: The canvas is **1472 × 828** (16:9), enlarged from the v1.0 1280 × 720. Existing
+- [x] **CANV-03**: The canvas is **1472 × 828** (16:9), enlarged from the v1.0 1280 × 720. Existing
   stored figures keep their absolute position (no migration); the surface **may grow but must never
   shrink**. A maximized window on a 1920 × 1080 monitor shows the whole canvas with no scroll.
   *Amends D-19/D-36/D-58/D-18. Touches `CanvasBounds.cs`, the `Home.razor` SVG, and geometry/clamp tests.*
@@ -71,12 +71,13 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CANV-03 | Phase 6 | Pending |
+| CANV-03 | Phase 6 | Complete |
 | SEL-01 | Phase 7 | Pending |
 | SEL-02 | Phase 7 | Pending |
 | ARCH-01 | Phase 8 | Pending |
 
 **Coverage:**
+
 - v1.1 requirements: 4 total
 - Mapped to phases: 4 (Phase 6: CANV-03 · Phase 7: SEL-01, SEL-02 · Phase 8: ARCH-01)
 - Unmapped: 0 ✓
