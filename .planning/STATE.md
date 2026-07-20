@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Canvas resize · selection UX · no-JS removal
-current_phase: 7
+current_phase: 07
 current_phase_name: Selection Lifecycle & Restyle
 status: executing
 stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-07-20T23:34:09.576Z"
+last_updated: "2026-07-20T23:39:31.532Z"
 last_activity: 2026-07-21
-last_activity_desc: Phase BC-06 complete, transitioned to Phase 7
+last_activity_desc: Phase BC-07 execution started
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 1
+  total_plans: 3
   completed_plans: 1
   percent: 33
 ---
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-07-20 — v1.1 requirements + amended co
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
-**Current focus:** **v1.1** — four user-approved changes, decisions already amended in
+**Current focus:** Phase BC-07 — Selection Lifecycle & Restyle
 `docs/DECISIONS.md` (see PROJECT.md → *Requirements → Active*): (1) canvas enlarged to **1472 × 828**;
 (2) **selection lifecycle** fix (tool stays armed, one selection at a time, toolbar-press deselects
 except Delete); (3) **selection restyle** to a blue+white dashed trace on the figure's own shape;
@@ -35,10 +35,10 @@ scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 
 ## Current Position
 
-Phase: 7 of 8 (Selection Lifecycle & Restyle)
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-21 — Phase BC-06 complete, transitioned to Phase 7
+Phase: BC-07 (Selection Lifecycle & Restyle) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase BC-07
+Last activity: 2026-07-21 — Phase BC-07 execution started
 
 Progress: [███░░░░░░░] 33%
 

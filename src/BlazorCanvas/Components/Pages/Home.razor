@@ -13,7 +13,7 @@
 <PageTitle>BlazorCanvas</PageTitle>
 
 <div class="app-shell" @onpointermove="OnWrapperPointerMove" @onpointerup="OnWrapperPointerUp" @onpointerleave="OnWrapperPointerLeave">
-    <Toolbar @bind-Armed="armedTool" DeleteEnabled="selectedId.HasValue" OnDelete="HandleDeleteAsync" />
+    <Toolbar @bind-Armed="armedTool" DeleteEnabled="selectedId.HasValue" OnDelete="HandleDeleteAsync" OnDeselect="() => selectedId = null" />
 
     <div class="canvas-area">
         <svg class="@CanvasSurfaceClass" width="@CanvasBounds.Width" height="@CanvasBounds.Height" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
@@ -110,18 +110,15 @@
 
     private void OnPointerDown(PointerEventArgs e)
     {
-        var type = ToolMap.ToFigureType(armedTool);
-        if (type is null)
+        if (e.Button != 0)
         {
-            if (e.Button == 0)
-            {
-                selectedId = null;
-            }
-
             return;
         }
 
-        if (e.Button != 0)
+        selectedId = null;
+
+        var type = ToolMap.ToFigureType(armedTool);
+        if (type is null)
         {
             return;
         }
@@ -287,6 +284,7 @@
         {
             var figure = await Figures.InsertAsync(userId, type, box);
             figures.Add(figure);
+            selectedId = figure.Id;
             Notifier.Publish(userId, SyncMessage.Draw(figure, _sender));
         }
         catch (Exception)
