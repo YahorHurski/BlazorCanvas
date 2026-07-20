@@ -20,12 +20,12 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (Traceab
 
 ### Selection
 
-- [ ] **SEL-01**: After a user draws a figure, the **armed tool stays armed** and the **just-drawn
+- [x] **SEL-01**: After a user draws a figure, the **armed tool stays armed** and the **just-drawn
   figure is selected**; **at most one figure is selected at any time**; the selection **clears** when
   the user presses the canvas outside the selected figure, arms any tool, or presses any toolbar
   button **except Delete**. *Extends D-31/D-30.*
 
-- [ ] **SEL-02**: The selected figure is indicated by a **~1px blue + white dashed trace on the
+- [x] **SEL-02**: The selected figure is indicated by a **~1px blue + white dashed trace on the
   figure's own outline**, drawn as the **topmost layer** (`pointer-events: none`) so it is visible
   even when the selected figure sits behind larger figures. Replaces the v1.0 red outline.
   *Amends D-31/D-58.*
@@ -72,8 +72,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | CANV-03 | Phase 6 | Complete |
-| SEL-01 | Phase 7 | Pending |
-| SEL-02 | Phase 7 | Pending |
+| SEL-01 | Phase 7 | Complete |
+| SEL-02 | Phase 7 | Complete |
 | ARCH-01 | Phase 8 | Pending |
 
 **Coverage:**
