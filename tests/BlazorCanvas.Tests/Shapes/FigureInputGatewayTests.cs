@@ -6,6 +6,21 @@ namespace BlazorCanvas.Tests.Shapes;
 
 public class FigureInputGatewayTests
 {
+    [Fact]
+    public void ValidatedFigureInput_HasNoPublicConstructor_AndGatewayResultsRemainReadable()
+    {
+        var publicConstructors = typeof(ValidatedFigureInput)
+            .GetConstructors(BindingFlags.Instance | BindingFlags.Public);
+
+        Assert.Empty(publicConstructors);
+
+        Assert.True(CreateGateway().TryValidate("circle", "{\"r\":50}", null, out var result));
+        Assert.NotNull(result);
+        Assert.Equal("circle", result.Type);
+        Assert.Equal("{\"r\":50}", result.GeometryJson);
+        Assert.Equal(new Bbox(0, 0, 100, 100), result.Bounds);
+    }
+
     // VALID-02 / ROADMAP criterion 4: rejected geometry never reaches BoundsOf.
     [Theory]
     [MemberData(nameof(HostileGeometryCases))]
