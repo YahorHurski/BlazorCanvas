@@ -77,7 +77,7 @@ for a feature, and the user sees no difference at all.
 - [x] **VALID-01**: `geometry` and `style` arriving from the browser are parsed into typed records,
       validated, and re-serialised **from the record** — what the client sent is never stored
 
-- [ ] **VALID-02**: Geometry the database no longer rejects (it has no geometric CHECK constraints
+- [x] **VALID-02**: Geometry the database no longer rejects (it has no geometric CHECK constraints
       under this model) is rejected by the application instead, preserving today's silent-rejection
       behaviour for a degenerate draw
 
@@ -174,7 +174,7 @@ honest values — PostgreSQL 11+ does not rewrite the table for a defaulted colu
 | SHAPE-02 | Phase 9 | Complete |
 | SHAPE-03 | Phase 9 | Complete |
 | VALID-01 | Phase 9 | Complete |
-| VALID-02 | Phase 9 | Pending |
+| VALID-02 | Phase 9 | Complete |
 | VALID-03 | Phase 9 | Complete |
 | RENDER-01 | Phase 11 | Pending |
 | SYNC-02 | Phase 11 | Pending |

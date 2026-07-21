@@ -141,7 +141,7 @@ change to the running application.
      never re-emitted verbatim — proven by a test asserting the sanitised record never contains the
      raw hostile input.
 
-**Plans**: 5/6 plans executed
+**Plans**: 6/6 plans executed
 
 Plans:
 **Wave 1**
@@ -157,7 +157,7 @@ Plans:
 **Wave 3** *(blocked on Wave 2 completion)*
 
 - [x] 09-05-PLAN.md — v1.1 gesture-equivalence grid, fifth-shape extensibility proof, point-list primacy invariant (wave 3)
-- [ ] 09-06-PLAN.md — `FigureInputGateway`, the single validation choke point for client geometry and style (wave 3)
+- [x] 09-06-PLAN.md — `FigureInputGateway`, the single validation choke point for client geometry and style (wave 3)
 
 Note: this phase is purely additive — the existing `BlazorCanvas.Geometry` classes, `Home.razor`,
 `FigureShape.razor`, and all 405 existing tests are untouched and remain green throughout.
@@ -280,7 +280,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
-| 9. Shape Registry & Validation Gateway | v1.11 | 5/6 | In Progress|  |
+| 9. Shape Registry & Validation Gateway | v1.11 | 6/6 | In Progress|  |
 | 10. Storage Schema, Migration & Persistence Layer | v1.11 | 0/TBD | Not started | - |
 | 11. Renderer, Sync & Cutover | v1.11 | 0/TBD | Not started | - |
 | 12. Regression Verification | v1.11 | 0/TBD | Not started | - |

@@ -5,16 +5,16 @@ milestone_name: Storage Model Rewrite
 current_phase: 09
 current_phase_name: shape-registry-validation-gateway
 status: executing
-stopped_at: Completed BC-09-05-PLAN.md
-last_updated: "2026-07-21T22:46:29.946Z"
+stopped_at: Completed BC-09-06-PLAN.md
+last_updated: "2026-07-21T22:52:25.635Z"
 last_activity: 2026-07-21
 last_activity_desc: "Plan 09-01 completed: typed shape model, ordinal registry, GeometryJson helpers"
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 6
-  completed_plans: 5
-  percent: 0
+  completed_plans: 6
+  percent: 25
 ---
 
 # Project State
@@ -49,7 +49,7 @@ Status: Executing Phase BC-09
 Last activity: 2026-07-21 — Plan 09-01 completed: typed shape model, ordinal registry, GeometryJson helpers
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
-Progress: [████████░░] 83%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -113,6 +113,7 @@ Progress: [████████░░] 83%
 | Phase BC-09 P03 | 53min | 3 tasks | 3 files |
 | Phase BC-09 P04 | 25min | 3 tasks | 10 files |
 | Phase BC-09 P05 | 25min | 3 tasks | 4 files |
+| Phase BC-09 P06 | 15min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -220,6 +221,8 @@ into an earlier phase's automated tests.
 - [Phase ?]: Legacy gesture comparison is exact because the new arithmetic deliberately transcribes v1.1.
 - [Phase ?]: PentagonShape remains test-only with privately nested geometry, proving extension needs no shared type or production registration.
 - [Phase ?]: Same-bounds/different-JSON pairs guard line and triangle point-list primacy against bbox-derived regressions.
+- [Phase ?]: Figure input gateway serialises only typed records and uses registry-defined type literals.
+- [Phase ?]: Phase 10 persistence and Phase 11 sync must route every write through FigureInputGateway.
 
 ### Pending Todos
 
@@ -249,8 +252,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T22:46:29.933Z
-Stopped at: Completed BC-09-05-PLAN.md
+Last session: 2026-07-21T22:52:25.623Z
+Stopped at: Completed BC-09-06-PLAN.md
 22/22 requirements mapped, 100% coverage, no orphans, no duplicates.
 Resume file: None
 
