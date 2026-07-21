@@ -217,10 +217,11 @@ dotnet test BlazorCanvas.sln --nologo
 
 ## Open Questions
 
-1. **Are any policy copies maintained outside this repository?**
-   - What we know: [VERIFIED: repository audit] No such artifact is tracked here.
-   - What's unclear: [ASSUMED] External service and team-wiki state cannot be inspected from this repository.
-   - Recommendation: Treat repository close-out as complete after the scoped audit; separately update any known external project description if one exists.
+**Resolved — external policy copies are outside the actionable scope of ARCH-01.**
+
+- [VERIFIED: repository audit] No team-wiki, CI, dashboard, or other external policy copy is tracked in this repository.
+- [VERIFIED: `.planning/ROADMAP.md` and `.planning/REQUIREMENTS.md`] ARCH-01 is a repository-only documentation reconciliation with explicit no-runtime-change scope; external systems are not phase deliverables.
+- [ASSUMED] An external copy may exist, but its state cannot be discovered from this repository and cannot be made actionable in this repository-only phase. Repository close-out is complete after the scoped policy audit; an owner of a known external system may reconcile its copy separately.
 
 ## Environment Availability
 
