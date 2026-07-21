@@ -43,24 +43,22 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 - [x] **CANV-03** — Canvas enlarged to 1472 x 828; existing figures remain valid with no migration — Validated in Phase BC-06: Canvas Resize to 1472x828 (2026-07-21)
 - [x] **SEL-01** — Selection lifecycle: tools remain armed after drawing, one local selection is maintained, and the required deselect/Delete routes work — Validated in Phase BC-07: Selection Lifecycle & Restyle (2026-07-21)
 - [x] **SEL-02** — Selection indicator is a topmost blue-and-white dashed trace on the figure's own outline, replacing the red outline — Validated in Phase BC-07: Selection Lifecycle & Restyle (2026-07-21)
+- [x] **ARCH-01** — The former "no hand-authored JavaScript" constraint is removed and the motivations of D-06/D-18/D-33/D-37/D-57 are correctly recorded as MVP simplicity or their independent behavioural rationale — Validated in Phase BC-08: Architecture Constraint Cleanup (2026-07-21); permissive/doc-only, no code change
 
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
+**All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
 
-### Active — v1.1 (milestone opened; roadmap created via `/gsd-new-milestone`)
+### Active
 
-v1.0 shipped the v1 set. **v1.1 is now the active milestone** — four user-approved changes, all
-recorded in `docs/DECISIONS.md`. The REQ-IDs below are **final** (assigned when
-`/gsd-new-milestone` ran, 2026-07-20). No database migration is needed for any of them.
-
-- [x] **ARCH-01** — The former "no hand-authored JavaScript" constraint is removed and the
-  motivations of D-06/D-18/D-33/D-37/D-57 are correctly recorded as MVP simplicity or their
-  independent behavioural rationale. Validated in Phase BC-08: Architecture Constraint Cleanup
-  (2026-07-21); permissive/doc-only, with no code changes.
+**None — no milestone is currently open.** v1.1 shipped 2026-07-21 and its `REQUIREMENTS.md` is
+archived at `.planning/milestones/v1.1-REQUIREMENTS.md`. A fresh `REQUIREMENTS.md` is created when
+the next milestone is opened.
 
 **Next milestone (v1.2) is scoped but not started:** new figure types (ellipse, 5-point star,
 hexagon, pentagon, right-angle triangle L/R, four arrows) + a dynamic split-button toolbar. Full
 plan: `.planning/backlog/v1.2-figures-and-toolbar.md`. Its decision amendments happen when v1.2 is
-kicked off. Anything not named in `docs/DECISIONS.md` is still out until added there **by name**.
+kicked off via `/gsd-new-milestone`. Anything not named in `docs/DECISIONS.md` is still out until
+added there **by name**.
 
 ### Out of Scope
 
@@ -268,14 +266,22 @@ filter was never built.
 
 ## Current State
 
-**v1.1 feature work is complete.** Phases BC-06 and BC-07 delivered the 1472 x 828 canvas and the
-local selection lifecycle with its topmost blue-and-white dashed trace. Phase BC-08 then verified the
-permissive JavaScript policy amendment across the active decision, project, and derived-constraint
-records with no runtime change; the solution builds and all 405 tests pass.
+**v1.1 shipped 2026-07-21** (opened 2026-07-20 — a four-day milestone). Phases BC-06 and BC-07
+delivered the 1472 × 828 canvas and the local selection lifecycle with its topmost blue-and-white
+dashed trace. Phase BC-08 then reconciled the permissive JavaScript policy across the active
+decision, project, and derived-constraint records with no runtime change.
 
-**v1.1 milestone opened 2026-07-20** via `/gsd-new-milestone`: the four changes are finalised as
-REQ-IDs **CANV-03, SEL-01, SEL-02, ARCH-01**, and the phase roadmap continues numbering from BC-06.
-See `.planning/REQUIREMENTS.md` and `.planning/ROADMAP.md`.
+- **Delivered:** 3 phases, 4 plans, 9 tasks; all 4 requirements (CANV-03, SEL-01, SEL-02, ARCH-01)
+  validated, all 3 phases verified `passed`.
+- **Footprint:** 11 source/test files changed (+106/−60) across 35 commits — deliberately small;
+  the bulk of the diff is planning and decision documentation.
+- **Gates:** `dotnet build BlazorCanvas.sln` clean (0 warnings, 0 errors); 405/405 tests passing.
+- **Human verification:** BC-07-02 approved all five selection UX criteria plus the two-tab
+  remote-delete concurrency edge on the running application.
+- **Archived:** `.planning/milestones/v1.1-ROADMAP.md`, `v1.1-REQUIREMENTS.md`, and the phase
+  artifacts under `v1.1-phases/`. No milestone audit was run (`/gsd-audit-milestone` skipped —
+  every signal it checks was already green at close).
+- **New tech debt:** none.
 
 **v1.0 shipped 2026-07-17.** The definition of done was met — verified both by an end-to-end code
 trace (v1.0 milestone audit) and by live human verification on two real screens (BC-05-05).
@@ -289,10 +295,12 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   confirmed correctly wired.
 - **Known tech debt:** ~11 low-severity items from `01-REVIEW.md` (WR-03…WR-07, WR-09, IN-01…IN-05).
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
-- **Next milestone:** **v1.1 feature phases complete** (canvas 1472×828 · selection UX + restyle ·
-  permissive JavaScript policy). **v1.2 scoped** (new figures + dynamic toolbar) in
-  `.planning/backlog/v1.2-figures-and-toolbar.md`.
-  The "terminal MinVP" framing no longer applies — the project has resumed.
+- **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
+
+**Next up: nothing is in flight.** **v1.2 is scoped** (new figures + dynamic toolbar) in
+`.planning/backlog/v1.2-figures-and-toolbar.md` and starts with `/gsd-new-milestone` when the user
+decides to open it. The "terminal MinVP" framing no longer applies — the project has resumed and is
+now between milestones.
 
 ## Evolution
 
@@ -312,6 +320,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-21 — Phase BC-08 validated ARCH-01: the retired policy is removed from active
-records, all 405 tests pass, and no runtime or JavaScript change was introduced.
-(Prev: 2026-07-21, Phase BC-07 validated SEL-01/SEL-02.)*
+*Last updated: 2026-07-21 after v1.1 milestone — 3 phases, 4 plans, 4/4 requirements validated;
+ARCH-01, CANV-03, SEL-01 and SEL-02 moved to Validated and the Active section closed out. No
+milestone is open; v1.2 remains scoped in the backlog.
+(Prev: 2026-07-21, Phase BC-08 validated ARCH-01.)*

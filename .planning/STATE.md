@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Canvas resize · selection UX · no-JS removal
-current_phase: 08
-status: completed
+status: Awaiting next milestone
 stopped_at: Completed BC-08-01-PLAN.md
-last_updated: "2026-07-21T13:17:57.478Z"
+last_updated: "2026-07-21T13:43:55.013Z"
 last_activity: 2026-07-21
-last_activity_desc: Phase BC-08 complete
+last_activity_desc: Milestone v1.1 completed and archived
 progress:
   total_phases: 3
   completed_phases: 3
   total_plans: 4
   completed_plans: 4
   percent: 100
+current_phase: 08
 current_phase_name: Architecture Constraint Cleanup
 ---
 
@@ -21,26 +21,28 @@ current_phase_name: Architecture Constraint Cleanup
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-20 — v1.1 requirements + amended constraints)
+See: .planning/PROJECT.md (updated 2026-07-21 — after the v1.1 milestone)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
-**Current focus:** Phase BC-08 — Architecture Constraint Cleanup (execution complete; phase verification pending)
-`docs/DECISIONS.md` (see PROJECT.md → *Requirements → Active*): (1) canvas enlarged to **1472 × 828**;
-(2) **selection lifecycle** fix (tool stays armed, one selection at a time, toolbar-press deselects
-except Delete); (3) **selection restyle** to a blue+white dashed trace on the figure's own shape;
-(4) **no-JS rule removed** (motivations corrected on D-06/18/33/37/57). No migration; mostly geometry
-tests + a selection-overlay refactor. **Next milestone v1.2** (new figures + dynamic toolbar) is
-scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
+
+**Current focus:** None — **between milestones.** v1.1 shipped 2026-07-21, delivering all four
+approved changes: (1) canvas enlarged to **1472 × 828** (no migration); (2) **selection lifecycle**
+fix (tool stays armed, one selection at a time, toolbar-press deselects except Delete);
+(3) **selection restyle** to a blue+white dashed trace on the figure's own shape; (4) **no-JS rule
+removed** (motivations corrected on D-06/18/33/37/57). Archived under
+`.planning/milestones/v1.1-*`.
+
+**Next milestone v1.2** (new figures + dynamic toolbar) is scoped in
+`.planning/backlog/v1.2-figures-and-toolbar.md` but **not started** — it opens with
+`/gsd-new-milestone` when the user decides to begin.
 
 ## Current Position
 
-Phase: BC-08
-Plan: Not started
-Status: All phases complete
-Last activity: 2026-07-21 — Phase BC-08 complete
-
-Progress: [██████████] 100%
+Phase: Milestone v1.1 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-21 — Milestone v1.1 completed and archived
 
 ## Performance Metrics
 
@@ -184,19 +186,4 @@ Resume file: None
 
 ## Operator Next Steps
 
-- **⚠️ BRANCH WORKFLOW (user-directed):** ALL work stays on branch **`NewBranch`** — **never commit
-  to `master` directly.** `git.branching_strategy = "none"` (config.json), so GSD commits to the
-  current branch; **stay checked out on `NewBranch`** for every GSD command. `master` is updated only
-  via a **single reviewed PR (`NewBranch → master`) at `/gsd-ship`**. Push `NewBranch` after each phase
-  so progress is visible on GitHub. Do NOT set branching_strategy to phase/milestone (those fork off
-  `origin/master`, which lacks the v1.1 amendments).
-
-- **Roadmap created.** v1.1 has 3 phases: **Phase 6** (Canvas Resize to 1472×828, CANV-03),
-  **Phase 7** (Selection Lifecycle & Restyle, SEL-01/SEL-02), **Phase 8** (Architecture Constraint
-  Cleanup, ARCH-01). Full detail in `.planning/ROADMAP.md`. Next: review/approve the roadmap, then
-  `/gsd-plan-phase 6`. Phases 7 and 8 are small enough that `/gsd-quick` may suit them.
-
-- **v1.2 is scoped and waiting** in `.planning/backlog/v1.2-figures-and-toolbar.md` — start it only
-  after v1.1 ships; its decision amendments happen at that point.
-
-- Optional/independent: triage the ~11 low-severity `01-REVIEW.md` items.
+- Start the next milestone with /gsd-new-milestone
