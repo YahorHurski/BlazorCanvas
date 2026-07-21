@@ -2364,8 +2364,18 @@ achieve it either.
 Stated because it is easy to assume otherwise:
 
 - **D-09, D-10** — one write per operation, one UPDATE per drag on drop. Unchanged.
-- **D-40, D-47, D-53, D-54** — the sync message contract, the 50 ms throttle, no-resurrection,
-  mid-drag isolation. Unchanged. Delete stays hard.
+- **D-40, D-47, D-54** — no-resurrection, the 50 ms throttle, mid-drag isolation. The *rules* are
+  unchanged and delete stays hard.
+- **D-53 — the message contract's RULES hold, but its PAYLOAD changes.** It has to: the fields
+  `x1, y1, x2, y2` no longer exist on a figure. `SyncMessage.Id` becomes a `Guid` (D-62), and:
+  - `move` carries **`(id, x, y)`** — two numbers instead of four, because a move is now a
+    translation of the origin and nothing else. This is strictly less traffic per drag frame.
+  - `draw` carries `(id, type, x, y, rotation, geometry, style, z)` — everything the receiving tab
+    needs to render a figure it has never seen.
+  - `delete` and `rollback` are unchanged apart from the id type.
+
+  Every receiver rule survives verbatim: `move` and `rollback` remain **update-only**, an unknown
+  id is still ignored and never inserted, and the sender still filters its own echo.
 - **D-35, D-39 (broadcast timing)** — drawing is still visible to other tabs only as a finished
   figure on release, not live as it grows. `uuid` makes an optimistic broadcast *possible*; it was
   explicitly not adopted.
