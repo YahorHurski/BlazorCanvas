@@ -34,6 +34,41 @@ The project is done when the user can do this, in one sitting:
 This deliberately makes the hardest feature — live cross-tab sync with real-time drag glide
 (D-11, D-47, D-53, D-54) — part of the definition of success, so **no phase can quietly defer it**.
 
+## Current Milestone: v1.11 Storage Model Rewrite
+
+**Goal:** Replace the four-integer bounding-box storage model with the position/shape split
+(D-59…D-69), migrating every existing figure intact — so the schema never has to change again for a
+feature, and the user sees no difference at all.
+
+**Target features:**
+
+- **Four-table schema** — `users` (unchanged), `canvases`, `figures`, `figure_types`. Exactly one
+  canvas auto-created per user; no UI to create more.
+- **Position/shape split** — `x, y, rotation` for *where*, `geometry jsonb` in local coordinates for
+  *what*. A move becomes `set x = x + dx`: type-blind, at any vertex count.
+- **Lossless migration** — every existing rectangle, circle, triangle and line converted by the
+  draft's exact formulas, `z` seeded from the old `id` so layer order survives bit-for-bit, proven
+  by a v1.1-dump replay test that checks rendered vertices and stacking order.
+- **`IShapeDefinition` registry** — the eight scattered type-specific sites collapse into one
+  interface. Adding a shape becomes one C# class + one `figure_types` row + one toolbar button.
+- **One validation gateway** — `geometry` and `style` are client-supplied JSON: parse into a typed
+  record, validate, re-serialise **from the record**. Never store what the client sent.
+- **`bbox_*` cache** — computed in exactly one place (`BoundsOf`), read by the edge clamp.
+- **Renderer rewrite** — each figure wrapped in `<g transform="translate(x,y) rotate(…)">`, its
+  shape drawn from the local origin.
+- **Sync contract updated** — D-53's *payload* changes (uuid ids, position deltas); its *rules* hold
+  unchanged: move is UPDATE-only, mid-drag discards all, 50 ms throttle with trailing edge, echo filter.
+- **`z` uniqueness + collision retry** — `unique (canvas_id, z)`, new figure takes `max(z) + 1`,
+  with a retry on the concurrent-insert clash. Mandatory: without it a figure silently fails to appear.
+- **Test rebase** — retire the tests whose subject no longer exists (inscribed-square round-trip,
+  line-normalisation landmine, the 32-case CHECK-mirror matrix); write new guards for
+  bbox-vs-geometry agreement, the validation gateway, and z-collision retry.
+
+**Scope boundary — the milestone succeeds invisibly.** Feature scope is untouched: still draw, drag,
+delete; still four shapes. Rotation, vertex editing, z-order control and per-figure style become
+*possible* and stay *unused*. The user-facing acceptance test is "nothing changed" — same figures,
+same positions, same look, same live cross-tab glide.
+
 ## Requirements
 
 ### Validated
@@ -57,15 +92,16 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 
 ### Active
 
-**None — no milestone is currently open.** v1.1 shipped 2026-07-21 and its `REQUIREMENTS.md` is
-archived at `.planning/milestones/v1.1-REQUIREMENTS.md`. A fresh `REQUIREMENTS.md` is created when
-the next milestone is opened.
+**Milestone v1.11 (Storage Model Rewrite) is open** — see *Current Milestone* above. Its requirements
+live in `.planning/REQUIREMENTS.md`; v1.1's are archived at
+`.planning/milestones/v1.1-REQUIREMENTS.md`.
 
-**Next milestone (v1.2) is scoped but not started:** new figure types (ellipse, 5-point star,
-hexagon, pentagon, right-angle triangle L/R, four arrows) + a dynamic split-button toolbar. Full
-plan: `.planning/backlog/v1.2-figures-and-toolbar.md`. Its decision amendments happen when v1.2 is
-kicked off via `/gsd-new-milestone`. Anything not named in `docs/DECISIONS.md` is still out until
-added there **by name**.
+**After v1.11: v1.2** — new figure types (ellipse, 5-point star, hexagon, pentagon, right-angle
+triangle L/R, four arrows) + a dynamic split-button toolbar. Scoped in
+`.planning/backlog/v1.2-figures-and-toolbar.md`, **and materially cheaper once v1.11 lands** — its
+4-integer workarounds (orientation smuggled into type names, fixed ratios, per-shape CHECK
+avoidance) become unnecessary. Its decision amendments happen when v1.2 is kicked off. Anything not
+named in `docs/DECISIONS.md` is still out until added there **by name**.
 
 ### Out of Scope
 
@@ -313,10 +349,12 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
-**Next up: nothing is in flight.** **v1.2 is scoped** (new figures + dynamic toolbar) in
-`.planning/backlog/v1.2-figures-and-toolbar.md` and starts with `/gsd-new-milestone` when the user
-decides to open it. The "terminal MinVP" framing no longer applies — the project has resumed and is
-now between milestones.
+**In flight: v1.11 Storage Model Rewrite** (opened 2026-07-21, branch `Milestone-v1.11`). The ADR,
+PROJECT.md and `.planning/intel/` already describe the new storage model as current — **no code
+implements it yet.** This milestone makes the code catch up to the documents: no migration, no
+`canvases`/`figure_types` tables, no `IShapeDefinition`, and no `<g transform>` renderer exist
+today. **v1.2** (new figures + dynamic toolbar) waits behind it in the backlog. The "terminal MinVP"
+framing no longer applies.
 
 ## Evolution
 
@@ -336,7 +374,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-21 after v1.1 milestone — 3 phases, 4 plans, 4/4 requirements validated;
-ARCH-01, CANV-03, SEL-01 and SEL-02 moved to Validated and the Active section closed out. No
-milestone is open; v1.2 remains scoped in the backlog.
-(Prev: 2026-07-21, Phase BC-08 validated ARCH-01.)*
+*Last updated: 2026-07-21 — milestone v1.11 (Storage Model Rewrite) opened: Current Milestone
+section added, Active section reopened, Current State switched to in-flight. Scope confirmed with
+the user as a pure storage swap (zero user-visible change) including the lossless migration with a
+dump-replay test, the `IShapeDefinition` registry, and a retire-and-rewrite test rebase.
+(Prev: 2026-07-21, after the v1.1 milestone — 3 phases, 4 plans, 4/4 requirements validated.)*

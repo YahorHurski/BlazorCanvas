@@ -1,48 +1,48 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Canvas resize · selection UX · no-JS removal
-status: Awaiting next milestone
-stopped_at: Completed BC-08-01-PLAN.md
-last_updated: "2026-07-21T13:43:55.013Z"
+milestone: v1.11
+milestone_name: Storage Model Rewrite
+status: planning
+last_updated: "2026-07-21T18:36:38.941Z"
 last_activity: 2026-07-21
-last_activity_desc: Milestone v1.1 completed and archived
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 4
-  completed_plans: 4
-  percent: 100
-current_phase: 08
-current_phase_name: Architecture Constraint Cleanup
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-21 — after the v1.1 milestone)
+See: .planning/PROJECT.md (updated 2026-07-21 — milestone v1.11 opened)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** None — **between milestones.** v1.1 shipped 2026-07-21, delivering all four
-approved changes: (1) canvas enlarged to **1472 × 828** (no migration); (2) **selection lifecycle**
-fix (tool stays armed, one selection at a time, toolbar-press deselects except Delete);
-(3) **selection restyle** to a blue+white dashed trace on the figure's own shape; (4) **no-JS rule
-removed** (motivations corrected on D-06/18/33/37/57). Archived under
-`.planning/milestones/v1.1-*`.
+**Current focus:** **v1.11 — Storage Model Rewrite** (opened 2026-07-21, branch `Milestone-v1.11`).
+Replace the four-integer bounding-box model with the position/shape split (D-59…D-69): four tables,
+`x, y, rotation` + `geometry jsonb` in local coordinates, `numeric` coords, `uuid` ids, a `z` column
+unique per canvas, validated `style`, and a `bbox_*` cache. **The documents already describe this
+model as current; no code implements it yet** — this milestone makes the code catch up.
 
-**Next milestone v1.2** (new figures + dynamic toolbar) is scoped in
-`.planning/backlog/v1.2-figures-and-toolbar.md` but **not started** — it opens with
-`/gsd-new-milestone` when the user decides to begin.
+**Scope boundary confirmed with the user:** a pure storage swap — **zero user-visible change**. Same
+four shapes, same three verbs, same look, same live cross-tab glide. Rotation, vertex editing,
+z-order and per-figure style become possible and stay unused. Includes the lossless migration with a
+v1.1-dump replay test, the `IShapeDefinition` registry, and a retire-and-rewrite test rebase.
+
+**v1.1 shipped 2026-07-21** (canvas 1472 × 828, selection lifecycle + restyle, no-JS rule removed);
+archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic toolbar) waits in
+`.planning/backlog/v1.2-figures-and-toolbar.md` and gets cheaper once v1.11 lands.
 
 ## Current Position
 
-Phase: Milestone v1.1 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-21 — Milestone v1.1 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-21 — Milestone v1.11 started
 
 ## Performance Metrics
 
@@ -101,26 +101,40 @@ Last activity: 2026-07-21 — Milestone v1.1 completed and archived
 
 ### Decisions
 
-**All 58 ADR decisions (D-01…D-58) are LOCKED.** They are in PROJECT.md `<decisions>`; full text in
+**All 69 ADR decisions (D-01…D-69) are LOCKED.** They are in PROJECT.md `<decisions>`; full text in
 `.planning/intel/decisions.md` and `docs/DECISIONS.md`. They are **not open questions** — do not
 re-litigate, re-ask, or "improve" them.
 
-The ones most likely to be violated by accident:
+> ⚠️ **v1.11 supersedes part of the locked set.** D-59…D-69 replace the storage model. **The
+> documents describe the new model; the code still implements the old one.** When reading code, expect
+> the four-integer model; when writing code this milestone, build the new one. Superseded and
+> therefore **NOT to be preserved**: **D-12** (two tables), **D-20** (integer coords), **D-22** (four
+> coordinates = bounding box), **D-39** (`id` is the z-order), **D-41** (line normalisation),
+> **D-46** (`type` text + CHECK, no `created_at`), **D-50** (per-type guard mirroring CHECKs).
 
-- **D-22 (REVISED):** a circle is stored as its **inscribed square**, not centre + rim point. The
-  original encoding is REVERSED and dead.
+The rules most likely to be violated by accident:
 
 - **D-40:** a `move` broadcast is **UPDATE-ONLY, never insert.** D-11's original "idempotent upsert"
-  was a **bug** — it resurrects deleted figures.
-
-- **D-54:** mid-drag, a tab discards **ALL** incoming broadcasts, not just those about the dragged figure.
-- **D-50:** the minimum-size guard is **per-type** — a zero-height *line* is legal (it is a horizontal
-  line); a zero-height rectangle is not.
-
+  was a **bug** — it resurrects deleted figures. **Unchanged by v1.11.**
+- **D-54:** mid-drag, a tab discards **ALL** incoming broadcasts, not just those about the dragged
+  figure. **Unchanged by v1.11.**
+- **D-53:** the sync contract's *payload* changes in v1.11 (uuid ids, position deltas); its **rules
+  hold** — kinds, echo filter, no `drop` kind, previews never broadcast.
 - **D-08:** plaintext passwords are **deliberate and locked**. Do not "fix" this.
+- **D-24/D-36:** the clamp survives, but it now reads **`bbox_*`**, not coordinate columns. Still
+  clamp the *delta*, then translate; still `clamp → render → broadcast`.
+- **v1.11's own new landmines:** never trust `geometry`/`style` off the wire (parse → validate →
+  re-serialise from the record); `bbox_*` is a cache recomputed in **exactly one place**; `z` is
+  unique per canvas and **needs a retry** on concurrent insert or a figure silently never appears.
 - ~~**No JavaScript anywhere**~~ — **REMOVED in v1.1.** Hand-authored JS/interop is now permitted;
   the rule was never load-bearing (MVP simplicity was the real motivation; D-06/18/33/37/57 re-worded
   in `docs/DECISIONS.md`). It changed no code and is simply not *needed* for anything built so far.
+
+**v1.11 amendments (user-approved, 2026-07-21)** — recorded in `docs/DECISIONS.md` as D-59…D-69;
+rationale and migration plan in `docs/DATA-MODEL-v1.11-DRAFT.md`; mirrored in PROJECT.md + intel.
+Position/shape split · `geometry jsonb` per type · `numeric` coordinates · `uuid` ids · `z` unique
+per canvas · four tables · validated `style jsonb` · `bbox_*` cache · geometry validated in C#, not
+by CHECK constraints. **Goal: the last migration that touches data already written.**
 
 **v1.1 amendments to the locked set (user-approved, 2026-07-20)** — recorded in `docs/DECISIONS.md`
 with inline `⚠️ v1.1` notes, mirrored in PROJECT.md + intel:
@@ -142,15 +156,23 @@ Constraints. Intent untouched.
 phase's `*-SUMMARY.md` under `key-decisions`, preserved in
 `.planning/milestones/v1.0-ROADMAP.md` and in git history.
 
-**Roadmap decisions (v1.1, this session):** CANV-03 is Phase 6 (independent — `CanvasBounds.cs` +
-`Home.razor` SVG + geometry/clamp tests). SEL-01 + SEL-02 are combined into Phase 7 (both touch the
-selection overlay in `Home.razor`; sequenced after Phase 6 to avoid overlapping edits to the same
-file). ARCH-01 is its own tiny Phase 8 (doc/constraint verification only — no code) since its work
-is unrelated in kind to the other two; likely a `/gsd-quick` candidate.
+**Per-phase implementation decisions (v1.1):** cleared at milestone close; preserved in each phase's
+`*-SUMMARY.md` under `key-decisions` in `.planning/milestones/v1.1-phases/` and in git history. The
+one with lasting force: **BC-06** bound the `Home.razor` SVG dimensions to `CanvasBounds` rather than
+repeating numeric literals, keeping rendered size and clamp size from drifting — v1.11's renderer
+rewrite must not reintroduce those literals.
 
-- [Phase BC-06]: Bound the Home.razor SVG dimensions to CanvasBounds instead of repeating numeric literals, keeping rendered size and clamp size from drifting. — This preserves D-18/D-19/D-36 as one source of truth after the canvas resize.
-- [Phase BC-08]: Retired the application-authored JavaScript prohibition; future JavaScript or interop requires a separate affirmative decision.
-- [Phase BC-08]: Reconciled CONSTRAINT-env and the D-11 rejection rationale with the ADR while preserving MVP and behavioural decisions.
+**v1.11 scope decisions (user-approved at milestone open, 2026-07-21):**
+
+- **Existing figures are migrated, not dropped** — the draft's exact conversion formulas, with a
+  v1.1-dump replay test checking rendered vertices and layer order.
+- **Zero user-visible change** is a hard invariant, not an aspiration. Newly-unlocked capabilities
+  (rotation, vertex editing, z-order control, per-figure style) ship *possible* and *unused*.
+- **The `IShapeDefinition` registry is in scope** — the eight scattered type-specific sites collapse
+  now, rather than being paid for by v1.2 while it also adds nine shapes.
+- **Tests are rebased, not ported** — retire those whose subject no longer exists (inscribed-square
+  round-trip, line-normalisation landmine, the 32-case CHECK-mirror matrix); write new guards for
+  bbox-vs-geometry agreement, the validation gateway, and z-collision retry.
 
 ### Pending Todos
 
