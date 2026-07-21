@@ -12,6 +12,13 @@ It is a deliberate learning project: MinVP and fiercely scoped. *(v1.0 was built
 line of hand-authored JavaScript; that self-imposed rule was **removed in v1.1** — see Constraints —
 because the real motivation was always MVP simplicity, not JS avoidance.)*
 
+> 🛑 **v1.11 (in progress) replaces the storage model.** MinVP is deliberately **suspended for the
+> data model only**: the schema is designed for the full intended horizon — vertex editing,
+> rotation, arbitrary polygons, layers, groups, per-figure style, undo — because a schema is the
+> one thing whose late change costs a migration over live data. Feature scope is unchanged; v1.11
+> ships **no new user-visible behaviour**. Decisions: `docs/DECISIONS.md` → D-59…D-69. Rationale
+> and migration plan: `docs/DATA-MODEL-v1.11-DRAFT.md`.
+
 ## Core Value
 
 **The canvas is always the truth, everywhere at once** — what you draw persists instantly, and every
@@ -94,14 +101,20 @@ there by name.
 - **The three landmines** (each fails *silently* if missed):
   1. **Never clamp coordinates individually.** Clamp the movement *delta*, then translate all four
      uniformly. Clamping `x2` alone resizes the figure instead of moving it.
-  2. **Never normalise a line by sorting its axes.** (0,100)→(100,0) would become (0,0)→(100,100) —
-     the opposite diagonal. Swap the whole point pair. (Sorting axes *is* correct for
-     rectangle/triangle/circle.)
+  2. ~~**Never normalise a line by sorting its axes.**~~ **DEFUSED in v1.11** — a line is stored as
+     its two points, so there is no axis-sorting step left to get wrong. Remember the *class* of
+     bug: a figure that still renders after being corrupted reports nothing.
   3. **Never use `OffsetX`/`OffsetY`.** Use `PageX`/`PageY`. `OffsetX` is relative to the *event
      target* — and every drag and every selection begins *on a figure*.
+  4. **Never trust `geometry` or `style` off the wire** *(v1.11)*. Both are client-supplied JSON.
+     Parse into a typed record, validate, re-serialise **from the record** — never store what the
+     client sent.
+  5. **`bbox_*` is a cache** *(v1.11)*. Forget to recompute it on a write and the figure clamps
+     against the wrong edge. Exactly one place computes it.
 - **Interaction and storage are different things.** A circle is *drawn* centre-out (press = centre,
-  drag = radius) but *stored* as the square it is inscribed in. Every figure is four integers that
-  are always its bounding box.
+  drag = radius). 🛑 **v1.11: it is now *stored* as `{"r": …}`, not as an inscribed square, and a
+  figure is no longer four integers** — position (`x, y, rotation`) and shape (`geometry jsonb`, in
+  local coordinates) are separate columns. See D-59…D-69 and `docs/DATA-MODEL-v1.11-DRAFT.md`.
 - **Environment:** Windows dev machine. .NET SDKs 8.0.418 / 9.0.311 / 10.0.301 and Docker 29.1.3
   verified present.
 
@@ -131,9 +144,11 @@ there by name.
   > `postgresql-x64-18` Windows service permanently occupies it on this machine, so compose publishes
   > `"5433:5432"`. See `docs/DECISIONS.md` § "Docker Compose (D-27)". `CanvasDbContextFactory` throws
   > rather than guessing a connection string, so `dotnet ef` cannot silently hit the wrong server.
-- **Two tables only** — `users` and `figures`. "The canvas" is not an entity in the database; it is
-  simply the set of figures belonging to a user. Canonical DDL in
-  `.planning/intel/constraints.md` → `CONSTRAINT-schema`. (D-12, D-46)
+- 🛑 **Four tables** *(v1.11; was two)* — `users`, `canvases`, `figures`, `figure_types`. The canvas
+  **is** an entity now (D-64), holding its own size, name and background; v1.11 creates exactly one
+  per user and ships no UI to create more. `figure_types` makes a new figure type an `INSERT`
+  instead of an `ALTER TABLE` (D-65). Canonical DDL in `.planning/intel/constraints.md` →
+  `CONSTRAINT-schema`. (D-59…D-69, superseding D-12/D-46)
 - **The coordinate constant**: page margin 0, toolbar exactly **48px**, canvas immediately below at
   document position (0, 48), **no CSS border on the SVG**. `canvasX = PageX`, `canvasY = PageY − 48`.
   Every coordinate in the app flows through this. (D-43, D-18)
@@ -190,13 +205,14 @@ re-ask, or "improve" them. Full text: `.planning/intel/decisions.md`; original: 
 | D-13 | **Circle draw-time geometry: centre + radius.** The press point is the centre; drag distance sets the radius. Always a true circle, never an oval. |
 | D-18 | **Fixed-size canvas, 1:1** *(v1.1: chosen for MVP simplicity — "no JavaScript" motivation removed)*. One canvas unit = one CSS pixel, on every screen. Does not scale to the window. A fixed **aspect ratio** is still mandatory geometry (else circles render as ovals). `canvasX = PageX`, `canvasY = PageY − toolbarHeight`. **LANDMINE: `PageX/PageY`, never `OffsetX/OffsetY`.** Do not centre the canvas with `margin: auto`. |
 | D-19 | **Canvas is 1472 × 828** *(v1.1; was 1280 × 720)*. The size **may grow but must never shrink** — enlarging keeps every stored figure valid (v1.1 did this, no migration); shrinking orphans figures. Coordinates are only meaningful relative to it. |
-| D-20 | **Coordinates are integers.** Beyond tidiness: integers can be compared for exact equality in a database CHECK — so geometric invariants are *enforced by the schema*, not trusted in code. |
-| D-21 | **Triangle: derived from a drag, 2 points.** Apex top-centre, base along the bottom. Accepted cost: every triangle is isosceles and points upward. |
-| D-22 | **Geometry storage: four integers, always — and they ARE the bounding box. A circle is stored as its INSCRIBED SQUARE.** `r = (x2−x1)/2`, `cx = x1+r`, `cy = y1+r`. Drawing is unchanged (centre-out); **only storage is a square**. A move is a uniform translation, so `d` cancels **algebraically** — a circle dragged ten thousand times has a bit-identical radius. Enforced by `CHECK (type <> 'circle' OR (x2-x1 = y2-y1 AND x2 > x1 AND (x2-x1) % 2 = 0))`. **Why: generic clamping reads the raw columns — there is genuinely no type dispatch left in the move or the clamp.** *(REVISED — the original centre+rim encoding is REVERSED and dead)* |
+| ~~D-20~~ | 🛑 **SUPERSEDED by D-61 (v1.11) — coordinates are `numeric`.** Its justification (integers permit exact equality in a CHECK) died with the CHECK constraints themselves. Integers also blocked zoom above 100% and rotation. |
+| ~~D-21~~ | 🛑 **SUPERSEDED by D-60 (v1.11).** The triangle stores three actual points, so it can point any direction and its vertices can be dragged. The isosceles-upward limit was a consequence of deriving vertices from a box. |
+| ~~D-22~~ | 🛑 **SUPERSEDED by D-59/D-60 (v1.11). A figure is no longer four integers.** Position (`x, y, rotation`) and shape (`geometry jsonb`, local coordinates) are separate. Its central insight survives: a move is still **type-blind** — it now touches `x, y` only, which is why it works for a 1000-vertex path too. Read the original for *why* the earlier centre+rim encoding was reversed; that reasoning still teaches. |
+| **D-59…D-69** | **THE CURRENT STORAGE MODEL (v1.11).** Position/shape split · `geometry jsonb` per type · `numeric` coordinates · `uuid` ids · `z` column unique per canvas · four tables (`users`, `canvases`, `figures`, `figure_types`) · validated `style jsonb` · `bbox_*` cache · geometry validated in C#, not by CHECK constraints. **Goal: the last migration that touches data already written.** Full text: `docs/DECISIONS.md`; rationale and migration plan: `docs/DATA-MODEL-v1.11-DRAFT.md`. |
 | D-24 | **Figures stop at the canvas edge** and **slide along it** rather than sticking. Clamp applied live on every pointer-move; the clamped position is what persists. **This decision is what forced the reversal of D-22.** |
 | D-29 | **Drawing also stops at the canvas edge.** One rule for the whole app: figures live entirely inside the canvas, always. |
 | D-36 | **The clamp — exact formula, INCLUSIVE bounds (`0..1472 × 0..828`** *(v1.1; was `0..1280 × 0..720`)*`).** Clamp the *delta*, then translate all four uniformly. **Per-axis independence is the point** — `dx'` never reads `y`, so a figure pinned to the right edge still slides up and down. **Ordering: clamp → render → broadcast.** The one genuinely type-specific rule: the circle draw-clamp `r = min(round(distance), cx, cy, W−cx, H−cy)` — known consequence: **pressing near an edge forces a tiny circle**. No canvas-bounds CHECKs in the DB. |
-| D-41 | **Normalise on write — but NOT the same way for every shape.** Rectangle/triangle/circle → sort the axes independently. **LANDMINE — Line → swap the WHOLE POINT PAIR, never sort axes independently** ((0,100)→(100,0) would become the opposite diagonal). Consequence: `x1 ≤ x2` for every shape, but `y1 ≤ y2` **only** for rectangle/triangle/circle — which is why the clamp keeps its min/max bounding-box computation. |
+| ~~D-41~~ | 🛑 **SUPERSEDED by D-60 (v1.11) — and its landmine is DEFUSED, not just documented.** The line's special arm existed only because the line was the one figure whose columns were endpoints rather than a bounding box. A line is now stored as its two points, so the axis-sorting hazard cannot occur. |
 
 ### Interaction
 | ID | Decision |
