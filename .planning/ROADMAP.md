@@ -280,7 +280,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
-| 9. Shape Registry & Validation Gateway | v1.11 | 0/6 | Planned | - |
+| 9. Shape Registry & Validation Gateway | v1.11 | 1/6 | In progress | 2026-07-21 |
 | 10. Storage Schema, Migration & Persistence Layer | v1.11 | 0/TBD | Not started | - |
 | 11. Renderer, Sync & Cutover | v1.11 | 0/TBD | Not started | - |
 | 12. Regression Verification | v1.11 | 0/TBD | Not started | - |

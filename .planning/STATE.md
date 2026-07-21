@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: Storage Model Rewrite
-current_phase: 9
-current_phase_name: Shape Registry & Validation Gateway
+current_phase: 09
+current_phase_name: shape-registry-validation-gateway
 status: executing
-stopped_at: ROADMAP.md created for v1.11 (Phases 9–12); REQUIREMENTS.md traceability populated —
-last_updated: "2026-07-21T21:20:39.344Z"
+stopped_at: Plan 09-01 completed — typed geometry, shape registry, and GeometryJson helpers committed
+last_updated: "2026-07-21T21:29:29.000Z"
 last_activity: 2026-07-21
-last_activity_desc: ROADMAP.md created (Phases 9–12); REQUIREMENTS.md traceability filled;
+last_activity_desc: Phase BC-09 execution started
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 6
+  completed_plans: 1
+  percent: 17
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-07-21 — milestone v1.11 opened)
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** **v1.11 — Storage Model Rewrite** (opened 2026-07-21, branch `Milestone-v1.11`).
+**Current focus:** Phase BC-09 — shape-registry-validation-gateway
 Replace the four-integer bounding-box model with the position/shape split (D-59…D-69): four tables,
 `x, y, rotation` + `geometry jsonb` in local coordinates, `numeric` coords, `uuid` ids, a `z` column
 unique per canvas, validated `style`, and a `bbox_*` cache. **The documents already describe this
@@ -43,10 +43,10 @@ archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic to
 
 ## Current Position
 
-Phase: 9 of 12 (Shape Registry & Validation Gateway)
-Plan: — of TBD in current phase
-Status: Ready to execute
-Last activity: 2026-07-21 — ROADMAP.md created (Phases 9–12); REQUIREMENTS.md traceability filled;
+Phase: BC-09 (shape-registry-validation-gateway) — EXECUTING
+Plan: 2 of 6
+Status: Executing Phase BC-09
+Last activity: 2026-07-21 — Plan 09-01 completed: typed shape model, ordinal registry, GeometryJson helpers
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
 Progress: [░░░░░░░░░░] 0%
@@ -70,6 +70,7 @@ Progress: [░░░░░░░░░░] 0%
 | BC-06 | 1 | - | - |
 | BC-07 | 2 | - | - |
 | BC-08 | 1 | - | - |
+| BC-09 | 1 | 6min | 6min |
 | BC-09 | - | - | - |
 | BC-10 | - | - | - |
 | BC-11 | - | - | - |
@@ -107,6 +108,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase BC-07 P01 | 15 min | 3 tasks | 4 files |
 | Phase BC-07 P02 | 1min | 1 tasks | 1 files |
 | Phase BC-08 P01 | 15min | 2 tasks | 3 files |
+| Phase BC-09 P01 | 6min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
