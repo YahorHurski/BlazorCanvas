@@ -63,7 +63,14 @@ source: docs/DECISIONS.md (D-05, D-13, D-22, "Settled: the shape of the geometry
 
 What the *gesture* supplies is not what the *database* holds:
 
-| Shape | What the gesture gives | What is stored |
+> 🛑 **v1.11: the "What is stored" column below is HISTORICAL.** Shape now lives in
+> `geometry jsonb` in local coordinates, with position in `x, y, rotation`:
+> line `{"points":[[0,0],[100,40]]}` · rectangle `{"w":200,"h":100}` · circle `{"r":50}` ·
+> triangle `{"points":[[50,0],[0,80],[100,80]]}`. **The gesture column is unchanged** — drawing
+> behaves exactly as before, including the circle's centre-out press. See `constraints.md` →
+> `CONSTRAINT-geometry`.
+
+| Shape | What the gesture gives | What was stored *(pre-v1.11)* |
 |---|---|---|
 | Line | 2 endpoints | the 2 endpoints |
 | Rectangle | 2 opposite corners | the 2 corners |
