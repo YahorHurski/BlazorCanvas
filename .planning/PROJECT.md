@@ -52,9 +52,10 @@ v1.0 shipped the v1 set. **v1.1 is now the active milestone** — four user-appr
 recorded in `docs/DECISIONS.md`. The REQ-IDs below are **final** (assigned when
 `/gsd-new-milestone` ran, 2026-07-20). No database migration is needed for any of them.
 
-- [ ] **ARCH-01** — **Remove the "no hand-authored JavaScript" constraint** and correct the
-  motivations of D-06/D-18/D-33/D-37/D-57 (real motivation: MVP simplicity). Permissive/doc-only —
-  no code changes; re-opens future options (Delete-key, `setPointerCapture` drag, Escape-to-cancel).
+- [x] **ARCH-01** — The former "no hand-authored JavaScript" constraint is removed and the
+  motivations of D-06/D-18/D-33/D-37/D-57 are correctly recorded as MVP simplicity or their
+  independent behavioural rationale. Validated in Phase BC-08: Architecture Constraint Cleanup
+  (2026-07-21); permissive/doc-only, with no code changes.
 
 **Next milestone (v1.2) is scoped but not started:** new figure types (ellipse, 5-point star,
 hexagon, pentagon, right-angle triangle L/R, four arrows) + a dynamic split-button toolbar. Full
@@ -267,11 +268,10 @@ filter was never built.
 
 ## Current State
 
-**v1.1 is the active milestone (decisions amended 2026-07-20; roadmap created).** Phases BC-06 and
-BC-07 are complete: the canvas is 1472 x 828 with dimensions bound to `CanvasBounds`, and selection
-now remains local, follows the required lifecycle, and renders as a topmost blue-and-white dashed
-trace. Phase BC-07 passed all 11 must-haves, the six human runtime checks, security verification, and
-an advisory UI audit. Remaining v1.1 work is Phase BC-08 (architecture constraint cleanup).
+**v1.1 feature work is complete.** Phases BC-06 and BC-07 delivered the 1472 x 828 canvas and the
+local selection lifecycle with its topmost blue-and-white dashed trace. Phase BC-08 then verified the
+permissive JavaScript policy amendment across the active decision, project, and derived-constraint
+records with no runtime change; the solution builds and all 405 tests pass.
 
 **v1.1 milestone opened 2026-07-20** via `/gsd-new-milestone`: the four changes are finalised as
 REQ-IDs **CANV-03, SEL-01, SEL-02, ARCH-01**, and the phase roadmap continues numbering from BC-06.
@@ -289,8 +289,9 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   confirmed correctly wired.
 - **Known tech debt:** ~11 low-severity items from `01-REVIEW.md` (WR-03…WR-07, WR-09, IN-01…IN-05).
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
-- **Next milestone:** **v1.1 active** (canvas 1472×828 · selection UX + restyle · no-JS rule removed).
-  **v1.2 scoped** (new figures + dynamic toolbar) in `.planning/backlog/v1.2-figures-and-toolbar.md`.
+- **Next milestone:** **v1.1 feature phases complete** (canvas 1472×828 · selection UX + restyle ·
+  permissive JavaScript policy). **v1.2 scoped** (new figures + dynamic toolbar) in
+  `.planning/backlog/v1.2-figures-and-toolbar.md`.
   The "terminal MinVP" framing no longer applies — the project has resumed.
 
 ## Evolution
@@ -311,6 +312,6 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-21 — Phase BC-07 completed and validated SEL-01/SEL-02: the local selection
-lifecycle and topmost blue-and-white trace passed automated, human, security, and UI-review gates.
-(Prev: 2026-07-21, Phase BC-06 validated CANV-03.)*
+*Last updated: 2026-07-21 — Phase BC-08 validated ARCH-01: the retired policy is removed from active
+records, all 405 tests pass, and no runtime or JavaScript change was introduced.
+(Prev: 2026-07-21, Phase BC-07 validated SEL-01/SEL-02.)*
