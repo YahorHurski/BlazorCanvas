@@ -5,7 +5,7 @@ milestone_name: Storage Model Rewrite
 current_phase: 10
 current_phase_name: Storage Schema, Migration & Persistence Layer
 status: planning
-stopped_at: Completed BC-09-06-PLAN.md
+stopped_at: Phase BC-09 complete, ready to plan Phase 10
 last_updated: "2026-07-21T23:20:25.469Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase BC-09 complete, transitioned to Phase 10
@@ -29,8 +29,8 @@ and every other tab shows it happening live, including a figure gliding in real 
 **Current focus:** Phase 10 — Storage Schema, Migration & Persistence Layer
 Replace the four-integer bounding-box model with the position/shape split (D-59…D-69): four tables,
 `x, y, rotation` + `geometry jsonb` in local coordinates, `numeric` coords, `uuid` ids, a `z` column
-unique per canvas, validated `style`, and a `bbox_*` cache. **The documents already describe this
-model as current; no code implements it yet** — this milestone makes the code catch up.
+unique per canvas, validated `style`, and a `bbox_*` cache. **Phase BC-09 delivered the pure-C# shape
+registry and validation foundation; schema, persistence, renderer, and sync cutover remain.**
 
 **Scope boundary confirmed with the user:** a pure storage swap — **zero user-visible change**. Same
 four shapes, same three verbs, same look, same live cross-tab glide. Rotation, vertex editing,
