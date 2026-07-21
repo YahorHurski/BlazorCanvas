@@ -14,26 +14,35 @@ Every decision here was made explicitly by the user; nothing was defaulted.
 superseded, or reversed.** Every amended entry carries a ⚠️ banner naming its amendment — but
 **check this index before implementing from any entry.**
 
-**If you read only three things, read: `THE SCHEMA` (the DDL), `D-22` (geometry), and
-`D-53` (the sync message contract).**
+> # 🛑 STOP — the storage model was REPLACED in v1.11
+>
+> **`THE SCHEMA` (the DDL below) and D-22 (`four integers = the bounding box`) are DEAD.**
+> Everything about *how a figure is stored* is superseded by **D-59…D-69** at the end of this
+> file. Position and shape are now stored separately; shape lives in a `geometry jsonb` column.
+>
+> The old entries are kept because **why** they were reversed is the useful part — but never
+> implement storage from them.
+
+**If you read only three things, read: `D-59…D-69` (the current storage model),
+`D-53` (the sync message contract), and `D-36` (the clamp).**
 
 ## Status index
 
 | ID | Topic | Status |
 |----|-------|--------|
 | D-01…D-04 | Postgres · Blazor · one canvas per user · draw/drag/delete | Locked |
-| **D-05** | Figure types | ⚠️ **Amended by D-13** — the four shapes do *not* share one draw interaction |
+| **D-05** | Figure types | ⚠️ **Amended by D-13**; **"only four types" lifted by D-65** — new types are now data, not schema |
 | D-06 | SVG, not `<canvas>` | Locked (⚠️ v1.1: "no JS" perk phrasing removed; SVG choice stands) |
 | **D-07** | Blazor Server hosting | ⚠️ **Claim retracted by D-34** — "no HTTP code" was false |
 | D-08…D-10 | Plaintext passwords · per-operation saves · zero-row guard | Locked |
 | **D-11** | Live cross-tab sync | ⚠️ **Amended by D-40, D-47, D-53, D-54** — the "idempotent upsert" it describes is a **bug** |
-| **D-12** | Two-table schema | ⚠️ Its DDL sketch is stale — **use `THE SCHEMA`** |
-| D-13 | Circle drawn centre-out | Locked |
-| D-14 | One fixed style | Locked (values in D-38, D-58) |
+| **D-12** | Two-table schema | 🛑 **SUPERSEDED by D-64** — four tables; `canvases` now exists |
+| D-13 | Circle drawn centre-out | Locked (storage changed by D-60: `{"r": …}`) |
+| **D-14** | One fixed style | 🛑 **SUPERSEDED by D-66** — style is per-figure, in a validated `style jsonb` |
 | **D-15** | Delete | ⚠️ **Delete *key* superseded by D-33** (toolbar button) |
 | **D-16** | Toolbar | ⚠️ **Superseded** — six buttons, not four (D-30, D-33) |
-| D-17…D-21 | Login · canvas 1:1 · **1472×828** · integers · triangle | Locked (⚠️ D-18/D-19 amended in v1.1: size + motivation) |
-| **D-22** | **Geometry storage** | Locked — **REVISED**. Circle = its **inscribed square**. *(The earlier "centre + rim point" was reversed.)* |
+| D-17…D-21 | Login · canvas 1:1 · **1472×828** · integers · triangle | ⚠️ D-18/D-19 amended in v1.1; 🛑 **D-20 (integers) superseded by D-61** (`numeric`); 🛑 **D-21 (triangle from a box) superseded by D-60** (three stored points) |
+| **D-22** | **Geometry storage** | 🛑 **SUPERSEDED BY D-59/D-60.** Four integers are no longer the model. Read it only for *why* — the reversal reasoning still teaches |
 | **D-23** | Guards | ⚠️ Its "one shared guard" claim is **retracted by D-50** |
 | D-24 | Figures stop at the edge | Locked (formula in **D-36**) |
 | D-25…D-29 | Logout · session cookie · Docker · .NET 10 · draw clamps | Locked |
@@ -42,8 +51,9 @@ superseded, or reversed.** Every amended entry carries a ⚠️ banner naming it
 | D-33…D-35 | Delete button · SSR login · draw preview | Locked (⚠️ **D-33 motivation corrected in v1.1**) |
 | **D-36** | **The clamp formula + inclusive bounds** | Locked — *appears late in the file* (⚠️ v1.1: W×H now 1472×828) |
 | **D-37** | **Drag termination** | Locked — *appears late in the file* (⚠️ v1.1: motivation corrected) |
-| D-38…D-49 | Fill · z-order · resurrection fix · normalisation · migrations · layout · usernames · errors · columns · throttle · click-vs-drag · project structure | Locked |
-| D-50…D-58 | Per-type guard · identity & routes · save-failure policy · **message contract** · mid-drag rule · background · logout · draw abort · constants | Locked (⚠️ v1.1: **D-57 motivation corrected**, **D-58 selection style + canvas size amended**) |
+| D-38…D-49 | Fill · z-order · resurrection fix · normalisation · migrations · layout · usernames · errors · columns · throttle · click-vs-drag · project structure | Locked, **except:** 🛑 **D-39 (`id` IS the z-order) superseded by D-62/D-63**; 🛑 **D-41 (normalisation, the line landmine) superseded by D-60**; 🛑 **D-46 (`type` CHECK, no `created_at`) superseded by D-65/D-68** |
+| D-50…D-58 | Per-type guard · identity & routes · save-failure policy · **message contract** · mid-drag rule · background · logout · draw abort · constants | Locked (⚠️ v1.1: **D-57 motivation corrected**, **D-58 selection style + canvas size amended**); 🛑 **D-50 superseded by D-60** — geometry validation is C#-only now |
+| **D-59…D-69** | **THE CURRENT STORAGE MODEL** (v1.11) | **Locked — implement from here** |
 
 > ⚠️ **v1.1 milestone note (see `.planning/PROJECT.md` for the full summary):** the
 > **"no hand-authored JavaScript" rule is REMOVED.** It was never the real motivation (MVP
@@ -53,17 +63,24 @@ superseded, or reversed.** Every amended entry carries a ⚠️ banner naming it
 > (D-19/D-36/D-58/D-18) and **selection red outline → blue dashed trace + lifecycle** (D-31/D-58).
 > Framework JS (`blazor.web.js`, scaffolded `ReconnectModal.js`) was never in scope either way.
 
-## The three landmines
+## The landmines
 
 Written here because each one **fails silently** if missed:
 
 1. **Never clamp coordinates individually** (D-23, D-36). Clamp the *movement delta*, then
-   translate all four uniformly. Clamping `x2` alone resizes the figure instead of moving it.
-2. **Never normalise a line by sorting its axes** (D-41). A line from (0,100) to (100,0) would
-   become (0,0)→(100,100) — **the opposite diagonal.** Swap the whole point pair instead.
-   (Sorting axes *is* correct for rectangle/triangle/circle.)
+   apply it uniformly. Clamping one edge alone resizes the figure instead of moving it.
+   *(Still true after v1.11 — the delta now moves `x, y`, and the clamp reads `bbox_*`.)*
+2. ~~**Never normalise a line by sorting its axes**~~ — **DEFUSED in v1.11 (D-60).** A line is
+   now stored as its two points, so there is no axis-sorting step to get wrong and no
+   line-specific normalisation arm. Kept here so the class of bug is remembered: *a figure that
+   still renders after being corrupted reports nothing.*
 3. **Never use `OffsetX`/`OffsetY`** (D-18, D-43). Use `PageX`/`PageY`. `OffsetX` is relative to
    the *event target* — and every drag and every selection begins on a figure.
+4. **Never trust `geometry` or `style` off the wire** (D-60, D-66). Both are client-supplied
+   JSON. Parse into a typed record, validate, and **re-serialise from the record** — never
+   store what the client sent.
+5. **`bbox_*` is a cache** (D-67). If a write path forgets to recompute it, the figure clamps
+   against the wrong edge. Exactly one place computes it.
 
 ---
 
@@ -355,6 +372,13 @@ is built for it.**
 
 ## D-12 — Schema: two tables. No `canvases` table.
 
+> 🛑 **SUPERSEDED BY D-64 (v1.11) — there are four tables and `canvases` exists.** The objection
+> below (a table holding no meaningful data) no longer applies: it holds `width`, `height`,
+> `background` and `name`, so the canvas size stops being a compile-time constant. Note that this
+> entry's rejection of *"the whole canvas as a single JSONB document"* still stands — v1.11 puts
+> **one figure's shape** in jsonb, not the whole canvas; each figure remains its own row, which is
+> what D-09's per-operation writes require.
+
 **Status:** Locked
 
 > ⚠️ **The sketch below is illustrative only and is partly out of date** (`created_at` was
@@ -405,6 +429,11 @@ asked for).
 ---
 
 ## D-14 — Appearance: one fixed style. No colours.
+
+> 🛑 **SUPERSEDED BY D-66 (v1.11) at the storage level.** Style is now per-figure, in a validated
+> `style jsonb`. **No styling UI ships in v1.11** — every migrated figure keeps exactly the values
+> below, so nothing changes on screen. The column exists so that adding a colour picker later is
+> UI work only, with no migration.
 
 **Status:** Locked
 
@@ -590,7 +619,11 @@ slightly — is obsolete; the new size targets 1080p specifically.)*
 
 ## D-20 — Coordinates are whole numbers (integers)
 
-**Status:** Locked
+> 🛑 **SUPERSEDED BY D-61 (v1.11) — coordinates are `numeric`.** The justification below (integers
+> permit exact equality in CHECK constraints) died with the constraints themselves: D-60 moved
+> geometry validation into C#. Integers also blocked zoom above 100% and rotation.
+
+**Status:** ~~Locked~~ — superseded
 
 All coordinates are stored as integers. At 1:1 (D-18) they are literally screen pixels, so
 sub-pixel precision is invisible to the eye.
@@ -625,8 +658,13 @@ twice then presses Escape?), plus two more columns.
 
 ## D-22 — Geometry storage: four coordinates, always. Circle = its inscribed square.
 
-**Status:** Locked — **REVISED.** *Both this design and its revision were proposed by the
-user.* An earlier version of D-22 stored the circle as **centre + rim point**; that was
+> 🛑 **SUPERSEDED BY D-59 / D-60 (v1.11). This is no longer how figures are stored.**
+> Read it for the *reasoning* — the reversal argued below is still instructive, and D-59 keeps its
+> central insight (a type-blind move) while dropping the four-integer limit that made vertex
+> editing, arbitrary polygons and rotation impossible.
+
+**Status:** ~~Locked~~ — **REVISED, then SUPERSEDED.** *Both this design and its revision were
+proposed by the user.* An earlier version of D-22 stored the circle as **centre + rim point**; that was
 reversed. See "Why this was reversed" below — the reversal is the important part of this
 entry.
 
@@ -1204,6 +1242,12 @@ black default.
 
 ## D-39 — `figures.id` is a sequential integer, and it IS the z-order
 
+> 🛑 **SUPERSEDED BY D-62 / D-63 (v1.11).** The id is now a `uuid` (so undo can restore a figure
+> as *the same* figure) and draw order lives in its own `z numeric` column, unique per canvas.
+> The problem stated below — *creation order must be reconstructible from the database after F5*
+> — is unchanged and is now solved by `ORDER BY z`, with `z` backfilled from the old `id` so the
+> existing stacking survives the migration exactly.
+
 **Status:** Locked
 
 `figures.id` is a **database-generated sequential integer**. Figures load with `ORDER BY id`.
@@ -1257,6 +1301,12 @@ extra lines for a design that cannot drift.
 ---
 
 ## D-41 — Normalise on write — but NOT the same way for every shape
+
+> 🛑 **SUPERSEDED BY D-60 (v1.11) — and its landmine is DEFUSED, not merely documented.**
+> The line's special arm existed only because the line was the one figure whose four columns were
+> its endpoints rather than a bounding box. A line is now stored as its two points, so there is
+> no axis-sorting step to get wrong. Keep reading it for the *class* of bug it describes: a
+> corrupted figure that still renders reports nothing.
 
 **Status:** Locked
 
@@ -1407,6 +1457,11 @@ remains a separate, specific mechanism — it is not an error at all, but expect
 
 ## D-46 — `type` is text + CHECK. No `created_at`.
 
+> 🛑 **BOTH HALVES SUPERSEDED (v1.11).** The `CHECK (type IN (…))` whitelist becomes a foreign key
+> into the `figure_types` table (**D-65**) — a new figure type is now an `INSERT`, not an
+> `ALTER TABLE`. And `created_at` comes back (**D-68**), for one reason only: it is the single
+> column whose late addition would produce false data.
+
 **Status:** Locked
 
 `type` is a **text** column constrained to `('line','rectangle','circle','triangle')`.
@@ -1488,6 +1543,12 @@ the app — but it would leave the three silent failure modes above completely u
 ---
 
 ## D-50 — The minimum-size guard is PER-TYPE. (D-23's "one shared guard" is retracted.)
+
+> 🛑 **SUPERSEDED BY D-60 (v1.11).** The guard stays per-type, but it is no longer a *mirror* of
+> anything: the geometry CHECK constraints are gone, so there is no second copy in SQL to keep in
+> agreement and no 32-case matrix test proving they agree. Validation lives in C# only, at one
+> choke point. The lesson this entry teaches — *one shared rule either lets a zero-height
+> rectangle through or rejects a legal horizontal line* — is why per-type validation survives.
 
 **Status:** Locked — **fixes a real bug.** D-23 promised *"one shared minimum-size guard, not a
 circle special case."* **That promise was impossible to keep.**
@@ -1750,9 +1811,18 @@ scratch, but every `docker compose down` would erase your drawings.)*
 
 ---
 
-# THE SCHEMA (canonical — assembled from D-12, D-22, D-39, D-41, D-46, D-44, D-50)
+# THE SCHEMA — 🛑 DEAD AS OF v1.11. DO NOT IMPLEMENT FROM THIS.
 
-*A zero-context implementer should not have to reconstruct this from six separate entries.*
+> **This DDL described the v1.0/v1.1 schema and is no longer the schema.** It is kept because the
+> migration in v1.11 reads *from* it. **The current schema is D-59…D-69** (end of this file) and
+> [`DATA-MODEL-v1.11-DRAFT.md`](DATA-MODEL-v1.11-DRAFT.md).
+>
+> What changed: four coordinate columns → `x, y, rotation` + `geometry jsonb` · `integer` →
+> `numeric` · `id` as z-order → `uuid` + a `z` column · two tables → four · geometry CHECK
+> constraints → validation in C#.
+
+*(Historical.) A zero-context implementer should not have to reconstruct this from six separate
+entries.*
 
 ```sql
 CREATE TABLE users (
@@ -2021,16 +2091,288 @@ only). `figures` (four integer coordinates, always non-null, plus a type).
 3. **Conflict handling doesn't exist, on purpose.** One human has one mouse, so two tabs
    physically cannot be edited at once. That single observation deleted locking, concurrency
    tokens, merge prompts, and retry loops from the design.
-4. **Every figure is four integers**, including circles — stored as the square the circle is
-   inscribed in. Those four numbers are always the figure's **bounding box**, which is what
-   makes moving *and* edge-clamping a single blind operation for all four shapes. (You draw a
-   circle centre-out; it is merely *stored* as a square. Interaction and storage are
-   deliberately different things.)
+4. ~~**Every figure is four integers**~~ — **true through v1.1, false from v1.11.** See D-59.
+   Position and shape are now separate: `x, y, rotation` locate the figure, `geometry jsonb`
+   describes its shape in local coordinates. Moving is still one blind operation for every
+   shape — it just touches `x, y` instead of four coordinates, which is why it now works for a
+   1000-vertex polygon too.
 
-**What is deliberately NOT in scope:** resize, rotate, undo/redo, z-order, colours,
-multi-select, copy/paste, zoom, pan, export, real authentication, and password hashing.
+**What was deliberately NOT in scope through v1.1:** resize, rotate, undo/redo, z-order,
+colours, multi-select, copy/paste, zoom, pan, export, real authentication, password hashing.
+**v1.11 does not implement any of these** — it removes the *storage* obstacle to them. See D-69
+for what stays deferred and what each will cost.
+
+---
+
+# v1.11 — THE STORAGE MODEL WAS REPLACED (D-59…D-69)
+
+*Decided 2026-07-21. Full reasoning, DDL, migration plan and accepted costs:*
+*[`DATA-MODEL-v1.11-DRAFT.md`](DATA-MODEL-v1.11-DRAFT.md). These entries are the normative summary.*
+
+**Why at all:** every new capability the user wants — dragging a vertex, a triangle pointing
+down, a 1000-vertex polygon, rotation, layers, undo, per-figure colour — required a *schema*
+change under the old model. The goal of v1.11 is to be **the last migration that touches data
+already written.**
+
+---
+
+## D-59 — Position and shape are stored separately
+
+**Status:** Locked — supersedes **D-22** entirely
+
+```
+x, y, rotation   → WHERE the figure sits      (plain columns)
+geometry jsonb   → WHAT shape it is, in LOCAL coordinates from (0,0)
+```
+
+**Why this is the whole design.** Moving becomes `update figures set x = x + 20` **at any shape
+complexity** — `geometry` is neither read nor written. The type-blind move that D-22 was built to
+protect survives, and now covers shapes D-22 could not express at all. This is the scene-graph
+model: SVG itself works this way (`<g transform="translate(…)">`).
+
+**Rejected:** keeping the bounding box as the primary geometry (D-22). It caps a figure at four
+degrees of freedom — a free triangle needs six, a 1000-gon needs two thousand.
+
+**Rejected:** a table per figure type. Identical columns in every table, `id` no longer unique
+across the canvas, z-order spread across independent identity sequences, and a 13-way `UNION` on
+every page load. Adding a figure would need a migration; today it needs none.
+
+**Rejected:** storing rendered SVG. Dragging becomes string surgery, the database can validate
+nothing, the bounding box needed by the clamp is no longer computable, and stored SVG rendered as
+markup is a stored-XSS vector in an app that broadcasts figures to other tabs.
+
+---
+
+## D-60 — Shape lives in `geometry jsonb`; formats are per type
+
+**Status:** Locked — supersedes **D-21**, **D-41**, **D-50**
+
+```json
+line          {"points": [[0,0],[100,40]]}
+rectangle     {"w": 200, "h": 100}
+circle        {"r": 50}
+triangle      {"points": [[50,0],[0,80],[100,80]]}
+```
+
+**The rule for choosing a format:** *store the shape in the most general representation that
+**this same type** will ever need.*
+
+- **Triangle → three points.** Vertex dragging is planned. Storing `{"w","h"}` and deriving the
+  vertices would force a conversion of every existing triangle the day that ships.
+- **Line → two points.** This **defuses landmine #2**: the line was the only figure whose columns
+  were not a bounding box, which is why it needed its own normalisation arm (D-41) whose failure
+  silently produced the opposite diagonal. That arm no longer exists.
+- **Circle → `{"r"}`, not `{"rx","ry"}`.** A circle never becomes an ellipse — the ellipse is a
+  *separate type with its own button*. A circle that cannot be stretched is not a missing feature,
+  it is the definition of a circle (and is already how the app behaves — D-13).
+
+**Accepted cost — the database no longer validates geometry.** `circle_is_a_circle`,
+`box_is_a_box` and `line_is_a_line` are gone; `{"r": -5}` will be accepted. All geometric
+correctness moves into C#, at **one** choke point. D-50's C#/SQL mirror disappears with them —
+there is nothing left to mirror.
+
+**Accepted cost — jsonb removes *schema* migrations, not *format* migrations.** Changing the
+stored format of an existing type still means rewriting every row of it. Hence two standing
+rules: a type's format is settled before its first write, and reads are defensive (a missing key
+takes a default, never throws).
+
+---
+
+## D-61 — Coordinates are `numeric`, not integers
+
+**Status:** Locked — supersedes **D-20**
+
+**Why the reversal.** D-20 chose integers so CHECK constraints could compare for exact equality —
+that was the entire justification, and D-60 removed those constraints. Integers meanwhile block
+zoom above 100% and make rotation impossible to express without drift.
+
+**Why `numeric` and not `double precision`.** `numeric` is exact decimal arithmetic in PostgreSQL,
+so accumulated translations never drift. `double` was considered and rejected: float equality is
+unreliable, and repeated drags would accumulate error.
+
+*(`bbox_*` is `double precision` — it is a coarse cache, see D-67.)*
+
+---
+
+## D-62 — Figure ids are `uuid`
+
+**Status:** Locked — amends **D-39**
+
+**Why.** With undo planned, a deleted-then-restored figure must come back as **the same figure**.
+Under `integer GENERATED ALWAYS AS IDENTITY` it returns with a new id, so its layer position and
+any references to it (future `parent_id`) are lost. A uuid restores exactly.
+
+Secondary: the id exists before the INSERT, so D-39's rule that a `draw` broadcast cannot be
+optimistic is no longer forced by the schema.
+
+**Accepted cost:** this is the only change that rewrites the identity of existing rows rather than
+adding to them. The mapping is computed once, deterministically, during the migration.
+
+---
+
+## D-63 — Draw order is the `z` column, unique per canvas
+
+**Status:** Locked — supersedes **D-39**
+
+`z numeric NOT NULL`, `UNIQUE (canvas_id, z)`. Load is `ORDER BY z`.
+
+**Why `id` could not stay the z-order.** "Bring to front" would require rewriting a primary key.
+And after D-62 the id is a uuid — random, so it carries no order at all.
+
+**Why `numeric`.** Reordering inserts *between* neighbours: `1.5`, then `1.25`. `numeric` is exact
+and arbitrary-precision, so subdivision never runs out. `integer` would force renumbering every
+row below on each move; `double` would exhaust precision after roughly fifty subdivisions and
+silently produce two figures on one layer.
+
+**Why unique.** Equal `z` would not blend colours — SVG paints in document order, one figure
+simply covers the other — but **which** one ends up on top would be unpredictable.
+
+**Consequence that must be implemented:** a new figure takes `z = max(z) + 1`. Two tabs drawing at
+the same instant compute the same value and the second INSERT fails on the unique constraint.
+**A retry with recomputation is required** — without it a figure silently fails to appear.
+
+---
+
+## D-64 — Four tables. `canvases` now exists.
+
+**Status:** Locked — supersedes **D-12**
+
+`users` · `canvases` · `figures` · `figure_types`.
+
+D-12 rejected a `canvases` table as "a row per user holding no meaningful data". It now holds
+`width`, `height`, `background` and `name` — the canvas size stops being a compile-time constant
+(`CanvasBounds`, changed by hand in v1.1) and becomes data.
+
+**v1.11 ships no UI for creating canvases.** Exactly one canvas is created per existing user. The
+table exists so that the feature, when it comes, is not another pass over every row of `figures`.
+
+---
+
+## D-65 — Valid figure types are rows, not a CHECK constraint
+
+**Status:** Locked — supersedes the CHECK half of **D-46**; lifts D-05's "there are only ever four"
+
+`figures.type` is a foreign key into `figure_types(name)`. Adding a figure type is an `INSERT`
+(seeded at application start), not an `ALTER TABLE`.
+
+**Why it matters:** combined with D-60, adding the fiftieth figure type costs *one C# class, one
+seeded row, one toolbar button* — and no schema change, no migration, no touching stored data.
+That is the whole point of v1.11.
+
+**Rejected:** a bare `type text` validated only in C#. The lookup table costs almost nothing and
+makes a typo (`'rectangel'`) fail at write time instead of surfacing later as a figure that will
+not render.
+
+---
+
+## D-66 — Style is per-figure, in a validated `style jsonb`
+
+**Status:** Locked — supersedes **D-14**
+
+**Never store what the client sent.** Incoming JSON is parsed into a typed C# record, validated,
+and **re-serialised from the record**; unknown keys never reach the database.
+
+- colours: whitelist `^#[0-9A-Fa-f]{6}$`
+- `stroke_width`: clamped to **0.5 – 64** (below 0.5 is invisible; 0 is not painted at all in SVG)
+- `opacity`: clamped to 0 – 1
+
+**Why a whitelist and not just escaping.** Style values end up in SVG attributes. Blazor escapes
+attribute values, so the ordinary path is safe — but one `MarkupString` or one hand-built
+`style="…"` string removes that protection permanently. Where only hex digits are legal, injection
+cannot exist. **The same gate is mandatory for `geometry`**, which is more dangerous still because
+its numbers feed the clamp.
+
+**Why jsonb and not columns** — the general rule, applied twice in this milestone:
+*flat and universal → columns; per-type or structured → jsonb.* Style is jsonb because gradients,
+shadows and text formatting are nested structures that would otherwise become sparse columns.
+
+**v1.11 ships no styling UI.** Every migrated figure gets today's fixed style, so nothing changes
+on screen.
+
+---
+
+## D-67 — `bbox_*` is a cache, computed by the app, excluding the stroke
+
+**Status:** Locked
+
+Four `double precision` columns holding the figure's axis-aligned extent. Not the source of
+truth — a pure function of `geometry`, recomputed on every write.
+
+**Why it exists:** the edge clamp (D-24/D-36) needs a bounding box, and with shape in jsonb it is
+no longer free. Without it, clamping a 1000-point path would mean walking every point on every
+drag frame. It is also what makes viewport culling possible later, which is the only path to
+100 000+ figures.
+
+**Why the app computes it and not a `GENERATED ALWAYS AS … STORED` column.** A generated column
+needs an IMMUTABLE SQL function that parses every shape format — i.e. all of the shape logic
+duplicated in PL/pgSQL. Then adding a figure type would require changing a database function,
+which is a migration, which breaks D-65's guarantee. And this project has already paid for one
+"same rule in two places, must agree" arrangement (D-50, proven by a 32-case matrix test).
+
+**Why the staleness risk is acceptable:** the clamp reads `bbox_*` on every drag, so a wrong value
+shows up immediately and visibly — the figure stops at the wrong edge. This is not a silent
+failure. A test that recomputes every row's bbox from its `geometry` and compares backs it up.
+
+**The stroke is excluded.** An SVG stroke is centred on the outline and extends `W/2` beyond the
+shape. Including it would tie the geometry cache to the style — changing stroke width would
+require recomputing the bbox. The clamp and the selection trace add `W/2` at render time instead.
+This is also why D-66 caps stroke width at 64: the gap between stored extent and visible extent
+stays under 32px per side.
+
+---
+
+## D-68 — `created_at` returns; `updated_at` joins it
+
+**Status:** Locked — supersedes the "no `created_at`" half of **D-46**
+
+D-46 dropped `created_at` because nothing read it. It comes back for one reason only: **it is the
+only column in this design whose late addition would produce false data.** Added in a year, every
+existing figure would claim to have been created that day. `version`, `parent_id` and the rest all
+backfill honestly, so they are deferred (D-69).
+
+**Known inaccuracy, accepted:** figures migrated from v1.1 get the migration timestamp. The old
+schema did not record the real one.
+
+---
+
+## D-69 — What v1.11 deliberately does NOT add
+
+**Status:** Locked
+
+The rule: **take now only what would otherwise require a pass over rows already written.**
+Everything below is instant later — `ADD COLUMN … DEFAULT` does not rewrite a table in
+PostgreSQL 11+, and `CREATE TABLE`/`CREATE INDEX` touch no data.
+
+| Deferred | Needed for | Cost when added |
+|---|---|---|
+| `version` | concurrent editing | `ADD COLUMN DEFAULT 1` — the backfilled `1` is correct |
+| `parent_id` | groups and layers | `ADD COLUMN` — existing rows are simply NULL |
+| GiST index on the bbox | 100 000+ figures | `CREATE INDEX` |
+| `figure_history` / operation log | undo/redo across F5 | `CREATE TABLE` — starts empty |
+| Soft delete (`deleted_at`) | — | **Not taken.** It only undoes *deletion* — it cannot undo a move or a vertex edit, so undo needs a history table regardless. Meanwhile it adds `WHERE deleted_at IS NULL` to every query forever and introduces an "exists but hidden" state into the D-40 no-resurrection rule. Hard delete stays. |
+
+**Not solved by any schema:** past roughly ten thousand figures the bottleneck is Blazor Server and
+the SVG DOM, not the database — every figure is a DOM element that is diffed and sent over
+SignalR. D-67's bbox columns make viewport culling *possible*, but a million figures would also
+require abandoning SVG elements for canvas/WebGL. The schema does not obstruct that; it does not
+achieve it either.
+
+---
+
+## What v1.11 does NOT change
+
+Stated because it is easy to assume otherwise:
+
+- **D-09, D-10** — one write per operation, one UPDATE per drag on drop. Unchanged.
+- **D-40, D-47, D-53, D-54** — the sync message contract, the 50 ms throttle, no-resurrection,
+  mid-drag isolation. Unchanged. Delete stays hard.
+- **D-35, D-39 (broadcast timing)** — drawing is still visible to other tabs only as a finished
+  figure on release, not live as it grows. `uuid` makes an optimistic broadcast *possible*; it was
+  explicitly not adopted.
+- **D-24, D-36** — figures still stop at the edge, same formula. The clamp now reads `bbox_*`.
+- **D-13, D-19, D-31** — circle drawn centre-out, canvas 1472×828, selection behaviour.
+- **The user sees no difference on day one.** Same figures, same positions, same style.
 
 ---
 
 *Log complete. All decisions were made by the user; nothing here was decided by default.*
-*Ready for ingestion into GSD planning (`/gsd-ingest-docs` or `/gsd-plan-phase --ingest`).*
