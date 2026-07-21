@@ -179,8 +179,7 @@ Note: this phase is purely additive — the existing `BlazorCanvas.Geometry` cla
 position/shape split, and every existing figure is proven to migrate losslessly — all additive at
 the data layer, before any application code is touched.
 **Depends on**: Phase 9 (uses `IShapeDefinition.BoundsOf` and the validation gateway)
-**Requirements**: MODEL-01, MODEL-02, MODEL-03, MODEL-04, MODEL-05, MODEL-06, MODEL-07, MIGR-01,
-MIGR-02, MIGR-03, TEST-03
+**Requirements**: MODEL-01, MODEL-02, MODEL-03, MODEL-04, MODEL-05, MODEL-06, MODEL-07, MIGR-01, MIGR-02, MIGR-03, TEST-03
 **Success Criteria** (what must be TRUE):
 
   1. The live database has four tables — `users`, `canvases`, `figures`, `figure_types` — and a new
@@ -202,7 +201,22 @@ MIGR-02, MIGR-03, TEST-03
      `geometry` for every row; the validation gateway rejects hostile `geometry`/`style`; and a `z`
      collision produces both figures rather than silently losing one.
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 10-01-PLAN.md — The `v11` four-table schema, its idempotent applier, and live-catalog shape assertions (wave 1, blocking schema push)
+- [ ] 10-02-PLAN.md — The four v1.1→v1.11 conversion formulas and deterministic id derivation, database-free (wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 10-03-PLAN.md — `FigureRepository`: type-blind move, uuid-before-insert, `z = max(z)+1` with collision retry (wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 10-04-PLAN.md — `V11DataMigration` and the scratch-database replay proof against the committed v1.1 dump (wave 3)
+- [ ] 10-05-PLAN.md — TEST-03 guards: whole-table bbox-vs-geometry agreement and hostile-input rejection at the database boundary (wave 3)
 
 Notes: the v1.1-era dump that criterion 3's replay test consumes is **captured in Phase 9**, not
 here — see the warning at the end of Phase 9. This phase consumes that committed fixture; it must
