@@ -103,7 +103,7 @@ phase's automated tests.
 Phase numbering continues from v1.1's Phase 8 (directories will be `BC-09-…`, `BC-10-…`, `BC-11-…`,
 `BC-12-…`, matching the established `BC-01-…`…`BC-08-…` pattern).
 
-- [ ] **Phase 9: Shape Registry & Validation Gateway** - Collapse every type-specific figure rule and all client-input validation into two pure-C# abstractions, proven in isolation before any schema or UI change. Also banks the v1.1-era database dump that Phase 10's migration proof depends on (one-shot capture — see phase detail).
+- [x] **Phase 9: Shape Registry & Validation Gateway** - Collapse every type-specific figure rule and all client-input validation into two pure-C# abstractions, proven in isolation before any schema or UI change. Also banks the v1.1-era database dump that Phase 10's migration proof depends on (one-shot capture — see phase detail). (completed 2026-07-22)
 - [ ] **Phase 10: Storage Schema, Migration & Persistence Layer** - Land the four-table schema and a new persistence layer, and prove every existing figure migrates losslessly — all additive; the running app stays untouched and green.
 - [ ] **Phase 11: Renderer, Sync & Cutover** - Switch `Home.razor`, the renderer, and the sync payload onto the new model; retire the old table and its dead tests.
 - [ ] **Phase 12: Regression Verification** - A human confirms on the running application that the rewrite is invisible.
@@ -280,7 +280,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
-| 9. Shape Registry & Validation Gateway | v1.11 | 6/6 | In Progress|  |
+| 9. Shape Registry & Validation Gateway | v1.11 | 6/6 | Complete    | 2026-07-22 |
 | 10. Storage Schema, Migration & Persistence Layer | v1.11 | 0/TBD | Not started | - |
 | 11. Renderer, Sync & Cutover | v1.11 | 0/TBD | Not started | - |
 | 12. Regression Verification | v1.11 | 0/TBD | Not started | - |

@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: Storage Model Rewrite
-current_phase: 09
-current_phase_name: shape-registry-validation-gateway
-status: executing
+current_phase: 10
+current_phase_name: Storage Schema, Migration & Persistence Layer
+status: planning
 stopped_at: Completed BC-09-06-PLAN.md
-last_updated: "2026-07-21T22:52:25.635Z"
-last_activity: 2026-07-21
-last_activity_desc: "Plan 09-01 completed: typed shape model, ordinal registry, GeometryJson helpers"
+last_updated: "2026-07-21T23:20:25.469Z"
+last_activity: 2026-07-22
+last_activity_desc: Phase BC-09 complete, transitioned to Phase 10
 progress:
   total_phases: 4
   completed_phases: 1
@@ -21,12 +21,12 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-21 — milestone v1.11 opened)
+See: .planning/PROJECT.md (updated 2026-07-22 — Phase BC-09 complete)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** Phase BC-09 — shape-registry-validation-gateway
+**Current focus:** Phase 10 — Storage Schema, Migration & Persistence Layer
 Replace the four-integer bounding-box model with the position/shape split (D-59…D-69): four tables,
 `x, y, rotation` + `geometry jsonb` in local coordinates, `numeric` coords, `uuid` ids, a `z` column
 unique per canvas, validated `style`, and a `bbox_*` cache. **The documents already describe this
@@ -43,10 +43,10 @@ archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic to
 
 ## Current Position
 
-Phase: BC-09 (shape-registry-validation-gateway) — EXECUTING
-Plan: 6 of 6
-Status: Executing Phase BC-09
-Last activity: 2026-07-21 — Plan 09-01 completed: typed shape model, ordinal registry, GeometryJson helpers
+Phase: 10 — Storage Schema, Migration & Persistence Layer
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-07-22 — Phase BC-09 complete, transitioned to Phase 10
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
 Progress: [██████████] 100%
@@ -55,7 +55,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 21
+- Total plans completed: 27
 - Average duration: —
 - Total execution time: —
 
@@ -70,7 +70,7 @@ Progress: [██████████] 100%
 | BC-06 | 1 | - | - |
 | BC-07 | 2 | - | - |
 | BC-08 | 1 | - | - |
-| BC-09 | 1 | 6min | 6min |
+| BC-09 | 6 | - | - |
 | BC-09 | - | - | - |
 | BC-10 | - | - | - |
 | BC-11 | - | - | - |
@@ -211,18 +211,9 @@ removed and the full rebased suite green again. Phase 12 (Regression Verificatio
 deliberately last — the milestone's real human acceptance gate, and it must not be skipped or folded
 into an earlier phase's automated tests.
 
-- [Phase ?]: GeneratedRegex supplies one cached, anchored fixed-width colour allowlist shared by both style colours.
-- [Phase ?]: Style JSON is emitted only from a sanitised FigureStyle using four fixed literal keys and order.
-- [Phase ?]: Captured and checksum-sealed a redacted pre-rewrite fixture; Phase 10 must consume it rather than recapture it.
-- [Phase ?]: Fixture ids 3860-3867 preserve migration geometry edge cases and z-order.
-- [Phase ?]: Line and triangle preserve ordered local vertices instead of canonicalising them.
-- [Phase ?]: Circle geometry uses the top-left of its bounding square as local origin; its centre is (R, R).
-- [Phase ?]: DefaultShapes returns a fresh registry to isolate test-only registrations.
-- [Phase ?]: Legacy gesture comparison is exact because the new arithmetic deliberately transcribes v1.1.
-- [Phase ?]: PentagonShape remains test-only with privately nested geometry, proving extension needs no shared type or production registration.
-- [Phase ?]: Same-bounds/different-JSON pairs guard line and triangle point-list primacy against bbox-derived regressions.
-- [Phase ?]: Figure input gateway serialises only typed records and uses registry-defined type literals.
-- [Phase ?]: Phase 10 persistence and Phase 11 sync must route every write through FigureInputGateway.
+- [Phase BC-09]: Geometry and style must be parsed, validated, and re-serialised only through `FigureInputGateway`; Phase 10 persistence and Phase 11 sync must use it for every write.
+- [Phase BC-09]: Line and triangle retain ordered local vertices; circle geometry uses the bounding square's top-left origin, with centre `(R, R)`.
+- [Phase BC-09]: The redacted, checksum-sealed fixture and rows 3860–3867 are the fixed Phase 10 migration proof input; do not recapture it.
 
 ### Pending Todos
 
@@ -252,14 +243,13 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T22:52:25.623Z
-Stopped at: Completed BC-09-06-PLAN.md
-22/22 requirements mapped, 100% coverage, no orphans, no duplicates.
+Last session: 2026-07-21T23:20:25.457Z
+Stopped at: Phase BC-09 complete, ready to plan Phase 10
+Phase BC-09 verified passed (45/45 must-haves), UAT approved, 22/22 requirements mapped.
 Resume file: None
 
 ## Operator Next Steps
 
-- Plan Phase 9 with `/gsd-plan-phase 9` (Shape Registry & Validation Gateway — pure C#, zero database
-  dependency, a natural first cut).
-
-- Phases 10 and 11 depend on it in sequence; Phase 12 (human regression verification) must run last.
+- Discuss or plan Phase 10 (Storage Schema, Migration & Persistence Layer).
+- Phase 10 must consume the BC-09 fixture and gateway; Phase 11 performs cutover; Phase 12 remains
+  the final human regression gate.
