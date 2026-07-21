@@ -4,9 +4,9 @@ milestone: v1.1
 milestone_name: Canvas resize · selection UX · no-JS removal
 current_phase: 8
 current_phase_name: Architecture Constraint Cleanup
-status: planning
+status: executing
 stopped_at: Completed BC-07-02-PLAN.md
-last_updated: "2026-07-21T00:24:33.719Z"
+last_updated: "2026-07-21T13:01:49.248Z"
 last_activity: 2026-07-21
 last_activity_desc: Phase BC-07 complete, transitioned to Phase 8
 progress:
@@ -37,7 +37,7 @@ scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 
 Phase: 8 — Architecture Constraint Cleanup
 Plan: Not started
-Status: Ready to plan
+Status: Ready to execute
 Last activity: 2026-07-21 — Phase BC-07 complete, transitioned to Phase 8
 
 Progress: [██████████] 100%
