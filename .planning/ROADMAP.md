@@ -144,10 +144,18 @@ change to the running application.
 **Plans**: 6 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 09-01-PLAN.md — Typed geometry model, `IShapeDefinition` contract, `ShapeRegistry`, `GeometryJson` helpers (wave 1)
 - [ ] 09-02-PLAN.md — `FigureStyle` record and the style sanitising gateway (wave 1)
 - [ ] 09-03-PLAN.md — Capture and commit the v1.1-era pre-rewrite database dump fixture (wave 1, blocking checkpoint)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 09-04-PLAN.md — The four `IShapeDefinition` implementations and the `DefaultShapes` registry (wave 2)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 09-05-PLAN.md — v1.1 gesture-equivalence grid, fifth-shape extensibility proof, point-list primacy invariant (wave 3)
 - [ ] 09-06-PLAN.md — `FigureInputGateway`, the single validation choke point for client geometry and style (wave 3)
 

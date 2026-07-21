@@ -2,9 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: Storage Model Rewrite
-status: planning
-last_updated: "2026-07-21T19:20:00.000Z"
+current_phase: 9
+current_phase_name: Shape Registry & Validation Gateway
+status: executing
+stopped_at: ROADMAP.md created for v1.11 (Phases 9–12); REQUIREMENTS.md traceability populated —
+last_updated: "2026-07-21T21:20:39.344Z"
 last_activity: 2026-07-21
+last_activity_desc: ROADMAP.md created (Phases 9–12); REQUIREMENTS.md traceability filled;
 progress:
   total_phases: 4
   completed_phases: 0
@@ -41,7 +45,7 @@ archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic to
 
 Phase: 9 of 12 (Shape Registry & Validation Gateway)
 Plan: — of TBD in current phase
-Status: Ready to plan
+Status: Ready to execute
 Last activity: 2026-07-21 — ROADMAP.md created (Phases 9–12); REQUIREMENTS.md traceability filled;
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
@@ -123,16 +127,21 @@ The rules most likely to be violated by accident:
 
 - **D-40:** a `move` broadcast is **UPDATE-ONLY, never insert.** D-11's original "idempotent upsert"
   was a **bug** — it resurrects deleted figures. **Unchanged by v1.11.**
+
 - **D-54:** mid-drag, a tab discards **ALL** incoming broadcasts, not just those about the dragged
   figure. **Unchanged by v1.11.**
+
 - **D-53:** the sync contract's *payload* changes in v1.11 (uuid ids, position deltas); its **rules
   hold** — kinds, echo filter, no `drop` kind, previews never broadcast.
+
 - **D-08:** plaintext passwords are **deliberate and locked**. Do not "fix" this.
 - **D-24/D-36:** the clamp survives, but it now reads **`bbox_*`**, not coordinate columns. Still
   clamp the *delta*, then translate; still `clamp → render → broadcast`.
+
 - **v1.11's own new landmines:** never trust `geometry`/`style` off the wire (parse → validate →
   re-serialise from the record); `bbox_*` is a cache recomputed in **exactly one place**; `z` is
   unique per canvas and **needs a retry** on concurrent insert or a figure silently never appears.
+
 - ~~**No JavaScript anywhere**~~ — **REMOVED in v1.1.** Hand-authored JS/interop is now permitted;
   the rule was never load-bearing (MVP simplicity was the real motivation; D-06/18/33/37/57 re-worded
   in `docs/DECISIONS.md`). It changed no code and is simply not *needed* for anything built so far.
@@ -173,10 +182,13 @@ rewrite must not reintroduce those literals.
 
 - **Existing figures are migrated, not dropped** — the draft's exact conversion formulas, with a
   v1.1-dump replay test checking rendered vertices and layer order.
+
 - **Zero user-visible change** is a hard invariant, not an aspiration. Newly-unlocked capabilities
   (rotation, vertex editing, z-order control, per-figure style) ship *possible* and *unused*.
+
 - **The `IShapeDefinition` registry is in scope** — the eight scattered type-specific sites collapse
   now, rather than being paid for by v1.2 while it also adds nine shapes.
+
 - **Tests are rebased, not ported** — retire those whose subject no longer exists (inscribed-square
   round-trip, line-normalisation landmine, the 32-case CHECK-mirror matrix); write new guards for
   bbox-vs-geometry agreement, the validation gateway, and z-collision retry.
@@ -229,4 +241,5 @@ Resume file: None
 
 - Plan Phase 9 with `/gsd-plan-phase 9` (Shape Registry & Validation Gateway — pure C#, zero database
   dependency, a natural first cut).
+
 - Phases 10 and 11 depend on it in sequence; Phase 12 (human regression verification) must run last.
