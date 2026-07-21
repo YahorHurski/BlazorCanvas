@@ -41,6 +41,8 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 - [x] **DATA-02** — Per-operation persistence; no Save button; migrations at startup; two tables only — Validated in Phase BC-01: Database, Schema & Geometry Core (2026-07-15)
 - [x] **TEST-01** — The three mandated tests for the three *silent* failure modes — Validated in Phase BC-01: Database, Schema & Geometry Core (2026-07-15)
 - [x] **CANV-03** — Canvas enlarged to 1472 x 828; existing figures remain valid with no migration — Validated in Phase BC-06: Canvas Resize to 1472x828 (2026-07-21)
+- [x] **SEL-01** — Selection lifecycle: tools remain armed after drawing, one local selection is maintained, and the required deselect/Delete routes work — Validated in Phase BC-07: Selection Lifecycle & Restyle (2026-07-21)
+- [x] **SEL-02** — Selection indicator is a topmost blue-and-white dashed trace on the figure's own outline, replacing the red outline — Validated in Phase BC-07: Selection Lifecycle & Restyle (2026-07-21)
 
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
 
@@ -50,13 +52,6 @@ v1.0 shipped the v1 set. **v1.1 is now the active milestone** — four user-appr
 recorded in `docs/DECISIONS.md`. The REQ-IDs below are **final** (assigned when
 `/gsd-new-milestone` ran, 2026-07-20). No database migration is needed for any of them.
 
-- [ ] **SEL-01** — **Selection lifecycle.** The armed tool **stays armed** after a draw; the
-  just-drawn figure is **selected**; **at most one figure is ever selected**; the selection clears
-  when you press the canvas outside the selected figure, arm any tool, or press the toolbar
-  **except the Delete button**. Extends D-31.
-- [ ] **SEL-02** — **Selection indicator restyled** from a red outline to a thin (~1px)
-  **blue + white dashed trace on the figure's own outline**, drawn as the topmost layer
-  (`pointer-events: none`), visible even behind larger figures. Amends D-31/D-58.
 - [ ] **ARCH-01** — **Remove the "no hand-authored JavaScript" constraint** and correct the
   motivations of D-06/D-18/D-33/D-37/D-57 (real motivation: MVP simplicity). Permissive/doc-only —
   no code changes; re-opens future options (Delete-key, `setPointerCapture` drag, Escape-to-cancel).
@@ -272,10 +267,11 @@ filter was never built.
 
 ## Current State
 
-**v1.1 is the active milestone (decisions amended 2026-07-20; roadmap created).** Phase BC-06 is
-complete: the canvas is now 1472 x 828, the SVG dimensions are bound to `CanvasBounds`, geometry
-edge tests target the enlarged surface, and no database migration was needed. Remaining v1.1 work is
-Phase BC-07 (selection lifecycle/restyle) and Phase BC-08 (architecture constraint cleanup).
+**v1.1 is the active milestone (decisions amended 2026-07-20; roadmap created).** Phases BC-06 and
+BC-07 are complete: the canvas is 1472 x 828 with dimensions bound to `CanvasBounds`, and selection
+now remains local, follows the required lifecycle, and renders as a topmost blue-and-white dashed
+trace. Phase BC-07 passed all 11 must-haves, the six human runtime checks, security verification, and
+an advisory UI audit. Remaining v1.1 work is Phase BC-08 (architecture constraint cleanup).
 
 **v1.1 milestone opened 2026-07-20** via `/gsd-new-milestone`: the four changes are finalised as
 REQ-IDs **CANV-03, SEL-01, SEL-02, ARCH-01**, and the phase roadmap continues numbering from BC-06.
@@ -315,6 +311,6 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-21 — Phase BC-06 completed and validated CANV-03: canvas enlarged to
-1472 x 828, SVG dimensions bound to `CanvasBounds`, geometry edge tests re-pinned, no migration.
-(Prev: 2026-07-20, v1.1 milestone opened and roadmap created.)*
+*Last updated: 2026-07-21 — Phase BC-07 completed and validated SEL-01/SEL-02: the local selection
+lifecycle and topmost blue-and-white trace passed automated, human, security, and UI-review gates.
+(Prev: 2026-07-21, Phase BC-06 validated CANV-03.)*
