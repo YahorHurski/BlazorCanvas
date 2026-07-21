@@ -25,4 +25,8 @@
     <ProjectReference Include="..\..\src\BlazorCanvas\BlazorCanvas.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Fixtures\v1.1-pre-rewrite.sql" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
