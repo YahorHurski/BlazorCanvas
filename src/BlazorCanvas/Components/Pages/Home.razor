@@ -13,18 +13,29 @@
 <PageTitle>BlazorCanvas</PageTitle>
 
 <div class="app-shell" @onpointermove="OnWrapperPointerMove" @onpointerup="OnWrapperPointerUp" @onpointerleave="OnWrapperPointerLeave">
-    <Toolbar @bind-Armed="armedTool" DeleteEnabled="selectedId.HasValue" OnDelete="HandleDeleteAsync" />
+    <Toolbar @bind-Armed="armedTool" DeleteEnabled="selectedId.HasValue" OnDelete="HandleDeleteAsync" OnDeselect="() => selectedId = null" />
 
     <div class="canvas-area">
-        <svg class="@CanvasSurfaceClass" width="1280" height="720" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
+        <svg class="@CanvasSurfaceClass" width="@CanvasBounds.Width" height="@CanvasBounds.Height" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
             @foreach (var f in figures)
             {
                 var box = dragging && f.Id == dragFigureId ? dragCurrentBox : new Box(f.X1, f.Y1, f.X2, f.Y2);
-                <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" Box="box" Selected="@(f.Id == selectedId)" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
+                <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" Box="box" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
             }
             @if (drawing)
             {
                 <FigureShape Type="previewType" Box="previewBox" Preview="true" />
+            }
+            @if (selectedId is int selectedFigureId)
+            {
+                var selected = figures.FirstOrDefault(f => f.Id == selectedFigureId);
+                if (selected is not null)
+                {
+                    var selectedBox = dragging && selected.Id == dragFigureId
+                        ? dragCurrentBox
+                        : new Box(selected.X1, selected.Y1, selected.X2, selected.Y2);
+                    <SelectionTrace Type="FigureTypeNames.Parse(selected.Type)" Box="selectedBox" />
+                }
             }
         </svg>
     </div>
@@ -110,18 +121,15 @@
 
     private void OnPointerDown(PointerEventArgs e)
     {
-        var type = ToolMap.ToFigureType(armedTool);
-        if (type is null)
+        if (e.Button != 0)
         {
-            if (e.Button == 0)
-            {
-                selectedId = null;
-            }
-
             return;
         }
 
-        if (e.Button != 0)
+        selectedId = null;
+
+        var type = ToolMap.ToFigureType(armedTool);
+        if (type is null)
         {
             return;
         }
@@ -287,6 +295,7 @@
         {
             var figure = await Figures.InsertAsync(userId, type, box);
             figures.Add(figure);
+            selectedId = figure.Id;
             Notifier.Publish(userId, SyncMessage.Draw(figure, _sender));
         }
         catch (Exception)

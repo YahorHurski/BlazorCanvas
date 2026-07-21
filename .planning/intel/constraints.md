@@ -4,6 +4,13 @@ Extracted from the single ADR set `docs/DECISIONS.md`. These are the executable/
 artifacts: schema, contracts, formulas, and fixed constants. Where a constraint has a canonical
 form in the source, it is reproduced verbatim.
 
+> ⚠️ **v1.1 AMENDMENTS (2026-07-20).** Superseding facts (authority: `docs/DECISIONS.md`): canvas
+> **W=1472, H=828** and valid domain **`0..1472 × 0..828`** (was 1280×720 / `0..1280 × 0..720`) —
+> the formula is unchanged, only the constants; **selected-figure indicator = ~1px blue+white dashed
+> trace on the figure's own outline, topmost, `pointer-events:none`** (was red 2px); the former
+> **no-JS rule is retired** and policy is **permissive** (hand-authored JS/interop may be selected by
+> a later decision). No DB migration or runtime change in this documentation-only amendment.
+
 ---
 
 ## CONSTRAINT-schema — The canonical DDL
@@ -121,7 +128,7 @@ refuse.** A rejected draw fails **silently** — no message, no error.
 type: invariant / nfr
 source: docs/DECISIONS.md (D-36; operative spec for D-24 and D-29)
 
-`W = 1280`, `H = 720`. **Bounds are INCLUSIVE: valid domain `0..1280 × 0..720`.**
+`W = 1472`, `H = 828` *(v1.1; was 1280 × 720)*. **Bounds are INCLUSIVE: valid domain `0..1472 × 0..828`.**
 
 Move clamp:
 ```
@@ -240,9 +247,9 @@ source: docs/DECISIONS.md (D-58, D-38, D-55, D-19, D-43)
 |---|---|
 | Figure outline | black, **2px** |
 | Figure fill | **white** (makes the interior clickable — SVG does not register clicks inside an unfilled shape) |
-| Selected figure outline | **red, 2px** |
+| Selected figure indicator | **~1px blue+white dashed trace on the figure's own outline, topmost, `pointer-events:none`** *(v1.1; was red 2px)* |
 | Page background | **light grey** (the only thing that makes the borderless canvas edge visible) |
-| Canvas | white, **1280 × 720**, **no border** |
+| Canvas | white, **1472 × 828** *(v1.1; was 1280 × 720)*, **no border** |
 | Toolbar | **48px** tall, six buttons: `[pointer] [line] [rectangle] [circle] [triangle] [delete]`, logout right-aligned |
 
 - 2px (not 1px) is deliberate: the stroke is the only click target a line has (D-32 declined a
@@ -265,7 +272,7 @@ source: docs/DECISIONS.md (D-48, D-47, D-31)
 
 ## CONSTRAINT-env — Runtime and infrastructure
 type: nfr
-source: docs/DECISIONS.md (D-28, D-27, D-58, D-49, D-06)
+source: docs/DECISIONS.md (D-28, D-27, D-58, D-49, D-06, D-18, D-33, D-37, D-57)
 
 - **.NET 10** (current LTS). Verified: SDKs 8.0.418 / 9.0.311 / 10.0.301; Docker 29.1.3.
 - **Blazor Server (InteractiveServer)** + **static SSR** for `/login` and `POST /logout` — two
@@ -274,9 +281,14 @@ source: docs/DECISIONS.md (D-28, D-27, D-58, D-49, D-06)
   **`postgres`/`postgres`**, **named volume** (figures survive a container restart). Connection
   string in `appsettings.Development.json`. `docker-compose.yml` at repo root.
 - EF Core / Npgsql. Migrations applied automatically on startup.
-- **NO JAVASCRIPT ANYWHERE.** This is a hard constraint and it is load-bearing: it is what forced
-  D-33 (toolbar Delete instead of the Delete key), D-37 (no `setPointerCapture`), D-57 (no Escape
-  to abandon a draw), and D-18 (1:1 canvas instead of a scaling viewBox).
+- **Retired policy (v1.1):** the former application-authored JavaScript prohibition is not an
+  active constraint. JavaScript or interop is **permissive** only when a later decision elects to
+  use it; this documentation-only amendment adds neither JavaScript/interop nor a runtime,
+  gesture, or keyboard feature. D-06 remains SVG for its DOM hit-testing and lower-code benefit;
+  D-18 keeps fixed 1:1 sizing for MVP simplicity and required geometry; D-33 keeps toolbar Delete
+  for MVP simplicity and unambiguous behaviour; D-37 prevents a stranded drag; and D-57 keeps one
+  committed-draw rule with cancellation outside MVP scope. A Delete-key shortcut,
+  `setPointerCapture`, or Escape-to-cancel each requires its own later decision.
 - Project structure: one Blazor Web App project + one narrow test project.
 
 ---

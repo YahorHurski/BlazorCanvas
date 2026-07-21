@@ -3,13 +3,14 @@
 ## What This Is
 
 A Blazor Server web app (.NET 10) where a user logs in and draws simple geometric figures — line,
-rectangle, circle, triangle — on a fixed 1280 × 720 SVG canvas. Each user has exactly one canvas.
+rectangle, circle, triangle — on a fixed 1472 × 828 SVG canvas. Each user has exactly one canvas.
 Figures can be **drawn, dragged and deleted**, nothing else. Every operation persists to PostgreSQL
 immediately, and the user's other open tabs mirror the canvas live — a drag *glides* on the second
 monitor in real time.
 
-It is a deliberate learning project: MinVP, fiercely scoped, and **written without a single line of
-hand-authored JavaScript**.
+It is a deliberate learning project: MinVP and fiercely scoped. *(v1.0 was built without a single
+line of hand-authored JavaScript; that self-imposed rule was **removed in v1.1** — see Constraints —
+because the real motivation was always MVP simplicity, not JS avoidance.)*
 
 ## Core Value
 
@@ -31,7 +32,7 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 ### Validated
 
 - [x] **AUTH-01/02/03** — Login (unknown username self-registers), session cookie, logout — Validated in Phase BC-02: Login, Session & Logout (2026-07-15)
-- [x] **CANV-01/02** — The 1280 × 720 SVG canvas at (0, 48); the six-button toolbar — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16)
+- [x] **CANV-01/02** — The SVG canvas at (0, 48); the six-button toolbar — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16). *(Canvas was 1280 × 720 at v1.0; enlarged to 1472 × 828 in v1.1 — see CANV-03.)*
 - [x] **DATA-01** — One canvas per user; load `WHERE user_id ORDER BY id`; cross-user isolation — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16)
 - [x] **FIG-01** — Draw all four shapes: live preview, edge clamp, silent degenerate rejection, immediate insert — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16)
 - [x] **FIG-02/03/04** — Select, drag with edge clamping, and delete — Validated in Phase BC-04: Select, Drag & Delete (2026-07-16)
@@ -39,14 +40,25 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 - [x] **SYNC-01** — Live cross-tab sync with real-time drag glide — Validated in Phase BC-05: Live Cross-Tab Sync (2026-07-17)
 - [x] **DATA-02** — Per-operation persistence; no Save button; migrations at startup; two tables only — Validated in Phase BC-01: Database, Schema & Geometry Core (2026-07-15)
 - [x] **TEST-01** — The three mandated tests for the three *silent* failure modes — Validated in Phase BC-01: Database, Schema & Geometry Core (2026-07-15)
+- [x] **CANV-03** — Canvas enlarged to 1472 x 828; existing figures remain valid with no migration — Validated in Phase BC-06: Canvas Resize to 1472x828 (2026-07-21)
+- [x] **SEL-01** — Selection lifecycle: tools remain armed after drawing, one local selection is maintained, and the required deselect/Delete routes work — Validated in Phase BC-07: Selection Lifecycle & Restyle (2026-07-21)
+- [x] **SEL-02** — Selection indicator is a topmost blue-and-white dashed trace on the figure's own outline, replacing the red outline — Validated in Phase BC-07: Selection Lifecycle & Restyle (2026-07-21)
+- [x] **ARCH-01** — The former "no hand-authored JavaScript" constraint is removed and the motivations of D-06/D-18/D-33/D-37/D-57 are correctly recorded as MVP simplicity or their independent behavioural rationale — Validated in Phase BC-08: Architecture Constraint Cleanup (2026-07-21); permissive/doc-only, no code change
 
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
+**All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
 
 ### Active
 
-None. v1.0 shipped the complete v1 requirement set, and **this project has no v2** — it is a
-deliberately terminal MinVP. Anything not named in `docs/DECISIONS.md` is out until it is added
-there **by name**.
+**None — no milestone is currently open.** v1.1 shipped 2026-07-21 and its `REQUIREMENTS.md` is
+archived at `.planning/milestones/v1.1-REQUIREMENTS.md`. A fresh `REQUIREMENTS.md` is created when
+the next milestone is opened.
+
+**Next milestone (v1.2) is scoped but not started:** new figure types (ellipse, 5-point star,
+hexagon, pentagon, right-angle triangle L/R, four arrows) + a dynamic split-button toolbar. Full
+plan: `.planning/backlog/v1.2-figures-and-toolbar.md`. Its decision amendments happen when v1.2 is
+kicked off via `/gsd-new-milestone`. Anything not named in `docs/DECISIONS.md` is still out until
+added there **by name**.
 
 ### Out of Scope
 
@@ -62,8 +74,9 @@ there by name.
   as one unit and silently erase another tab's work.
 - **A Reload button** — D-10: F5 is the documented manual fallback for a stale tab.
 - **A canvas list / "new canvas" / naming / switching** — D-03: one user, one canvas.
-- **Application-authored JavaScript, in any form** — this is load-bearing, not aesthetic (see
-  Constraints). Framework and template JS that ships with Blazor is out of scope, not an exception.
+- ~~**Application-authored JavaScript, in any form**~~ — **no longer out of scope (v1.1).** The
+  no-JS rule was removed; hand-authored JS/interop is now allowed where it earns its place (see
+  Constraints). It is simply not *needed* for anything built so far.
 - **Locking, concurrency tokens, merge UI, CRDT/OT** — D-11: one human has one mouse. Two tabs cannot
   be edited at the same instant. "Which tab wins?" is answered by physics, not by code.
 
@@ -99,24 +112,18 @@ there by name.
 - **Two render modes**: static SSR for `/login` and `POST /logout`; InteractiveServer for the canvas
   at `/`. **An interactive Blazor component cannot set a cookie** — the HTTP response has already
   begun. This is not optional. (D-34, D-51)
-- **NO APPLICATION-AUTHORED JAVASCRIPT** — hard, and **load-bearing**. It is what forced D-18 (a 1:1
-  fixed canvas instead of a scaling `viewBox`), D-33 (Delete is a toolbar button — there is no
-  document-level key listener without JS), D-37 (`pointerleave` + a `Buttons` guard, because
-  `setPointerCapture` is JS) and D-57 (there is no way to abandon a draw — Escape would need a
-  document-level key listener). Each had a ~5–10 line JS alternative that was consciously rejected.
-
-  **Scope — read this before flagging a violation.** The rule bans JavaScript *we write* to solve an
-  application problem. It does not, and never did, ban JavaScript that Blazor itself ships:
-  - `_framework/blazor.web.js` is **mandatory** — the Blazor Server circuit *is* JavaScript, and
-    `App.razor` has referenced it since the first commit. A literal "no JS anywhere" was never
-    satisfiable at any commit in this project's history.
-  - `Components/Layout/ReconnectModal.razor{,.js,.css}` is **unmodified `dotnet new blazor`
-    scaffolding** (commit `8a5ab5e`), not our code.
-
-  The authoritative test is *"did we hand-write JS to solve an app problem?"* — **not** the presence
-  of a `*.js` file. A `find -name '*.js'` hit on framework or template output is not a violation.
-  (A BC-03 verification pass flagged the scaffolded `ReconnectModal.razor.js` under the literal
-  reading and was withdrawn; this wording exists so that does not recur.)
+- **~~NO APPLICATION-AUTHORED JAVASCRIPT~~ — REMOVED in v1.1.** This self-imposed rule is **no
+  longer in force.** It was never the real motivation behind the decisions it was credited with
+  (D-18 fixed canvas, D-33 toolbar Delete, D-37 `pointerleave` termination, D-57 no draw-abort) —
+  the real motivation was **MVP simplicity**, and each of those decisions has been re-worded to say
+  so (see `docs/DECISIONS.md`). Removal is **permissive**: it changed no code and pursues no new JS
+  today; it only re-opens future options (a Delete-key shortcut, `setPointerCapture` drag,
+  Escape-to-cancel), each of which would be its own decision. Hand-authored JS/interop is now
+  **allowed** where it earns its place.
+  - *(Historical note, still true: framework JS was never the target. `_framework/blazor.web.js` is
+    mandatory — the Blazor Server circuit **is** JavaScript — and `ReconnectModal.razor.js` is
+    unmodified `dotnet new blazor` scaffolding. A `*.js` file was never itself a "violation," and now
+    there is no violation to flag at all.)*
 - **Datastore**: **PostgreSQL 17**, local, via Docker Compose (**host port 5433** → container 5432,
   db `canvas`, `postgres`/`postgres`, named volume). Schema via EF Core migrations applied on startup.
   (D-01, D-27, D-42, D-58)
@@ -130,7 +137,9 @@ there by name.
 - **The coordinate constant**: page margin 0, toolbar exactly **48px**, canvas immediately below at
   document position (0, 48), **no CSS border on the SVG**. `canvasX = PageX`, `canvasY = PageY − 48`.
   Every coordinate in the app flows through this. (D-43, D-18)
-- **1280 × 720, inclusive bounds** — `0..1280 × 0..720`. **This number must never change**; stored
+- **1472 × 828, inclusive bounds** — `0..1472 × 0..828` *(v1.1; was 1280 × 720)*. **The size may
+  GROW but must never SHRINK** — enlarging keeps every stored figure valid (v1.1 did exactly this),
+  shrinking would orphan figures off the surface; stored
   coordinates are only meaningful relative to it. (D-19, D-36)
 - **Security: none, deliberately.** Passwords are stored and compared in **plaintext**. Acceptable
   ONLY because this is a throwaway learning project. Never real credentials; never deployed to the
@@ -156,7 +165,7 @@ re-ask, or "improve" them. Full text: `.planning/intel/decisions.md`; original: 
 ### Architecture and hosting
 | ID | Decision |
 |----|----------|
-| D-06 | **SVG, not HTML5 `<canvas>`.** Figures are C# objects rendered as SVG DOM elements — each a real element with its own click handler. Hit-testing and redraw come free. **No JavaScript.** |
+| D-06 | **SVG, not HTML5 `<canvas>`.** Figures are C# objects rendered as SVG DOM elements — each a real element with its own click handler. Hit-testing and redraw come free — **materially less code than `<canvas>`** *(v1.1: the "no JavaScript" perk phrasing was removed; the SVG choice stands on its own merits)*. |
 | D-07 | **Blazor Server (InteractiveServer), one project, no Web API.** Components hit EF Core directly. **There IS HTTP code to write** (login/logout) and the app runs **two render modes** — see D-34. Accepted cost: every pointer-move during a drag is a SignalR round-trip. *(as corrected by D-34)* |
 | D-27 | **Local PostgreSQL via Docker Compose.** Affects nothing about app design. |
 | D-28 | **.NET 10.** Verified present. No design consequences. |
@@ -179,14 +188,14 @@ re-ask, or "improve" them. Full text: `.planning/intel/decisions.md`; original: 
 | ID | Decision |
 |----|----------|
 | D-13 | **Circle draw-time geometry: centre + radius.** The press point is the centre; drag distance sets the radius. Always a true circle, never an oval. |
-| D-18 | **Fixed-size canvas, 1:1, no JavaScript.** One canvas unit = one CSS pixel, on every screen. Does not scale to the window. `canvasX = PageX`, `canvasY = PageY − toolbarHeight`. **LANDMINE: `PageX/PageY`, never `OffsetX/OffsetY`.** Do not centre the canvas with `margin: auto`. |
-| D-19 | **Canvas is 1280 × 720.** **This number must never change** — stored coordinates are only meaningful relative to it. |
+| D-18 | **Fixed-size canvas, 1:1** *(v1.1: chosen for MVP simplicity — "no JavaScript" motivation removed)*. One canvas unit = one CSS pixel, on every screen. Does not scale to the window. A fixed **aspect ratio** is still mandatory geometry (else circles render as ovals). `canvasX = PageX`, `canvasY = PageY − toolbarHeight`. **LANDMINE: `PageX/PageY`, never `OffsetX/OffsetY`.** Do not centre the canvas with `margin: auto`. |
+| D-19 | **Canvas is 1472 × 828** *(v1.1; was 1280 × 720)*. The size **may grow but must never shrink** — enlarging keeps every stored figure valid (v1.1 did this, no migration); shrinking orphans figures. Coordinates are only meaningful relative to it. |
 | D-20 | **Coordinates are integers.** Beyond tidiness: integers can be compared for exact equality in a database CHECK — so geometric invariants are *enforced by the schema*, not trusted in code. |
 | D-21 | **Triangle: derived from a drag, 2 points.** Apex top-centre, base along the bottom. Accepted cost: every triangle is isosceles and points upward. |
 | D-22 | **Geometry storage: four integers, always — and they ARE the bounding box. A circle is stored as its INSCRIBED SQUARE.** `r = (x2−x1)/2`, `cx = x1+r`, `cy = y1+r`. Drawing is unchanged (centre-out); **only storage is a square**. A move is a uniform translation, so `d` cancels **algebraically** — a circle dragged ten thousand times has a bit-identical radius. Enforced by `CHECK (type <> 'circle' OR (x2-x1 = y2-y1 AND x2 > x1 AND (x2-x1) % 2 = 0))`. **Why: generic clamping reads the raw columns — there is genuinely no type dispatch left in the move or the clamp.** *(REVISED — the original centre+rim encoding is REVERSED and dead)* |
 | D-24 | **Figures stop at the canvas edge** and **slide along it** rather than sticking. Clamp applied live on every pointer-move; the clamped position is what persists. **This decision is what forced the reversal of D-22.** |
 | D-29 | **Drawing also stops at the canvas edge.** One rule for the whole app: figures live entirely inside the canvas, always. |
-| D-36 | **The clamp — exact formula, INCLUSIVE bounds (`0..1280 × 0..720`).** Clamp the *delta*, then translate all four uniformly. **Per-axis independence is the point** — `dx'` never reads `y`, so a figure pinned to the right edge still slides up and down. **Ordering: clamp → render → broadcast.** The one genuinely type-specific rule: the circle draw-clamp `r = min(round(distance), cx, cy, W−cx, H−cy)` — known consequence: **pressing near an edge forces a tiny circle**. No canvas-bounds CHECKs in the DB. |
+| D-36 | **The clamp — exact formula, INCLUSIVE bounds (`0..1472 × 0..828`** *(v1.1; was `0..1280 × 0..720`)*`).** Clamp the *delta*, then translate all four uniformly. **Per-axis independence is the point** — `dx'` never reads `y`, so a figure pinned to the right edge still slides up and down. **Ordering: clamp → render → broadcast.** The one genuinely type-specific rule: the circle draw-clamp `r = min(round(distance), cx, cy, W−cx, H−cy)` — known consequence: **pressing near an edge forces a tiny circle**. No canvas-bounds CHECKs in the DB. |
 | D-41 | **Normalise on write — but NOT the same way for every shape.** Rectangle/triangle/circle → sort the axes independently. **LANDMINE — Line → swap the WHOLE POINT PAIR, never sort axes independently** ((0,100)→(100,0) would become the opposite diagonal). Consequence: `x1 ≤ x2` for every shape, but `y1 ≤ y2` **only** for rectangle/triangle/circle — which is why the clamp keeps its min/max bounding-box computation. |
 
 ### Interaction
@@ -195,14 +204,14 @@ re-ask, or "improve" them. Full text: `.planning/intel/decisions.md`; original: 
 | D-15 | **Click to select** (visible highlight). Selection is **local UI state only** — never persisted, never broadcast. *(Its Delete-key half is superseded by D-33.)* |
 | D-16 + D-30 + D-33 | **The toolbar is SIX buttons:** `[pointer] [line] [rectangle] [circle] [triangle] [delete]`. Click to arm; the armed button stays visibly active. Logout sits right-aligned in the same strip but is not one of the six (D-56). |
 | D-30 | **Selection is a pointer tool.** Pointer armed → click selects, drag moves. Shape armed → dragging always draws **even on top of existing figures**. Accepted cost: the app has modes. This is what makes it possible to draw a small circle *inside* a big rectangle. |
-| D-31 | **Selection appearance/behaviour.** Distinct coloured outline (red, per D-58). **Clicking empty canvas deselects. The pointer tool is armed on page load** — a stray first click cannot create a figure. Overlapping figures: a click hits the topmost = drawn last (free from the DOM). |
+| D-31 | **Selection appearance/behaviour** *(v1.1 amended)*. Indicator: a thin **blue + white dashed trace on the figure's own outline**, topmost, `pointer-events:none` (was a red outline). **Lifecycle:** tool **stays armed** after a draw; the drawn figure is **selected**; **at most one selected at a time**; deselect on canvas-outside-figure, arming a tool, or a toolbar press **except Delete**. **Pointer armed on page load.** Overlapping figures: a click hits the topmost = drawn last (free from the DOM). Selection is local-only, never broadcast. |
 | D-32 | **Two usability costs, accepted deliberately.** (1) The min-size guard was not raised to ~5px, so a stray 1–2px drag creates a tiny figure. Annoying, not dangerous. (2) **Lines have no widened hit area** — selecting one means clicking within ~a pixel of it (mitigated only by the 2px stroke). Additive; can be added any time. |
-| D-33 | **Delete is a toolbar button, not the Delete key.** In Blazor there is **no document-level key listener without JavaScript** (`@onkeydown` fires only on a focused element; clicking any toolbar button moves focus and the key would silently stop working). |
+| D-33 | **Delete is a toolbar button, not the Delete key** *(v1.1: motivation = MVP simplicity + unambiguous behaviour)*. A pure-Blazor `@onkeydown` fires only on a focused element, so a keyboard Delete breaks the moment focus moves to a toolbar button — the toolbar button avoids that. *(A Delete-key shortcut could now be added later; the no-JS reason is gone.)* |
 | D-35 | **Live preview while drawing.** The shape is visible under the cursor as you drag it out. The preview is **local only — never broadcast.** |
-| D-37 | **Drag termination without JavaScript.** `setPointerCapture` is JS, so: (1) **`pointerleave` on the drag surface commits the drag** at its current clamped position; (2) **the `Buttons` guard** — on any `pointermove` while dragging, if the primary button is already up, commit and end (the Alt-Tab case). Coherent because of D-36: by the time the cursor leaves, the figure is *already pinned at the edge* — nothing jumps. Put the handlers on a **page-spanning wrapper**, and use `pointerleave`, **not `pointerout`**. |
+| D-37 | **Drag termination** *(v1.1: exists to prevent an unexpected hanging/stranded drag, not to avoid JS)*. (1) **`pointerleave` on the drag surface commits the drag** at its current clamped position; (2) **the `Buttons` guard** — on any `pointermove` while dragging, if the primary button is already up, commit and end (the Alt-Tab case). Coherent because of D-36: by the time the cursor leaves, the figure is *already pinned at the edge* — nothing jumps. Put the handlers on a **page-spanning wrapper**, and use `pointerleave`, **not `pointerout`**. *(A `setPointerCapture` "keep grabbed anywhere" upgrade could now be added later.)* |
 | D-48 | **Click vs drag: a 3-pixel threshold.** < 3px → click (select; **no database write**). ≥ 3px → drag (persisted on drop). **Starting a drag also selects**, and it **stays selected after the drop** — so you can drag something and immediately delete it. |
 | D-50 | **The minimum-size guard is PER-TYPE.** Line → rejected only when both endpoints are identical (**horizontal and vertical lines are legal and must work**). Rectangle/triangle/circle → rejected when width **or** height is zero. Mirrors the CHECK constraints exactly, so **the app can never write a row the database would refuse.** A rejected draw **fails silently**. *(retracts D-23's "one shared guard")* |
-| D-57 | **Leaving the surface mid-DRAW commits the figure** at its clamped preview position. One consistent rule for both gestures. **Consequence: there is NO way to abandon a draw once started.** Change your mind → draw it, then delete it. |
+| D-57 | **Leaving the surface mid-DRAW commits the figure** at its clamped preview position. One consistent rule for both gestures. **Consequence: no way to abandon a draw once started** — abandoning is simply out of MVP scope *(v1.1: not "impossible because of no JS")*. Change your mind → draw it, then delete it. *(Escape-to-cancel could now be added later.)* |
 
 ### Persistence and sync
 | ID | Decision |
@@ -231,7 +240,7 @@ re-ask, or "improve" them. Full text: `.planning/intel/decisions.md`; original: 
 | D-38 | **White fill, black outline.** **The fill is load-bearing:** SVG does **not** register clicks inside an *unfilled* shape. Had figures been wireframes, D-30's entire rationale would have collapsed. Accepted cost: overlapping figures fully occlude each other. |
 | D-43 | **Page layout: a 48px toolbar, no canvas border.** Margin 0; toolbar exactly 48px at the top; canvas immediately below at document position (0, 48), anchored top-left. **No CSS border on the SVG** — a border shifts the interior by its own width, making the mapping `PageY − 48 − 1`: one more constant that can be silently forgotten. **`canvasX = PageX`, `canvasY = PageY − 48`.** |
 | D-55 | **Page background: light grey.** **Not cosmetic:** D-43 gives the canvas no border, so contrast with the page is the *only* thing that makes the canvas boundary visible. On a white default, "figures stop at the edge" would look like an inexplicable bug. |
-| D-58 | **The remaining constants.** Figure outline **black, 2px**; fill **white**; **selected outline red, 2px**; page background light grey; canvas white 1280×720, no border; toolbar 48px. 2px (not 1px) is deliberate — the stroke is the only click target a line has. **The Delete button is greyed out and unclickable when nothing is selected.** **Passwords must be non-empty.** Docker Compose: Postgres **17**, port **5432**, db **`canvas`**, **`postgres`/`postgres`**, **named volume**. *(Port amended in BC-01, user-approved: host **5433** → container 5432; a native `postgresql-x64-18` service owns 5432 on this machine. Intent untouched — see Constraints.)* |
+| D-58 | **The remaining constants.** Figure outline **black, 2px**; fill **white**; **selection indicator: ~1px blue+white dashed trace on the figure's own outline, topmost** *(v1.1; was red 2px)*; page background light grey; canvas white **1472×828** *(v1.1; was 1280×720)*, no border; toolbar 48px. 2px (not 1px) is deliberate for figure outlines — the stroke is the only click target a line has. **The Delete button is greyed out and unclickable when nothing is selected.** **Passwords must be non-empty.** Docker Compose: Postgres **17**, port **5432**, db **`canvas`**, **`postgres`/`postgres`**, **named volume**. *(Port amended in BC-01, user-approved: host **5433** → container 5432; a native `postgresql-x64-18` service owns 5432 on this machine. Intent untouched — see Constraints.)* |
 
 ### Dead versions — never re-introduce
 D-05 (all four shapes share one draw gesture) · D-07 ("no HTTP code to write") · D-11 ("idempotent
@@ -257,19 +266,61 @@ filter was never built.
 
 ## Current State
 
-**v1.0 shipped 2026-07-17.** The definition of done is met — verified both by an end-to-end code
+**v1.1 shipped 2026-07-21** (opened 2026-07-20 — a four-day milestone). Phases BC-06 and BC-07
+delivered the 1472 × 828 canvas and the local selection lifecycle with its topmost blue-and-white
+dashed trace. Phase BC-08 then reconciled the permissive JavaScript policy across the active
+decision, project, and derived-constraint records with no runtime change.
+
+- **Delivered:** 3 phases, 4 plans, 9 tasks; all 4 requirements (CANV-03, SEL-01, SEL-02, ARCH-01)
+  validated, all 3 phases verified `passed`.
+- **Footprint:** 11 source/test files changed (+106/−60) across 35 commits — deliberately small;
+  the bulk of the diff is planning and decision documentation.
+- **Gates:** `dotnet build BlazorCanvas.sln` clean (0 warnings, 0 errors); 405/405 tests passing.
+- **Human verification:** BC-07-02 approved all five selection UX criteria plus the two-tab
+  remote-delete concurrency edge on the running application.
+- **Archived:** `.planning/milestones/v1.1-ROADMAP.md`, `v1.1-REQUIREMENTS.md`, and the phase
+  artifacts under `v1.1-phases/`. No milestone audit was run (`/gsd-audit-milestone` skipped —
+  every signal it checks was already green at close).
+- **New tech debt:** none.
+
+**v1.0 shipped 2026-07-17.** The definition of done was met — verified both by an end-to-end code
 trace (v1.0 milestone audit) and by live human verification on two real screens (BC-05-05).
 
 - **Delivered:** 5 phases, 23 plans, all 15 v1 requirements validated.
 - **Codebase:** ~2,500 LOC application (C#/Razor/CSS) + ~2,000 LOC tests; 405 tests passing.
 - **Stack:** .NET 10 Blazor Server, EF Core/Npgsql, PostgreSQL 17 in Docker Compose, SVG rendering.
-  Zero hand-authored JavaScript — the constraint held for the entire build.
+  *(v1.0 shipped with zero hand-authored JavaScript; that self-imposed rule was retired in v1.1.)*
 - **Verification:** all 5 phases `passed`; cross-phase integration audited clean, with the
   highest-risk seam (DATA-03's zero-row-UPDATE → delete-broadcast handoff, built across two phases)
   confirmed correctly wired.
 - **Known tech debt:** ~11 low-severity items from `01-REVIEW.md` (WR-03…WR-07, WR-09, IN-01…IN-05).
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
-- **Next milestone:** none planned. This is a terminal MinVP by design.
+- **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
+
+**Next up: nothing is in flight.** **v1.2 is scoped** (new figures + dynamic toolbar) in
+`.planning/backlog/v1.2-figures-and-toolbar.md` and starts with `/gsd-new-milestone` when the user
+decides to open it. The "terminal MinVP" framing no longer applies — the project has resumed and is
+now between milestones.
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
 
 ---
-*Last updated: 2026-07-17 after v1.0 milestone — all 15 requirements validated, milestone audit passed.*
+*Last updated: 2026-07-21 after v1.1 milestone — 3 phases, 4 plans, 4/4 requirements validated;
+ARCH-01, CANV-03, SEL-01 and SEL-02 moved to Validated and the Active section closed out. No
+milestone is open; v1.2 remains scoped in the backlog.
+(Prev: 2026-07-21, Phase BC-08 validated ARCH-01.)*

@@ -2,7 +2,7 @@ namespace BlazorCanvas.Geometry;
 
 /// <summary>
 /// The move clamp (D-36). Clamps the movement DELTA, then translates all four coordinates
-/// uniformly. Bounds are INCLUSIVE: 0..1280 x 0..720. Never clamp X2/Y2 independently of
+/// uniformly. Bounds are INCLUSIVE: 0..1472 x 0..828. Never clamp X2/Y2 independently of
 /// X1/Y1 — that resizes the figure instead of moving it.
 /// </summary>
 public static class Movement

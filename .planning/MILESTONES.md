@@ -1,5 +1,18 @@
 # Milestones
 
+## v1.1 Canvas resize · selection UX · no-JS removal (Shipped: 2026-07-21)
+
+**Phases completed:** 3 phases, 4 plans, 9 tasks
+
+**Key accomplishments:**
+
+- Fixed-size SVG canvas enlarged to 1472 x 828 with CanvasBounds-driven rendering and re-pinned geometry edge tests.
+- Local draw selection and a topmost blue-and-white dashed SVG trace replace the previous red selection outline.
+- A human approved all five selection UX criteria and the two-tab remote-delete edge on the running application.
+- The derived runtime constraint now mirrors the ADR's permissive retired-JavaScript policy, with no application-surface change.
+
+---
+
 ## v1.0 MinVP (Shipped: 2026-07-17)
 
 **Phases completed:** 5 phases, 23 plans, 56 tasks

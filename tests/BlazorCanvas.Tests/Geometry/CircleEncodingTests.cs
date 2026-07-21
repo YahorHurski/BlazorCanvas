@@ -92,7 +92,7 @@ public class CircleEncodingTests
     [Fact]
     public void ClampDrawRadius_CappedByRightEdge()
     {
-        Assert.Equal(5, CircleEncoding.ClampDrawRadius(cx: 1275, cy: 360, distance: 50));
+        Assert.Equal(5, CircleEncoding.ClampDrawRadius(cx: 1467, cy: 360, distance: 50));
     }
 
     [Fact]
@@ -110,9 +110,9 @@ public class CircleEncodingTests
     public static IEnumerable<object[]> OffCanvasCentres()
     {
         yield return new object[] { -5, 360 };
-        yield return new object[] { 1285, 360 };
+        yield return new object[] { 1477, 360 };
         yield return new object[] { 640, -5 };
-        yield return new object[] { 640, 725 };
+        yield return new object[] { 640, 833 };
     }
 
     [Theory]

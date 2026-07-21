@@ -31,7 +31,7 @@ public class DrawGestureTests
     {
         var result = DrawGesture.Build(type, 1200, 600, 5000, 5000);
 
-        Assert.Equal(new Box(1200, 600, 1280, 720), result);
+        Assert.Equal(new Box(1200, 600, 1472, 828), result);
     }
 
     [Theory]
@@ -124,8 +124,8 @@ public class DrawGestureTests
         (0, 0),
         (5, 5),
         (640, 360),
-        (1275, 715),
-        (1280, 720),
+        (1467, 823),
+        (1472, 828),
         (5000, 5000),
     };
 
@@ -150,9 +150,9 @@ public class DrawGestureTests
 
         // A normalised line may legally have Y1 > Y2 (D-41) — use min/max, not raw X1/Y1.
         Assert.True(0 <= Math.Min(result.X1, result.X2));
-        Assert.True(Math.Max(result.X1, result.X2) <= 1280);
+        Assert.True(Math.Max(result.X1, result.X2) <= 1472);
         Assert.True(0 <= Math.Min(result.Y1, result.Y2));
-        Assert.True(Math.Max(result.Y1, result.Y2) <= 720);
+        Assert.True(Math.Max(result.Y1, result.Y2) <= 828);
 
         if (type == FigureType.Circle)
         {

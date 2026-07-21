@@ -1,46 +1,54 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: MinVP
-current_phase: 0
-status: Shipped — v1.0 archived and tagged
-stopped_at: Milestone v1.0 complete — all 23 plans executed, all 5 verifications passed, audit passed
-last_updated: "2026-07-17T02:15:00.000Z"
-last_activity: 2026-07-17
-last_activity_desc: Milestone v1.0 completed and archived
+milestone: v1.1
+milestone_name: Canvas resize · selection UX · no-JS removal
+status: Awaiting next milestone
+stopped_at: Completed BC-08-01-PLAN.md
+last_updated: "2026-07-21T13:43:55.013Z"
+last_activity: 2026-07-21
+last_activity_desc: Milestone v1.1 completed and archived
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 23
-  completed_plans: 23
+  total_phases: 3
+  completed_phases: 3
+  total_plans: 4
+  completed_plans: 4
   percent: 100
-current_phase_name: Live Cross-Tab Sync
+current_phase: 08
+current_phase_name: Architecture Constraint Cleanup
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-17 after v1.0)
+See: .planning/PROJECT.md (updated 2026-07-21 — after the v1.1 milestone)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
-**Current focus:** None — v1.0 shipped. BlazorCanvas is a terminal MinVP with no v2 requirement set;
-a future milestone would begin by amending `docs/DECISIONS.md`, not by planning phases.
+
+**Current focus:** None — **between milestones.** v1.1 shipped 2026-07-21, delivering all four
+approved changes: (1) canvas enlarged to **1472 × 828** (no migration); (2) **selection lifecycle**
+fix (tool stays armed, one selection at a time, toolbar-press deselects except Delete);
+(3) **selection restyle** to a blue+white dashed trace on the figure's own shape; (4) **no-JS rule
+removed** (motivations corrected on D-06/18/33/37/57). Archived under
+`.planning/milestones/v1.1-*`.
+
+**Next milestone v1.2** (new figures + dynamic toolbar) is scoped in
+`.planning/backlog/v1.2-figures-and-toolbar.md` but **not started** — it opens with
+`/gsd-new-milestone` when the user decides to begin.
 
 ## Current Position
 
-Phase: Milestone v1.0 complete (5/5 phases, 23/23 plans, 15/15 requirements)
+Phase: Milestone v1.1 complete
 Plan: —
-Status: Shipped — archived to `.planning/milestones/`, tagged `v1.0`
-Last activity: 2026-07-17 — Milestone v1.0 completed and archived
-Retrospective: `.planning/RETROSPECTIVE.md`
+Status: Awaiting next milestone
+Last activity: 2026-07-21 — Milestone v1.1 completed and archived
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 23
+- Total plans completed: 21
 - Average duration: —
 - Total execution time: —
 
@@ -52,6 +60,9 @@ Retrospective: `.planning/RETROSPECTIVE.md`
 | BC-03 | 5 | - | - |
 | BC-04 | 4 | - | - |
 | BC-05 | 5 | - | - |
+| BC-06 | 1 | - | - |
+| BC-07 | 2 | - | - |
+| BC-08 | 1 | - | - |
 
 **Recent Trend:**
 
@@ -81,6 +92,10 @@ Retrospective: `.planning/RETROSPECTIVE.md`
 | Phase BC-05 P02 | 35min | 2 tasks | 1 files |
 | Phase BC-05 P03 | 35min | 3 tasks | 1 files |
 | Phase BC-05 P04 | 35min | 3 tasks | 2 files |
+| Phase BC-06 P01 | 6min | 3 tasks | 8 files |
+| Phase BC-07 P01 | 15 min | 3 tasks | 4 files |
+| Phase BC-07 P02 | 1min | 1 tasks | 1 files |
+| Phase BC-08 P01 | 15min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -103,11 +118,22 @@ The ones most likely to be violated by accident:
   line); a zero-height rectangle is not.
 
 - **D-08:** plaintext passwords are **deliberate and locked**. Do not "fix" this.
-- **No JavaScript anywhere** — load-bearing, not aesthetic. It is what forced D-18, D-33, D-37, D-57.
-  Scope: JS *we* write. Framework JS (`blazor.web.js`, scaffolded `ReconnectModal.razor.js`) is **not**
-  a violation — see PROJECT.md Constraints.
+- ~~**No JavaScript anywhere**~~ — **REMOVED in v1.1.** Hand-authored JS/interop is now permitted;
+  the rule was never load-bearing (MVP simplicity was the real motivation; D-06/18/33/37/57 re-worded
+  in `docs/DECISIONS.md`). It changed no code and is simply not *needed* for anything built so far.
 
-**One amendment to the locked set, user-approved:** D-27/D-58's Docker port. The compose file
+**v1.1 amendments to the locked set (user-approved, 2026-07-20)** — recorded in `docs/DECISIONS.md`
+with inline `⚠️ v1.1` notes, mirrored in PROJECT.md + intel:
+
+- **D-19/D-36/D-58/D-18** — canvas **1280×720 → 1472×828** (may grow, never shrink; no migration).
+- **D-31/D-58** — selection **red outline → blue+white dashed trace on the figure's own outline,
+  topmost**, plus a lifecycle (tool stays armed; one selection at a time; deselect on
+  canvas-outside-figure / arm-tool / toolbar-except-Delete).
+
+- **D-06/D-18/D-33/D-37/D-57** — the **"no JavaScript" rule removed**; motivations corrected to MVP
+  simplicity. Permissive, no code change.
+
+**Earlier amendment (v1.0-era, user-approved):** D-27/D-58's Docker port. The compose file
 publishes **host 5433 → container 5432**; a native `postgresql-x64-18` service permanently occupies
 5432 on this machine. Recorded in `docs/DECISIONS.md` § "Docker Compose (D-27)" and PROJECT.md
 Constraints. Intent untouched.
@@ -115,6 +141,16 @@ Constraints. Intent untouched.
 **Per-phase implementation decisions (v1.0):** cleared at milestone close. The full log lives in each
 phase's `*-SUMMARY.md` under `key-decisions`, preserved in
 `.planning/milestones/v1.0-ROADMAP.md` and in git history.
+
+**Roadmap decisions (v1.1, this session):** CANV-03 is Phase 6 (independent — `CanvasBounds.cs` +
+`Home.razor` SVG + geometry/clamp tests). SEL-01 + SEL-02 are combined into Phase 7 (both touch the
+selection overlay in `Home.razor`; sequenced after Phase 6 to avoid overlapping edits to the same
+file). ARCH-01 is its own tiny Phase 8 (doc/constraint verification only — no code) since its work
+is unrelated in kind to the other two; likely a `/gsd-quick` candidate.
+
+- [Phase BC-06]: Bound the Home.razor SVG dimensions to CanvasBounds instead of repeating numeric literals, keeping rendered size and clamp size from drifting. — This preserves D-18/D-19/D-36 as one source of truth after the canvas resize.
+- [Phase BC-08]: Retired the application-authored JavaScript prohibition; future JavaScript or interop requires a separate affirmative decision.
+- [Phase BC-08]: Reconciled CONSTRAINT-env and the D-11 rejection rationale with the ADR while preserving MVP and behavioural decisions.
 
 ### Pending Todos
 
@@ -127,6 +163,7 @@ close (detail preserved in `.planning/milestones/v1.0-ROADMAP.md` and git histor
 
 - The **D-11/D-54 contradiction** — fixed at source in `docs/DECISIONS.md`; D-54's blanket mid-drag
   discard was built in BC-05-03 and re-confirmed by the v1.0 integration audit.
+
 - **`.planning/config.json`** — created (`granularity: standard`, `project_code: BC`).
 
 **Carried forward (not blocking):** ~11 low-severity items from `01-REVIEW.md` (WR-03…WR-07, WR-09,
@@ -143,13 +180,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-17T03:05:00.000Z
-Stopped at: Milestone v1.0 complete — all 23 plans executed, all 5 verifications passed
+Last session: 2026-07-21T13:10:39.477Z
+Stopped at: Completed BC-08-01-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
 
-- **Nothing required.** v1.0 shipped and is archived; BlazorCanvas is a terminal MinVP by design.
-- If a v1.1+ is ever wanted, it starts by amending `docs/DECISIONS.md` — adding the feature **by
-  name** — and only then `/gsd-new-milestone`. Anything not named in the ADR is out of scope.
-- Optional: triage the ~11 low-severity `01-REVIEW.md` items into a backlog.
+- Start the next milestone with /gsd-new-milestone

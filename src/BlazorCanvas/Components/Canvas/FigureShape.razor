@@ -32,9 +32,6 @@
     public bool Preview { get; set; }
 
     [Parameter]
-    public bool Selected { get; set; }
-
-    [Parameter]
     public bool Selectable { get; set; }
 
     [Parameter]
@@ -45,7 +42,7 @@
     // default) renders fully opaque.
     private string OpacityValue => Preview ? "0.7" : "1";
 
-    private string StrokeColor => Selected ? "#B91C1C" : "#000000";
+    private string StrokeColor => "#000000";
 
     private Task HandlePointerDown(PointerEventArgs e) =>
         Selectable ? OnPointerDown.InvokeAsync(e) : Task.CompletedTask;

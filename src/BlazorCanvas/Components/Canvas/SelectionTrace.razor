@@ -1,0 +1,36 @@
+@using BlazorCanvas.Geometry
+
+<g fill="none" pointer-events="none">
+    @switch (Type)
+    {
+        case FigureType.Line:
+            <line x1="@Box.X1" y1="@Box.Y1" x2="@Box.X2" y2="@Box.Y2" stroke="#FFFFFF" stroke-width="2" />
+            <line x1="@Box.X1" y1="@Box.Y1" x2="@Box.X2" y2="@Box.Y2" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
+            break;
+        case FigureType.Rectangle:
+            <rect x="@Box.X1" y="@Box.Y1" width="@Box.Width" height="@Box.Height" stroke="#FFFFFF" stroke-width="2" />
+            <rect x="@Box.X1" y="@Box.Y1" width="@Box.Width" height="@Box.Height" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
+            break;
+        case FigureType.Circle:
+            <circle cx="@CircleCentreRadius.Cx" cy="@CircleCentreRadius.Cy" r="@CircleCentreRadius.R" stroke="#FFFFFF" stroke-width="2" />
+            <circle cx="@CircleCentreRadius.Cx" cy="@CircleCentreRadius.Cy" r="@CircleCentreRadius.R" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
+            break;
+        case FigureType.Triangle:
+            <polygon points="@TrianglePoints" stroke="#FFFFFF" stroke-width="2" />
+            <polygon points="@TrianglePoints" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
+            break;
+    }
+</g>
+
+@code {
+    [Parameter, EditorRequired]
+    public FigureType Type { get; set; }
+
+    [Parameter, EditorRequired]
+    public Box Box { get; set; }
+
+    private (int Cx, int Cy, int R) CircleCentreRadius => CircleEncoding.ToCentreRadius(Box);
+
+    private string TrianglePoints => FormattableString.Invariant(
+        $"{(Box.X1 + Box.X2) / 2.0},{Box.Y1} {Box.X1},{Box.Y2} {Box.X2},{Box.Y2}");
+}

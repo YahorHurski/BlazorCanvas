@@ -3,7 +3,7 @@
 
 @{ var token = Antiforgery.GetAntiforgeryToken(); }
 
-<div class="toolbar">
+<div class="toolbar" @onclick="() => OnDeselect.InvokeAsync()">
     <div class="toolbar-left"></div>
 
     <button type="button" class="@ToolButtonClass(Tool.Pointer)" aria-pressed="@(Armed == Tool.Pointer)" aria-label="Pointer tool" @onclick="() => ArmedChanged.InvokeAsync(Tool.Pointer)">
@@ -36,7 +36,7 @@
         </svg>
     </button>
 
-    <button type="button" class="tool-button delete-button" disabled="@(!DeleteEnabled)" aria-label="Delete selected figure" @onclick="() => OnDelete.InvokeAsync()">
+    <button type="button" class="tool-button delete-button" disabled="@(!DeleteEnabled)" aria-label="Delete selected figure" @onclick="() => OnDelete.InvokeAsync()" @onclick:stopPropagation="true">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
             <path d="M4 6h12M8 6V4h4v2M6 6l1 10a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1l1-10" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
@@ -68,6 +68,9 @@
 
     [Parameter]
     public EventCallback OnDelete { get; set; }
+    [Parameter]
+    public EventCallback OnDeselect { get; set; }
+
 
     // Defaults to false. Do NOT hardcode the sixth button as permanently disabled: D-58's rule is
     // "greyed out and unclickable when nothing is selected", and this parameter is that rule. In

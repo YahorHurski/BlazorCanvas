@@ -4,17 +4,23 @@ Non-normative background from `docs/DECISIONS.md`: rationale, rejected alternati
 costs, and the failure modes the log explicitly warns about. Normative content lives in
 `decisions.md` / `constraints.md` / `requirements.md`.
 
+> ⚠️ **v1.1 AMENDMENTS (2026-07-20).** Superseded here (authority: `docs/DECISIONS.md`): **canvas
+> is 1472×828** (was 1280×720); **the "no JavaScript" constraint below is REMOVED** — it was never
+> the real motivation (MVP simplicity was), and D-06/18/33/37/57 are re-worded. Selection is now a
+> blue+white dashed trace with a lifecycle (see PROJECT.md). Keep reading the topic below for
+> *history*, but it no longer describes a live constraint.
+
 ---
 
 ## Topic: What is being built
 source: docs/DECISIONS.md (Summary section)
 
-A Blazor Server web app (.NET 10) where a user draws simple geometric figures on a fixed 1280×720
-SVG canvas. Each user has exactly one canvas. Figures can be **drawn, dragged and deleted** —
-nothing else.
+A Blazor Server web app (.NET 10) where a user draws simple geometric figures on a fixed **1472×828**
+*(v1.1; was 1280×720)* SVG canvas. Each user has exactly one canvas. Figures can be **drawn, dragged
+and deleted** — nothing else.
 
 Stack: Blazor Server (InteractiveServer) · SVG · PostgreSQL via EF Core/Npgsql · Docker Compose for
-local Postgres · **no JavaScript**.
+local Postgres. *(v1.1: the "no JavaScript" rule was removed.)*
 
 Guiding principle: **MinVP — the smallest thing that works. No speculative features.** The source
 states that every decision was made explicitly by the user; nothing was defaulted.
@@ -94,16 +100,24 @@ constraint plus a renderer that can only draw circles*. Weaker in principle, equ
 
 ---
 
-## Topic: The "no JavaScript" constraint is load-bearing, not aesthetic
+## Topic: The "no JavaScript" constraint — HISTORY (removed in v1.1)
 source: docs/DECISIONS.md (D-06, D-18, D-33, D-37, D-57)
 
-Four decisions exist *only* because JavaScript is excluded:
-- **D-18** — a 1:1 fixed canvas instead of a scaling `viewBox` (the scale factor exists only in the
-  browser; bridging it needs a JS shim).
-- **D-33** — Delete is a toolbar button, because there is no document-level key listener without JS.
-- **D-37** — drag termination via `pointerleave` + a `Buttons` guard, because `setPointerCapture`
-  is JS.
-- **D-57** — there is **no way to abandon a draw** (Escape would need a document-level key listener).
+> ⚠️ **v1.1: this constraint is REMOVED.** It was recorded as "load-bearing," but the real
+> motivation was **MVP simplicity**, not JS avoidance — the four decisions below were re-worded
+> accordingly in `docs/DECISIONS.md`. Removal is permissive (no code changed); it only re-opens the
+> parenthesised alternatives as *possible future* decisions. Kept below for history.
+
+Four decisions were once framed as existing *only* because JavaScript was excluded (now re-motivated):
+- **D-18** — a 1:1 fixed canvas rather than a scaling `viewBox` *(now: chosen for MVP simplicity; a
+  scaling letterbox is technically available but not pursued — the fixed size was enlarged to
+  1472×828 instead)*. The fixed **aspect ratio** remains mandatory geometry regardless (else ovals).
+- **D-33** — Delete is a toolbar button *(now: MVP simplicity + unambiguous; a Delete-key shortcut
+  could be added later)*.
+- **D-37** — drag termination via `pointerleave` + a `Buttons` guard *(now: to prevent a hanging
+  drag; a `setPointerCapture` upgrade could be added later)*.
+- **D-57** — no way to abandon a draw *(now: simply out of MVP scope; Escape-to-cancel could be added
+  later)*.
 
 Each of these had a "correct tool" alternative (~5–10 lines of JS) that was consciously rejected to
 keep the project JavaScript-free.

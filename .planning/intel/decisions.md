@@ -6,6 +6,16 @@ Classification: ADR / locked: true / precedence 0 (manifest-declared).
 **Every decision below is CURRENT.** Superseded/reversed text has been excluded — see
 "Superseded history" at the end for what was dropped and why, so it is never re-introduced.
 
+> ⚠️ **v1.1 AMENDMENTS (2026-07-20) — for the authoritative amended text, read `docs/DECISIONS.md`
+> (it carries inline `⚠️ v1.1` notes on each changed decision).** This mirror has been spot-corrected
+> for the concrete facts but is not the source of truth for v1.1. Summary of changes:
+> **D-19/D-36/D-58/D-18** — canvas **1280×720 → 1472×828** (may grow, never shrink; no migration).
+> **D-31/D-58** — selection indicator **red 2px outline → ~1px blue+white dashed trace on the
+> figure's own outline, topmost**; plus a selection **lifecycle** (tool stays armed after a draw,
+> one figure selected at a time, deselect on canvas-outside-figure / arm-tool / toolbar-except-Delete).
+> **D-06/D-18/D-33/D-37/D-57** — the **"no JavaScript" rule is REMOVED**; its motivations were
+> corrected to MVP simplicity. Next: **v1.2** (new figures + dynamic toolbar) in `.planning/backlog/`.
+
 **The three authoritative artifacts** (per the source document's own "READ THIS FIRST"):
 `THE SCHEMA` (canonical DDL), `D-22` (geometry storage), `D-53` (broadcast message contract).
 All three are extracted into `constraints.md`.
@@ -45,7 +55,8 @@ as a bounding box (D-22). Interaction and storage are deliberately different thi
 ### D-06 — Drawing surface: SVG, not HTML5 `<canvas>`
 source: docs/DECISIONS.md (D-06) · Locked
 Figures are C# objects rendered by Blazor as SVG DOM elements. Each figure is a real DOM
-element with its own click handler — hit-testing and redraw come free. **No JavaScript anywhere.**
+element with its own click handler — hit-testing and redraw come free (materially less code than
+`<canvas>`). *(v1.1: the "No JavaScript anywhere" perk phrasing was removed; SVG stands on its merits.)*
 
 ### D-07 — Hosting: Blazor Server (InteractiveServer)
 source: docs/DECISIONS.md (D-07, as corrected by D-34) · Locked
@@ -147,7 +158,7 @@ action, not a drawing tool.
 
 ## Canvas, coordinates, geometry
 
-### D-18 — Canvas: fixed size, 1:1, no JavaScript
+### D-18 — Canvas: fixed size, 1:1 *(v1.1: motivation = MVP simplicity, not "no JavaScript")*
 source: docs/DECISIONS.md (D-18) · Locked
 Fixed-size bordered rectangle. **One canvas unit = one CSS pixel, on every screen.** Does not
 scale to the window. A canvas that fills every window is mathematically incompatible with
@@ -160,10 +171,12 @@ event target, and every drag and every selection begins *on a figure*.
 Do **not** centre the canvas with `margin: auto` — reintroduces a window-width-dependent offset
 the server cannot know.
 
-### D-19 — Canvas dimensions: 1280 × 720
-source: docs/DECISIONS.md (D-19) · Locked
-1280 × 720 logical units = literal CSS pixels at 1:1. 16:9.
-**This number must never change** — stored coordinates are only meaningful relative to it.
+### D-19 — Canvas dimensions: 1472 × 828 *(v1.1; was 1280 × 720)*
+source: docs/DECISIONS.md (D-19) · Locked · ⚠️ amended v1.1
+1472 × 828 logical units = literal CSS pixels at 1:1. 16:9. Fits a maximized window on a 1920×1080
+monitor with no scroll.
+**The size may GROW but must never SHRINK** — enlarging keeps every stored figure valid (v1.1 did
+this, no migration); shrinking would orphan figures. Coordinates are only meaningful relative to it.
 
 ### D-20 — Coordinates are integers
 source: docs/DECISIONS.md (D-20) · Locked
@@ -237,8 +250,8 @@ canvas, always.** Nothing created out of bounds, nothing moved out of bounds.
 
 ### D-36 — The clamp: exact formula, bounds are inclusive
 source: docs/DECISIONS.md (D-36) · Locked — operative spec for D-24 and D-29
-`W = 1280`, `H = 720`. **Bounds are INCLUSIVE: the valid domain is `0..1280 × 0..720`.** SVG
-coordinates are geometric edge positions, not pixel cells — `x2 = 1280` means the right edge sits
+`W = 1472`, `H = 828` *(v1.1; was 1280 × 720)*. **Bounds are INCLUSIVE: the valid domain is `0..1472 × 0..828`.** SVG
+coordinates are geometric edge positions, not pixel cells — `x2 = 1472` means the right edge sits
 exactly *on* the boundary, which is the "stopped at the edge" state.
 
 Move clamp (bounding box = min/max of the four raw columns, for every shape, thanks to D-22):
@@ -292,18 +305,23 @@ The Delete *key* is gone — see D-33.
 
 ### D-33 — Delete is a toolbar button, not the Delete key
 source: docs/DECISIONS.md (D-33) · Locked — supersedes the Delete-key half of D-15
-In Blazor there is **no document-level key listener without JavaScript** (`@onkeydown` fires only
-on a focused element; clicking any toolbar button moves focus and the key would silently stop
-working). Resolution: select a figure, then click the **Delete button in the toolbar.**
+*(v1.1: motivation = MVP simplicity + unambiguous behaviour.)* A pure-Blazor `@onkeydown` fires only
+on a focused element; clicking any toolbar button moves focus and a keyboard Delete would silently
+stop working. Resolution: select a figure, then click the **Delete button in the toolbar.** *(A
+Delete-key shortcut could now be added later — the no-JS reason is gone.)*
 
-### D-31 — Selection appearance and behaviour
-source: docs/DECISIONS.md (D-31) · Locked (colour pinned by D-58: red, 2px)
-- A selected figure is drawn with a distinct coloured outline; all others keep the default style.
-- **Clicking empty canvas deselects.**
+### D-31 — Selection appearance and behaviour *(⚠️ v1.1 amended)*
+source: docs/DECISIONS.md (D-31) · Locked (v1.1 style pinned by D-58)
+- The selected figure is marked by a **~1px blue+white dashed trace on its own outline, drawn
+  topmost, `pointer-events:none`** *(v1.1; was a red 2px outline)* — visible even behind larger figures.
+- **At most one figure selected at a time.** **Drawing selects the drawn figure** and **the tool
+  stays armed**.
+- **Deselect on:** pressing the canvas outside the selected figure; arming any tool; pressing the
+  toolbar **except Delete**. Pressing a figure selects that one.
 - **The pointer tool is armed on page load** — a stray first click cannot create a figure.
 - **Overlapping figures:** a click hits the topmost, which in SVG is whichever was drawn last
   (free from the DOM; no code).
-- Selection is local UI state only, never broadcast.
+- Selection is local UI state only, never broadcast (a synced figure is not selected in the receiver).
 
 ### D-35 — Live preview while drawing
 source: docs/DECISIONS.md (D-35) · Locked
@@ -318,9 +336,10 @@ write**). Move **≥ 3 px** → **drag** (moves, persisted on drop).
 drag something and immediately delete it. Without the threshold, a 1-px hand-wobble fires a
 useless UPDATE and nudges the figure.
 
-### D-37 — Drag termination without JavaScript
+### D-37 — Drag termination *(v1.1: prevents a hanging drag, not a no-JS workaround)*
 source: docs/DECISIONS.md (D-37) · Locked
-`setPointerCapture` is JavaScript, so it is out. Two markup-only rules:
+Prevents a drag that never ends (a release outside the window would strand the figure unpersisted).
+Two markup-only rules *(a `setPointerCapture` "keep grabbed anywhere" upgrade could now be added later)*:
 1. **`pointerleave` on the drag surface commits the drag** at its current clamped position.
 2. **The `Buttons` guard:** on any `pointermove` while dragging, if `PointerEventArgs.Buttons`
    shows the primary button is already up, commit and end the drag (catches the Alt-Tab case).
@@ -553,10 +572,11 @@ source: docs/DECISIONS.md (D-43) · Locked — **the constant every coordinate i
 Coordinate mapping: `canvasX = PageX`, `canvasY = PageY − 48`.
 Reminder: `PageX`/`PageY`, **never** `OffsetX`/`OffsetY`.
 
-### D-58 — The remaining constants
+### D-58 — The remaining constants *(⚠️ v1.1 amended)*
 source: docs/DECISIONS.md (D-58) · Locked — full table in `constraints.md`
-Figure outline **black, 2px**; fill **white**; **selected** figure outline **red, 2px**; page
-background light grey; canvas white 1280×720, no border; toolbar 48px.
+Figure outline **black, 2px**; fill **white**; **selected** figure indicator **~1px blue+white
+dashed trace on the figure's own outline, topmost** *(v1.1; was red 2px)*; page background light
+grey; canvas white **1472×828** *(v1.1; was 1280×720)*, no border; toolbar 48px.
 A **2px** stroke (not 1px) is deliberate — D-32 declined the widened hit-area, so the stroke itself
 is the only click target a line has.
 Behaviour: **the Delete button is greyed out and unclickable when nothing is selected.**

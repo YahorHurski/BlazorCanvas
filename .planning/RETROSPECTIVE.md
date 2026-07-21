@@ -97,6 +97,98 @@
 
 ---
 
+## Milestone: v1.1 — Canvas resize · selection UX · no-JS removal
+
+**Shipped:** 2026-07-21
+**Phases:** 3 | **Plans:** 4 | **Tasks:** 9 | **Commits:** 35 since the v1.0 tag | **Elapsed:** ~1 day of execution (roadmap 2026-07-20 → shipped 2026-07-21)
+
+### What Was Built
+
+- **The canvas enlarged to 1472 × 828** with no migration — `CanvasBounds` constants changed, the
+  `Home.razor` SVG bound to them, and the geometry edge tests re-pinned to the new inclusive bounds.
+  Every figure stored under 1280 × 720 kept its exact position.
+- **A real selection lifecycle** — the armed tool survives a draw, the just-drawn figure is selected,
+  at most one figure is ever selected, and deselect fires on canvas-outside-figure, arming a tool, or
+  any toolbar press except Delete.
+- **A topmost blue+white dashed `SelectionTrace`** on the figure's own outline (`pointer-events:none`),
+  replacing the red 2px outline — visible even when the selected figure sits behind a later, larger one.
+- **The "no hand-authored JavaScript" rule formally retired** across the ADR, the project summary, and
+  the derived constraint, with D-06/D-18/D-33/D-37/D-57 re-motivated to MVP simplicity or their own
+  independent behavioural rationale. Permissive only: no new JS, no runtime change.
+- **Total source footprint: 11 files, +106/−60.** 405/405 tests still passing, unchanged in count.
+
+### What Worked
+
+- **Treating a documentation-only change as a real phase with a real gate.** BC-08 could have been a
+  quick edit. Run as a phase, its verifier found that `.planning/intel/constraints.md` — the *derived*
+  constraint the agents actually read — still asserted the retired rule while the authoritative ADR
+  said it was gone. A "quick edit" to `docs/DECISIONS.md` alone would have left the contradiction live.
+- **Verification that proves a negative.** BC-08's gate checked that the implementation commit touched
+  *only* doc paths (`git diff --name-only`), plus a clean build and full test run. "We changed no
+  behaviour" became a checked claim rather than an assurance.
+- **Human verification as its own plan.** Splitting BC-07 into 07-01 (build) and 07-02 (a human
+  confirms the five criteria plus the two-tab remote-delete edge on the running app) kept the
+  build plan honest and gave the milestone a genuine human sign-off instead of an inferred one.
+- **The v1.0 geometry core absorbed a canvas resize as a constant change.** Because clamping and
+  normalisation were pure functions over `CanvasBounds`, enlarging the surface touched constants and
+  test expectations — not logic. The v1.0 investment paid out exactly where it was supposed to.
+
+### What Was Inefficient
+
+- **v1.0's "records drift silently" lesson recurred — in new files, undetected for the whole
+  milestone.** ROADMAP.md's `## What's Next` still read *"v1.1 is active — none has started yet.
+  Suggested next step: `/gsd-plan-phase 6`"* after all three phases had shipped and been verified.
+  STATE.md's body again contradicted its own frontmatter (`Current focus: … execution complete; phase
+  verification pending` while the frontmatter said `completed`) — the identical defect class flagged
+  at v1.0 close, in a different file.
+- **Stale prose actively misrouted the operator.** The dead `/gsd-plan-phase 6` suggestion above was
+  followed at milestone close and had to be stopped by the closed-phase gate. Stale *status* is
+  misleading; stale *instructions* cause wrong actions.
+- **No milestone audit.** `/gsd-audit-milestone` was never run for v1.1, so the close rested on
+  per-phase verifications plus the open-artifact audit rather than a cross-phase integration check.
+  Defensible at this size — all four requirements map 1:1 to a single phase and the source diff is 11
+  files — but it is a gate that was skipped, not a gate that passed.
+- **The BC-08 plan needed three revision passes before it was executable** (external policy scope,
+  regression-gate hardening, plan finalisation) — more churn than a 2-task documentation plan should
+  need, suggesting the phase's real scope (reconciling three records that disagreed) was not what the
+  roadmap described (deleting a constraint).
+
+### Patterns Established
+
+- **A documentation phase earns a behavioural gate.** Build + full test suite + a path-scope assertion
+  that the commit touched no source files. It turns "doc-only" from a claim into a verified property.
+- **Reconcile the derived layer, not just the source of truth.** The project keeps an authoritative ADR
+  (`docs/DECISIONS.md`) *and* a derived constraint file agents actually consume. Amending only the
+  authority leaves the derivation lying. Changes to a locked decision must land in both.
+- **Retire a rule permissively and say so explicitly.** ARCH-01 removed a constraint while changing
+  zero behaviour, and every record says exactly that — re-opened options (Delete-key, `setPointerCapture`,
+  Escape-to-cancel) are each named as a *future* decision, so nobody reads permission as intent.
+
+### Key Lessons
+
+1. **Fixing one instance of a defect class does not fix the class.** v1.0's close found records drifting
+   from reality and fixed those records. v1.1 reproduced the same failure in different files, because
+   what shipped was corrections — not a check. Record drift needs something mechanical.
+2. **Forward-looking prose is the most dangerous thing to leave stale.** A stale status line misinforms;
+   a stale "next step: run X" issues an instruction that will be followed. Sections that tell the
+   operator what to do next must be rewritten at every close, or not written at all.
+3. **The derived layer is where policy actually lives.** The retired-JS rule survived in
+   `.planning/intel/constraints.md` after the ADR had retired it — and that file is what gets read
+   during planning. Authority and derivation drift apart silently.
+4. **Skipping a gate is a decision worth recording.** The v1.1 audit was skipped for defensible
+   reasons; those reasons belong in the record, so a future reader can tell "audited clean" from
+   "never audited".
+
+### Cost Observations
+
+- Model mix: executor and verifier agents resolved to `sonnet`; orchestration and planning ran on Opus.
+- Sessions: not tracked.
+- Notable: parallelism again unexercised — 3 of 4 plans were single-plan waves, and
+  `branching_strategy: none` keeps all work on one branch. Wave machinery cost nothing and bought
+  nothing at this milestone's size.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -104,14 +196,23 @@
 | Milestone | Phases | Plans | Key Change |
 |-----------|--------|-------|------------|
 | v1.0 | 5 | 23 | Baseline — ADR-first planning from 58 locked decisions; gap-closure plans introduced after BC-01 verification |
+| v1.1 | 3 | 4 | Documentation-only phase given a full verification gate; human verification split into its own plan; milestone audit skipped |
 
 ### Cumulative Quality
 
 | Milestone | Tests | App LOC | Test LOC | Requirements |
 |-----------|-------|---------|----------|--------------|
 | v1.0 | 405 | ~2,500 | ~2,000 | 15/15 validated |
+| v1.1 | 405 | ~2,500 | ~2,000 | 4/4 validated (19/19 cumulative) |
 
 ### Top Lessons (Verified Across Milestones)
 
-*Single milestone so far — lessons above are unverified against a second data point. Revisit when a
-future milestone exists to cross-validate.*
+1. **Records drift silently; code drifts loudly.** — *Confirmed in v1.0 and v1.1.* Found at both closes,
+   in different files each time, caught by no test either time. This is now the project's most
+   reproducible failure mode. v1.0 called it a lesson; v1.1 proves it needs a mechanism, not a reminder.
+2. **Writing the hardest thing into the definition of done prevents its deferral.** — *v1.0 (live sync);
+   partially re-confirmed in v1.1*, where human verification was made a plan rather than a hope, and
+   duly happened.
+3. **Investment in pure, framework-free primitives compounds.** — *v1.0 built the geometry core; v1.1
+   resized the entire canvas by changing constants.* No logic changed because there was no logic
+   outside `Geometry/` to change.
