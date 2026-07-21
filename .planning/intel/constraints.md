@@ -7,8 +7,9 @@ form in the source, it is reproduced verbatim.
 > ⚠️ **v1.1 AMENDMENTS (2026-07-20).** Superseding facts (authority: `docs/DECISIONS.md`): canvas
 > **W=1472, H=828** and valid domain **`0..1472 × 0..828`** (was 1280×720 / `0..1280 × 0..720`) —
 > the formula is unchanged, only the constants; **selected-figure indicator = ~1px blue+white dashed
-> trace on the figure's own outline, topmost, `pointer-events:none`** (was red 2px); **the no-JS
-> rule is removed** (hand-authored JS permitted). No DB migration.
+> trace on the figure's own outline, topmost, `pointer-events:none`** (was red 2px); the former
+> **no-JS rule is retired** and policy is **permissive** (hand-authored JS/interop may be selected by
+> a later decision). No DB migration or runtime change in this documentation-only amendment.
 
 ---
 
@@ -271,7 +272,7 @@ source: docs/DECISIONS.md (D-48, D-47, D-31)
 
 ## CONSTRAINT-env — Runtime and infrastructure
 type: nfr
-source: docs/DECISIONS.md (D-28, D-27, D-58, D-49, D-06)
+source: docs/DECISIONS.md (D-28, D-27, D-58, D-49, D-06, D-18, D-33, D-37, D-57)
 
 - **.NET 10** (current LTS). Verified: SDKs 8.0.418 / 9.0.311 / 10.0.301; Docker 29.1.3.
 - **Blazor Server (InteractiveServer)** + **static SSR** for `/login` and `POST /logout` — two
@@ -280,9 +281,14 @@ source: docs/DECISIONS.md (D-28, D-27, D-58, D-49, D-06)
   **`postgres`/`postgres`**, **named volume** (figures survive a container restart). Connection
   string in `appsettings.Development.json`. `docker-compose.yml` at repo root.
 - EF Core / Npgsql. Migrations applied automatically on startup.
-- **NO JAVASCRIPT ANYWHERE.** This is a hard constraint and it is load-bearing: it is what forced
-  D-33 (toolbar Delete instead of the Delete key), D-37 (no `setPointerCapture`), D-57 (no Escape
-  to abandon a draw), and D-18 (1:1 canvas instead of a scaling viewBox).
+- **Retired policy (v1.1):** the former application-authored JavaScript prohibition is not an
+  active constraint. JavaScript or interop is **permissive** only when a later decision elects to
+  use it; this documentation-only amendment adds neither JavaScript/interop nor a runtime,
+  gesture, or keyboard feature. D-06 remains SVG for its DOM hit-testing and lower-code benefit;
+  D-18 keeps fixed 1:1 sizing for MVP simplicity and required geometry; D-33 keeps toolbar Delete
+  for MVP simplicity and unambiguous behaviour; D-37 prevents a stranded drag; and D-57 keeps one
+  committed-draw rule with cancellation outside MVP scope. A Delete-key shortcut,
+  `setPointerCapture`, or Escape-to-cancel each requires its own later decision.
 - Project structure: one Blazor Web App project + one narrow test project.
 
 ---

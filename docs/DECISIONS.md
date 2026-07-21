@@ -337,8 +337,9 @@ to the database would be ~100× write amplification and a violation of D-09.
 - **A hand-rolled SignalR hub** — Blazor Server circuits *already are* SignalR
   connections. A hub adds a parallel connection and group management for zero gain.
 - **Postgres `LISTEN`/`NOTIFY`** — solves a multi-server problem this app will never have.
-- **Client-side tab sync** (`BroadcastChannel`, `localStorage` events) — requires JS
-  interop, which D-06 rules out.
+- **Client-side tab sync** (`BroadcastChannel`, `localStorage` events) — would add JS
+  interop and a second synchronization path for no benefit; Blazor Server's existing circuit
+  channel already supplies the required live glide.
 - **Canvas locking / single-tab enforcement** — unnecessary once conflicts are impossible.
 - **Reconnect-detection plumbing (`CircuitHandler`)** — a real solution to the stale-tab
   case, but D-10's row-count guard plus F5 covers it at a fraction of the cost.
