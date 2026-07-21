@@ -5,16 +5,16 @@ milestone_name: Storage Model Rewrite
 current_phase: 09
 current_phase_name: shape-registry-validation-gateway
 status: executing
-stopped_at: Plan 09-01 completed — typed geometry, shape registry, and GeometryJson helpers committed
-last_updated: "2026-07-21T21:29:29.000Z"
+stopped_at: Completed BC-09-02-PLAN.md
+last_updated: "2026-07-21T21:37:08.016Z"
 last_activity: 2026-07-21
-last_activity_desc: Phase BC-09 execution started
+last_activity_desc: "Plan 09-01 completed: typed shape model, ordinal registry, GeometryJson helpers"
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 6
-  completed_plans: 1
-  percent: 17
+  completed_plans: 2
+  percent: 0
 ---
 
 # Project State
@@ -44,12 +44,12 @@ archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic to
 ## Current Position
 
 Phase: BC-09 (shape-registry-validation-gateway) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Executing Phase BC-09
 Last activity: 2026-07-21 — Plan 09-01 completed: typed shape model, ordinal registry, GeometryJson helpers
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███░░░░░░░] 33%
 
 ## Performance Metrics
 
@@ -109,6 +109,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase BC-07 P02 | 1min | 1 tasks | 1 files |
 | Phase BC-08 P01 | 15min | 2 tasks | 3 files |
 | Phase BC-09 P01 | 6min | 3 tasks | 14 files |
+| Phase BC-09 P02 | 4min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -206,6 +207,9 @@ removed and the full rebased suite green again. Phase 12 (Regression Verificatio
 deliberately last — the milestone's real human acceptance gate, and it must not be skipped or folded
 into an earlier phase's automated tests.
 
+- [Phase ?]: GeneratedRegex supplies one cached, anchored fixed-width colour allowlist shared by both style colours.
+- [Phase ?]: Style JSON is emitted only from a sanitised FigureStyle using four fixed literal keys and order.
+
 ### Pending Todos
 
 None yet.
@@ -234,8 +238,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T19:20:00.000Z
-Stopped at: ROADMAP.md created for v1.11 (Phases 9–12); REQUIREMENTS.md traceability populated —
+Last session: 2026-07-21T21:37:08.004Z
+Stopped at: Completed BC-09-02-PLAN.md
 22/22 requirements mapped, 100% coverage, no orphans, no duplicates.
 Resume file: None
 
