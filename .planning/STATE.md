@@ -5,16 +5,16 @@ milestone_name: Canvas resize · selection UX · no-JS removal
 current_phase: 8
 current_phase_name: Architecture Constraint Cleanup
 status: executing
-stopped_at: Completed BC-07-02-PLAN.md
-last_updated: "2026-07-21T13:01:49.248Z"
+stopped_at: Completed BC-08-01-PLAN.md
+last_updated: "2026-07-21T13:10:39.492Z"
 last_activity: 2026-07-21
 last_activity_desc: Phase BC-07 complete, transitioned to Phase 8
 progress:
   total_phases: 3
-  completed_phases: 2
-  total_plans: 3
-  completed_plans: 3
-  percent: 67
+  completed_phases: 3
+  total_plans: 4
+  completed_plans: 4
+  percent: 100
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-07-20 — v1.1 requirements + amended co
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
-**Current focus:** Phase BC-07 — Selection Lifecycle & Restyle
+**Current focus:** Phase BC-08 — Architecture Constraint Cleanup (execution complete; phase verification pending)
 `docs/DECISIONS.md` (see PROJECT.md → *Requirements → Active*): (1) canvas enlarged to **1472 × 828**;
 (2) **selection lifecycle** fix (tool stays armed, one selection at a time, toolbar-press deselects
 except Delete); (3) **selection restyle** to a blue+white dashed trace on the figure's own shape;
@@ -36,9 +36,9 @@ scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 ## Current Position
 
 Phase: 8 — Architecture Constraint Cleanup
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-21 — Phase BC-07 complete, transitioned to Phase 8
+Plan: 01 complete
+Status: Awaiting phase verification
+Last activity: 2026-07-21 — BC-08-01 documentation cleanup executed; build and full test suite passed
 
 Progress: [██████████] 100%
 
@@ -92,6 +92,7 @@ Progress: [██████████] 100%
 | Phase BC-06 P01 | 6min | 3 tasks | 8 files |
 | Phase BC-07 P01 | 15 min | 3 tasks | 4 files |
 | Phase BC-07 P02 | 1min | 1 tasks | 1 files |
+| Phase BC-08 P01 | 15min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -145,6 +146,8 @@ file). ARCH-01 is its own tiny Phase 8 (doc/constraint verification only — no 
 is unrelated in kind to the other two; likely a `/gsd-quick` candidate.
 
 - [Phase BC-06]: Bound the Home.razor SVG dimensions to CanvasBounds instead of repeating numeric literals, keeping rendered size and clamp size from drifting. — This preserves D-18/D-19/D-36 as one source of truth after the canvas resize.
+- [Phase BC-08]: Retired the application-authored JavaScript prohibition; future JavaScript or interop requires a separate affirmative decision.
+- [Phase BC-08]: Reconciled CONSTRAINT-env and the D-11 rejection rationale with the ADR while preserving MVP and behavioural decisions.
 
 ### Pending Todos
 
@@ -174,8 +177,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T00:12:06.239Z
-Stopped at: Completed BC-07-02-PLAN.md
+Last session: 2026-07-21T13:10:39.477Z
+Stopped at: Completed BC-08-01-PLAN.md
 Resume file: None
 
 ## Operator Next Steps

@@ -151,7 +151,9 @@ once the v1.1 code changes have landed)
   3. `dotnet build BlazorCanvas.sln` and `dotnet test BlazorCanvas.sln` both pass unchanged from
      before this phase — proving the removal was **permissive-only**, with no new JavaScript and
      no runtime behavior change shipped this milestone.
-**Plans**: TBD
+**Plans**: 1/1 plans executed
+
+- [x] 08-01-PLAN.md
 
 ## Progress
 
@@ -167,7 +169,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 5. Live Cross-Tab Sync | v1.0 | 5/5 | Complete | 2026-07-17 |
 | 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete    | 2026-07-21 |
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete    | 2026-07-21 |
-| 8. Architecture Constraint Cleanup | v1.1 | 0/TBD | Not started | - |
+| 8. Architecture Constraint Cleanup | v1.1 | 1/1 | In Progress|  |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 0/3 phases complete — roadmap created 2026-07-20; requirements CANV-03, SEL-01, SEL-02,

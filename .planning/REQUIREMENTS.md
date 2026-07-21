@@ -32,7 +32,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (Traceab
 
 ### Architecture
 
-- [ ] **ARCH-01**: The **"no hand-authored JavaScript" constraint is removed** from the project, and
+- [x] **ARCH-01**: The **"no hand-authored JavaScript" constraint is removed** from the project, and
   the motivations of D-06/D-18/D-33/D-37/D-57 are corrected to **MVP simplicity**. Doc/constraint
   change only — **no runtime behavior change and no new JS is written this milestone**; it re-opens
   future options (Delete-key shortcut, `setPointerCapture` drag, Escape-to-cancel), each its own
@@ -74,7 +74,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | CANV-03 | Phase 6 | Complete |
 | SEL-01 | Phase 7 | Complete |
 | SEL-02 | Phase 7 | Complete |
-| ARCH-01 | Phase 8 | Pending |
+| ARCH-01 | Phase 8 | Complete |
 
 **Coverage:**
 
