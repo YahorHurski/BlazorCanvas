@@ -5,15 +5,15 @@ milestone_name: Storage Model Rewrite
 current_phase: 09
 current_phase_name: shape-registry-validation-gateway
 status: executing
-stopped_at: Completed BC-09-03-PLAN.md
-last_updated: "2026-07-21T22:32:24.389Z"
+stopped_at: Completed BC-09-04-PLAN.md
+last_updated: "2026-07-21T22:39:43.456Z"
 last_activity: 2026-07-21
 last_activity_desc: "Plan 09-01 completed: typed shape model, ordinal registry, GeometryJson helpers"
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 6
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -44,12 +44,12 @@ archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic to
 ## Current Position
 
 Phase: BC-09 (shape-registry-validation-gateway) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Executing Phase BC-09
 Last activity: 2026-07-21 — Plan 09-01 completed: typed shape model, ordinal registry, GeometryJson helpers
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
-Progress: [█████░░░░░] 50%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
@@ -111,6 +111,7 @@ Progress: [█████░░░░░] 50%
 | Phase BC-09 P01 | 6min | 3 tasks | 14 files |
 | Phase BC-09 P02 | 4min | 2 tasks | 3 files |
 | Phase BC-09 P03 | 53min | 3 tasks | 3 files |
+| Phase BC-09 P04 | 25min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -212,6 +213,9 @@ into an earlier phase's automated tests.
 - [Phase ?]: Style JSON is emitted only from a sanitised FigureStyle using four fixed literal keys and order.
 - [Phase ?]: Captured and checksum-sealed a redacted pre-rewrite fixture; Phase 10 must consume it rather than recapture it.
 - [Phase ?]: Fixture ids 3860-3867 preserve migration geometry edge cases and z-order.
+- [Phase ?]: Line and triangle preserve ordered local vertices instead of canonicalising them.
+- [Phase ?]: Circle geometry uses the top-left of its bounding square as local origin; its centre is (R, R).
+- [Phase ?]: DefaultShapes returns a fresh registry to isolate test-only registrations.
 
 ### Pending Todos
 
@@ -241,8 +245,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T22:32:24.375Z
-Stopped at: Completed BC-09-03-PLAN.md
+Last session: 2026-07-21T22:39:43.440Z
+Stopped at: Completed BC-09-04-PLAN.md
 22/22 requirements mapped, 100% coverage, no orphans, no duplicates.
 Resume file: None
 

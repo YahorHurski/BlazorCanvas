@@ -60,15 +60,15 @@ for a feature, and the user sees no difference at all.
 
 ### Shape registry
 
-- [ ] **SHAPE-01**: All type-specific logic — parse, validate, drawability, bounds, draw-gesture —
+- [x] **SHAPE-01**: All type-specific logic — parse, validate, drawability, bounds, draw-gesture —
       is reached through a single `IShapeDefinition` abstraction instead of being spread across
       separate parse, normalisation, guard, gesture and render sites
 
-- [ ] **SHAPE-02**: Line, rectangle, circle and triangle are each served by a registry
+- [x] **SHAPE-02**: Line, rectangle, circle and triangle are each served by a registry
       implementation, with line and triangle stored as point lists so vertex editing later needs no
       data conversion
 
-- [ ] **SHAPE-03**: Adding a figure type requires only one C# class plus one `figure_types` row —
+- [x] **SHAPE-03**: Adding a figure type requires only one C# class plus one `figure_types` row —
       proven by a test that registers and round-trips a shape the application does not ship, with no
       schema change
 
@@ -170,9 +170,9 @@ honest values — PostgreSQL 11+ does not rewrite the table for a defaulted colu
 | MIGR-01 | Phase 10 | Pending |
 | MIGR-02 | Phase 10 | Pending |
 | MIGR-03 | Phase 10 | Pending |
-| SHAPE-01 | Phase 9 | Pending |
-| SHAPE-02 | Phase 9 | Pending |
-| SHAPE-03 | Phase 9 | Pending |
+| SHAPE-01 | Phase 9 | Complete |
+| SHAPE-02 | Phase 9 | Complete |
+| SHAPE-03 | Phase 9 | Complete |
 | VALID-01 | Phase 9 | Complete |
 | VALID-02 | Phase 9 | Pending |
 | VALID-03 | Phase 9 | Complete |

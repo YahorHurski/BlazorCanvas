@@ -141,7 +141,7 @@ change to the running application.
      never re-emitted verbatim — proven by a test asserting the sanitised record never contains the
      raw hostile input.
 
-**Plans**: 3/6 plans executed
+**Plans**: 4/6 plans executed
 
 Plans:
 **Wave 1**
@@ -152,7 +152,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 09-04-PLAN.md — The four `IShapeDefinition` implementations and the `DefaultShapes` registry (wave 2)
+- [x] 09-04-PLAN.md — The four `IShapeDefinition` implementations and the `DefaultShapes` registry (wave 2)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -280,7 +280,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
-| 9. Shape Registry & Validation Gateway | v1.11 | 3/6 | In Progress|  |
+| 9. Shape Registry & Validation Gateway | v1.11 | 4/6 | In Progress|  |
 | 10. Storage Schema, Migration & Persistence Layer | v1.11 | 0/TBD | Not started | - |
 | 11. Renderer, Sync & Cutover | v1.11 | 0/TBD | Not started | - |
 | 12. Regression Verification | v1.11 | 0/TBD | Not started | - |
