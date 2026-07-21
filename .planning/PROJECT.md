@@ -86,13 +86,16 @@ same positions, same look, same live cross-tab glide.
 - [x] **SEL-01** — Selection lifecycle: tools remain armed after drawing, one local selection is maintained, and the required deselect/Delete routes work — Validated in Phase BC-07: Selection Lifecycle & Restyle (2026-07-21)
 - [x] **SEL-02** — Selection indicator is a topmost blue-and-white dashed trace on the figure's own outline, replacing the red outline — Validated in Phase BC-07: Selection Lifecycle & Restyle (2026-07-21)
 - [x] **ARCH-01** — The former "no hand-authored JavaScript" constraint is removed and the motivations of D-06/D-18/D-33/D-37/D-57 are correctly recorded as MVP simplicity or their independent behavioural rationale — Validated in Phase BC-08: Architecture Constraint Cleanup (2026-07-21); permissive/doc-only, no code change
+- [x] **SHAPE-01/02/03** — Type-specific shape logic is centralized in `IShapeDefinition`, preserves point-list geometry, and proves a fifth test-only shape can register without a schema change — Validated in Phase BC-09: Shape Registry & Validation Gateway (2026-07-22)
+- [x] **VALID-01/02/03** — Client geometry and style are parsed, validated, and re-serialized through one gateway; invalid geometry is silently rejected and style is bounded before SVG rendering — Validated in Phase BC-09: Shape Registry & Validation Gateway (2026-07-22)
 
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
 **All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
 
 ### Active
 
-**Milestone v1.11 (Storage Model Rewrite) is open** — see *Current Milestone* above. Its requirements
+**Milestone v1.11 (Storage Model Rewrite) is open.** Phase BC-09 validated its shape registry and
+validation gateway; the remaining storage, renderer/sync cutover, and human-regression requirements
 live in `.planning/REQUIREMENTS.md`; v1.1's are archived at
 `.planning/milestones/v1.1-REQUIREMENTS.md`.
 
@@ -349,12 +352,11 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
-**In flight: v1.11 Storage Model Rewrite** (opened 2026-07-21, branch `Milestone-v1.11`). The ADR,
-PROJECT.md and `.planning/intel/` already describe the new storage model as current — **no code
-implements it yet.** This milestone makes the code catch up to the documents: no migration, no
-`canvases`/`figure_types` tables, no `IShapeDefinition`, and no `<g transform>` renderer exist
-today. **v1.2** (new figures + dynamic toolbar) waits behind it in the backlog. The "terminal MinVP"
-framing no longer applies.
+**In flight: v1.11 Storage Model Rewrite** (opened 2026-07-21, branch `Milestone-v1.11`). Phase
+BC-09 is complete: the pure-C# `IShapeDefinition` registry, canonical geometry/style validation
+gateway, and immutable redacted v1.1 fixture are in place and verified. Phase BC-10 next adds the
+four-table schema, persistence layer, and dump-replay proof; the running app remains on its old path
+until Phase BC-11 cutover. **v1.2** (new figures + dynamic toolbar) waits behind it in the backlog.
 
 ## Evolution
 
@@ -374,8 +376,5 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-21 — milestone v1.11 (Storage Model Rewrite) opened: Current Milestone
-section added, Active section reopened, Current State switched to in-flight. Scope confirmed with
-the user as a pure storage swap (zero user-visible change) including the lossless migration with a
-dump-replay test, the `IShapeDefinition` registry, and a retire-and-rewrite test rebase.
-(Prev: 2026-07-21, after the v1.1 milestone — 3 phases, 4 plans, 4/4 requirements validated.)*
+*Last updated: 2026-07-22 — Phase BC-09 complete: SHAPE-01…03 and VALID-01…03 validated; the
+registry, validation gateway, and immutable redacted migration fixture are ready for Phase BC-10.*
