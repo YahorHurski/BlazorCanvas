@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: Storage Model Rewrite
 status: planning
-last_updated: "2026-07-21T18:36:38.941Z"
+last_updated: "2026-07-21T19:20:00.000Z"
 last_activity: 2026-07-21
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -39,10 +39,13 @@ archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic to
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-07-21 — Milestone v1.11 started
+Phase: 9 of 12 (Shape Registry & Validation Gateway)
+Plan: — of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-07-21 — ROADMAP.md created (Phases 9–12); REQUIREMENTS.md traceability filled;
+all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -63,6 +66,10 @@ Last activity: 2026-07-21 — Milestone v1.11 started
 | BC-06 | 1 | - | - |
 | BC-07 | 2 | - | - |
 | BC-08 | 1 | - | - |
+| BC-09 | - | - | - |
+| BC-10 | - | - | - |
+| BC-11 | - | - | - |
+| BC-12 | - | - | - |
 
 **Recent Trend:**
 
@@ -174,6 +181,17 @@ rewrite must not reintroduce those literals.
   round-trip, line-normalisation landmine, the 32-case CHECK-mirror matrix); write new guards for
   bbox-vs-geometry agreement, the validation gateway, and z-collision retry.
 
+**v1.11 roadmap sequencing (fixed at roadmap creation, 2026-07-21):** Phase 9 (Shape Registry &
+Validation Gateway) is pure C#, zero database dependency, purely additive — the existing app and all
+405 tests stay untouched and green. Phase 10 (Storage Schema, Migration & Persistence Layer) is also
+additive: new tables, new persistence layer, and the migration/dump-replay proof, built and tested in
+isolation while `Home.razor`/`FigureShape.razor`/the old table remain untouched and green. Phase 11
+(Renderer, Sync & Cutover) is the one phase where the app is briefly between models — contained
+entirely within its own plan sequence, ending with the old table, old code paths, and dead tests
+removed and the full rebased suite green again. Phase 12 (Regression Verification, REG-01) is
+deliberately last — the milestone's real human acceptance gate, and it must not be skipped or folded
+into an earlier phase's automated tests.
+
 ### Pending Todos
 
 None yet.
@@ -202,10 +220,13 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T13:10:39.477Z
-Stopped at: Completed BC-08-01-PLAN.md
+Last session: 2026-07-21T19:20:00.000Z
+Stopped at: ROADMAP.md created for v1.11 (Phases 9–12); REQUIREMENTS.md traceability populated —
+22/22 requirements mapped, 100% coverage, no orphans, no duplicates.
 Resume file: None
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Plan Phase 9 with `/gsd-plan-phase 9` (Shape Registry & Validation Gateway — pure C#, zero database
+  dependency, a natural first cut).
+- Phases 10 and 11 depend on it in sequence; Phase 12 (human regression verification) must run last.

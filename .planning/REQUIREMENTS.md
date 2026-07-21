@@ -80,8 +80,8 @@ for a feature, and the user sees no difference at all.
 
 ### Sync and persistence
 
-- [ ] **SYNC-02**: Live cross-tab sync — draw, delete, and real-time drag glide — behaves exactly as
-      in v1.1 over the new payload (uuid ids, position deltas), preserving D-53's kinds and echo
+- [ ] **SYNC-02**: Live cross-tab sync — draw, delete, and real-time drag glide — behaves exactly
+      as in v1.1 over the new payload (uuid ids, position deltas), preserving D-53's kinds and echo
       filter, D-40's update-only move, D-54's blanket mid-drag discard, and D-47's throttle with
       guaranteed trailing edge
 - [ ] **SYNC-03**: The save-failure path still rolls back everywhere and forces a reload (D-52), and
@@ -142,38 +142,38 @@ honest values — PostgreSQL 11+ does not rewrite the table for a defaulted colu
 
 ## Traceability
 
-Populated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MODEL-01 | TBD | Pending |
-| MODEL-02 | TBD | Pending |
-| MODEL-03 | TBD | Pending |
-| MODEL-04 | TBD | Pending |
-| MODEL-05 | TBD | Pending |
-| MODEL-06 | TBD | Pending |
-| MODEL-07 | TBD | Pending |
-| MIGR-01 | TBD | Pending |
-| MIGR-02 | TBD | Pending |
-| MIGR-03 | TBD | Pending |
-| SHAPE-01 | TBD | Pending |
-| SHAPE-02 | TBD | Pending |
-| SHAPE-03 | TBD | Pending |
-| VALID-01 | TBD | Pending |
-| VALID-02 | TBD | Pending |
-| VALID-03 | TBD | Pending |
-| RENDER-01 | TBD | Pending |
-| SYNC-02 | TBD | Pending |
-| SYNC-03 | TBD | Pending |
-| TEST-02 | TBD | Pending |
-| TEST-03 | TBD | Pending |
-| REG-01 | TBD | Pending |
+| MODEL-01 | Phase 10 | Pending |
+| MODEL-02 | Phase 10 | Pending |
+| MODEL-03 | Phase 10 | Pending |
+| MODEL-04 | Phase 10 | Pending |
+| MODEL-05 | Phase 10 | Pending |
+| MODEL-06 | Phase 10 | Pending |
+| MODEL-07 | Phase 10 | Pending |
+| MIGR-01 | Phase 10 | Pending |
+| MIGR-02 | Phase 10 | Pending |
+| MIGR-03 | Phase 10 | Pending |
+| SHAPE-01 | Phase 9 | Pending |
+| SHAPE-02 | Phase 9 | Pending |
+| SHAPE-03 | Phase 9 | Pending |
+| VALID-01 | Phase 9 | Pending |
+| VALID-02 | Phase 9 | Pending |
+| VALID-03 | Phase 9 | Pending |
+| RENDER-01 | Phase 11 | Pending |
+| SYNC-02 | Phase 11 | Pending |
+| SYNC-03 | Phase 11 | Pending |
+| TEST-02 | Phase 11 | Pending |
+| TEST-03 | Phase 10 | Pending |
+| REG-01 | Phase 12 | Pending |
 
 **Coverage:**
 - v1.11 requirements: 22 total
-- Mapped to phases: 0
-- Unmapped: 22 ⚠️ (resolved at roadmap creation)
+- Mapped to phases: 22
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-21 at milestone v1.11 open*
 *Previous milestone requirements archived: `.planning/milestones/v1.1-REQUIREMENTS.md`*
+*Roadmap created: 2026-07-21 — see `.planning/ROADMAP.md` (Phases 9–12). 100% coverage validated,
+no orphans, no duplicates.*
