@@ -141,14 +141,14 @@ change to the running application.
      never re-emitted verbatim — proven by a test asserting the sanitised record never contains the
      raw hostile input.
 
-**Plans**: 2/6 plans executed
+**Plans**: 3/6 plans executed
 
 Plans:
 **Wave 1**
 
 - [x] 09-01-PLAN.md — Typed geometry model, `IShapeDefinition` contract, `ShapeRegistry`, `GeometryJson` helpers (wave 1)
 - [x] 09-02-PLAN.md — `FigureStyle` record and the style sanitising gateway (wave 1)
-- [ ] 09-03-PLAN.md — Capture and commit the v1.1-era pre-rewrite database dump fixture (wave 1, blocking checkpoint)
+- [x] 09-03-PLAN.md — Capture and commit the v1.1-era pre-rewrite database dump fixture (wave 1, blocking checkpoint)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -280,7 +280,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
-| 9. Shape Registry & Validation Gateway | v1.11 | 2/6 | In Progress|  |
+| 9. Shape Registry & Validation Gateway | v1.11 | 3/6 | In Progress|  |
 | 10. Storage Schema, Migration & Persistence Layer | v1.11 | 0/TBD | Not started | - |
 | 11. Renderer, Sync & Cutover | v1.11 | 0/TBD | Not started | - |
 | 12. Regression Verification | v1.11 | 0/TBD | Not started | - |
