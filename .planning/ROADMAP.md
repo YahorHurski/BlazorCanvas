@@ -54,7 +54,7 @@ written this milestone). All four changes are user-approved and already amended 
 
 - [x] **Phase 6: Canvas Resize to 1472×828** - Enlarge the canvas surface with no migration and no shrink path; existing figures keep their exact position.
 - [x] **Phase 7: Selection Lifecycle & Restyle** - Armed-tool persistence after drawing, one-selection-at-a-time deselect rules, and a topmost blue+white dashed trace replacing the red outline. (completed 2026-07-21)
-- [ ] **Phase 8: Architecture Constraint Cleanup** - Remove the "no hand-authored JavaScript" constraint from every project doc/comment; correct D-06/D-18/D-33/D-37/D-57 motivations to MVP simplicity.
+- [x] **Phase 8: Architecture Constraint Cleanup** - Remove the "no hand-authored JavaScript" constraint from every project doc/comment; correct D-06/D-18/D-33/D-37/D-57 motivations to MVP simplicity. (completed 2026-07-21)
 
 ## Phase Details
 
@@ -169,7 +169,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 5. Live Cross-Tab Sync | v1.0 | 5/5 | Complete | 2026-07-17 |
 | 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete    | 2026-07-21 |
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete    | 2026-07-21 |
-| 8. Architecture Constraint Cleanup | v1.1 | 1/1 | In Progress|  |
+| 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete    | 2026-07-21 |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 0/3 phases complete — roadmap created 2026-07-20; requirements CANV-03, SEL-01, SEL-02,

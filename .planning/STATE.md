@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Canvas resize · selection UX · no-JS removal
-current_phase: 8
-current_phase_name: Architecture Constraint Cleanup
-status: executing
+current_phase: 08
+status: completed
 stopped_at: Completed BC-08-01-PLAN.md
-last_updated: "2026-07-21T13:10:39.492Z"
+last_updated: "2026-07-21T13:17:57.478Z"
 last_activity: 2026-07-21
-last_activity_desc: Phase BC-07 complete, transitioned to Phase 8
+last_activity_desc: Phase BC-08 complete
 progress:
   total_phases: 3
   completed_phases: 3
   total_plans: 4
   completed_plans: 4
   percent: 100
+current_phase_name: Architecture Constraint Cleanup
 ---
 
 # Project State
@@ -35,10 +35,10 @@ scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 
 ## Current Position
 
-Phase: 8 — Architecture Constraint Cleanup
-Plan: 01 complete
-Status: Awaiting phase verification
-Last activity: 2026-07-21 — BC-08-01 documentation cleanup executed; build and full test suite passed
+Phase: BC-08
+Plan: Not started
+Status: All phases complete
+Last activity: 2026-07-21 — Phase BC-08 complete
 
 Progress: [██████████] 100%
 
@@ -46,7 +46,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 20
+- Total plans completed: 21
 - Average duration: —
 - Total execution time: —
 
@@ -60,6 +60,7 @@ Progress: [██████████] 100%
 | BC-05 | 5 | - | - |
 | BC-06 | 1 | - | - |
 | BC-07 | 2 | - | - |
+| BC-08 | 1 | - | - |
 
 **Recent Trend:**
 
