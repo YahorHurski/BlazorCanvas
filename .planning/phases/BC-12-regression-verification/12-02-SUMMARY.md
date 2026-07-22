@@ -54,6 +54,15 @@ coverage:
         status: pass
     human_judgment: true
     rationale: "The source and notifier tests prove the code boundary; the two-browser visual timing and committed glide still require REG-01 acceptance."
+  - id: D3
+    description: Human retest confirms that the initiating tab visibly renders an in-progress preview while drawing.
+    requirement: REG-01
+    verification:
+      - kind: manual_procedural
+        ref: "BC-12-02 two-window human retest on 2026-07-22"
+        status: fail
+    human_judgment: true
+    rationale: "The user reported that no preview is still visible while creating a figure in the initiating tab. Automated tests did not exercise rendered browser output."
 duration: 20min
 completed: 2026-07-22
 status: complete
@@ -61,7 +70,7 @@ status: complete
 
 # Phase BC-12 Plan 02: Drawing Preview Gap Closure Summary
 
-**Circuit-local draw previews now update the initiating tab during pointer movement, while the existing coordinator remains the sole committed-create synchronization boundary.**
+**Automated preview-state and sync-boundary tests pass, but the human retest was not approved: the initiating tab still shows no visible preview while creating a figure.**
 
 ## Performance
 
@@ -81,6 +90,18 @@ status: complete
 - `dotnet test BlazorCanvas.sln --nologo --filter "FullyQualifiedName~DrawingPreviewSessionTests|FullyQualifiedName~CanvasInteractionCoordinatorTests"` — **16 passed**.
 - `dotnet build BlazorCanvas.sln --nologo -v q` — **0 warnings, 0 errors**.
 - `dotnet test BlazorCanvas.sln --nologo` — **303 passed, 0 failed, 0 skipped**.
+
+## Human Acceptance Retest
+
+**Result: NOT APPROVED — REG-01 remains incomplete.**
+
+The user reported the following exact failed observation after the corrective build was hosted:
+
+> There is still no visible preview while creating a figure in the initiating tab.
+
+This means the implementation's automated evidence does not prove the browser-visible SVG update required by REG-01. The test suite confirms only state lifecycle, source wiring, and the commit-only notifier boundary; it does not exercise an interactive rendered browser gesture.
+
+No screenshot, recording, or browser-console capture was supplied with this retest. Preserve the failure as reported. Before further diagnosis, request a short screen recording (or screenshots while the primary pointer is held down) of both same-account tabs, plus any browser DevTools console errors, so the initiating-tab render path can be observed without conflating it with cross-tab creation.
 
 ## Task Commits
 
@@ -117,27 +138,31 @@ status: complete
 
 ## Issues Encountered
 
-None remaining. The prior failed human acceptance is deliberately preserved in `12-01-SUMMARY.md` and was not overwritten.
+- **Human retest failed:** the initiating tab still displayed no visible preview while creating a figure. REG-01 remains blocked.
+- The prior failed acceptance in `12-01-SUMMARY.md` remains preserved and was not overwritten.
 
-## Human Verification Required
+## Evidence Required Before Further Diagnosis
 
-Automated verification is complete, but REG-01 is not yet approved. Rerun the full seven-step two-window acceptance script from `12-01-PLAN.md`:
+Do not treat automated test success as visual acceptance. Capture the following from a fresh retest before changing product code again:
 
-1. In the initiating tab, draw each shape while holding the primary button and confirm its preview visibly evolves before release.
-2. Keep the second tab open on the same account and confirm it stays empty during the in-progress gesture.
-3. Release the pointer and confirm the committed figure appears in the second tab only then.
-4. Complete the existing selection, drag, delete, edge-clamp, and slow committed-drag glide checks.
+1. A short screen recording, or paired screenshots, while the primary pointer is still held down in both tabs.
+2. Browser DevTools console errors from the initiating tab, if any.
+3. The shape used, pointer-down/move/release sequence, and whether the figure appears after release.
+
+After the visible-preview failure is resolved, rerun the complete seven-step two-window REG-01 script from `12-01-PLAN.md` (including commit-only remote visibility and slow committed-drag glide).
 
 ## Next Phase Readiness
 
-- The corrective implementation and automated regression coverage are ready for the blocked human REG-01 acceptance rerun.
-- No schema, persistence model, protocol kinds, notifier behavior, or committed-drag synchronization was changed.
+- Automated coverage remains green, but the failed browser-visible preview blocks REG-01 approval and requires targeted diagnosis with captured evidence.
+- The local acceptance host for this retest (`BlazorCanvas.exe`, PID 14740) was safely stopped after the report.
+- No product code was changed while recording this failed retest; no schema, persistence model, protocol kinds, notifier behavior, or committed-drag synchronization changed during this continuation.
 
 ## Self-Check: PASSED
 
 - The session remains independent of `CanvasInteractionCoordinator`, repositories, `CanvasSyncNotifier`, `SyncMessage`, and `FigureRow`.
 - The only Home draw handoff is the completed-gesture call to `coordinator.DrawAsync`.
-- The full suite passes and unrelated `.planning/config.json` and root-PDF changes remain unstaged and untouched.
+- The full suite passes, but the user-reported visual preview failure is recorded as authoritative for REG-01.
+- Unrelated `.planning/config.json` and root-PDF changes remain unstaged and untouched.
 
 ---
 *Phase: BC-12-regression-verification*
