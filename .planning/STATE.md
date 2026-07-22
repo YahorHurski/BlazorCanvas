@@ -5,15 +5,15 @@ milestone_name: Storage Model Rewrite
 current_phase: 10
 current_phase_name: Storage Schema, Migration & Persistence Layer
 status: executing
-stopped_at: Phase BC-09 complete, ready to plan Phase 10
-last_updated: "2026-07-22T00:10:35.980Z"
+stopped_at: Completed BC-10-01-PLAN.md
+last_updated: "2026-07-22T00:23:29.771Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase BC-09 complete, transitioned to Phase 10
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 11
+  completed_plans: 7
   percent: 25
 ---
 
@@ -44,12 +44,12 @@ archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic to
 ## Current Position
 
 Phase: 10 — Storage Schema, Migration & Persistence Layer
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-22 — Phase BC-09 complete, transitioned to Phase 10
+Plan: 02 of 05
+Status: In progress
+Last activity: 2026-07-22 — completed BC-10 Plan 01: isolated v11 schema and live catalog proof
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
-Progress: [██████████] 100%
+Progress: [██████░░░░] 64%
 
 ## Performance Metrics
 
@@ -114,6 +114,7 @@ Progress: [██████████] 100%
 | Phase BC-09 P04 | 25min | 3 tasks | 10 files |
 | Phase BC-09 P05 | 25min | 3 tasks | 4 files |
 | Phase BC-09 P06 | 15min | 2 tasks | 3 files |
+| Phase BC-10 P01 | 28min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -214,6 +215,9 @@ into an earlier phase's automated tests.
 - [Phase BC-09]: Geometry and style must be parsed, validated, and re-serialised only through `FigureInputGateway`; Phase 10 persistence and Phase 11 sync must use it for every write.
 - [Phase BC-09]: Line and triangle retain ordered local vertices; circle geometry uses the bounding square's top-left origin, with centre `(R, R)`.
 - [Phase BC-09]: The redacted, checksum-sealed fixture and rows 3860–3867 are the fixed Phase 10 migration proof input; do not recapture it.
+- [Phase BC-10]: New storage tables remain in v11, preserving public.figures until Phase 11 cutover.
+- [Phase BC-10]: bbox_* stores local geometry extent so moves write only x and y.
+- [Phase BC-10]: Registry seeding uses parameterised ON CONFLICT handling for concurrent callers.
 
 ### Pending Todos
 
@@ -243,8 +247,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T23:20:25.457Z
-Stopped at: Phase BC-09 complete, ready to plan Phase 10
+Last session: 2026-07-22T00:23:29.748Z
+Stopped at: Completed BC-10-01-PLAN.md
 Phase BC-09 verified passed (45/45 must-haves), UAT approved, 22/22 requirements mapped.
 Resume file: None
 
