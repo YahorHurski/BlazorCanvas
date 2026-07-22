@@ -4,9 +4,9 @@ milestone: v1.11
 milestone_name: Storage Model Rewrite
 current_phase: 10
 current_phase_name: Storage Schema, Migration & Persistence Layer
-status: planning
+status: executing
 stopped_at: Phase BC-09 complete, ready to plan Phase 10
-last_updated: "2026-07-21T23:20:25.469Z"
+last_updated: "2026-07-22T00:10:35.980Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase BC-09 complete, transitioned to Phase 10
 progress:
@@ -45,7 +45,7 @@ archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic to
 
 Phase: 10 — Storage Schema, Migration & Persistence Layer
 Plan: Not started
-Status: Ready to plan
+Status: Ready to execute
 Last activity: 2026-07-22 — Phase BC-09 complete, transitioned to Phase 10
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
