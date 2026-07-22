@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: Five-pointed star
 status: planning
-last_updated: "2026-07-22T18:17:29.328Z"
+last_updated: "2026-07-22T19:10:00.000Z"
 last_activity: 2026-07-22
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -28,6 +28,9 @@ inner ratio 0.382, geometry `{"points": [[x,y] × 10], "innerRatio": 0.382}` wit
 and the ratio required on parse. Plus a seventh toolbar button between `triangle` and `delete`, an
 idempotent `figure_types` seed on every startup, and a `Home.razor.js` star branch with a drift guard.
 Scope is **one figure** — carried debt stays carried. Ends with a human acceptance gate.
+
+**Roadmap created 2026-07-22** — Phases 13–17, continuing numbering from v1.11's Phase 12. All 15
+v1.12 requirements mapped, 100% coverage, no orphans. See `.planning/ROADMAP.md` → "Phase Details".
 
 v1.11 shipped and archived 2026-07-22 as `override_closeout` — 21/22 requirements satisfied, build
 clean, 500/500 tests passing.
@@ -52,10 +55,11 @@ becomes loud rather than silent. The unreferenced
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Phase 13 — Star Shape Core (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-07-22 — Milestone v1.12 started
+Status: Roadmap created; awaiting `/gsd-plan-phase 13`
+Last activity: 2026-07-22 — v1.12 roadmap created (Phases 13–17, 15/15 requirements mapped, 100%
+coverage, no orphans)
 
 ## Performance Metrics
 
@@ -133,39 +137,58 @@ Last activity: 2026-07-22 — Milestone v1.12 started
 
 ### Decisions
 
+**v1.12 roadmap sequencing (fixed at roadmap creation, 2026-07-22):** Phase 13 (Star Shape Core) is
+pure C#, zero database dependency, purely additive — `Star5Shape`/`Star5Geometry` implement
+`IShapeDefinition` in isolation and all 500 existing tests stay green. **Phase 13 deliberately does
+not register the shape** (user decision at roadmap approval, 2026-07-22): `V11CutoverTests` lines 58
+and 73 assert `count(*) FROM public.figure_types == 4` against scratch databases in `Additive` and
+`FreshUsersOnly` state — the two states that *do* run `SeedFigureTypesAsync` — so registration turns
+them red and is not additive. Registration moves to Phase 14 with the seed, which also updates those
+two assertions 4→5; Phase 13's tests instantiate `Star5Shape` directly, as `PentagonShape`'s do.
+Phase 14 (Catalog Seed, Toolbar & Decisions) lands the hard prerequisite for writing any star row — the idempotent
+`figure_types` seed fix (MODEL-08), since `V11Cutover.EnsureAsync` returns early at
+`CatalogState.Completed` on the existing database and would otherwise leave `star5`'s foreign key
+unsatisfiable forever — together with the seventh toolbar button and the decision-doc amendments that
+button requires. Phase 15 (Draw, Preview, Render & Persist a Star) is the first phase that actually
+writes and renders a star, depending on both prior phases. Phase 16 (Interaction, Sync & Test Guards)
+proves selection/drag/delete and live cross-tab sync match the four existing shapes, and folds in
+this milestone's test guards (drift guard, bbox agreement, degenerate/malformed rejection) once all
+the code they guard exists. Phase 17 (Regression Verification, REG-02) is deliberately last and
+stands alone — the milestone's human acceptance gate, mirroring v1.11's Phase 12 — and must not be
+folded into any earlier phase's automated tests.
+
 **All 69 ADR decisions (D-01…D-69) are LOCKED.** They are in PROJECT.md `<decisions>`; full text in
 `.planning/intel/decisions.md` and `docs/DECISIONS.md`. They are **not open questions** — do not
-re-litigate, re-ask, or "improve" them.
+re-litigate, re-ask, or "improve" them. v1.12's own decisions land by name from **D-70** onward as
+Phase 14's ARCH-02 work.
 
 > ⚠️ **v1.11 supersedes part of the locked set.** D-59…D-69 replace the storage model. **The
-> documents describe the new model; the code still implements the old one.** When reading code, expect
-> the four-integer model; when writing code this milestone, build the new one. Superseded and
-> therefore **NOT to be preserved**: **D-12** (two tables), **D-20** (integer coords), **D-22** (four
-> coordinates = bounding box), **D-39** (`id` is the z-order), **D-41** (line normalisation),
-> **D-46** (`type` text + CHECK, no `created_at`), **D-50** (per-type guard mirroring CHECKs).
+> documents describe the new model; the code implements it.** Superseded and therefore **NOT to be
+> preserved**: **D-12** (two tables), **D-20** (integer coords), **D-22** (four coordinates =
+> bounding box), **D-39** (`id` is the z-order), **D-41** (line normalisation), **D-46** (`type` text
+> + CHECK, no `created_at`), **D-50** (per-type guard mirroring CHECKs).
 
 The rules most likely to be violated by accident:
 
 - **D-40:** a `move` broadcast is **UPDATE-ONLY, never insert.** D-11's original "idempotent upsert"
-  was a **bug** — it resurrects deleted figures. **Unchanged by v1.11.**
+  was a **bug** — it resurrects deleted figures. **Unchanged by v1.11 or v1.12.**
 
 - **D-54:** mid-drag, a tab discards **ALL** incoming broadcasts, not just those about the dragged
-  figure. **Unchanged by v1.11.**
+  figure. **Unchanged by v1.11 or v1.12.**
 
-- **D-53:** the sync contract's *payload* changes in v1.11 (uuid ids, position deltas); its **rules
-  hold** — kinds, echo filter, no `drop` kind, previews never broadcast.
+- **D-53:** the sync contract's *payload* changed in v1.11 (uuid ids, position deltas); its **rules
+  hold** for the star too — kinds, echo filter, no `drop` kind, previews never broadcast.
 
 - **D-08:** plaintext passwords are **deliberate and locked**. Do not "fix" this.
-- **D-24/D-36:** the clamp survives, but it now reads **`bbox_*`**, not coordinate columns. Still
-  clamp the *delta*, then translate; still `clamp → render → broadcast`.
+- **D-24/D-36:** the clamp survives, reads **`bbox_*`**, not coordinate columns. Still clamp the
+  *delta*, then translate; still `clamp → render → broadcast`. Star5's `IsDrawable` uses the same
+  width>0 AND height>0 rule rectangle already uses.
 
-- **v1.11's own new landmines:** never trust `geometry`/`style` off the wire (parse → validate →
-  re-serialise from the record); `bbox_*` is a cache recomputed in **exactly one place**; `z` is
-  unique per canvas and **needs a retry** on concurrent insert or a figure silently never appears.
+- **v1.11's landmines, still live in v1.12:** never trust `geometry`/`style` off the wire (parse →
+  validate → re-serialise from the record); `bbox_*` is a cache recomputed in **exactly one place**;
+  `z` is unique per canvas and **needs a retry** on concurrent insert.
 
-- ~~**No JavaScript anywhere**~~ — **REMOVED in v1.1.** Hand-authored JS/interop is now permitted;
-  the rule was never load-bearing (MVP simplicity was the real motivation; D-06/18/33/37/57 re-worded
-  in `docs/DECISIONS.md`). It changed no code and is simply not *needed* for anything built so far.
+- ~~**No JavaScript anywhere**~~ — **REMOVED in v1.1.** Hand-authored JS/interop is now permitted.
 
 **v1.11 amendments (user-approved, 2026-07-21)** — recorded in `docs/DECISIONS.md` as D-59…D-69;
 rationale and migration plan in `docs/DATA-MODEL-v1.11-DRAFT.md`; mirrored in PROJECT.md + intel.
@@ -270,11 +293,11 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T16:23:50.225Z
-Stopped at: Phase BC-12 complete; v1.11 ready for milestone archiving.
-Phase BC-12 verified passed, UAT completed 3/3, security threats_open: 0, and all 22 v1.11 requirements are validated.
+Last session: 2026-07-22T19:10:00.000Z
+Stopped at: v1.12 roadmap created — Phases 13–17 written to `.planning/ROADMAP.md`, all 15
+requirements mapped (100% coverage, no orphans), traceability recorded in `.planning/REQUIREMENTS.md`.
 Resume file: None
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Run `/gsd-plan-phase 13` to plan Phase 13 (Star Shape Core), the first v1.12 phase.

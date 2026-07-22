@@ -124,27 +124,28 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SHAPE-04 | TBD | Pending |
-| SHAPE-05 | TBD | Pending |
-| SHAPE-06 | TBD | Pending |
-| FIG-05 | TBD | Pending |
-| FIG-06 | TBD | Pending |
-| FIG-07 | TBD | Pending |
-| FIG-08 | TBD | Pending |
-| CANV-04 | TBD | Pending |
-| RENDER-02 | TBD | Pending |
-| DATA-05 | TBD | Pending |
-| SYNC-04 | TBD | Pending |
-| MODEL-08 | TBD | Pending |
-| ARCH-02 | TBD | Pending |
-| TEST-04 | TBD | Pending |
-| REG-02 | TBD | Pending |
+| SHAPE-04 | Phase 13 | Pending |
+| SHAPE-05 | Phase 13 | Pending |
+| SHAPE-06 | Phase 13 | Pending |
+| MODEL-08 | Phase 14 | Pending |
+| CANV-04 | Phase 14 | Pending |
+| ARCH-02 | Phase 14 | Pending |
+| FIG-05 | Phase 15 | Pending |
+| FIG-06 | Phase 15 | Pending |
+| FIG-07 | Phase 15 | Pending |
+| RENDER-02 | Phase 15 | Pending |
+| DATA-05 | Phase 15 | Pending |
+| FIG-08 | Phase 16 | Pending |
+| SYNC-04 | Phase 16 | Pending |
+| TEST-04 | Phase 16 | Pending |
+| REG-02 | Phase 17 | Pending |
 
 **Coverage:**
 - v1.12 requirements: 15 total
-- Mapped to phases: 0 (roadmap not yet created)
-- Unmapped: 15 ⚠️
+- Mapped to phases: 15
+- Unmapped: 0 ✓
+- No orphans. No duplicates.
 
 ---
 *Requirements defined: 2026-07-22*
-*Last updated: 2026-07-22 at milestone open*
+*Last updated: 2026-07-22 — roadmap created, all 15 requirements mapped to Phases 13–17 (100% coverage).*
