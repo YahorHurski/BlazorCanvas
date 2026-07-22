@@ -153,7 +153,7 @@ the established `BC-01-…`…`BC-12-…` pattern).
       isolation — gesture, parse/serialize round-trip, and points-derived bounds — zero database
       dependency, all 500 existing tests stay green.
 
-- [ ] **Phase 14: Catalog Seed, Toolbar & Decisions** - `Star5Shape` joins the registry, the
+- [x] **Phase 14: Catalog Seed, Toolbar & Decisions** - `Star5Shape` joins the registry, the
       `figure_types` seed runs idempotently on every startup, a seventh toolbar button arms the star
       tool, and the locked decisions are amended for seven buttons.
 
@@ -245,16 +245,16 @@ are amended to match.
      like every other tool; the 48px strip and right-aligned logout are unchanged.
 
   5. `docs/DECISIONS.md`, `PROJECT.md` and `.planning/intel/` record the seven-button toolbar as an
-     amendment to D-16/D-33/D-58 and to CANV-02's "exactly six buttons" text, with the star's own
+     amendment to D-16/D-33/D-58 and to CANV-02's old toolbar-count text, with the star's own
      decisions added by name starting at D-70.
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans executed
 
 Plans:
 
 - [x] 14-01-PLAN.md — Register Star5Shape and make registry-driven figure_types seeding converge on completed public catalogs.
 - [x] 14-02-PLAN.md — Add the armable star toolbar button and star5 tool mapping while preserving toolbar/logout semantics.
-- [ ] 14-03-PLAN.md — Amend decisions, PROJECT.md, and active intel mirrors for seven buttons and D-70+ star decisions.
+- [x] 14-03-PLAN.md — Amend decisions, PROJECT.md, and active intel mirrors for seven buttons and D-70+ star decisions.
 
 **UI hint**: yes
 
@@ -360,7 +360,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 11. Renderer, Sync & Cutover | v1.11 | 5/5 | Complete    | 2026-07-22 |
 | 12. Regression Verification | v1.11 | 2/2 | Complete    | 2026-07-22 |
 | 13. Star Shape Core | v1.12 | 1/1 | Complete | 2026-07-22 |
-| 14. Catalog Seed, Toolbar & Decisions | v1.12 | 2/3 | In Progress|  |
+| 14. Catalog Seed, Toolbar & Decisions | v1.12 | 3/3 | Complete | 2026-07-22 |
 | 15. Draw, Preview, Render & Persist a Star | v1.12 | 0/TBD | Not started | - |
 | 16. Interaction, Sync & Test Guards | v1.12 | 0/TBD | Not started | - |
 | 17. Regression Verification | v1.12 | 0/TBD | Not started | - |

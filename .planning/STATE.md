@@ -5,16 +5,16 @@ milestone_name: Five-pointed star
 current_phase: 14
 current_phase_name: Catalog Seed, Toolbar & Decisions
 status: executing
-stopped_at: Completed BC-14-02-PLAN.md
-last_updated: "2026-07-22T20:13:23.030Z"
+stopped_at: Completed BC-14-03-PLAN.md
+last_updated: "2026-07-22T20:19:59.720Z"
 last_activity: 2026-07-22
-last_activity_desc: Completed BC-14-02 armable star toolbar tool plan
+last_activity_desc: Completed BC-14-03 decision amendment plan
 progress:
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
-  completed_plans: 3
-  percent: 50
+  completed_plans: 4
+  percent: 100
 ---
 
 # Project State
@@ -60,9 +60,9 @@ becomes loud rather than silent. The unreferenced
 ## Current Position
 
 Phase: 14 — Catalog Seed, Toolbar & Decisions
-Plan: 14-03 next
-Status: In progress
-Last activity: 2026-07-22 — Completed BC-14-02 armable star toolbar tool plan
+Plan: 15 next
+Status: Phase 14 complete
+Last activity: 2026-07-22 — Completed BC-14-03 decision amendment plan
 
 ## Performance Metrics
 
@@ -139,6 +139,7 @@ Last activity: 2026-07-22 — Completed BC-14-02 armable star toolbar tool plan
 | Phase BC-13 P01 | 5min | 2 tasks | 3 files |
 | Phase BC-14 P01 | 4min | 2 tasks | 7 files |
 | Phase BC-14 P02 | 3min | 2 tasks | 4 files |
+| Phase BC-14 P03 | 3min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -276,6 +277,10 @@ into an earlier phase's automated tests.
 - [Phase BC-14]: Star5Shape now participates in the default registry and figure_types seed order immediately after triangle. — MODEL-08 requires newly registered shapes to become writable through registry-driven startup seeding.
 - [Phase BC-14]: Completed public catalogs seed missing registry-owned figure_types rows idempotently instead of remaining exact no-ops. — Existing completed databases must gain star5 without migration or manual SQL while preserving transaction/advisory-lock boundaries.
 - [Phase BC-14]: Star is represented as an armable Tool enum value and maps to star5; Delete and logout remain action/form controls outside Tool.
+- [Phase BC-14]: D-70 locks star5 as the fifth stretchable, point-up, corner-to-corner five-pointed star. — ARCH-02 requires named star decisions from D-70 onward.
+- [Phase BC-14]: D-71 locks star geometry as ten ordered points plus required innerRatio, with points authoritative for render and bbox. — Future render and persistence phases need a stable storage contract.
+- [Phase BC-14]: D-72 locks registry-owned figure_types startup seed convergence for completed public catalogs. — Existing completed databases must gain star5 without manual SQL or migration.
+- [Phase BC-14]: D-73 locks the seven-control toolbar order with Star between Triangle and Delete, while Logout remains outside the count as a POST form. — CANV-04 and ARCH-02 require active docs to match the shipped toolbar.
 
 ### Pending Todos
 
@@ -305,10 +310,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T20:13:22.724Z
-Stopped at: Completed BC-14-02-PLAN.md
+Last session: 2026-07-22T20:19:59.702Z
+Stopped at: Completed BC-14-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
 
-- Run `/gsd-execute-phase 14` to continue with Plan 14-03.
+- Run `/gsd-plan-phase 15` to plan Draw, Preview, Render & Persist a Star.

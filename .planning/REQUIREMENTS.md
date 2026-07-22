@@ -76,8 +76,8 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
 
 ### Decisions
 
-- [ ] **ARCH-02**: `docs/DECISIONS.md`, `PROJECT.md` and `.planning/intel/` record the seven-button
-      toolbar as an amendment to D-16/D-33/D-58 and to CANV-02's "exactly six buttons" text, and the
+- [x] **ARCH-02**: `docs/DECISIONS.md`, `PROJECT.md` and `.planning/intel/` record the seven-button
+      toolbar as an amendment to D-16/D-33/D-58 and to CANV-02's old toolbar-count text, and the
       star's own decisions are added by name from **D-70** onward.
 
 ### Tests
@@ -137,7 +137,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SHAPE-06 | Phase 13 | Complete |
 | MODEL-08 | Phase 14 | Complete |
 | CANV-04 | Phase 14 | Complete |
-| ARCH-02 | Phase 14 | Pending |
+| ARCH-02 | Phase 14 | Complete |
 | FIG-05 | Phase 15 | Pending |
 | FIG-06 | Phase 15 | Pending |
 | FIG-07 | Phase 15 | Pending |
