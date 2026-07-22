@@ -260,8 +260,10 @@ public sealed class V11MigrationReplayTests(V11MigrationReplayFixture fixture) :
         Assert.DoesNotContain("123", exception.Message, StringComparison.Ordinal);
         Assert.DoesNotContain("456", exception.Message, StringComparison.Ordinal);
         await using var connection = await database.OpenAsync();
-        Assert.Equal(0L, await ScalarAsync<long>(connection, "SELECT count(*) FROM v11.figures"));
-        Assert.Equal(0L, await ScalarAsync<long>(connection, "SELECT count(*) FROM v11.canvases"));
+        Assert.True(await ScalarAsync<bool>(connection, "SELECT to_regnamespace('v11') IS NULL"));
+        Assert.True(await ScalarAsync<bool>(connection, "SELECT to_regclass('v11.figure_types') IS NULL"));
+        Assert.Equal(1L, await ScalarAsync<long>(connection, "SELECT count(*) FROM public.users WHERE id = 1"));
+        Assert.Equal(1L, await ScalarAsync<long>(connection, "SELECT count(*) FROM public.figures WHERE id = 1 AND user_id = 1 AND type = 'unknown' AND x1 = 123 AND y1 = 456 AND x2 = 789 AND y2 = 1000"));
     }
 
     [Fact]
