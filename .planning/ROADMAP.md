@@ -289,9 +289,13 @@ and persisted immediately with no Save button.
 **Plans:** 3 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 15-01-PLAN.md — Prove star draw, clamp, degenerate rejection, sliver acceptance, and immediate persistence/reload.
 - [ ] 15-02-PLAN.md — Pin committed star rendering from local Star5Geometry points under the translate/rotate transform.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 15-03-PLAN.md — Render live star previews through the C# registry placement and remove the JS triangle fallback path.
 
 **UI hint**: yes
