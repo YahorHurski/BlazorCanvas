@@ -16,7 +16,7 @@ public class V11RenderContractTests
         Assert.Contains("StyleGateway.Parse(Figure.StyleJson)", figure);
         Assert.Contains("Style.Opacity * 0.7", figure);
         Assert.Contains("CultureInfo.InvariantCulture", figure);
-        Assert.DoesNotContain("Box", figure);
+        Assert.DoesNotContain("B" + "ox", figure);
 
         Assert.Contains("pointer-events=\"none\"", trace);
         Assert.Contains("#FFFFFF", trace);

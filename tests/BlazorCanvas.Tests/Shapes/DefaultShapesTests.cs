@@ -1,5 +1,4 @@
 using System.Text.Json;
-using BlazorCanvas.Geometry;
 using BlazorCanvas.Shapes;
 
 namespace BlazorCanvas.Tests.Shapes;
@@ -10,14 +9,6 @@ public class DefaultShapesTests
     public void CreateRegistry_RegistersCanonicalNamesInSeedOrder()
     {
         Assert.Equal(new[] { "line", "rectangle", "circle", "triangle" }, DefaultShapes.CreateRegistry().Names);
-    }
-
-    [Fact]
-    public void CreateRegistry_NamesMatchV11FigureTypeMapping()
-    {
-        // Temporary bridge: Phase 11 removes this test with the v1.1 enum/mapping it verifies.
-        var legacyNames = Enum.GetValues<FigureType>().Select(FigureTypeNames.ToDbValue);
-        Assert.Equal(legacyNames, DefaultShapes.CreateRegistry().Names);
     }
 
     [Fact]

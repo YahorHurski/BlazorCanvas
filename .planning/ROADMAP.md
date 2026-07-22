@@ -105,7 +105,7 @@ Phase numbering continues from v1.1's Phase 8 (directories will be `BC-09-…`, 
 
 - [x] **Phase 9: Shape Registry & Validation Gateway** - Collapse every type-specific figure rule and all client-input validation into two pure-C# abstractions, proven in isolation before any schema or UI change. Also banks the v1.1-era database dump that Phase 10's migration proof depends on (one-shot capture — see phase detail). (completed 2026-07-22)
 - [x] **Phase 10: Storage Schema, Migration & Persistence Layer** - Land the four-table schema and a new persistence layer, and prove every existing figure migrates losslessly — all additive; execution complete, re-verification pending. (completed 2026-07-22)
-- [ ] **Phase 11: Renderer, Sync & Cutover** - Switch `Home.razor`, the renderer, and the sync payload onto the new model; retire the old table and its dead tests.
+- [x] **Phase 11: Renderer, Sync & Cutover** - Switch `Home.razor`, the renderer, and the sync payload onto the new model; retire the old table and its dead tests. (completed 2026-07-22)
 - [ ] **Phase 12: Regression Verification** - A human confirms on the running application that the rewrite is invisible.
 
 ## Phase Details
@@ -262,15 +262,15 @@ old type-specific code paths, and the tests whose subject no longer exists are g
 
 **Wave 1**
 
-- [ ] 11-01-PLAN.md — Additive v11 runtime bootstrap, owner-scoped canvas resolver, and DI composition.
+- [x] 11-01-PLAN.md — Additive v11 runtime bootstrap, owner-scoped canvas resolver, and DI composition.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 11-02-PLAN.md — Local-coordinate renderer, UUID position sync, and live Home circuit wiring.
+- [x] 11-02-PLAN.md — Local-coordinate renderer, UUID position sync, and live Home circuit wiring.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 11-03-PLAN.md — Transactional schema promotion, legacy removal, and rebased full-suite proof.
+- [x] 11-03-PLAN.md — Transactional schema promotion, legacy removal, and rebased full-suite proof.
 
 **Cross-cutting constraints:** v1.1-visible selection and 48px toolbar mapping stay unchanged; drag messages remain UUID-keyed, update-only, 50ms-throttled with a trailing edge; save failure rolls every tab back to the documented reload path.
 
@@ -314,7 +314,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Shape Registry & Validation Gateway | v1.11 | 6/6 | Complete    | 2026-07-22 |
 | 10. Storage Schema, Migration & Persistence Layer | v1.11 | 6/6 | Complete    | 2026-07-22 |
-| 11. Renderer, Sync & Cutover | v1.11 | 0/TBD | Not started | - |
+| 11. Renderer, Sync & Cutover | v1.11 | 3/3 | Complete | 2026-07-22 |
 | 12. Regression Verification | v1.11 | 0/TBD | Not started | - |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**

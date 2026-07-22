@@ -92,11 +92,11 @@
     {
         if (e.Button != 0 || coordinator is null) return;
         Deselect();
-        var type = ToolMap.ToFigureType(armedTool);
+        var type = ToolMap.ToShapeName(armedTool);
         if (type is null) return;
         press = ToCanvasPoint(e);
         drawCursor = press;
-        previewType = FigureTypeNames.ToDbValue(type.Value);
+        previewType = type;
         previewPlacement = ShapeRegistry.Get(previewType).FromGesture(press, press);
         drawing = true;
     }

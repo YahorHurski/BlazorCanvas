@@ -1,6 +1,5 @@
 using BlazorCanvas.Data;
 using BlazorCanvas.Data.V11;
-using BlazorCanvas.Geometry;
 using BlazorCanvas.Shapes;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -44,7 +43,7 @@ public class DatabaseFixture : IAsyncLifetime
             await using var context = CreateContext();
             await context.Database.MigrateAsync();
             DataSource = NpgsqlDataSource.Create(ConnectionString);
-            await V11Schema.ApplyAndSeedAsync(ConnectionString, DefaultShapes.CreateRegistry());
+            await V11Cutover.EnsureAsync(DataSource, DefaultShapes.CreateRegistry());
         }
         catch (Exception ex)
         {
@@ -86,7 +85,7 @@ public class DatabaseFixture : IAsyncLifetime
     {
         var canvasId = Guid.NewGuid();
         await using var command = new NpgsqlCommand(
-            "INSERT INTO v11.canvases (id, owner_id) VALUES (@id, @ownerId)", connection);
+            "INSERT INTO public.canvases (id, owner_id) VALUES (@id, @ownerId)", connection);
         command.Parameters.AddWithValue("id", canvasId);
         command.Parameters.AddWithValue("ownerId", ownerId);
         await command.ExecuteNonQueryAsync();
@@ -109,66 +108,6 @@ public class DatabaseFixture : IAsyncLifetime
         return user.Id;
     }
 
-    /// <summary>
-    /// Attempts to INSERT one figure with the given RAW type literal and coordinates, through a
-    /// brand-new DbContext inside its own transaction that is always rolled back — so the
-    /// suite never accumulates rows regardless of whether the INSERT succeeds. This bypasses
-    /// <see cref="MinSizeGuard"/> and <see cref="Normalisation"/> entirely: the type literal
-    /// and coordinates are passed exactly as given, so the rejection under test (if any) is
-    /// PostgreSQL's, not the app's.
-    /// </summary>
-    public async Task<InsertAttempt> TryInsertRawFigureAsync(
-        string typeLiteral, int x1, int y1, int x2, int y2)
-    {
-        await using var context = CreateContext();
-        await using var transaction = await context.Database.BeginTransactionAsync();
-
-        var userId = await CreateTestUserAsync(context);
-
-        context.Figures.Add(new Figure
-        {
-            UserId = userId,
-            Type = typeLiteral,
-            X1 = x1,
-            Y1 = y1,
-            X2 = x2,
-            Y2 = y2,
-        });
-
-        try
-        {
-            await context.SaveChangesAsync();
-            return InsertAttempt.Success();
-        }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException pg
-            && pg.SqlState == PostgresErrorCodes.CheckViolation)
-        {
-            return InsertAttempt.Rejected(pg);
-        }
-        // The transaction is never committed above, so disposing it here rolls back either way.
-    }
-
-    /// <summary>Convenience overload for the FigureType/Box pairing used by GuardMirrorsChecksTests.</summary>
-    public Task<InsertAttempt> TryInsertFigureAsync(FigureType type, Box box) =>
-        TryInsertRawFigureAsync(FigureTypeNames.ToDbValue(type), box.X1, box.Y1, box.X2, box.Y2);
-}
-
-/// <summary>The outcome of one INSERT attempt against the live database.</summary>
-public sealed class InsertAttempt
-{
-    public bool Succeeded { get; }
-
-    public PostgresException? Error { get; }
-
-    private InsertAttempt(bool succeeded, PostgresException? error)
-    {
-        Succeeded = succeeded;
-        Error = error;
-    }
-
-    public static InsertAttempt Success() => new(true, null);
-
-    public static InsertAttempt Rejected(PostgresException error) => new(false, error);
 }
 
 /// <summary>
