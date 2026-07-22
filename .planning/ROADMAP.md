@@ -286,7 +286,13 @@ and persisted immediately with no Save button.
 
   5. The star persists immediately with no Save button and reappears unchanged after a refresh.
 
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+
+- [ ] 15-01-PLAN.md — Prove star draw, clamp, degenerate rejection, sliver acceptance, and immediate persistence/reload.
+- [ ] 15-02-PLAN.md — Pin committed star rendering from local Star5Geometry points under the translate/rotate transform.
+- [ ] 15-03-PLAN.md — Render live star previews through the C# registry placement and remove the JS triangle fallback path.
 
 **UI hint**: yes
 
