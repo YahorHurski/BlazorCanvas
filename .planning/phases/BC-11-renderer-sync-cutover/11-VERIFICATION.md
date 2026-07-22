@@ -11,7 +11,7 @@ overrides_applied: 0
 
 **Phase goal:** The app draws, drags, deletes, and synchronises as v1.1 while all runtime pixels and messages use the new storage model; the old runtime model and its obsolete tests are removed.
 
-**Verified:** 2026-07-22  
+**Verified:** 2026-07-22
 **Status:** gaps_found
 
 ## Evidence actually executed
