@@ -36,8 +36,9 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 
 ## Current Milestone: v1.12 Five-pointed star
 
-**Opened 2026-07-22.** Branch `Milestone-v1.12`. The first milestone to exercise v1.11's claim that
-adding a figure costs *one C# class, one `figure_types` row, one toolbar button*.
+**Opened 2026-07-22.** Branch `Milestone-v1.12`. Phase 13 is complete: the pure C# `Star5Shape` /
+`Star5Geometry` core is built, directly tested, and deliberately not registered yet. The milestone
+continues with Phase 14, which exposes that core through the registry, catalog seed, and toolbar.
 
 **Goal:** Add `star5` as the fifth figure type end-to-end — drawn, previewed, persisted, synced,
 selected, dragged and deleted exactly like the four that came before it.
@@ -137,10 +138,12 @@ same positions, same look, same live cross-tab glide.
 - [x] **SYNC-02/03** — Final-public two-circuit synchronization, stale-row removal, and rollback/reload convergence preserve the v1.1 sync contract — Validated in Phase BC-11: Renderer, Sync & Cutover (2026-07-22)
 - [x] **TEST-02** — Obsolete figure-model production code and tests are retired; cutover and final-public persistence evidence are rebased — Validated in Phase BC-11: Renderer, Sync & Cutover (2026-07-22)
 - [x] **REG-01** — Human regression verification confirms the v1.11 storage rewrite is invisible: drawing, clamping, dragging, deletion, selection, refresh persistence, local-only preview, commit-only remote creation, and two-window live glide all match v1.1 — Validated in Phase BC-12: Regression Verification (2026-07-22)
+- [x] **SHAPE-04/05/06** — `Star5Shape` derives the point-up ten-point star from a corner-to-corner drag, preserves ordered point-list geometry plus required `innerRatio`, derives bounds from points alone, and round-trips canonical JSON while rejecting malformed/missing-ratio payloads — Validated in Phase BC-13: Star Shape Core (2026-07-22)
 
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
 **All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
 **21 of 22 v1.11 requirements validated — shipped in v1.11 (2026-07-22).**
+**3 of 15 v1.12 requirements validated — Phase 13 complete (2026-07-22).**
 
 ### Accepted Gaps
 
@@ -156,8 +159,9 @@ same positions, same look, same live cross-tab glide.
 
 ### Active
 
-**v1.12 Five-pointed star** — opened 2026-07-22, requirements being defined. See *Current Milestone*
-above. Requirements for v1.0, v1.1, and v1.11 are archived under `.planning/milestones/`.
+**v1.12 Five-pointed star** — opened 2026-07-22. Phase 13 is complete; active work moves to Phase
+14: Catalog Seed, Toolbar & Decisions. Requirements for v1.0, v1.1, and v1.11 are archived under
+`.planning/milestones/`.
 
 **After v1.12: v1.2** — the remaining new figure types (ellipse, hexagon, pentagon, right-angle
 triangle L/R, four arrows — **nine, not ten: v1.12 delivers the 5-point star**) plus a dynamic
@@ -436,10 +440,10 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
 **v1.12** (the five-pointed star) opened 2026-07-22 on branch `Milestone-v1.12` and is the active
-milestone — see *Current Milestone* above. It is the first real test of v1.11's claim that a new
-figure type costs one C# class plus one `figure_types` row with no schema change, and it closes the
-one gap in that claim: the seed that populates `figure_types` never runs again on a database already
-in `CatalogState.Completed`.
+milestone — see *Current Milestone* above. Phase 13 completed the first slice of v1.11's extensibility
+claim: one unregistered C# shape core with no schema, database, UI, renderer, or sync changes. Phase
+14 now owns the catalog-seed gap where `figure_types` never runs again on a database already in
+`CatalogState.Completed`.
 
 **v1.2** (the remaining nine figures + dynamic toolbar) is scoped in
 `.planning/backlog/v1.2-figures-and-toolbar.md` and follows v1.12. Its remaining decision amendments
@@ -463,6 +467,6 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-22 at v1.12 milestone open — five-pointed star (`star5`), one figure type
-end-to-end. Previous update: 2026-07-22 after v1.11 shipped and was archived, 21/22 requirements
-satisfied, MIGR-03 recorded as an accepted gap.*
+*Last updated: 2026-07-22 after Phase BC-13 completed — `Star5Shape` / `Star5Geometry` core built
+and verified; v1.12 now moves to catalog seed, toolbar, and decision amendments in Phase 14.
+Previous update: 2026-07-22 at v1.12 milestone open.*
