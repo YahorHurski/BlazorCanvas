@@ -273,6 +273,96 @@ public class CanvasInteractionCoordinatorTests
         Assert.Single(publications, message => message.Kind == "draw");
     }
 
+    [Fact]
+    public async Task Star5_D31D48_BeginDragSelectsPersistedStarAndClickWritesNothing()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var star = StarRow();
+        var rows = new List<FigureRow> { star };
+        var moveCalls = 0;
+        var publications = new List<SyncMessage>();
+        using var observer = notifier.Subscribe(7, publications.Add);
+        var coordinator = Create(notifier, rows, out var subscription, move: (_, _, _, _) =>
+        {
+            moveCalls++;
+            return Task.FromResult(1);
+        });
+        using (subscription)
+        {
+            coordinator.BeginDrag(star.Id, new CanvasPoint(10, 10));
+            await coordinator.CommitDragAsync();
+        }
+
+        Assert.Equal(star.Id, coordinator.SelectedId);
+        Assert.Equal(0, moveCalls);
+        Assert.DoesNotContain(publications, message => message.Kind is "move" or "delete");
+    }
+
+    [Fact]
+    public void Star5_D48_ReSelectingSamePersistedStarIsIdempotent()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var star = StarRow();
+        var rows = new List<FigureRow> { star };
+        var publications = new List<SyncMessage>();
+        using var observer = notifier.Subscribe(7, publications.Add);
+        var coordinator = Create(notifier, rows, out var subscription);
+        using (subscription)
+        {
+            coordinator.BeginDrag(star.Id, new CanvasPoint(10, 10));
+            coordinator.BeginDrag(star.Id, new CanvasPoint(10, 10));
+        }
+
+        Assert.Equal(star.Id, coordinator.SelectedId);
+        Assert.Single(coordinator.Figures);
+        Assert.Single(rows);
+        Assert.Empty(publications);
+    }
+
+    [Fact]
+    public async Task Star5_D33_DeleteSelectedStarRemovesAndBroadcastsOnce()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var star = StarRow();
+        var rows = new List<FigureRow> { star };
+        var publications = new List<SyncMessage>();
+        using var observer = notifier.Subscribe(7, publications.Add);
+        var coordinator = Create(notifier, rows, out var subscription);
+        using (subscription)
+        {
+            coordinator.BeginDrag(star.Id, new CanvasPoint(10, 10));
+            await coordinator.DeleteAsync();
+        }
+
+        Assert.Empty(coordinator.Figures);
+        Assert.Null(coordinator.SelectedId);
+        var delete = Assert.Single(publications);
+        Assert.Equal("delete", delete.Kind);
+        Assert.Equal(star.Id, delete.Id);
+        Assert.Null(delete.Figure);
+        Assert.Null(delete.X);
+        Assert.Null(delete.Y);
+    }
+
+    [Fact]
+    public async Task Star5_D33D58_DeleteWithNoSelectionIsSilentNoOp()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var star = StarRow();
+        var rows = new List<FigureRow> { star };
+        var publications = new List<SyncMessage>();
+        using var observer = notifier.Subscribe(7, publications.Add);
+        var coordinator = Create(notifier, rows, out var subscription);
+        using (subscription)
+        {
+            await coordinator.DeleteAsync();
+        }
+
+        Assert.Equal(star, Assert.Single(coordinator.Figures));
+        Assert.Null(coordinator.SelectedId);
+        Assert.Empty(publications);
+    }
+
     private static CanvasInteractionCoordinator Create(
         CanvasSyncNotifier notifier,
         List<FigureRow> rows,
@@ -301,6 +391,26 @@ public class CanvasInteractionCoordinatorTests
 
     private static FigureRow Row() => new(Guid.NewGuid(), Guid.NewGuid(), "rectangle", 0, 0, 0,
         "{\"w\":20,\"h\":10}", "{}", 1, 0, 0, 20, 10);
+
+    private static FigureRow StarRow(
+        Guid? id = null,
+        decimal x = 10,
+        decimal y = 10,
+        double bboxW = 30,
+        double bboxH = 40) => new(
+            id ?? Guid.NewGuid(),
+            Guid.NewGuid(),
+            "star5",
+            x,
+            y,
+            0,
+            "{\"points\":[{\"x\":15,\"y\":0},{\"x\":18,\"y\":14},{\"x\":30,\"y\":14},{\"x\":20,\"y\":23},{\"x\":24,\"y\":40},{\"x\":15,\"y\":30},{\"x\":6,\"y\":40},{\"x\":10,\"y\":23},{\"x\":0,\"y\":14},{\"x\":12,\"y\":14}],\"innerRatio\":0.382}",
+            "{}",
+            1,
+            0,
+            0,
+            bboxW,
+            bboxH);
 
     private static string FindFromRepositoryRoot(params string[] parts)
     {
