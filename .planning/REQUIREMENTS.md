@@ -54,9 +54,38 @@ for a feature, and the user sees no difference at all.
 - [x] **MIGR-02**: Each existing user receives exactly one canvas row at 1472 × 828, and every one
       of their figures is attached to it
 
-- [x] **MIGR-03**: A test loads a v1.1-era database dump, runs the migration, and verifies every
+- [ ] **MIGR-03**: A test loads a v1.1-era database dump, runs the migration, and verifies every
       figure's rendered vertices and stacking order against expected values — the migration is
       proven lossless, not assumed
+
+      > 🟡 **ACCEPTED GAP at v1.11 close (2026-07-22).** Not satisfied. The requirement text is
+      > unchanged and was deliberately *not* rewritten to fit what was built.
+      >
+      > **What happened:** `V11MigrationReplayTests.cs` and `V11MigrationReplayFixture.cs` were
+      > written in Phase 10, passed 27/27, and were deleted in Phase 11's cutover-cleanup commit
+      > `1aaf45b` alongside genuinely-obsolete legacy tests. `tests/BlazorCanvas.Tests/Fixtures/v1.1-pre-rewrite.sql`
+      > and its MANIFEST remain committed and are still copied to the test output, but have no C#
+      > consumer.
+      >
+      > **Why accepted rather than closed:** the migration path is permanently unreachable. The one
+      > and only database is in `CatalogState.Completed` (`public.figures` has no `x1` column, `v11`
+      > schema dropped), so `V11Cutover.EnsureAsync` returns before touching it; a fresh volume takes
+      > the `FreshUsersOnly` path, which never calls `LegacyFigureConversion`; and D-08 locks the
+      > project against deployment, so no other installation can hold v1.1 data. Forward risk is zero.
+      >
+      > **What partially covers it:** `Migration/LegacyFigureConversionTests.cs` (restored, 105 tests)
+      > asserts position, geometry, and local bbox for all 8 curated manifest rows (ids 3860–3867) —
+      > the same rows the deleted replay test tabulated — with values transcribed from the manifest
+      > rather than recomputed, plus diagonal direction preservation.
+      >
+      > **What remains unproven:** the whole-corpus (795-row) database round-trip — jsonb write/read,
+      > `z` backfilled from the old id, canvas attachment, cross-user stacking order, the 173
+      > figureless-user canvases, and second-run idempotency.
+      >
+      > **Residual risk is retrospective, not forward-looking:** the live rows are the output of these
+      > formulas. If a formula were wrong the data would already be wrong, and the fixture is the only
+      > surviving record of the pre-migration truth. To close this later, see
+      > `milestones/v1.11-MILESTONE-AUDIT.md` → "Outstanding Work".
 
 ### Shape registry
 
@@ -169,7 +198,7 @@ honest values — PostgreSQL 11+ does not rewrite the table for a defaulted colu
 | MODEL-07 | Phase 10 | Complete |
 | MIGR-01 | Phase 10 | Complete |
 | MIGR-02 | Phase 10 | Complete |
-| MIGR-03 | Phase 10 | Complete |
+| MIGR-03 | Phase 10 | **Accepted gap** — see note above |
 | SHAPE-01 | Phase 9 | Complete |
 | SHAPE-02 | Phase 9 | Complete |
 | SHAPE-03 | Phase 9 | Complete |
@@ -188,6 +217,8 @@ honest values — PostgreSQL 11+ does not rewrite the table for a defaulted colu
 - v1.11 requirements: 22 total
 - Mapped to phases: 22
 - Unmapped: 0 ✓
+- **Satisfied at close: 21/22.** MIGR-03 archived as an accepted gap (see its note above and
+  `milestones/v1.11-MILESTONE-AUDIT.md`). Closeout type: `override_closeout`.
 
 ---
 *Requirements defined: 2026-07-21 at milestone v1.11 open*
