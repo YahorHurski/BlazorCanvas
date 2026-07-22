@@ -92,7 +92,7 @@ public sealed class Star5Shape : IShapeDefinition
         var radiusX = width / 2;
         var radiusY = height / 2;
 
-        var points = Enumerable.Range(0, 10)
+        var rawPoints = Enumerable.Range(0, 10)
             .Select(index =>
             {
                 var theta = (-Math.PI / 2) + (index * (Math.PI / 5));
@@ -101,6 +101,12 @@ public sealed class Star5Shape : IShapeDefinition
                     radiusX + (radiusX * scale * Math.Cos(theta)),
                     radiusY + (radiusY * scale * Math.Sin(theta)));
             })
+            .ToArray();
+        var rawBounds = BoundsOf(new Star5Geometry(rawPoints, DefaultInnerRatio));
+        var points = rawPoints
+            .Select(point => new LocalPoint(
+                rawBounds.W == 0 ? 0 : ((point.X - rawBounds.X) / rawBounds.W) * width,
+                rawBounds.H == 0 ? 0 : ((point.Y - rawBounds.Y) / rawBounds.H) * height))
             .ToArray();
 
         return new ShapePlacement(x, y, new Star5Geometry(points, DefaultInnerRatio));
