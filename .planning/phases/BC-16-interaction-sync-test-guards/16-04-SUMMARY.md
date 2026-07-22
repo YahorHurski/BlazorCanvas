@@ -48,7 +48,7 @@ coverage:
         status: pass
     human_judgment: false
 duration: 4 min
-completed: 2026-07-22
+completed: 2026-07-23
 status: complete
 ---
 
@@ -77,7 +77,7 @@ Each task was committed atomically:
 1. **Task 1: Add a pinned, test-only bUnit package reference compatible with net10.0** - `5b58094` (chore)
 2. **Task 2: Render the live star preview through FigureShape and assert a polygon is emitted before commit** - `c352c05` (test)
 
-**Plan metadata:** pending final docs commit
+**Plan metadata:** `c8831ac` (docs), `348831c` (docs follow-up for STATE decisions)
 
 ## Files Created/Modified
 
@@ -143,4 +143,4 @@ Plan 16-04 is complete. Phase 16 can use this guard alongside the other TEST-04 
 
 ---
 *Phase: BC-16-interaction-sync-test-guards*
-*Completed: 2026-07-22*
+*Completed: 2026-07-23*
