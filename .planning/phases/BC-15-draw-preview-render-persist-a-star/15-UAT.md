@@ -1,10 +1,10 @@
 ---
-status: testing
+status: diagnosed
 phase: BC-15-draw-preview-render-persist-a-star
 source:
   - 15-VERIFICATION.md
 started: 2026-07-22T23:44:00+02:00
-updated: 2026-07-22T23:52:00+02:00
+updated: 2026-07-23T00:04:00+02:00
 ---
 
 ## Current Test
@@ -53,5 +53,16 @@ blocked: 0
   reason: "User reported: not pass. I dont see preview of any figure. But star is creating good, and i see button on the toolbar. So the only problem fjr now is preview"
   severity: major
   test: 1
-  artifacts: []
-  missing: []
+  root_cause: "Home.razor passes the preview type string parameter as the literal value `preview.Type` (`PreviewType=\"preview.Type\"`) instead of binding the active `preview.Type` value. FigureShape rejects that literal through `Registry.Contains(PreviewType)`, so Geometry stays null and no preview SVG is emitted for any shape."
+  artifacts:
+    - path: "src/BlazorCanvas/Components/Pages/Home.razor"
+      issue: "Active preview FigureShape uses literal string binding for PreviewType."
+    - path: "src/BlazorCanvas/Components/Canvas/FigureShape.razor"
+      issue: "Preview rendering only uses placement geometry when Registry.Contains(PreviewType) succeeds."
+    - path: "tests/BlazorCanvas.Tests/Components/HomePreviewSourceTests.cs"
+      issue: "Source contract currently asserts the incorrect literal `PreviewType=\"preview.Type\"` string."
+  missing:
+    - "Bind PreviewType to the session value in Home.razor."
+    - "Update tests so they fail on literal string binding and verify preview parameter/render behavior."
+    - "Account for the running UAT app locking BlazorCanvas.exe before any build-backed verification."
+  debug_session: ".planning/debug/phase-15-preview-missing.md"
