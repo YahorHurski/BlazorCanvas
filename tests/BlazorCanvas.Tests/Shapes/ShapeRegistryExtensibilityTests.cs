@@ -18,8 +18,8 @@ public class ShapeRegistryExtensibilityTests
         var registry = DefaultShapes.CreateRegistry();
         registry.Register(new PentagonShape());
 
-        Assert.Equal(5, registry.All.Count);
-        Assert.Equal(new[] { "line", "rectangle", "circle", "triangle", "pentagon" }, registry.Names);
+        Assert.Equal(6, registry.All.Count);
+        Assert.Equal(new[] { "line", "rectangle", "circle", "triangle", "star5", "pentagon" }, registry.Names);
 
         IShapeDefinition definition = registry.Get("pentagon");
         var placement = definition.FromGesture(new CanvasPoint(pressX, pressY), new CanvasPoint(cursorX, cursorY));
@@ -55,8 +55,8 @@ public class ShapeRegistryExtensibilityTests
         registry.Register(new PentagonShape());
 
         var fresh = DefaultShapes.CreateRegistry();
-        Assert.Equal(4, fresh.All.Count);
-        Assert.Equal(new[] { "line", "rectangle", "circle", "triangle" }, fresh.Names);
+        Assert.Equal(5, fresh.All.Count);
+        Assert.Equal(new[] { "line", "rectangle", "circle", "triangle", "star5" }, fresh.Names);
 
         AssertShippedDefinition(
             fresh.Get("line"),

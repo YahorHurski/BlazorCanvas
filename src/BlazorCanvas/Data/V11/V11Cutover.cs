@@ -25,7 +25,12 @@ public static class V11Cutover
         await using var transaction = await connection.BeginTransactionAsync(ct);
         await using (var lockCommand = new NpgsqlCommand("SELECT pg_advisory_xact_lock(11011)", connection, transaction)) await lockCommand.ExecuteNonQueryAsync(ct);
         var state = await GetStateAsync(connection, transaction, ct);
-        if (state == CatalogState.Completed) { await transaction.RollbackAsync(ct); return; }
+        if (state == CatalogState.Completed)
+        {
+            await V11Schema.SeedPublicFigureTypesAsync(connection, transaction, registry, ct);
+            await transaction.CommitAsync(ct);
+            return;
+        }
         if (state == CatalogState.Invalid) throw new InvalidOperationException("The v1.11 catalog is partial or unsupported; refusing destructive cutover.");
         if (state is CatalogState.LegacyOnly or CatalogState.Additive)
         {

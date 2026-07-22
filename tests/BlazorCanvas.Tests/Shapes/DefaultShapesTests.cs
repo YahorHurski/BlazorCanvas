@@ -12,13 +12,15 @@ public class DefaultShapesTests
     }
 
     [Fact]
-    public void CreateRegistry_DefinitionsHaveUniqueLowercaseAsciiNames()
+    public void CreateRegistry_DefinitionsHaveUniqueLowercaseAsciiIdentifierNames()
     {
         var definitions = DefaultShapes.CreateRegistry().All;
         Assert.All(definitions, definition =>
         {
             Assert.False(string.IsNullOrWhiteSpace(definition.Name));
-            Assert.All(definition.Name, character => Assert.InRange(character, 'a', 'z'));
+            Assert.All(definition.Name, character => Assert.True(
+                character is >= 'a' and <= 'z' or >= '0' and <= '9',
+                $"'{definition.Name}' contains unsupported character '{character}'."));
         });
         Assert.Equal(definitions.Count, definitions.Select(definition => definition.Name).Distinct(StringComparer.Ordinal).Count());
     }

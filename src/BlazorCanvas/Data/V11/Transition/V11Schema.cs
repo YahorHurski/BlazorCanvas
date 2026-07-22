@@ -38,12 +38,36 @@ public static class V11Schema
     }
 
     public static async Task SeedFigureTypesAsync(NpgsqlConnection connection, NpgsqlTransaction transaction, ShapeRegistry registry, CancellationToken ct = default)
+        => await SeedFigureTypesAsync(connection, transaction, registry, FigureTypesSeedSchema.V11, ct);
+
+    public static async Task SeedPublicFigureTypesAsync(NpgsqlConnection connection, NpgsqlTransaction transaction, ShapeRegistry registry, CancellationToken ct = default)
+        => await SeedFigureTypesAsync(connection, transaction, registry, FigureTypesSeedSchema.Public, ct);
+
+    private static async Task SeedFigureTypesAsync(
+        NpgsqlConnection connection,
+        NpgsqlTransaction transaction,
+        ShapeRegistry registry,
+        FigureTypesSeedSchema schema,
+        CancellationToken ct)
     {
+        var target = schema switch
+        {
+            FigureTypesSeedSchema.V11 => "v11.figure_types",
+            FigureTypesSeedSchema.Public => "public.figure_types",
+            _ => throw new ArgumentOutOfRangeException(nameof(schema), schema, "Unknown figure type seed schema.")
+        };
+
         foreach (var name in registry.Names)
         {
-            await using var command = new NpgsqlCommand("INSERT INTO v11.figure_types (name) VALUES (@name) ON CONFLICT (name) DO NOTHING", connection, transaction);
+            await using var command = new NpgsqlCommand($"INSERT INTO {target} (name) VALUES (@name) ON CONFLICT (name) DO NOTHING", connection, transaction);
             command.Parameters.AddWithValue("name", name);
             await command.ExecuteNonQueryAsync(ct);
         }
+    }
+
+    private enum FigureTypesSeedSchema
+    {
+        V11,
+        Public
     }
 }
