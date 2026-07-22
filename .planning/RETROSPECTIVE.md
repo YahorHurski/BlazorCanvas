@@ -189,6 +189,75 @@
 
 ---
 
+## Milestone: v1.11 — Storage Model Rewrite
+
+**Shipped:** 2026-07-22
+**Phases:** 4 | **Plans:** 19 | **Tasks:** 35
+
+### What Was Built
+
+The four-integer bounding-box model was replaced by the position/shape split: `x, y, rotation` for
+where a figure is, `geometry jsonb` in local coordinates for what it is, across four tables
+(`users`, `canvases`, `figures`, `figure_types`). Every type-specific rule moved behind one
+`IShapeDefinition` registry; all client geometry and style now passes one validation gateway that
+re-serialises from typed records. A transactional cutover promoted the interim schema into `public`
+and dropped the legacy table. A human confirmed on the running application that none of it is
+visible — which was the milestone's governing invariant.
+
+### What Worked
+
+- **Sequencing the pure-C# work first.** Phase 9 had zero database dependency, so the registry and
+  gateway were provably correct before any schema moved. Phase 10 was purely additive for the same
+  reason. Only Phase 11 was ever "between" models.
+- **Banking the v1.1 dump in Phase 9.** The roadmap was amended at approval to move this capture
+  earlier, because Phase 10 applies the migration and would have destroyed its own subject. That
+  call was right, and the fixture still exists because of it.
+- **Making human regression its own phase.** REG-01 could not be short-circuited by green tests,
+  and in fact it *failed first* — catching a missing drawing preview that every automated test
+  passed straight through.
+
+### What Was Inefficient
+
+- **Phase 11's cleanup deleted 2,335 lines of live proof.** The plan authorised removing "tests
+  whose subject no longer exists". The executing agent applied that to anything that stopped
+  compiling after the legacy model was dropped — which included tests whose subject had been
+  *promoted* into `public`, not removed. The suite went 1,293 → 296 and no gate objected.
+- **The same commit rewrote `LegacyFigureConversion.cs` while deleting its 11 unit tests.** A
+  behavioural rewrite of the migration formulas landed with its proof removed in the same change.
+- **Two audit passes were needed.** The first scored 21/22 and reported the replay test as "not
+  found" without locating the cause. Only tracing `1aaf45b` showed the tests had been written,
+  passed, and then deleted — which changed the remedy from "author new tests" to "restore and
+  rebase", and the restoration then built on the first attempt.
+
+### Patterns Established
+
+- **Classify before restoring.** Each of the 20 deleted files was sorted into obsolete / restore
+  as-is / retarget / needs-redesign *before* any action. 11 were correctly obsolete; restoring them
+  would have been as wrong as deleting the other 9.
+- **Requirements are not renegotiated at close.** MIGR-03 was archived unsatisfied with its
+  reasoning rather than rewritten to match what shipped.
+
+### Key Lessons
+
+1. **A phase that deletes tests must justify the count, not just the compile.** Phase 10 recorded
+   1,293 passing; Phase 11 recorded 296 and still verified `passed`, because it only checked its own
+   four requirements. Both numbers were already in the VERIFICATION.md files — nothing new needed
+   collecting, only comparing.
+2. **"Subject no longer exists" needs a sharper test than "no longer compiles."** Promotion and
+   deletion look identical to a broken build.
+3. **Never rewrite an implementation in the same commit that removes its tests.** Either change is
+   defensible alone; together they erase the ability to tell whether the rewrite was faithful.
+4. **A milestone audit earns its cost when it disagrees with every phase gate below it.** All four
+   phases read `passed`. The regression was only visible from above.
+
+### Cost Observations
+
+- Sessions: 1 for audit, restoration, and close.
+- Notable: the restoration was ~18 schema-name substitutions and one `using` change for 197 tests —
+  cheap only because it was diagnosed as a rebase rather than a rewrite.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -197,6 +266,7 @@
 |-----------|--------|-------|------------|
 | v1.0 | 5 | 23 | Baseline — ADR-first planning from 58 locked decisions; gap-closure plans introduced after BC-01 verification |
 | v1.1 | 3 | 4 | Documentation-only phase given a full verification gate; human verification split into its own plan; milestone audit skipped |
+| v1.11 | 4 | 19 | Milestone audit run and *disagreed with every phase gate below it*; requirement archived unsatisfied rather than rewritten; first close to restore deleted evidence before shipping |
 
 ### Cumulative Quality
 
@@ -204,12 +274,15 @@
 |-----------|-------|---------|----------|--------------|
 | v1.0 | 405 | ~2,500 | ~2,000 | 15/15 validated |
 | v1.1 | 405 | ~2,500 | ~2,000 | 4/4 validated (19/19 cumulative) |
+| v1.11 | 500 | ~2,900 | ~3,400 | 21/22 validated (40/41 cumulative); MIGR-03 accepted gap |
 
 ### Top Lessons (Verified Across Milestones)
 
-1. **Records drift silently; code drifts loudly.** — *Confirmed in v1.0 and v1.1.* Found at both closes,
-   in different files each time, caught by no test either time. This is now the project's most
-   reproducible failure mode. v1.0 called it a lesson; v1.1 proves it needs a mechanism, not a reminder.
+1. **Records drift silently; code drifts loudly.** — *Confirmed in v1.0, v1.1 and v1.11.* Found at
+   all three closes, in different files each time, caught by no test any time. This is now the
+   project's most reproducible failure mode. v1.0 called it a lesson; v1.1 proved it needs a
+   mechanism; **v1.11 showed the drift can be in the evidence itself** — four phases reported
+   `passed` while the proof for two requirements had been deleted underneath them.
 2. **Writing the hardest thing into the definition of done prevents its deferral.** — *v1.0 (live sync);
    partially re-confirmed in v1.1*, where human verification was made a plan rather than a hope, and
    duly happened.
