@@ -1,10 +1,11 @@
 ---
 phase: 14
 slug: catalog-seed-toolbar-decisions
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-07-22
+reviewed_at: 2026-07-22
 ---
 
 # Phase 14 - UI Design Contract
@@ -25,6 +26,9 @@ The toolbar must show exactly this left-to-right tool/action order:
 
 The star button sits between triangle and delete. The 48px toolbar strip, the 40x40 icon-button
 treatment, the right-aligned logout form, and the delete action semantics remain unchanged.
+
+Primary visual anchor is the armed toolbar tool, shown by the accent-filled 40x40 button; otherwise
+the canvas remains visually dominant.
 
 Sources: `.planning/REQUIREMENTS.md` CANV-04, `.planning/ROADMAP.md` Phase 14 success criteria,
 `14-RESEARCH.md`, `Toolbar.razor`, `Toolbar.razor.css`, `Tool.cs`, `docs/DECISIONS.md` D-16/D-33/D-43/D-56/D-58.
@@ -186,19 +190,25 @@ with accessible labels supplying names for assistive technology.
 
 ## UI Considerations
 
-Applicable state considerations resolved: 5 covered, 0 backstop, 0 unresolved.
+Applicable state considerations resolved: 12 covered, 0 backstop, 0 unresolved.
 
 | Category | Element(s) | Status | Resolution / Reason |
 |----------|------------|--------|---------------------|
-| long-text | Toolbar icon buttons | covered | Icon-only controls have no visible text; accessible labels stay short (`Draw star`) and do not affect layout. |
+| loading | Toolbar strip | covered | No toolbar loading treatment is introduced; the seven controls render synchronously from static Razor markup. |
+| error | Toolbar strip | covered | Toolbar rendering has no separate error state; backend catalog seed failures use the existing app failure path rather than hiding or disabling Star. |
 | overflow | Toolbar strip | covered | The seventh button fits in the unchanged 48px-high, full-width flex toolbar without wrapping; Logout remains pushed right by `margin-left: auto`. |
-| populated | Toolbar control row | covered | Normal populated state is seven tool/action buttons plus divider and right-aligned Logout in the locked order. |
+| long-text | Toolbar strip | covered | Toolbar controls remain icon-only; Logout retains existing text and right alignment. |
+| long-text | Star toolbar button | covered | Star has no visible label; accessible label stays short (`Draw star`) and does not affect layout. |
+| long-text | Delete action button | covered | Delete remains icon-only with existing accessible name; no visible text can overflow. |
 | empty | Canvas surface | covered | Empty canvas remains blank white with no placeholder; this phase does not change canvas empty state. |
-| error | Save failure modal | covered | Existing save-failure copy and reload flow remain unchanged; Phase 14 introduces no new error surface. |
+| loading | Canvas surface | covered | Phase 14 adds no canvas-loading UI; startup/database loading behavior remains unchanged. |
+| error | Canvas surface | covered | Existing save-failure copy and reload flow remain unchanged; Phase 14 introduces no new canvas error surface. |
+| populated | Canvas surface | covered | Populated canvas remains dominated by existing figures; Phase 14 does not render persisted stars yet. |
+| overflow | Save failure copy | covered | Existing modal/copy container remains the owner of wrapping; Phase 14 does not change its text length or layout. |
+| long-text | Save failure copy | covered | The locked error sentence remains short enough to wrap normally in the existing container. |
 
 Dismissed as not applicable:
 
-- Loading: no asynchronous UI surface is introduced for the toolbar button.
 - Partial: the toolbar is a fixed control set; partial catalog seed states are backend concerns and
   must not surface as missing/disabled toolbar buttons in this phase.
 - Zero-one-many: the toolbar count is fixed at seven controls; dynamic toolbar behavior is deferred
@@ -217,11 +227,11 @@ Dismissed as not applicable:
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS with non-blocking focal-point recommendation incorporated
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved by gsd-ui-checker on 2026-07-22.
