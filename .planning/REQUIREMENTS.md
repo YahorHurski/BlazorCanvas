@@ -69,7 +69,7 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
 - [ ] **SYNC-04**: A star appears live in the user's other open tabs on draw, glides in real time
       during a drag, and disappears on delete — under the unchanged D-53 contract.
 
-- [ ] **MODEL-08**: The `figure_types` catalog is seeded from the shape registry at every startup, so
+- [x] **MODEL-08**: The `figure_types` catalog is seeded from the shape registry at every startup, so
       a newly registered shape is writable on an existing database with no manual SQL and no
       migration — closing the gap where `V11Cutover` returns early at `CatalogState.Completed` and
       leaves the type's foreign key unsatisfiable.
@@ -135,7 +135,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SHAPE-04 | Phase 13 | Complete |
 | SHAPE-05 | Phase 13 | Complete |
 | SHAPE-06 | Phase 13 | Complete |
-| MODEL-08 | Phase 14 | Pending |
+| MODEL-08 | Phase 14 | Complete |
 | CANV-04 | Phase 14 | Pending |
 | ARCH-02 | Phase 14 | Pending |
 | FIG-05 | Phase 15 | Pending |

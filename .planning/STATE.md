@@ -5,15 +5,15 @@ milestone_name: Five-pointed star
 current_phase: 14
 current_phase_name: Catalog Seed, Toolbar & Decisions
 status: executing
-stopped_at: Phase 14 UI-SPEC approved
-last_updated: "2026-07-22T19:57:46.406Z"
+stopped_at: Completed BC-14-01-PLAN.md
+last_updated: "2026-07-22T20:06:58.004Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase BC-13 complete, transitioned to Phase 14
 progress:
   total_phases: 2
   completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  total_plans: 4
+  completed_plans: 2
   percent: 50
 ---
 
@@ -60,9 +60,9 @@ becomes loud rather than silent. The unreferenced
 ## Current Position
 
 Phase: 14 — Catalog Seed, Toolbar & Decisions
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-22 — Phase BC-13 complete, transitioned to Phase 14
+Plan: 14-02 next
+Status: In progress
+Last activity: 2026-07-22 — Completed BC-14-01 catalog seed registration plan
 
 ## Performance Metrics
 
@@ -137,6 +137,7 @@ Last activity: 2026-07-22 — Phase BC-13 complete, transitioned to Phase 14
 | Phase BC-10 P05 | 30min | 2 tasks | 2 files |
 | Phase BC-10 P06 | 3min | 2 tasks | 3 files |
 | Phase BC-13 P01 | 5min | 2 tasks | 3 files |
+| Phase BC-14 P01 | 4min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -271,6 +272,8 @@ into an earlier phase's automated tests.
 - [Phase ?]: The D-60 geometry-CHECK gap remains explicit: the gateway is the last validation boundary and raw probes roll back.
 - [Phase ?]: Star5Shape remains unregistered in DefaultShapes during Phase 13; Phase 14 owns registry/catalog exposure.
 - [Phase ?]: Star5Geometry.InnerRatio is required and preserved, but bounds remain a pure function of Points.
+- [Phase BC-14]: Star5Shape now participates in the default registry and figure_types seed order immediately after triangle. — MODEL-08 requires newly registered shapes to become writable through registry-driven startup seeding.
+- [Phase BC-14]: Completed public catalogs seed missing registry-owned figure_types rows idempotently instead of remaining exact no-ops. — Existing completed databases must gain star5 without migration or manual SQL while preserving transaction/advisory-lock boundaries.
 
 ### Pending Todos
 
@@ -300,10 +303,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T19:36:51.787Z
-Stopped at: Phase 14 UI-SPEC approved
-Resume file: .planning/phases/BC-14-catalog-seed-toolbar-decisions/14-UI-SPEC.md
+Last session: 2026-07-22T20:06:57.990Z
+Stopped at: Completed BC-14-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
-- Run `/gsd-plan-phase 14` to plan Phase 14 (Catalog Seed, Toolbar & Decisions).
+- Run `/gsd-execute-phase 14` to continue with Plan 14-02.
