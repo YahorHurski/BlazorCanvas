@@ -2,6 +2,7 @@ using BlazorCanvas.Data.V11;
 using BlazorCanvas.Shapes;
 using BlazorCanvas.Tests.Database;
 using Npgsql;
+using System.Reflection;
 
 namespace BlazorCanvas.Tests.Database.V11;
 
@@ -74,6 +75,36 @@ public class V11RuntimeBootstrapTests
         Assert.Contains("users schema", exception.Message, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Program_BootstrapsThePooledV11GraphBeforeComponentRoutes()
+    {
+        var program = File.ReadAllText(FindRepositoryFile("src", "BlazorCanvas", "Program.cs"));
+        var efMigration = program.IndexOf("db.Database.Migrate()", StringComparison.Ordinal);
+        var bootstrap = program.IndexOf("await V11RuntimeBootstrap.EnsureAsync", StringComparison.Ordinal);
+        var componentRoutes = program.IndexOf("app.MapRazorComponents", StringComparison.Ordinal);
+
+        Assert.True(efMigration >= 0, "Program.cs must migrate the EF users schema.");
+        Assert.True(bootstrap > efMigration, "The v11 bootstrap must follow EF user migration.");
+        Assert.True(componentRoutes > bootstrap, "The v11 bootstrap must precede interactive component routes.");
+        Assert.Equal(1, CountOccurrences(program, "AddSingleton<NpgsqlDataSource>"));
+        Assert.Contains("NpgsqlDataSource.Create(", program, StringComparison.Ordinal);
+        Assert.Contains("AddSingleton(DefaultShapes.CreateRegistry())", program, StringComparison.Ordinal);
+        Assert.Contains("AddScoped<FigureInputGateway>()", program, StringComparison.Ordinal);
+        Assert.Contains("AddScoped<FigureRepository>()", program, StringComparison.Ordinal);
+        Assert.Contains("AddScoped<CanvasRepository>()", program, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void FigureRepository_StillAllowsOnlyValidatedInputsForWrites()
+    {
+        var methods = typeof(FigureRepository).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+        Assert.DoesNotContain(methods.SelectMany(method => method.GetParameters()), parameter =>
+            parameter.ParameterType == typeof(string));
+        Assert.Contains(typeof(FigureRepository).GetMethod(nameof(FigureRepository.InsertAsync))!.GetParameters(), parameter =>
+            parameter.ParameterType == typeof(ValidatedFigureInput));
+    }
+
     private async Task<V11MigrationReplayFixture.FreshMigrationDatabase> CreateLegacyDatabaseAsync(string? figureType)
     {
         return await V11MigrationReplayFixture.CreateFreshAsync(
@@ -114,5 +145,32 @@ public class V11RuntimeBootstrapTests
     {
         await using var command = new NpgsqlCommand(sql, connection);
         return (T)(await command.ExecuteScalarAsync())!;
+    }
+
+    private static string FindRepositoryFile(params string[] segments)
+    {
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
+        {
+            var path = Path.Combine([directory.FullName, .. segments]);
+            if (File.Exists(path))
+            {
+                return path;
+            }
+        }
+
+        throw new FileNotFoundException($"Could not locate repository file '{Path.Combine(segments)}'.");
+    }
+
+    private static int CountOccurrences(string value, string substring)
+    {
+        var count = 0;
+        var position = 0;
+        while ((position = value.IndexOf(substring, position, StringComparison.Ordinal)) >= 0)
+        {
+            count++;
+            position += substring.Length;
+        }
+
+        return count;
     }
 }
