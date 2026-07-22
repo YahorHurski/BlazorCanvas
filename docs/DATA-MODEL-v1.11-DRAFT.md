@@ -76,8 +76,7 @@ create table canvases (
     width      integer     not null default 1472,      -- значения v1.1
     height     integer     not null default 828,
     background text        not null default '#FFFFFF',
-    created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
+    created_at timestamptz not null default now()
 );
 
 create index ix_canvases_owner on canvases (owner_id);
@@ -124,7 +123,6 @@ create table figures (
     bbox_h double precision not null,
 
     created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now(),
 
     constraint z_unique_per_canvas unique (canvas_id, z),
     constraint style_is_object     check (jsonb_typeof(style) = 'object'),
@@ -383,7 +381,7 @@ geometry = {"points": [[0,0],[100,0],[50,80]]}
 Перетаскивание на 20 пикселей вправо, при любой сложности фигуры:
 
 ```sql
-update figures set x = x + 20, updated_at = now() where id = @id;
+update figures set x = x + 20 where id = @id;
 ```
 
 **Для пользователя не меняется ничего.** Те же фигуры, те же места, тот же вид. Рисование

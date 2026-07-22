@@ -2321,9 +2321,17 @@ stays under 32px per side.
 
 ---
 
-## D-68 — `created_at` returns; `updated_at` joins it
+## D-68 — `created_at` returns
 
 **Status:** Locked — supersedes the "no `created_at`" half of **D-46**
+
+> ✏️ **Amended (Phase 10 planning).** Originally titled "`created_at` returns; `updated_at` joins
+> it". The body below only ever argued for `created_at`; `updated_at` appeared in the heading, was
+> never given a rationale, and no reader for it existed in v1.11 or anywhere in `src/`. Keeping it
+> would have contradicted both D-46's own rule — *"a column that exists for no functional reason is
+> exactly what this log has been ruthless about"* — and D-69's *"take now only what would otherwise
+> require a pass over rows already written"*. `updated_at` is deferred to **D-69**; `created_at`
+> stands on the argument below, which is specific to it.
 
 D-46 dropped `created_at` because nothing read it. It comes back for one reason only: **it is the
 only column in this design whose late addition would produce false data.** Added in a year, every
@@ -2347,6 +2355,7 @@ PostgreSQL 11+, and `CREATE TABLE`/`CREATE INDEX` touch no data.
 |---|---|---|
 | `version` | concurrent editing | `ADD COLUMN DEFAULT 1` — the backfilled `1` is correct |
 | `parent_id` | groups and layers | `ADD COLUMN` — existing rows are simply NULL |
+| `updated_at` | audit trails, "recently edited" views | `ADD COLUMN … DEFAULT now()` — instant in PG 11+. Deferred from D-68, which named no reader for it. Undo/history does **not** motivate it: that needs `figure_history` regardless (below) |
 | GiST index on the bbox | 100 000+ figures | `CREATE INDEX` |
 | `figure_history` / operation log | undo/redo across F5 | `CREATE TABLE` — starts empty |
 | Soft delete (`deleted_at`) | — | **Not taken.** It only undoes *deletion* — it cannot undo a move or a vertex edit, so undo needs a history table regardless. Meanwhile it adds `WHERE deleted_at IS NULL` to every query forever and introduces an "exists but hidden" state into the D-40 no-resurrection rule. Hard delete stays. |
