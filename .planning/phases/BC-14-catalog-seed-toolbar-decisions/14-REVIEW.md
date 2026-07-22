@@ -1,8 +1,8 @@
 ---
 phase: BC-14-catalog-seed-toolbar-decisions
-reviewed: 2026-07-22T20:24:30Z
+reviewed: 2026-07-22T20:30:52Z
 depth: standard
-files_reviewed: 12
+files_reviewed: 15
 files_reviewed_list:
   - src/BlazorCanvas/Shapes/DefaultShapes.cs
   - src/BlazorCanvas/Data/V11/Transition/V11Schema.cs
@@ -13,59 +13,41 @@ files_reviewed_list:
   - tests/BlazorCanvas.Tests/Database/V11/V11CutoverTests.cs
   - src/BlazorCanvas/Tools/Tool.cs
   - src/BlazorCanvas/Components/Canvas/Toolbar.razor
+  - src/BlazorCanvas/Components/Canvas/FigureShape.razor
+  - src/BlazorCanvas/Components/Canvas/SelectionTrace.razor
   - tests/BlazorCanvas.Tests/Tools/ToolMapTests.cs
   - tests/BlazorCanvas.Tests/Components/ToolbarSourceTests.cs
+  - tests/BlazorCanvas.Tests/Components/V11RenderContractTests.cs
   - docs/DECISIONS.md
 findings:
-  critical: 1
+  critical: 0
   warning: 0
   info: 0
-  total: 1
-status: issues_found
+  total: 0
+status: clean
 ---
 
 # Phase 14: Code Review Report
 
-**Reviewed:** 2026-07-22T20:24:30Z
+**Reviewed:** 2026-07-22T20:30:52Z
 **Depth:** standard
-**Files Reviewed:** 12
-**Status:** issues_found
+**Files Reviewed:** 15
+**Status:** clean
 
 ## Summary
 
-Reviewed the Phase 14 catalog seed, v1.11 cutover, toolbar/tool mapping, tests, and decision-log updates. The catalog and toolbar now expose `star5`, but the existing render and selection components do not handle `Star5Geometry`, so the new user-facing tool can create persisted figures that are invisible and cannot be selected from the canvas.
+Re-reviewed the Phase 14 catalog seed, v1.11 cutover convergence, star geometry, toolbar/tool mapping, render/selection components, tests, and decision-log updates.
 
-`dotnet test` passed with 530 tests, which confirms the current test suite does not cover the missing renderer path.
+The previously reported CR-01 is fixed. `FigureShape.razor` now renders `Star5Geometry` as a polygon at lines 22-24, and `SelectionTrace.razor` now traces `Star5Geometry` with the same white/blue dashed polygon pattern at lines 26-29. The added `V11RenderContractTests` source contract pins both render paths.
+
+All reviewed files meet quality standards. No issues found.
 
 ## Narrative Findings (AI reviewer)
 
-## Critical Issues
-
-### CR-01: [BLOCKER] Star tool creates persisted figures that do not render
-
-**File:** `src/BlazorCanvas/Components/Canvas/Toolbar.razor:39`
-
-**Issue:** The toolbar exposes `Tool.Star`, and `src/BlazorCanvas/Tools/Tool.cs:40` maps it to the registry-owned `star5` type seeded by `src/BlazorCanvas/Shapes/DefaultShapes.cs:19`. That makes Star a real drawing tool, but the render path still only switches over `LineGeometry`, `RectangleGeometry`, `CircleGeometry`, and `TriangleGeometry` in `src/BlazorCanvas/Components/Canvas/FigureShape.razor:8-22`. `SelectionTrace.razor:8-26` has the same missing case. A user can draw a star, the row can be inserted as `star5`, and then preview/render/selection output no SVG for that geometry. The result is a persisted invisible figure that is not selectable by clicking it.
-
-**Fix:** Add `Star5Geometry` cases anywhere geometry is rendered or traced, and add a component-level test that renders a `star5` figure instead of only asserting toolbar source text.
-
-```razor
-case Star5Geometry star:
-    <polygon points="@Points(star.Points)"
-             fill="@Style.Fill"
-             stroke="@Style.Stroke"
-             stroke-width="@Number(Style.StrokeWidth)"
-             fill-opacity="@Opacity"
-             stroke-opacity="@Opacity"
-             @onpointerdown="HandlePointerDown"
-             @onpointerdown:stopPropagation="Selectable" />
-    break;
-```
-
-For `SelectionTrace.razor`, render the same `polygon` twice with the existing white/blue dashed trace styling used for triangles.
+No Critical, Warning, or Info findings.
 
 ---
 
-_Reviewed: 2026-07-22T20:24:30Z_
+_Reviewed: 2026-07-22T20:30:52Z_
 _Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
