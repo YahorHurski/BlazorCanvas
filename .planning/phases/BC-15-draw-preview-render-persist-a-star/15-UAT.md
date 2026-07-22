@@ -4,7 +4,7 @@ phase: BC-15-draw-preview-render-persist-a-star
 source:
   - 15-VERIFICATION.md
 started: 2026-07-22T23:44:00+02:00
-updated: 2026-07-22T23:44:00+02:00
+updated: 2026-07-22T23:52:00+02:00
 ---
 
 ## Current Test
@@ -22,7 +22,9 @@ awaiting: user response
 ### 1. Browser Star Draw UAT
 
 expected: The toolbar arms Star, the preview follows the cursor as a five-point star, the shape clamps at the canvas edge, commit creates the same five-point star, and refresh reloads it unchanged without pressing a Save button.
-result: pending
+result: issue
+reported: "not pass. I dont see preview of any figure. But star is creating good, and i see button on the toolbar. So the only problem fjr now is preview"
+severity: major
 
 Instructions:
 
@@ -38,9 +40,18 @@ Instructions:
 
 total: 1
 passed: 0
-issues: 0
-pending: 1
+issues: 1
+pending: 0
 skipped: 0
 blocked: 0
 
 ## Gaps
+
+- gap_id: G-15-1
+  truth: "The toolbar arms Star, the preview follows the cursor as a five-point star, the shape clamps at the canvas edge, commit creates the same five-point star, and refresh reloads it unchanged without pressing a Save button."
+  status: failed
+  reason: "User reported: not pass. I dont see preview of any figure. But star is creating good, and i see button on the toolbar. So the only problem fjr now is preview"
+  severity: major
+  test: 1
+  artifacts: []
+  missing: []
