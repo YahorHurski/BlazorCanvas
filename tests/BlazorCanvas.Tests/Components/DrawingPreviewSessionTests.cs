@@ -31,6 +31,7 @@ public class DrawingPreviewSessionTests
     [InlineData("line", -10, -10, 2000, 1000)]
     [InlineData("circle", 10, 300, 500, 300)]
     [InlineData("triangle", -10, -10, 2000, 1000)]
+    [InlineData("star5", -10, -10, 2000, 1000)]
     public void Update_PreservesRegistryPlacementAndCanvasEdgeClamping(
         string type, double pressX, double pressY, double cursorX, double cursorY)
     {
@@ -49,6 +50,25 @@ public class DrawingPreviewSessionTests
         Assert.Equal(
             registry.Get(type).ToJson(expected.Geometry),
             registry.Get(type).ToJson(actual.Geometry));
+    }
+
+    [Fact]
+    public void BeginAndUpdate_Star5_ExposesTheSamePlacementJsonAsTheRegistry()
+    {
+        var registry = DefaultShapes.CreateRegistry();
+        var star = registry.Get("star5");
+        var session = new DrawingPreviewSession(registry);
+        var press = new CanvasPoint(900.4, 700.4);
+        var cursor = new CanvasPoint(1600.2, 900.8);
+
+        session.Begin("star5", press);
+        session.Update(cursor);
+
+        var expected = star.FromGesture(press, cursor);
+        var actual = Assert.IsType<ShapePlacement>(session.Placement);
+        Assert.Equal(expected.X, actual.X);
+        Assert.Equal(expected.Y, actual.Y);
+        Assert.Equal(star.ToJson(expected.Geometry), star.ToJson(actual.Geometry));
     }
 
     [Fact]
