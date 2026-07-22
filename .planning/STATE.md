@@ -5,15 +5,15 @@ milestone_name: Storage Model Rewrite
 current_phase: 10
 current_phase_name: Storage Schema, Migration & Persistence Layer
 status: executing
-stopped_at: Completed BC-10-03-PLAN.md
-last_updated: "2026-07-22T02:01:09.237Z"
+stopped_at: Completed BC-10-04-PLAN.md
+last_updated: "2026-07-22T11:52:22.286Z"
 last_activity: 2026-07-22
 last_activity_desc: "completed BC-10 Plan 01: isolated v11 schema and live catalog proof"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 11
-  completed_plans: 9
+  completed_plans: 10
   percent: 25
 ---
 
@@ -44,12 +44,12 @@ archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic to
 ## Current Position
 
 Phase: 10 — Storage Schema, Migration & Persistence Layer
-Plan: 4 of 05
+Plan: 5 of 05
 Status: Ready to execute
 Last activity: 2026-07-22 — completed BC-10 Plan 01: isolated v11 schema and live catalog proof
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
-Progress: [████████░░] 82%
+Progress: [█████████░] 91%
 
 ## Performance Metrics
 
@@ -117,6 +117,7 @@ Progress: [████████░░] 82%
 | Phase BC-10 P01 | 28min | 3 tasks | 5 files |
 | Phase BC-10 P02 | 4min | 3 tasks | 6 files |
 | Phase BC-10 P03 | 7min | 3 tasks | 4 files |
+| Phase BC-10 P04 | 5min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -224,6 +225,9 @@ into an earlier phase's automated tests.
 - [Phase ?]: D-62 legacy IDs map deterministically into frozen, namespace-separated version-8 UUID layouts.
 - [Phase ?]: FigureRepository retries at most five times and only for z_unique_per_canvas unique violations.
 - [Phase ?]: Phase 11 substitutes FigureRepository for FigureStore; Phase 10 keeps the running application untouched.
+- [Phase ?]: V11 migration applies schema and seed, canvases, then figures in one transaction; dropping old tables remains Phase 11 work.
+- [Phase ?]: Replay uses deterministic legacy-id mappings and a guarded GUID scratch database with checksum verification.
+- [Phase ?]: Migrated created_at is the migration timestamp (D-68); Phase 11 invokes migration before cutover.
 
 ### Pending Todos
 
@@ -253,8 +257,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T02:01:09.222Z
-Stopped at: Completed BC-10-03-PLAN.md
+Last session: 2026-07-22T11:52:22.268Z
+Stopped at: Completed BC-10-04-PLAN.md
 Phase BC-09 verified passed (45/45 must-haves), UAT approved, 22/22 requirements mapped.
 Resume file: None
 

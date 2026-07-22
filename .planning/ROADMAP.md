@@ -201,7 +201,7 @@ the data layer, before any application code is touched.
      `geometry` for every row; the validation gateway rejects hostile `geometry`/`style`; and a `z`
      collision produces both figures rather than silently losing one.
 
-**Plans**: 3/5 plans executed
+**Plans**: 4/5 plans executed
 
 Plans:
 **Wave 1**
@@ -215,7 +215,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 10-04-PLAN.md — `V11DataMigration` and the scratch-database replay proof against the committed v1.1 dump (wave 3)
+- [x] 10-04-PLAN.md — `V11DataMigration` and the scratch-database replay proof against the committed v1.1 dump (wave 3)
 - [ ] 10-05-PLAN.md — TEST-03 guards: whole-table bbox-vs-geometry agreement and hostile-input rejection at the database boundary (wave 3)
 
 Notes: the v1.1-era dump that criterion 3's replay test consumes is **captured in Phase 9**, not
@@ -295,7 +295,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Shape Registry & Validation Gateway | v1.11 | 6/6 | Complete    | 2026-07-22 |
-| 10. Storage Schema, Migration & Persistence Layer | v1.11 | 3/5 | In Progress|  |
+| 10. Storage Schema, Migration & Persistence Layer | v1.11 | 4/5 | In Progress|  |
 | 11. Renderer, Sync & Cutover | v1.11 | 0/TBD | Not started | - |
 | 12. Regression Verification | v1.11 | 0/TBD | Not started | - |
 

@@ -40,7 +40,7 @@ for a feature, and the user sees no difference at all.
       figure takes `max(z) + 1`, and a concurrent insert that collides on `z` retries rather than
       silently failing to appear
 
-- [ ] **MODEL-06**: Each figure carries a validated `style` (stroke, stroke width, fill, opacity)
+- [x] **MODEL-06**: Each figure carries a validated `style` (stroke, stroke width, fill, opacity)
       whose defaults reproduce the current fixed appearance exactly
 
 - [x] **MODEL-07**: Each figure carries a `bbox_*` cache derived from `geometry` by exactly one
@@ -51,10 +51,10 @@ for a feature, and the user sees no difference at all.
 - [x] **MIGR-01**: A user who had figures before the upgrade opens the canvas afterwards and sees
       the identical picture — same shapes, same positions, same overlap order, same appearance
 
-- [ ] **MIGR-02**: Each existing user receives exactly one canvas row at 1472 × 828, and every one
+- [x] **MIGR-02**: Each existing user receives exactly one canvas row at 1472 × 828, and every one
       of their figures is attached to it
 
-- [ ] **MIGR-03**: A test loads a v1.1-era database dump, runs the migration, and verifies every
+- [x] **MIGR-03**: A test loads a v1.1-era database dump, runs the migration, and verifies every
       figure's rendered vertices and stacking order against expected values — the migration is
       proven lossless, not assumed
 
@@ -165,11 +165,11 @@ honest values — PostgreSQL 11+ does not rewrite the table for a defaulted colu
 | MODEL-03 | Phase 10 | Complete |
 | MODEL-04 | Phase 10 | Complete |
 | MODEL-05 | Phase 10 | Complete |
-| MODEL-06 | Phase 10 | Pending |
+| MODEL-06 | Phase 10 | Complete |
 | MODEL-07 | Phase 10 | Complete |
 | MIGR-01 | Phase 10 | Complete |
-| MIGR-02 | Phase 10 | Pending |
-| MIGR-03 | Phase 10 | Pending |
+| MIGR-02 | Phase 10 | Complete |
+| MIGR-03 | Phase 10 | Complete |
 | SHAPE-01 | Phase 9 | Complete |
 | SHAPE-02 | Phase 9 | Complete |
 | SHAPE-03 | Phase 9 | Complete |
