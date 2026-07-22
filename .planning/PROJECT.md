@@ -37,8 +37,9 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 ## Current Milestone: v1.12 Five-pointed star
 
 **Opened 2026-07-22.** Branch `Milestone-v1.12`. Phase 13 is complete: the pure C# `Star5Shape` /
-`Star5Geometry` core is built, directly tested, and deliberately not registered yet. The milestone
-continues with Phase 14, which exposes that core through the registry, catalog seed, and toolbar.
+`Star5Geometry` core is built and directly tested. Phase 14 has exposed that core through the
+registry, catalog seed, and seven-button toolbar; its final slice records the D-70+ decision
+amendments.
 
 **Goal:** Add `star5` as the fifth figure type end-to-end — drawn, previewed, persisted, synced,
 selected, dragged and deleted exactly like the four that came before it.
@@ -60,8 +61,9 @@ selected, dragged and deleted exactly like the four that came before it.
 - **A `star5` branch in `Home.razor.js`**, plus a **drift-guard test** pinning the JS inner-ratio
   constant to the C# one. Today the preview falls through to a hard-coded triangle polygon, so
   without this a star previews as a triangle.
-- **Decision amendments** — D-16/D-33/D-58 six buttons → seven; CANV-02's "exactly six buttons"
-  requirement text; the star's own decisions land from **D-70**.
+- **Decision amendments** — D-16/D-33/D-56/D-58 now describe seven toolbar controls, with logout
+  outside the count; CANV-02's old toolbar count remains historical; the star's own decisions land
+  from **D-70**.
 
 **Scope boundary — one figure, nothing else.** Carried tech debt stays carried and is explicitly out:
 `ShapeRegistry.All`/`.Names` returning live `List` instances (09-REVIEW WR-03), the MIGR-03 accepted
@@ -117,7 +119,7 @@ same positions, same look, same live cross-tab glide.
 ### Validated
 
 - [x] **AUTH-01/02/03** — Login (unknown username self-registers), session cookie, logout — Validated in Phase BC-02: Login, Session & Logout (2026-07-15)
-- [x] **CANV-01/02** — The SVG canvas at (0, 48); the six-button toolbar — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16). *(Canvas was 1280 × 720 at v1.0; enlarged to 1472 × 828 in v1.1 — see CANV-03.)*
+- [x] **CANV-01/02** — The SVG canvas at (0, 48); the original toolbar shipped in Phase BC-03: The Canvas & Drawing (2026-07-16). *(Canvas was 1280 × 720 at v1.0; enlarged to 1472 × 828 in v1.1 — see CANV-03. The active toolbar is amended by CANV-04/D-73 to seven controls with Star.)*
 - [x] **DATA-01** — One canvas per user; load `WHERE user_id ORDER BY id`; cross-user isolation — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16)
 - [x] **FIG-01** — Draw all four shapes: live preview, edge clamp, silent degenerate rejection, immediate insert — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16)
 - [x] **FIG-02/03/04** — Select, drag with edge clamping, and delete — Validated in Phase BC-04: Select, Drag & Delete (2026-07-16)
@@ -168,8 +170,8 @@ triangle L/R, four arrows — **nine, not ten: v1.12 delivers the 5-point star**
 split-button toolbar. Scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`, **and materially
 cheaper now that v1.11 has landed** — its 4-integer workarounds (orientation smuggled into type
 names, fixed ratios, per-shape CHECK avoidance) are unnecessary. v1.12 also pays down two of its
-costs in advance: the `figure_types` seed becomes automatic, and the toolbar's six-button decisions
-are already amended. Its remaining decision amendments happen when v1.2 is kicked off. Anything not
+costs in advance: the `figure_types` seed becomes automatic, and the toolbar-count decisions are
+already amended for seven controls. Its remaining decision amendments happen when v1.2 is kicked off. Anything not
 named in `docs/DECISIONS.md` is still out until added there **by name**.
 
 ### Out of Scope
@@ -323,7 +325,7 @@ re-ask, or "improve" them. Full text: `.planning/intel/decisions.md`; original: 
 | ID | Decision |
 |----|----------|
 | D-15 | **Click to select** (visible highlight). Selection is **local UI state only** — never persisted, never broadcast. *(Its Delete-key half is superseded by D-33.)* |
-| D-16 + D-30 + D-33 | **The toolbar is SIX buttons:** `[pointer] [line] [rectangle] [circle] [triangle] [delete]`. Click to arm; the armed button stays visibly active. Logout sits right-aligned in the same strip but is not one of the six (D-56). |
+| D-16 + D-30 + D-33 + D-73 | **The toolbar is seven controls:** `[pointer] [line] [rectangle] [circle] [triangle] [star] [delete]`. Click a tool to arm it; the armed button stays visibly active. Delete remains an action button, and logout sits right-aligned in the same strip but is not one of the seven (D-56). |
 | D-30 | **Selection is a pointer tool.** Pointer armed → click selects, drag moves. Shape armed → dragging always draws **even on top of existing figures**. Accepted cost: the app has modes. This is what makes it possible to draw a small circle *inside* a big rectangle. |
 | D-31 | **Selection appearance/behaviour** *(v1.1 amended)*. Indicator: a thin **blue + white dashed trace on the figure's own outline**, topmost, `pointer-events:none` (was a red outline). **Lifecycle:** tool **stays armed** after a draw; the drawn figure is **selected**; **at most one selected at a time**; deselect on canvas-outside-figure, arming a tool, or a toolbar press **except Delete**. **Pointer armed on page load.** Overlapping figures: a click hits the topmost = drawn last (free from the DOM). Selection is local-only, never broadcast. |
 | D-32 | **Two usability costs, accepted deliberately.** (1) The min-size guard was not raised to ~5px, so a stray 1–2px drag creates a tiny figure. Annoying, not dangerous. (2) **Lines have no widened hit area** — selecting one means clicking within ~a pixel of it (mitigated only by the 2px stroke). Additive; can be added any time. |
@@ -467,6 +469,6 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-22 after Phase BC-13 completed — `Star5Shape` / `Star5Geometry` core built
-and verified; v1.12 now moves to catalog seed, toolbar, and decision amendments in Phase 14.
+*Last updated: 2026-07-22 during Phase BC-14 Plan 03 — active decisions and planning intel now
+record the seven-button toolbar and D-70+ `star5` amendments.
 Previous update: 2026-07-22 at v1.12 milestone open.*
