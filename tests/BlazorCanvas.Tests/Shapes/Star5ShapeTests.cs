@@ -145,6 +145,15 @@ public class Star5ShapeTests
     }
 
     [Fact]
+    public void IsDrawable_TEST04RejectsExactZeroExtentsAndAcceptsOneUnitSliver()
+    {
+        // TEST-04 / D-70 / D-71: the unit boundary matches the gateway's zero-extent threshold.
+        Assert.False(_subject.IsDrawable(new Star5Geometry(ExpectedStarPoints(0, 80, Star5Shape.DefaultInnerRatio), Star5Shape.DefaultInnerRatio)));
+        Assert.False(_subject.IsDrawable(new Star5Geometry(ExpectedStarPoints(100, 0, Star5Shape.DefaultInnerRatio), Star5Shape.DefaultInnerRatio)));
+        Assert.True(_subject.IsDrawable(new Star5Geometry(ExpectedStarPoints(1, 80, Star5Shape.DefaultInnerRatio), Star5Shape.DefaultInnerRatio)));
+    }
+
+    [Fact]
     public void DefaultRegistry_ContainsStar5AfterTriangle()
     {
         Assert.Equal(new[] { "line", "rectangle", "circle", "triangle", "star5" }, DefaultShapes.CreateRegistry().Names);
