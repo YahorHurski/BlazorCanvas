@@ -4,6 +4,7 @@ using BlazorCanvas.Geometry;
 using BlazorCanvas.Shapes;
 using BlazorCanvas.Sync;
 using Npgsql;
+using System.Text.Json;
 
 namespace BlazorCanvas.Tests.Database.V11;
 
@@ -112,6 +113,44 @@ public class FinalPublicCanvasSyncIntegrationTests
         Assert.Empty(harness.B.Coordinator.Figures); // delete publication clears B's stale local copy
         Assert.Null(harness.A.Coordinator.SelectedId);
         Assert.Empty(await harness.A.Repository.LoadAsync(harness.CanvasId));
+    }
+
+    [Fact]
+    public async Task Star5Draw_PersistsImmediatelyRelaysCommittedDrawOnlyAndReloadsUnchanged()
+    {
+        await using var harness = await CreateHarnessAsync();
+        var messages = new List<SyncMessage>();
+        using var observer = harness.Notifier.Subscribe(harness.OwnerId, messages.Add);
+
+        await harness.A.Coordinator.DrawAsync("star5", new CanvasPoint(12, 18), new CanvasPoint(92, 138));
+
+        var drawn = Assert.Single(harness.A.Coordinator.Figures);
+        Assert.Equal(drawn, Assert.Single(harness.B.Coordinator.Figures));
+        Assert.Equal(drawn, Assert.Single(await harness.A.Repository.LoadAsync(harness.CanvasId)));
+        var independentLoad = await new FigureRepository(fixture.DataSource).LoadAsync(harness.CanvasId);
+        var reloaded = Assert.Single(independentLoad);
+        Assert.Equal(drawn, reloaded);
+
+        Assert.Equal("star5", drawn.Type);
+        using var document = JsonDocument.Parse(drawn.GeometryJson);
+        var root = document.RootElement;
+        Assert.Equal(10, root.GetProperty("points").GetArrayLength());
+        Assert.Equal(Star5Shape.DefaultInnerRatio, root.GetProperty("innerRatio").GetDouble());
+
+        var shape = new Star5Shape();
+        Assert.True(shape.TryParseGeometry(root, out var parsed));
+        var bounds = shape.BoundsOf(parsed);
+        Assert.Equal(bounds.X, drawn.BboxX);
+        Assert.Equal(bounds.Y, drawn.BboxY);
+        Assert.Equal(bounds.W, drawn.BboxW);
+        Assert.Equal(bounds.H, drawn.BboxH);
+        Assert.Equal(1, drawn.Z);
+
+        var draw = Assert.Single(messages, message => message.Kind == "draw");
+        Assert.Equal(drawn, draw.Figure);
+        Assert.Null(draw.X);
+        Assert.Null(draw.Y);
+        Assert.DoesNotContain(messages, message => message.Kind == "preview");
     }
 
     [Fact]
