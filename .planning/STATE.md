@@ -2,15 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: Five-pointed star
+current_phase: 13
 status: planning
-last_updated: "2026-07-22T19:10:00.000Z"
+stopped_at: Completed BC-13-01-PLAN.md
+last_updated: "2026-07-22T19:10:22.385Z"
 last_activity: 2026-07-22
+last_activity_desc: BC-13 Plan 01 completed - Star5Shape core implemented and verified
 progress:
   total_phases: 5
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 20
 ---
 
 # Project State
@@ -55,11 +58,10 @@ becomes loud rather than silent. The unreferenced
 
 ## Current Position
 
-Phase: Phase 13 — Star Shape Core (not started)
+Phase: Phase 14 — Catalog Seed, Toolbar & Decisions (not started)
 Plan: —
-Status: Roadmap created; awaiting `/gsd-plan-phase 13`
-Last activity: 2026-07-22 — v1.12 roadmap created (Phases 13–17, 15/15 requirements mapped, 100%
-coverage, no orphans)
+Status: Phase 13 complete; awaiting `/gsd-plan-phase 14`
+Last activity: 2026-07-22 — BC-13 Plan 01 completed; Star5Shape core implemented, direct tests added, and 523/523 tests passing.
 
 ## Performance Metrics
 
@@ -132,6 +134,7 @@ coverage, no orphans)
 | Phase BC-10 P04 | 5min | 3 tasks | 5 files |
 | Phase BC-10 P05 | 30min | 2 tasks | 2 files |
 | Phase BC-10 P06 | 3min | 2 tasks | 3 files |
+| Phase BC-13 P01 | 5min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -264,6 +267,8 @@ into an earlier phase's automated tests.
 - [Phase ?]: The bbox agreement guard scans all v11.figures rows, so every future writer must preserve the local cache invariant.
 - [Phase ?]: Stored style JSONB is checked as a key set because PostgreSQL does not preserve object insertion order.
 - [Phase ?]: The D-60 geometry-CHECK gap remains explicit: the gateway is the last validation boundary and raw probes roll back.
+- [Phase ?]: Star5Shape remains unregistered in DefaultShapes during Phase 13; Phase 14 owns registry/catalog exposure.
+- [Phase ?]: Star5Geometry.InnerRatio is required and preserved, but bounds remain a pure function of Points.
 
 ### Pending Todos
 
@@ -293,11 +298,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T19:10:00.000Z
-Stopped at: v1.12 roadmap created — Phases 13–17 written to `.planning/ROADMAP.md`, all 15
-requirements mapped (100% coverage, no orphans), traceability recorded in `.planning/REQUIREMENTS.md`.
+Last session: 2026-07-22T19:10:22.330Z
+Stopped at: Completed BC-13-01-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
 
-- Run `/gsd-plan-phase 13` to plan Phase 13 (Star Shape Core), the first v1.12 phase.
+- Run `/gsd-plan-phase 14` to plan Phase 14 (Catalog Seed, Toolbar & Decisions).

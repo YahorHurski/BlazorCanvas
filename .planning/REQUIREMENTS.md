@@ -21,25 +21,30 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
 
 ### Star geometry
 
-- [ ] **SHAPE-04**: A star drawn into any dragged box renders point-up with five outer points and
+- [x] **SHAPE-04**: A star drawn into any dragged box renders point-up with five outer points and
       five inner vertices at **0.382** of the outer radius, stretching to fill the box — a wide box
       gives a wide star, and the first vertex sits at top-centre.
-- [ ] **SHAPE-05**: A star's geometry persists as an ordered ten-point list plus its `innerRatio`;
+
+- [x] **SHAPE-05**: A star's geometry persists as an ordered ten-point list plus its `innerRatio`;
       rendering and the `bbox_*` cache derive from the **points alone**, so a stored ratio that
       disagrees with the points changes nothing on screen.
-- [ ] **SHAPE-06**: A star round-trips through `TryParseGeometry` / `ToJson` byte-identically, and a
+
+- [x] **SHAPE-06**: A star round-trips through `TryParseGeometry` / `ToJson` byte-identically, and a
       geometry payload missing `innerRatio` fails to parse rather than rendering a partial figure.
 
 ### Drawing
 
 - [ ] **FIG-05**: User can arm a star tool and draw a star by dragging corner-to-corner, exactly as
       they draw a rectangle or triangle.
+
 - [ ] **FIG-06**: A live star preview follows the cursor during the drag, showing the same shape the
       committed figure will have — not a triangle, and not a shape derived from a second formula that
       can drift from the first.
+
 - [ ] **FIG-07**: A star drawn toward a canvas edge stops at the edge under the same clamp as every
       other shape, and a drag with zero width or zero height is silently rejected while a thin sliver
       with positive width and height is accepted.
+
 - [ ] **FIG-08**: User can select, drag with edge clamping, and delete a star exactly as they can the
       four existing shapes, including the blue-and-white dashed selection trace on the star's own
       outline.
@@ -60,8 +65,10 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
 
 - [ ] **DATA-05**: A drawn star persists immediately with no Save button and reappears unchanged
       after a refresh.
+
 - [ ] **SYNC-04**: A star appears live in the user's other open tabs on draw, glides in real time
       during a drag, and disappears on delete — under the unchanged D-53 contract.
+
 - [ ] **MODEL-08**: The `figure_types` catalog is seeded from the shape registry at every startup, so
       a newly registered shape is writable on an existing database with no manual SQL and no
       migration — closing the gap where `V11Cutover` returns early at `CatalogState.Completed` and
@@ -100,6 +107,7 @@ Deferred. Tracked, not in this roadmap.
 
 - **Per-star pointiness** — `innerRatio` is stored per figure, so a future editor could vary it. No
   UI exposes it in v1.12.
+
 - **Rotation, vertex editing, z-order control, per-figure style** — possible since v1.11, still
   unused. Out until named in `docs/DECISIONS.md`.
 
@@ -124,9 +132,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SHAPE-04 | Phase 13 | Pending |
-| SHAPE-05 | Phase 13 | Pending |
-| SHAPE-06 | Phase 13 | Pending |
+| SHAPE-04 | Phase 13 | Complete |
+| SHAPE-05 | Phase 13 | Complete |
+| SHAPE-06 | Phase 13 | Complete |
 | MODEL-08 | Phase 14 | Pending |
 | CANV-04 | Phase 14 | Pending |
 | ARCH-02 | Phase 14 | Pending |
@@ -141,6 +149,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REG-02 | Phase 17 | Pending |
 
 **Coverage:**
+
 - v1.12 requirements: 15 total
 - Mapped to phases: 15
 - Unmapped: 0 ✓

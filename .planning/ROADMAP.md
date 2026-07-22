@@ -149,7 +149,7 @@ phase's automated tests.
 Phase numbering continues from v1.11's Phase 12 (directories will be `BC-13-…` … `BC-17-…`, matching
 the established `BC-01-…`…`BC-12-…` pattern).
 
-- [ ] **Phase 13: Star Shape Core** - `Star5Shape`/`Star5Geometry` implement `IShapeDefinition` in
+- [x] **Phase 13: Star Shape Core** - `Star5Shape`/`Star5Geometry` implement `IShapeDefinition` in
       isolation — gesture, parse/serialize round-trip, and points-derived bounds — zero database
       dependency, all 500 existing tests stay green.
 
@@ -210,10 +210,11 @@ green.
      `Additive` and `FreshUsersOnly` state — the two states that *do* run `SeedFigureTypesAsync` — so
      registering here would turn both assertions red and falsify this criterion.
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans executed
 
 Plans:
-- [ ] 13-01-PLAN.md — Add unregistered Star5Geometry/Star5Shape core and direct contract tests.
+
+- [x] 13-01-PLAN.md — Add unregistered Star5Geometry/Star5Shape core and direct contract tests.
 
 ---
 
@@ -352,7 +353,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 10. Storage Schema, Migration & Persistence Layer | v1.11 | 6/6 | Complete    | 2026-07-22 |
 | 11. Renderer, Sync & Cutover | v1.11 | 5/5 | Complete    | 2026-07-22 |
 | 12. Regression Verification | v1.11 | 2/2 | Complete    | 2026-07-22 |
-| 13. Star Shape Core | v1.12 | 0/TBD | Not started | - |
+| 13. Star Shape Core | v1.12 | 1/1 | Complete | 2026-07-22 |
 | 14. Catalog Seed, Toolbar & Decisions | v1.12 | 0/TBD | Not started | - |
 | 15. Draw, Preview, Render & Persist a Star | v1.12 | 0/TBD | Not started | - |
 | 16. Interaction, Sync & Test Guards | v1.12 | 0/TBD | Not started | - |
