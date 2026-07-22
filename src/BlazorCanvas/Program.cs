@@ -1,5 +1,7 @@
 using BlazorCanvas.Components;
 using BlazorCanvas.Data;
+using BlazorCanvas.Data.V11;
+using BlazorCanvas.Shapes;
 using BlazorCanvas.Sync;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
@@ -35,6 +37,16 @@ builder.Services.AddDbContextFactory<CanvasDbContext>(options =>
             errorCodesToAdd: null)));
 
 builder.Services.AddScoped<FigureStore>();
+// Phase 11 keeps the v1.11 persistence graph independent from the legacy EF FigureStore until
+// cutover. NpgsqlDataSource is a singleton pooled transport with no per-user state; ownership is
+// enforced by CanvasRepository's owner-derived canvas id and FigureRepository canvas predicates.
+builder.Services.AddSingleton<NpgsqlDataSource>(_ => NpgsqlDataSource.Create(
+    builder.Configuration.GetConnectionString("Canvas")
+    ?? throw new InvalidOperationException("Connection string 'Canvas' is required.")));
+builder.Services.AddSingleton(DefaultShapes.CreateRegistry());
+builder.Services.AddScoped<FigureInputGateway>();
+builder.Services.AddScoped<FigureRepository>();
+builder.Services.AddScoped<CanvasRepository>();
 // D-11's cross-tab bridge is this Singleton lifetime. Every Blazor Server tab is its own circuit
 // and DI scope, so a Scoped notifier would give each tab a private bucket and sync would silently
 // never cross tabs. This deliberately differs from Microsoft's single-circuit scoped notifier
@@ -81,6 +93,12 @@ var app = builder.Build();
         }
     }
 }
+
+// This runs after the EF users migration, but before any component route can create an interactive
+// circuit. It remains additive: public.figures is retained until 11-03's explicit cutover.
+await V11RuntimeBootstrap.EnsureAsync(
+    app.Services.GetRequiredService<NpgsqlDataSource>(),
+    app.Services.GetRequiredService<ShapeRegistry>());
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
