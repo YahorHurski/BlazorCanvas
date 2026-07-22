@@ -257,12 +257,12 @@ return new Bbox(minX, minY, maxX - minX, maxY - minY);
 | A2 | `innerRatio` may look sufficient to regenerate the star. | Common Pitfalls | Medium; using it outside parse/serialize would violate SHAPE-05. |
 | A3 | Record serialization order may not match required canonical geometry. | Common Pitfalls | Low; planner can avoid the risk by using existing manual writer helpers. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should `InnerRatio` accept any positive finite value on parse, or exactly `0.382`?**
-   - What we know: SHAPE-05 says mismatched ratio changes nothing on screen, implying parse can preserve a mismatched ratio as descriptive metadata. [VERIFIED: .planning/REQUIREMENTS.md:27]
-   - What's unclear: Requirements only state missing `innerRatio` fails parse; they do not explicitly say non-`0.382` ratios fail. [VERIFIED: .planning/REQUIREMENTS.md:30]
-   - Recommendation: Accept any finite positive `innerRatio`, serialize it back byte-stably, and ensure `BoundsOf`/render-relevant tests ignore it. [ASSUMED]
+   - Resolution: Accept any finite positive `innerRatio` on parse, preserve the accepted value in `Star5Geometry.InnerRatio`, and serialize that preserved value through `ToJson`. [VERIFIED: .planning/REQUIREMENTS.md:27]
+   - Rejection rule: missing, zero, negative, non-numeric, or non-finite `innerRatio` fails parse with null geometry. [VERIFIED: .planning/REQUIREMENTS.md:30]
+   - Authority rule: `innerRatio` is descriptive metadata after parse; `BoundsOf` and render-authoritative behavior must derive from `Points` alone, so changing only `InnerRatio` changes no bounds or drawn geometry. [VERIFIED: .planning/REQUIREMENTS.md:27]
 
 ## Environment Availability
 
