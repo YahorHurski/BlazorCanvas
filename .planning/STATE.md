@@ -5,16 +5,16 @@ milestone_name: Five-pointed star
 current_phase: 15
 current_phase_name: Draw, Preview, Render & Persist a Star
 status: executing
-stopped_at: Completed BC-14-03-PLAN.md
-last_updated: "2026-07-22T20:57:25.161Z"
+stopped_at: Completed 15-01-PLAN.md
+last_updated: "2026-07-22T21:23:16.062Z"
 last_activity: 2026-07-22
-last_activity_desc: Phase 14 complete, transitioned to Phase 15
+last_activity_desc: Phase 15 execution started
 progress:
-  total_phases: 2
+  total_phases: 3
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
-  percent: 100
+  total_plans: 7
+  completed_plans: 5
+  percent: 67
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-07-22 at v1.12 milestone open)
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** **v1.12 Five-pointed star** — opened 2026-07-22 on branch `Milestone-v1.12`.
+**Current focus:** Phase 15 — Draw, Preview, Render & Persist a Star
 Add `star5` as the fifth figure type end-to-end: stretchable, point-up, corner-to-corner gesture,
 inner ratio 0.382, geometry `{"points": [[x,y] × 10], "innerRatio": 0.382}` with points authoritative
 and the ratio required on parse. Plus a seventh toolbar button between `triangle` and `delete`, an
@@ -59,10 +59,10 @@ becomes loud rather than silent. The unreferenced
 
 ## Current Position
 
-Phase: 15 — Draw, Preview, Render & Persist a Star
-Plan: Not started
+Phase: 15 (Draw, Preview, Render & Persist a Star) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-07-22 — Phase 14 complete, transitioned to Phase 15
+Last activity: 2026-07-22 — Phase 15 execution started
 
 ## Performance Metrics
 
@@ -141,6 +141,7 @@ Last activity: 2026-07-22 — Phase 14 complete, transitioned to Phase 15
 | Phase BC-14 P01 | 4min | 2 tasks | 7 files |
 | Phase BC-14 P02 | 3min | 2 tasks | 4 files |
 | Phase BC-14 P03 | 3min | 2 tasks | 5 files |
+| Phase 15 P01 | 25min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -282,6 +283,8 @@ into an earlier phase's automated tests.
 - [Phase BC-14]: D-71 locks star geometry as ten ordered points plus required innerRatio, with points authoritative for render and bbox. — Future render and persistence phases need a stable storage contract.
 - [Phase BC-14]: D-72 locks registry-owned figure_types startup seed convergence for completed public catalogs. — Existing completed databases must gain star5 without manual SQL or migration.
 - [Phase BC-14]: D-73 locks the seven-control toolbar order with Star between Triangle and Delete, while Logout remains outside the count as a POST form. — CANV-04 and ARCH-02 require active docs to match the shipped toolbar.
+- [Phase ?]: Star5 gesture output is normalized so BoundsOf exactly matches the clamped drag box; this preserves the D-70 stretch-to-fill contract and keeps bbox_* authoritative.
+- [Phase ?]: No star-specific coordinator or repository branch was introduced; DrawAsync still uses FigureInputGateway and FigureRepository.InsertAsync.
 
 ### Pending Todos
 
@@ -311,8 +314,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T20:19:59.702Z
-Stopped at: Completed BC-14-03-PLAN.md
+Last session: 2026-07-22T21:23:16.046Z
+Stopped at: Completed 15-01-PLAN.md
 Resume file: None
 
 ## Operator Next Steps

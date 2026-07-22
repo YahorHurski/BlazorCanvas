@@ -34,14 +34,14 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
 
 ### Drawing
 
-- [ ] **FIG-05**: User can arm a star tool and draw a star by dragging corner-to-corner, exactly as
+- [x] **FIG-05**: User can arm a star tool and draw a star by dragging corner-to-corner, exactly as
       they draw a rectangle or triangle.
 
 - [ ] **FIG-06**: A live star preview follows the cursor during the drag, showing the same shape the
       committed figure will have — not a triangle, and not a shape derived from a second formula that
       can drift from the first.
 
-- [ ] **FIG-07**: A star drawn toward a canvas edge stops at the edge under the same clamp as every
+- [x] **FIG-07**: A star drawn toward a canvas edge stops at the edge under the same clamp as every
       other shape, and a drag with zero width or zero height is silently rejected while a thin sliver
       with positive width and height is accepted.
 
@@ -63,7 +63,7 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
 
 ### Persistence and sync
 
-- [ ] **DATA-05**: A drawn star persists immediately with no Save button and reappears unchanged
+- [x] **DATA-05**: A drawn star persists immediately with no Save button and reappears unchanged
       after a refresh.
 
 - [ ] **SYNC-04**: A star appears live in the user's other open tabs on draw, glides in real time
@@ -138,11 +138,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MODEL-08 | Phase 14 | Complete |
 | CANV-04 | Phase 14 | Complete |
 | ARCH-02 | Phase 14 | Complete |
-| FIG-05 | Phase 15 | Pending |
+| FIG-05 | Phase 15 | Complete |
 | FIG-06 | Phase 15 | Pending |
-| FIG-07 | Phase 15 | Pending |
+| FIG-07 | Phase 15 | Complete |
 | RENDER-02 | Phase 15 | Pending |
-| DATA-05 | Phase 15 | Pending |
+| DATA-05 | Phase 15 | Complete |
 | FIG-08 | Phase 16 | Pending |
 | SYNC-04 | Phase 16 | Pending |
 | TEST-04 | Phase 16 | Pending |
