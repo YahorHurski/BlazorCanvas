@@ -286,7 +286,7 @@ and persisted immediately with no Save button.
 
   5. The star persists immediately with no Save button and reappears unchanged after a refresh.
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans executed
 
 Plans:
 **Wave 1**
@@ -296,7 +296,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 15-03-PLAN.md — Render live star previews through the C# registry placement and remove the JS triangle fallback path.
+- [x] 15-03-PLAN.md — Render live star previews through the C# registry placement and remove the JS triangle fallback path.
 
 **UI hint**: yes
 
@@ -371,7 +371,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Regression Verification | v1.11 | 2/2 | Complete    | 2026-07-22 |
 | 13. Star Shape Core | v1.12 | 1/1 | Complete | 2026-07-22 |
 | 14. Catalog Seed, Toolbar & Decisions | v1.12 | 3/3 | Complete | 2026-07-22 |
-| 15. Draw, Preview, Render & Persist a Star | v1.12 | 2/3 | In Progress|  |
+| 15. Draw, Preview, Render & Persist a Star | v1.12 | 3/3 | In Progress|  |
 | 16. Interaction, Sync & Test Guards | v1.12 | 0/TBD | Not started | - |
 | 17. Regression Verification | v1.12 | 0/TBD | Not started | - |
 

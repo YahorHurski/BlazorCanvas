@@ -4,17 +4,17 @@ milestone: v1.12
 milestone_name: Five-pointed star
 current_phase: 15
 current_phase_name: Draw, Preview, Render & Persist a Star
-status: executing
-stopped_at: Completed 15-02-PLAN.md
-last_updated: "2026-07-22T21:27:57.449Z"
+status: verifying
+stopped_at: Completed 15-03-PLAN.md
+last_updated: "2026-07-22T21:34:31.153Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase 15 execution started
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 6
-  percent: 67
+  completed_plans: 7
+  percent: 100
 ---
 
 # Project State
@@ -61,7 +61,7 @@ becomes loud rather than silent. The unreferenced
 
 Phase: 15 (Draw, Preview, Render & Persist a Star) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-22 — Phase 15 execution started
 
 ## Performance Metrics
@@ -143,6 +143,7 @@ Last activity: 2026-07-22 — Phase 15 execution started
 | Phase BC-14 P03 | 3min | 2 tasks | 5 files |
 | Phase 15 P01 | 25min | 2 tasks | 4 files |
 | Phase BC-15 P02 | 2min | 2 tasks | 1 files |
+| Phase BC-15 P03 | 4min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -288,6 +289,8 @@ into an earlier phase's automated tests.
 - [Phase ?]: No star-specific coordinator or repository branch was introduced; DrawAsync still uses FigureInputGateway and FigureRepository.InsertAsync.
 - [Phase ?]: FigureShape already rendered Star5Geometry from star.Points under the v1.11 local transform, so Task 2 required no production code change.
 - [Phase ?]: The renderer contract now pins star style and pointer parity against TriangleGeometry rather than only checking that a Star5Geometry branch exists.
+- [Phase ?]: Visible drawing preview geometry now belongs to DrawingPreviewSession plus FigureShape; Home.razor.js is lifecycle-only.
+- [Phase ?]: The preview remains circuit-local and is never published through CanvasSyncNotifier.
 
 ### Pending Todos
 
@@ -317,8 +320,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T21:27:57.433Z
-Stopped at: Completed 15-02-PLAN.md
+Last session: 2026-07-22T21:34:31.140Z
+Stopped at: Completed 15-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps

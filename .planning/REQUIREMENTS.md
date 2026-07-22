@@ -37,7 +37,7 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
 - [x] **FIG-05**: User can arm a star tool and draw a star by dragging corner-to-corner, exactly as
       they draw a rectangle or triangle.
 
-- [ ] **FIG-06**: A live star preview follows the cursor during the drag, showing the same shape the
+- [x] **FIG-06**: A live star preview follows the cursor during the drag, showing the same shape the
       committed figure will have — not a triangle, and not a shape derived from a second formula that
       can drift from the first.
 
@@ -139,7 +139,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CANV-04 | Phase 14 | Complete |
 | ARCH-02 | Phase 14 | Complete |
 | FIG-05 | Phase 15 | Complete |
-| FIG-06 | Phase 15 | Pending |
+| FIG-06 | Phase 15 | Complete |
 | FIG-07 | Phase 15 | Complete |
 | RENDER-02 | Phase 15 | Complete |
 | DATA-05 | Phase 15 | Complete |
