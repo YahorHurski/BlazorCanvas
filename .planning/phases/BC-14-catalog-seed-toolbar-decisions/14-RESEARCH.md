@@ -294,12 +294,11 @@ if (state == CatalogState.Completed)
 |---|-------|---------|---------------|
 | A1 | Clicking the star toolbar button may bubble to the toolbar deselect handler, but should follow existing button behavior. | Common Pitfalls | Low; copying existing button markup preserves behavior. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Exact D-70+ decision wording**
    - What we know: ARCH-02 requires seven-button amendments to D-16/D-33/D-58/CANV-02 and star decisions by name from D-70 onward. [VERIFIED: .planning/REQUIREMENTS.md]
-   - What's unclear: The exact prose of D-70+ is not prewritten in context.
-   - Recommendation: Planner should add a doc task to write concise D-70+ entries matching current locked milestone facts: star5 type, point-up/stretchable geometry, registry/catalog seed on every startup, and seven-button toolbar.
+   - RESOLVED: Plan 14-03 Task 1 owns the accepted D-70+ wording. The executor should write concise entries for the locked Phase 14 decision boundaries: `star5` as the registry/catalog startup seed exposure, the star toolbar button between triangle and delete, and no star rendering or persistence write-path work in Phase 14. Geometry wording may reference the already-locked Phase 13 facts, but Phase 14 docs must not imply preview, render, draw, select, drag, delete, sync, or save paths are implemented in this phase.
 
 ## Environment Availability
 
