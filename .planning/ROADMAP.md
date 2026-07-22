@@ -160,7 +160,7 @@ the established `BC-01-…`…`BC-12-…` pattern).
 - [x] **Phase 15: Draw, Preview, Render & Persist a Star** - A user draws a star end-to-end — live (completed 2026-07-23)
       preview, edge clamp, correct render on commit and reload, immediate persistence.
 
-- [ ] **Phase 16: Interaction, Sync & Test Guards** - Select, drag, and delete a star like the four
+- [x] **Phase 16: Interaction, Sync & Test Guards** - Select, drag, and delete a star like the four (completed 2026-07-23)
       existing shapes; live cross-tab glide; preview-ownership, bbox-agreement, and degenerate-rejection
       tests.
 
