@@ -106,6 +106,7 @@ public class Star5ShapeTests
         var star = Assert.IsType<Star5Geometry>(placement.Geometry);
         Assert.Equal(Star5Shape.DefaultInnerRatio, star.InnerRatio);
         AssertStarPoints(ExpectedStarPoints(200, 100, Star5Shape.DefaultInnerRatio), star.Points);
+        Assert.Equal(new Bbox(0, 0, 200, 100), _subject.BoundsOf(star));
     }
 
     [Fact]
@@ -130,6 +131,7 @@ public class Star5ShapeTests
         Assert.Equal(0, placement.Y);
         var star = Assert.IsType<Star5Geometry>(placement.Geometry);
         AssertStarPoints(ExpectedStarPoints(1472, 828, Star5Shape.DefaultInnerRatio), star.Points);
+        Assert.Equal(new Bbox(0, 0, 1472, 828), _subject.BoundsOf(star));
     }
 
     [Fact]
@@ -153,7 +155,7 @@ public class Star5ShapeTests
         var radiusX = width / 2;
         var radiusY = height / 2;
 
-        return Enumerable.Range(0, 10)
+        var rawPoints = Enumerable.Range(0, 10)
             .Select(index =>
             {
                 var theta = (-Math.PI / 2) + (index * (Math.PI / 5));
@@ -162,6 +164,15 @@ public class Star5ShapeTests
                     radiusX + (radiusX * scale * Math.Cos(theta)),
                     radiusY + (radiusY * scale * Math.Sin(theta)));
             })
+            .ToArray();
+        var minX = rawPoints.Min(point => point.X);
+        var minY = rawPoints.Min(point => point.Y);
+        var rawWidth = rawPoints.Max(point => point.X) - minX;
+        var rawHeight = rawPoints.Max(point => point.Y) - minY;
+        return rawPoints
+            .Select(point => new LocalPoint(
+                rawWidth == 0 ? 0 : ((point.X - minX) / rawWidth) * width,
+                rawHeight == 0 ? 0 : ((point.Y - minY) / rawHeight) * height))
             .ToArray();
     }
 
