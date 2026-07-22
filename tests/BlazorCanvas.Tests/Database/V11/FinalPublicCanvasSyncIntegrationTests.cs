@@ -154,6 +154,68 @@ public class FinalPublicCanvasSyncIntegrationTests
     }
 
     [Fact]
+    public async Task Star5FinalPublicRows_PersistAndRelayCanonicalDrawGlideDeleteWithoutDuplicateOrUnknownInsertion()
+    {
+        var clock = 1L;
+        await using var harness = await CreateHarnessAsync(clock: () => clock);
+        var messages = new List<SyncMessage>();
+        using var observer = harness.Notifier.Subscribe(harness.OwnerId, messages.Add);
+
+        await harness.A.Coordinator.DrawAsync("star5", new CanvasPoint(100, 100), new CanvasPoint(160, 160));
+        var drawn = Assert.Single(harness.A.Coordinator.Figures);
+        Assert.Equal("star5", drawn.Type);
+        Assert.Equal(drawn, Assert.Single(harness.B.Coordinator.Figures));
+        Assert.Equal(drawn, Assert.Single(await harness.A.Repository.LoadAsync(harness.CanvasId)));
+        var draw = Assert.Single(messages, message => message.Kind == "draw");
+        Assert.Equal(drawn, draw.Figure);
+        Assert.Null(draw.X);
+        Assert.Null(draw.Y);
+
+        // A replay from another circuit must not fork the state or public.figures.
+        harness.Notifier.Publish(harness.OwnerId, SyncMessage.Draw(drawn, Guid.NewGuid()));
+        Assert.Single(harness.B.Coordinator.Figures);
+        Assert.Single(await harness.B.Repository.LoadAsync(harness.CanvasId));
+
+        messages.Clear();
+        harness.A.Coordinator.BeginDrag(drawn.Id, new CanvasPoint(100, 100));
+        harness.A.Coordinator.ContinueDrag(new CanvasPoint(110, 104));
+        clock = 60;
+        harness.A.Coordinator.ContinueDrag(new CanvasPoint(126, 113));
+        clock = 80;
+        harness.A.Coordinator.ContinueDrag(new CanvasPoint(130, 120));
+        await harness.A.Coordinator.CommitDragAsync();
+
+        var moved = Assert.Single(harness.A.Coordinator.Figures);
+        Assert.Equal(130m, moved.X);
+        Assert.Equal(120m, moved.Y);
+        Assert.Equal(moved, Assert.Single(harness.B.Coordinator.Figures));
+        Assert.Equal(moved, Assert.Single(await harness.A.Repository.LoadAsync(harness.CanvasId)));
+
+        var moves = messages.Where(message => message.Kind == "move").ToList();
+        Assert.Equal(3, moves.Count);
+        Assert.All(moves, message => Assert.Null(message.Figure));
+        Assert.Equal(drawn.Id, moves[^1].Id);
+        Assert.Equal(moved.X, moves[^1].X);
+        Assert.Equal(moved.Y, moves[^1].Y);
+
+        var unknown = Guid.NewGuid();
+        harness.Notifier.Publish(harness.OwnerId, SyncMessage.Move(unknown, 99m, 99m, Guid.NewGuid()));
+        harness.Notifier.Publish(harness.OwnerId, SyncMessage.Rollback(unknown, 1m, 1m, Guid.NewGuid()));
+        Assert.DoesNotContain(harness.A.Coordinator.Figures, row => row.Id == unknown);
+        Assert.DoesNotContain(harness.B.Coordinator.Figures, row => row.Id == unknown);
+        Assert.DoesNotContain(await harness.A.Repository.LoadAsync(harness.CanvasId), row => row.Id == unknown);
+
+        await harness.A.Coordinator.DeleteAsync();
+        Assert.Empty(harness.A.Coordinator.Figures);
+        Assert.Empty(harness.B.Coordinator.Figures);
+        Assert.Empty(await harness.A.Repository.LoadAsync(harness.CanvasId));
+
+        Assert.All(messages.Where(message => message.Kind is "move" or "delete" or "rollback"), message => Assert.Null(message.Figure));
+        Assert.Contains(messages, message => message.Kind == "delete" && message.Id == drawn.Id && message.X is null && message.Y is null);
+        Assert.DoesNotContain(messages, message => message.Kind == "preview");
+    }
+
+    [Fact]
     public async Task FailedMove_RollsBackPeerThenReloadsBothCircuitsToAuthoritativePublicSnapshot()
     {
         await using var harness = await CreateHarnessAsync(failAMove: true);
