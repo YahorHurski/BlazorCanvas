@@ -116,6 +116,30 @@ public sealed class FigureRepository(NpgsqlDataSource dataSource)
     }
 
     /// <summary>
+    /// Inserts a migration row through an existing transaction. This deliberately remains internal:
+    /// the public persistence surface stays connection-free while V11DataMigration keeps its whole
+    /// replay atomic without creating a second bbox-writing INSERT statement.
+    /// </summary>
+    internal async Task<bool> InsertWithIdAndZAsync(
+        NpgsqlConnection connection,
+        NpgsqlTransaction transaction,
+        Guid id,
+        Guid canvasId,
+        ValidatedFigureInput input,
+        decimal x,
+        decimal y,
+        decimal z,
+        decimal rotation = 0m,
+        CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentNullException.ThrowIfNull(transaction);
+        ArgumentNullException.ThrowIfNull(input);
+        return await InsertCoreAsync(
+            ExplicitInsertSql, connection, transaction, id, canvasId, input, x, y, rotation, z, ct) is not null;
+    }
+
+    /// <summary>
     /// Moves an owned figure with one UPDATE and no geometry read or type dispatch. Its affected-row
     /// count is D-10's staleness guard; zero means gone, and never inserting here preserves D-40.
     /// The local bbox cache therefore remains valid without appearing in this SET list.
@@ -162,6 +186,25 @@ public sealed class FigureRepository(NpgsqlDataSource dataSource)
     {
         await using var connection = await dataSource.OpenConnectionAsync(ct);
         await using var command = new NpgsqlCommand(sql, connection);
+        AddInsertParameters(command, id, canvasId, input, x, y, rotation, z);
+        await using var reader = await command.ExecuteReaderAsync(ct);
+        return await reader.ReadAsync(ct) ? ReadRow(reader) : null;
+    }
+
+    private static async Task<FigureRow?> InsertCoreAsync(
+        string sql,
+        NpgsqlConnection connection,
+        NpgsqlTransaction transaction,
+        Guid id,
+        Guid canvasId,
+        ValidatedFigureInput input,
+        decimal x,
+        decimal y,
+        decimal rotation,
+        decimal? z,
+        CancellationToken ct)
+    {
+        await using var command = new NpgsqlCommand(sql, connection, transaction);
         AddInsertParameters(command, id, canvasId, input, x, y, rotation, z);
         await using var reader = await command.ExecuteReaderAsync(ct);
         return await reader.ReadAsync(ct) ? ReadRow(reader) : null;
