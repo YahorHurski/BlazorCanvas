@@ -1,7 +1,10 @@
 using BlazorCanvas.Components.Pages;
 using BlazorCanvas.Data.V11;
+using BlazorCanvas.Geometry;
 using BlazorCanvas.Shapes;
 using BlazorCanvas.Sync;
+using BlazorCanvas.Tools;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace BlazorCanvas.Tests.Components;
@@ -186,6 +189,83 @@ public class CanvasInteractionCoordinatorTests
         Assert.Contains("preview?.Complete", commit, StringComparison.Ordinal);
         Assert.Contains("coordinator.DrawAsync(completed.Type, completed.Press, completed.Cursor)", commit, StringComparison.Ordinal);
         Assert.DoesNotContain("Notifier.Publish", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task StarToolDraw_D70D71D29D36_CommitsSelectedStar5ThroughRegistryGatewayAndClampsToCanvas()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var rows = new List<FigureRow>();
+        var publications = new List<SyncMessage>();
+        using var observer = notifier.Subscribe(7, publications.Add);
+        var coordinator = Create(notifier, rows, out var subscription);
+        using (subscription)
+        {
+            var starType = ToolMap.ToShapeName(Tool.Star);
+
+            await coordinator.DrawAsync(starType!, new CanvasPoint(-10, -20), new CanvasPoint(CanvasBounds.Width + 100, CanvasBounds.Height + 100));
+        }
+
+        var row = Assert.Single(coordinator.Figures);
+        Assert.Equal("star5", row.Type);
+        Assert.Equal(row.Id, coordinator.SelectedId);
+        Assert.Equal(0m, row.X);
+        Assert.Equal(0m, row.Y);
+        Assert.Equal(0, row.BboxX);
+        Assert.Equal(0, row.BboxY);
+        Assert.Equal(CanvasBounds.Width, row.BboxW);
+        Assert.Equal(CanvasBounds.Height, row.BboxH);
+
+        using var geometry = JsonDocument.Parse(row.GeometryJson);
+        var root = geometry.RootElement;
+        Assert.Equal(10, root.GetProperty("points").GetArrayLength());
+        Assert.Equal(Star5Shape.DefaultInnerRatio, root.GetProperty("innerRatio").GetDouble());
+
+        var published = Assert.Single(publications, message => message.Kind == "draw");
+        Assert.Equal(row, published.Figure);
+        Assert.DoesNotContain(publications, message => message.Kind == "move");
+    }
+
+    [Theory]
+    [InlineData(20, 20, 20, 40)]
+    [InlineData(20, 20, 40, 20)]
+    public async Task StarDraw_D57D67_RejectsZeroExtentSilentlyWithoutRowsOrPublications(double pressX, double pressY, double cursorX, double cursorY)
+    {
+        var notifier = new CanvasSyncNotifier();
+        var rows = new List<FigureRow>();
+        var publications = new List<SyncMessage>();
+        using var observer = notifier.Subscribe(7, publications.Add);
+        var coordinator = Create(notifier, rows, out var subscription);
+        using (subscription)
+        {
+            await coordinator.DrawAsync("star5", new CanvasPoint(pressX, pressY), new CanvasPoint(cursorX, cursorY));
+        }
+
+        Assert.Empty(rows);
+        Assert.Empty(coordinator.Figures);
+        Assert.Empty(publications);
+        Assert.Null(coordinator.SelectedId);
+    }
+
+    [Fact]
+    public async Task StarDraw_D32_AcceptsPositiveOneCanvasUnitSliver()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var rows = new List<FigureRow>();
+        var publications = new List<SyncMessage>();
+        using var observer = notifier.Subscribe(7, publications.Add);
+        var coordinator = Create(notifier, rows, out var subscription);
+        using (subscription)
+        {
+            await coordinator.DrawAsync("star5", new CanvasPoint(10, 10), new CanvasPoint(11, 11));
+        }
+
+        var row = Assert.Single(coordinator.Figures);
+        Assert.Equal("star5", row.Type);
+        Assert.Equal(row.Id, coordinator.SelectedId);
+        Assert.Equal(1, row.BboxW);
+        Assert.Equal(1, row.BboxH);
+        Assert.Single(publications, message => message.Kind == "draw");
     }
 
     private static CanvasInteractionCoordinator Create(
