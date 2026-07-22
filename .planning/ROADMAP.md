@@ -210,7 +210,10 @@ green.
      `Additive` and `FreshUsersOnly` state — the two states that *do* run `SeedFigureTypesAsync` — so
      registering here would turn both assertions red and falsify this criterion.
 
-**Plans**: TBD
+**Plans:** 1 plan
+
+Plans:
+- [ ] 13-01-PLAN.md — Add unregistered Star5Geometry/Star5Shape core and direct contract tests.
 
 ---
 
