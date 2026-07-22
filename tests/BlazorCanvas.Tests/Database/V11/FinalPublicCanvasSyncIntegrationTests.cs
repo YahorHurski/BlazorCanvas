@@ -216,6 +216,55 @@ public class FinalPublicCanvasSyncIntegrationTests
     }
 
     [Fact]
+    public async Task Star5ZeroRowMove_RemovesStaleFigureForEveryCircuitWithoutResurrection()
+    {
+        await using var harness = await CreateHarnessAsync();
+        await harness.A.Coordinator.DrawAsync("star5", new CanvasPoint(0, 0), new CanvasPoint(30, 30));
+        var row = Assert.Single(harness.A.Coordinator.Figures);
+
+        // This bypasses B's coordinator/notifier on purpose. A now holds a genuinely stale row.
+        Assert.Equal(1, await harness.B.Repository.DeleteAsync(harness.CanvasId, row.Id));
+        Assert.Single(harness.A.Coordinator.Figures);
+        Assert.Single(harness.B.Coordinator.Figures);
+
+        harness.A.Coordinator.BeginDrag(row.Id, new CanvasPoint(0, 0));
+        harness.A.Coordinator.ContinueDrag(new CanvasPoint(10, 0));
+        await harness.A.Coordinator.CommitDragAsync();
+
+        Assert.Empty(harness.A.Coordinator.Figures);
+        Assert.Empty(harness.B.Coordinator.Figures); // delete publication clears B's stale local copy
+        Assert.Null(harness.A.Coordinator.SelectedId);
+        Assert.Empty(await harness.A.Repository.LoadAsync(harness.CanvasId));
+    }
+
+    [Fact]
+    public async Task Star5PersistedSelectEdgeClampedDragAndDelete_RoundTripsThroughFinalPublicRepository()
+    {
+        await using var harness = await CreateHarnessAsync();
+        var seed = await InsertStarAsync(harness.A.Repository, harness.CanvasId, 10, 12, 50, 52);
+        await harness.A.Coordinator.LoadAsync();
+        await harness.B.Coordinator.LoadAsync();
+
+        harness.A.Coordinator.BeginDrag(seed.Id, new CanvasPoint(10, 12));
+        harness.A.Coordinator.ContinueDrag(new CanvasPoint(2000, 1000));
+        await harness.A.Coordinator.CommitDragAsync();
+
+        var moved = Assert.Single(harness.A.Coordinator.Figures);
+        Assert.Equal(seed.Id, moved.Id);
+        Assert.Equal(CanvasBounds.Width - (decimal)seed.BboxW, moved.X);
+        Assert.Equal(CanvasBounds.Height - (decimal)seed.BboxH, moved.Y);
+        Assert.Equal(moved, Assert.Single(harness.B.Coordinator.Figures));
+
+        var repositoryReload = await new FigureRepository(fixture.DataSource).LoadAsync(harness.CanvasId);
+        Assert.Equal(moved, Assert.Single(repositoryReload));
+
+        await harness.A.Coordinator.DeleteAsync();
+        Assert.Empty(harness.A.Coordinator.Figures);
+        Assert.Empty(harness.B.Coordinator.Figures);
+        Assert.Empty(await harness.A.Repository.LoadAsync(harness.CanvasId));
+    }
+
+    [Fact]
     public async Task FailedMove_RollsBackPeerThenReloadsBothCircuitsToAuthoritativePublicSnapshot()
     {
         await using var harness = await CreateHarnessAsync(failAMove: true);
@@ -296,6 +345,13 @@ public class FinalPublicCanvasSyncIntegrationTests
     {
         var gateway = new FigureInputGateway(DefaultShapes.CreateRegistry());
         Assert.True(gateway.TryValidateGesture("rectangle", new CanvasPoint(x, y), new CanvasPoint(x + 30, y + 30), null, out var input, out var px, out var py));
+        return await repository.InsertAsync(canvasId, input!, (decimal)px, (decimal)py);
+    }
+
+    private static async Task<FigureRow> InsertStarAsync(FigureRepository repository, Guid canvasId, double x, double y, double w, double h)
+    {
+        var gateway = new FigureInputGateway(DefaultShapes.CreateRegistry());
+        Assert.True(gateway.TryValidateGesture("star5", new CanvasPoint(x, y), new CanvasPoint(x + w, y + h), null, out var input, out var px, out var py));
         return await repository.InsertAsync(canvasId, input!, (decimal)px, (decimal)py);
     }
 
