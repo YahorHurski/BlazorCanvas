@@ -5,16 +5,16 @@ milestone_name: Five-pointed star
 current_phase: 16
 current_phase_name: Interaction, Sync & Test Guards
 status: executing
-stopped_at: Phase 15 complete, ready to plan Phase 16
-last_updated: "2026-07-22T23:05:31.613Z"
+stopped_at: Completed BC-16-02-PLAN.md
+last_updated: "2026-07-22T23:38:18.487Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 15 complete, transitioned to Phase 16
 progress:
-  total_phases: 5
+  total_phases: 4
   completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
-  percent: 60
+  total_plans: 12
+  completed_plans: 10
+  percent: 75
 ---
 
 # Project State
@@ -143,6 +143,8 @@ Last activity: 2026-07-23 — Phase 15 complete, transitioned to Phase 16
 | Phase BC-15 P02 | 2min | 2 tasks | 1 files |
 | Phase BC-15 P03 | 4min | 2 tasks | 5 files |
 | Phase BC-15 P04 | 3min | 1 tasks | 3 files |
+| Phase BC-16 P04 | 4 min | 2 tasks | 2 files |
+| Phase BC-16 P02 | 15min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -291,6 +293,8 @@ into an earlier phase's automated tests.
 - [Phase ?]: Visible drawing preview geometry now belongs to DrawingPreviewSession plus FigureShape; Home.razor.js is lifecycle-only.
 - [Phase ?]: The preview remains circuit-local and is never published through CanvasSyncNotifier.
 - [Phase BC-15]: PreviewType for active drawing previews is explicitly bound as a Razor expression so FigureShape receives the runtime session type. — String component parameters use static markup text unless prefixed with @; this closes G-15-1 by passing the runtime DrawingPreviewSession.Type value.
+- [Phase BC-16]: Star5 cross-circuit sync remains type-blind; no coordinator, repository, notifier, schema, migration, or package change was needed. — Final-public star draw/glide/delete and stale-row tests passed through existing FigureRepository and CanvasSyncNotifier paths.
+- [Phase BC-16]: D-40/D-53 star evidence is pinned in the final-public integration harness rather than by adding a star-specific persistence or sync branch. — The plan required test evidence only and the unchanged type-blind implementation satisfied it.
 
 ### Pending Todos
 
@@ -320,8 +324,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-23T00:38:00+02:00
-Stopped at: Phase 15 complete, ready to plan Phase 16
+Last session: 2026-07-22T23:38:18.462Z
+Stopped at: Completed BC-16-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps

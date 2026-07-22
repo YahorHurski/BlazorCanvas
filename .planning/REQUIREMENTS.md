@@ -45,7 +45,7 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
       other shape, and a drag with zero width or zero height is silently rejected while a thin sliver
       with positive width and height is accepted.
 
-- [ ] **FIG-08**: User can select, drag with edge clamping, and delete a star exactly as they can the
+- [x] **FIG-08**: User can select, drag with edge clamping, and delete a star exactly as they can the
       four existing shapes, including the blue-and-white dashed selection trace on the star's own
       outline.
 
@@ -66,7 +66,7 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
 - [x] **DATA-05**: A drawn star persists immediately with no Save button and reappears unchanged
       after a refresh.
 
-- [ ] **SYNC-04**: A star appears live in the user's other open tabs on draw, glides in real time
+- [x] **SYNC-04**: A star appears live in the user's other open tabs on draw, glides in real time
       during a drag, and disappears on delete — under the unchanged D-53 contract.
 
 - [x] **MODEL-08**: The `figure_types` catalog is seeded from the shape registry at every startup, so
@@ -82,7 +82,7 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
 
 ### Tests
 
-- [ ] **TEST-04**: Guards exist for this milestone's *silent* failure modes — preview geometry must
+- [x] **TEST-04**: Guards exist for this milestone's *silent* failure modes — preview geometry must
       stay out of `Home.razor.js`, `bbox_*` must agree for star rows, and degenerate/malformed star
       geometry must be rejected.
 
@@ -143,9 +143,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIG-07 | Phase 15 | Complete |
 | RENDER-02 | Phase 15 | Complete |
 | DATA-05 | Phase 15 | Complete |
-| FIG-08 | Phase 16 | Pending |
-| SYNC-04 | Phase 16 | Pending |
-| TEST-04 | Phase 16 | Pending |
+| FIG-08 | Phase 16 | Complete |
+| SYNC-04 | Phase 16 | Complete |
+| TEST-04 | Phase 16 | Complete |
 | REG-02 | Phase 17 | Pending |
 
 **Coverage:**
