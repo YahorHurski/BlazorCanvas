@@ -183,7 +183,8 @@ public class CanvasInteractionCoordinatorTests
         Assert.Contains("preview.Begin", source, StringComparison.Ordinal);
         Assert.Contains("preview.Update", source, StringComparison.Ordinal);
         Assert.Contains("PreviewPlacement=\"preview.Placement\"", source, StringComparison.Ordinal);
-        Assert.Contains("PreviewType=\"preview.Type\"", source, StringComparison.Ordinal);
+        Assert.Contains("PreviewType=\"@preview.Type\"", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("PreviewType=\"preview.Type\"", source, StringComparison.Ordinal);
         Assert.Contains("<FigureShape", source, StringComparison.Ordinal);
         Assert.DoesNotContain("document.createElementNS", script, StringComparison.Ordinal);
         Assert.DoesNotContain("setAttribute(\"points\"", script, StringComparison.Ordinal);
