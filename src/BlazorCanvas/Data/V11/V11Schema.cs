@@ -75,12 +75,16 @@ public static class V11Schema
     }
 
     /// <summary>
-    /// Applies the idempotent DDL batch through an already-open connection.
+    /// Applies the idempotent DDL batch through an already-open connection. Supplying a transaction
+    /// keeps PostgreSQL's transactional DDL in the caller's rollback boundary.
     /// </summary>
-    public static async Task ApplyAsync(NpgsqlConnection connection, CancellationToken ct = default)
+    public static async Task ApplyAsync(
+        NpgsqlConnection connection,
+        CancellationToken ct = default,
+        NpgsqlTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(connection);
-        await using var command = new NpgsqlCommand(Ddl, connection);
+        await using var command = new NpgsqlCommand(Ddl, connection, transaction);
         await command.ExecuteNonQueryAsync(ct);
     }
 
@@ -91,7 +95,8 @@ public static class V11Schema
     public static async Task SeedFigureTypesAsync(
         NpgsqlConnection connection,
         ShapeRegistry registry,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        NpgsqlTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentNullException.ThrowIfNull(registry);
@@ -101,7 +106,8 @@ public static class V11Schema
             // DDL is constant; this caller-provided value is always a bound NpgsqlParameter.
             await using var command = new NpgsqlCommand(
                 "INSERT INTO v11.figure_types (name) VALUES (@name) ON CONFLICT (name) DO NOTHING",
-                connection);
+                connection,
+                transaction);
             command.Parameters.Add(new NpgsqlParameter("name", name));
             await command.ExecuteNonQueryAsync(ct);
         }

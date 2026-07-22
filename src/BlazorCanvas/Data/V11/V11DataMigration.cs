@@ -57,12 +57,12 @@ public static class V11DataMigration
             throw new InvalidOperationException("The migration requires an open connection.");
         }
 
-        // Step 1 is idempotent. The data work below is one transaction, so a failure never leaves
-        // a partly migrated canvas that no test covers and no user can recover from.
-        await V11Schema.ApplyAsync(connection, ct);
-        await V11Schema.SeedFigureTypesAsync(connection, registry, ct);
-
         await using var transaction = await connection.BeginTransactionAsync(ct);
+        // PostgreSQL DDL is transactional. Apply the additive schema and registry seed inside this
+        // same migration transaction so an invalid legacy row leaves a legacy-only database.
+        await V11Schema.ApplyAsync(connection, ct, transaction);
+        await V11Schema.SeedFigureTypesAsync(connection, registry, ct, transaction);
+
         await using var repositoryDataSource = NpgsqlDataSource.Create(connection.ConnectionString);
         var repository = new FigureRepository(repositoryDataSource);
         var gateway = new FigureInputGateway(registry);
