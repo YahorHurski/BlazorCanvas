@@ -363,6 +363,134 @@ public class CanvasInteractionCoordinatorTests
         Assert.Empty(publications);
     }
 
+    [Fact]
+    public async Task Star5_D24D36_DragClampsToEdgeSlidesAndPersistsSingleUpdate()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var star = StarRow(x: CanvasBounds.Width - 20, y: CanvasBounds.Height - 20, bboxW: 20, bboxH: 20);
+        var rows = new List<FigureRow> { star };
+        var clock = 1L;
+        var moveCalls = new List<(Guid Id, decimal X, decimal Y)>();
+        var publications = new List<SyncMessage>();
+        using var observer = notifier.Subscribe(7, publications.Add);
+        var coordinator = Create(notifier, rows, out var subscription, () => clock, (id, x, y, _) =>
+        {
+            moveCalls.Add((id, x, y));
+            return Task.FromResult(1);
+        });
+        using (subscription)
+        {
+            coordinator.BeginDrag(star.Id, new CanvasPoint(0, 0));
+            coordinator.ContinueDrag(new CanvasPoint(50, -15));
+            await coordinator.CommitDragAsync();
+        }
+
+        var moved = Assert.Single(coordinator.Figures);
+        Assert.Equal(CanvasBounds.Width - (decimal)star.BboxW, moved.X);
+        Assert.Equal(CanvasBounds.Height - 35m, moved.Y);
+        Assert.Equal(CanvasBounds.Width, moved.X + (decimal)moved.BboxX + (decimal)moved.BboxW);
+        Assert.InRange(moved.Y + (decimal)moved.BboxY, 0m, CanvasBounds.Height);
+        Assert.InRange(moved.Y + (decimal)moved.BboxY + (decimal)moved.BboxH, 0m, CanvasBounds.Height);
+
+        var call = Assert.Single(moveCalls);
+        Assert.Equal(star.Id, call.Id);
+        Assert.Equal(moved.X, call.X);
+        Assert.Equal(moved.Y, call.Y);
+        var moves = publications.Where(message => message.Kind == "move").ToList();
+        Assert.Equal(2, moves.Count);
+        Assert.Equal(moved.X, moves.Last().X);
+        Assert.Equal(moved.Y, moves.Last().Y);
+    }
+
+    [Fact]
+    public async Task Star5_D40_ZeroRowMoveBroadcastsDeleteWithoutResurrection()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var star = StarRow();
+        var rows = new List<FigureRow> { star };
+        var publications = new List<SyncMessage>();
+        using var observer = notifier.Subscribe(7, publications.Add);
+        var coordinator = Create(notifier, rows, out var subscription, move: (_, _, _, _) => Task.FromResult(0));
+        using (subscription)
+        {
+            coordinator.BeginDrag(star.Id, new CanvasPoint(0, 0));
+            coordinator.ContinueDrag(new CanvasPoint(10, 0));
+            await coordinator.CommitDragAsync();
+        }
+
+        Assert.Empty(coordinator.Figures);
+        Assert.Null(coordinator.SelectedId);
+        var delete = Assert.Single(publications, message => message.Kind == "delete");
+        Assert.Equal(star.Id, delete.Id);
+        Assert.DoesNotContain(coordinator.Figures, figure => figure.Id == star.Id);
+    }
+
+    [Fact]
+    public void Star5_D40_RemoteMoveForUnknownIdDoesNotInsert()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var rows = new List<FigureRow>();
+        var coordinator = Create(notifier, rows, out var subscription);
+        using (subscription)
+        {
+            coordinator.ApplyRemoteMessage(SyncMessage.Move(Guid.NewGuid(), 10m, 20m, Guid.NewGuid()));
+        }
+
+        Assert.Empty(coordinator.Figures);
+        Assert.Null(coordinator.SelectedId);
+    }
+
+    [Theory]
+    [InlineData("draw")]
+    [InlineData("move")]
+    [InlineData("delete")]
+    [InlineData("rollback")]
+    public void Star5_D54_DiscardsEveryIncomingKindWhileDragging(string kind)
+    {
+        var notifier = new CanvasSyncNotifier();
+        var star = StarRow();
+        var rows = new List<FigureRow> { star };
+        var coordinator = Create(notifier, rows, out var subscription);
+        using (subscription)
+        {
+            coordinator.BeginDrag(star.Id, new CanvasPoint(0, 0));
+            var message = kind switch
+            {
+                "draw" => SyncMessage.Draw(StarRow(id: Guid.NewGuid()), Guid.NewGuid()),
+                "move" => SyncMessage.Move(star.Id, 99m, 99m, Guid.NewGuid()),
+                "delete" => SyncMessage.Delete(star.Id, Guid.NewGuid()),
+                _ => SyncMessage.Rollback(star.Id, 99m, 99m, Guid.NewGuid())
+            };
+
+            coordinator.ApplyRemoteMessage(message);
+        }
+
+        Assert.Equal(star, Assert.Single(coordinator.Figures));
+        Assert.Equal(star.Id, coordinator.SelectedId);
+    }
+
+    [Fact]
+    public async Task Star5_D53_IgnoresOwnDrawAndMoveEchoes()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var rows = new List<FigureRow>();
+        var clock = 1L;
+        var coordinator = Create(notifier, rows, out var subscription, () => clock);
+        using (subscription)
+        {
+            await coordinator.DrawAsync("star5", new CanvasPoint(10, 10), new CanvasPoint(40, 50));
+            var star = Assert.Single(coordinator.Figures);
+
+            coordinator.BeginDrag(star.Id, new CanvasPoint(0, 0));
+            coordinator.ContinueDrag(new CanvasPoint(10, 0));
+            await coordinator.CommitDragAsync();
+        }
+
+        var echoedStar = Assert.Single(coordinator.Figures);
+        Assert.Equal("star5", echoedStar.Type);
+        Assert.Equal(20m, echoedStar.X);
+    }
+
     private static CanvasInteractionCoordinator Create(
         CanvasSyncNotifier notifier,
         List<FigureRow> rows,
