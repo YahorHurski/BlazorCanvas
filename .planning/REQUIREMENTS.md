@@ -106,7 +106,7 @@ for a feature, and the user sees no difference at all.
       round-trip, the line-normalisation landmine test, and the 32-case guard-versus-CHECK matrix —
       leaving no dead scaffolding behind
 
-- [ ] **TEST-03**: New guards cover this model's silent failure modes: every row's stored `bbox_*`
+- [x] **TEST-03**: New guards cover this model's silent failure modes: every row's stored `bbox_*`
       agrees with a fresh recompute from its `geometry`; the validation gateway rejects hostile
       `geometry`/`style`; and a `z` collision produces both figures rather than losing one
 
@@ -180,7 +180,7 @@ honest values — PostgreSQL 11+ does not rewrite the table for a defaulted colu
 | SYNC-02 | Phase 11 | Pending |
 | SYNC-03 | Phase 11 | Pending |
 | TEST-02 | Phase 11 | Pending |
-| TEST-03 | Phase 10 | Pending |
+| TEST-03 | Phase 10 | Complete |
 | REG-01 | Phase 12 | Pending |
 
 **Coverage:**
