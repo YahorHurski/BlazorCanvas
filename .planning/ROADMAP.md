@@ -258,7 +258,21 @@ old type-specific code paths, and the tests whose subject no longer exists are g
      landmine test, the 32-case guard-vs-CHECK matrix) are all removed, leaving no dead scaffolding —
      and the full solution builds cleanly and passes its whole rebased test suite.
 
-**Plans**: TBD
+**Plans**: 3 plans in 3 waves
+
+**Wave 1**
+
+- [ ] 11-01-PLAN.md — Additive v11 runtime bootstrap, owner-scoped canvas resolver, and DI composition.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 11-02-PLAN.md — Local-coordinate renderer, UUID position sync, and live Home circuit wiring.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 11-03-PLAN.md — Transactional schema promotion, legacy removal, and rebased full-suite proof.
+
+**Cross-cutting constraints:** v1.1-visible selection and 48px toolbar mapping stay unchanged; drag messages remain UUID-keyed, update-only, 50ms-throttled with a trailing edge; save failure rolls every tab back to the documented reload path.
 
 **UI hint**: yes
 
