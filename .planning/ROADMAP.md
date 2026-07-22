@@ -248,7 +248,13 @@ are amended to match.
      amendment to D-16/D-33/D-58 and to CANV-02's "exactly six buttons" text, with the star's own
      decisions added by name starting at D-70.
 
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+
+- [ ] 14-01-PLAN.md — Register Star5Shape and make registry-driven figure_types seeding converge on completed public catalogs.
+- [ ] 14-02-PLAN.md — Add the armable star toolbar button and star5 tool mapping while preserving toolbar/logout semantics.
+- [ ] 14-03-PLAN.md — Amend decisions, PROJECT.md, and active intel mirrors for seven buttons and D-70+ star decisions.
 
 **UI hint**: yes
 
