@@ -36,6 +36,10 @@
                     }
                 }
             }
+            @if (preview?.IsActive == true && preview.Placement is not null)
+            {
+                <FigureShape PreviewPlacement="preview.Placement" PreviewType="preview.Type" Selectable="false" />
+            }
         </svg>
     </div>
 </div>

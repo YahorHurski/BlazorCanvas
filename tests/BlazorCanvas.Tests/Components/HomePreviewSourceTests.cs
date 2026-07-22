@@ -10,7 +10,7 @@ public class HomePreviewSourceTests
         var previewBlock = ExtractBetween(
             svgBody,
             "if (preview?.IsActive == true && preview.Placement is not null)",
-            "</FigureShape>");
+            "/>");
 
         Assert.Contains("<FigureShape", previewBlock);
         Assert.Contains("PreviewPlacement=\"preview.Placement\"", previewBlock);

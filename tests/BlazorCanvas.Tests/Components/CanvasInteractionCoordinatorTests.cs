@@ -182,7 +182,11 @@ public class CanvasInteractionCoordinatorTests
         Assert.Contains("Home.razor.js", source, StringComparison.Ordinal);
         Assert.Contains("preview.Begin", source, StringComparison.Ordinal);
         Assert.Contains("preview.Update", source, StringComparison.Ordinal);
-        Assert.Contains("pointer-events", script, StringComparison.Ordinal);
+        Assert.Contains("PreviewPlacement=\"preview.Placement\"", source, StringComparison.Ordinal);
+        Assert.Contains("PreviewType=\"preview.Type\"", source, StringComparison.Ordinal);
+        Assert.Contains("<FigureShape", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("document.createElementNS", script, StringComparison.Ordinal);
+        Assert.DoesNotContain("setAttribute(\"points\"", script, StringComparison.Ordinal);
         Assert.Contains("setPointerCapture", script, StringComparison.Ordinal);
         Assert.Contains("removePreview", script, StringComparison.Ordinal);
         Assert.NotEmpty(commit);
