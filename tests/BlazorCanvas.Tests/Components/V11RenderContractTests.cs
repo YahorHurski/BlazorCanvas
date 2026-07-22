@@ -13,6 +13,8 @@ public class V11RenderContractTests
         Assert.Contains("RectangleGeometry", figure);
         Assert.Contains("CircleGeometry", figure);
         Assert.Contains("TriangleGeometry", figure);
+        Assert.Contains("case Star5Geometry star:", figure);
+        Assert.Contains("points=\"@Points(star.Points)\"", figure);
         Assert.Contains("StyleGateway.Parse(Figure.StyleJson)", figure);
         Assert.Contains("Style.Opacity * 0.7", figure);
         Assert.Contains("CultureInfo.InvariantCulture", figure);
@@ -22,6 +24,8 @@ public class V11RenderContractTests
         Assert.Contains("#FFFFFF", trace);
         Assert.Contains("#1D4ED8", trace);
         Assert.Contains("stroke-dasharray=\"4 4\"", trace);
+        Assert.Contains("case Star5Geometry star:", trace);
+        Assert.Contains("points=\"@Points(star.Points)\"", trace);
         Assert.Contains("rotate({Number(Figure.Rotation)})", trace);
     }
 

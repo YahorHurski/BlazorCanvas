@@ -19,6 +19,9 @@
             case TriangleGeometry triangle:
                 <polygon points="@Points(triangle.Points)" fill="@Style.Fill" stroke="@Style.Stroke" stroke-width="@Number(Style.StrokeWidth)" fill-opacity="@Opacity" stroke-opacity="@Opacity" @onpointerdown="HandlePointerDown" @onpointerdown:stopPropagation="Selectable" />
                 break;
+            case Star5Geometry star:
+                <polygon points="@Points(star.Points)" fill="@Style.Fill" stroke="@Style.Stroke" stroke-width="@Number(Style.StrokeWidth)" fill-opacity="@Opacity" stroke-opacity="@Opacity" @onpointerdown="HandlePointerDown" @onpointerdown:stopPropagation="Selectable" />
+                break;
         }
     </g>
 }
