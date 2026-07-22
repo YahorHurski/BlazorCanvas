@@ -5,15 +5,15 @@ milestone_name: Five-pointed star
 current_phase: 15
 current_phase_name: Draw, Preview, Render & Persist a Star
 status: verifying
-stopped_at: Completed 15-03-PLAN.md
-last_updated: "2026-07-22T21:34:31.153Z"
+stopped_at: Completed 15-04-PLAN.md
+last_updated: "2026-07-22T22:18:09.448Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase 15 execution started
 progress:
   total_phases: 3
   completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 8
+  completed_plans: 8
   percent: 100
 ---
 
@@ -144,6 +144,7 @@ Last activity: 2026-07-22 — Phase 15 execution started
 | Phase 15 P01 | 25min | 2 tasks | 4 files |
 | Phase BC-15 P02 | 2min | 2 tasks | 1 files |
 | Phase BC-15 P03 | 4min | 2 tasks | 5 files |
+| Phase BC-15 P04 | 3min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -291,6 +292,7 @@ into an earlier phase's automated tests.
 - [Phase ?]: The renderer contract now pins star style and pointer parity against TriangleGeometry rather than only checking that a Star5Geometry branch exists.
 - [Phase ?]: Visible drawing preview geometry now belongs to DrawingPreviewSession plus FigureShape; Home.razor.js is lifecycle-only.
 - [Phase ?]: The preview remains circuit-local and is never published through CanvasSyncNotifier.
+- [Phase BC-15]: PreviewType for active drawing previews is explicitly bound as a Razor expression so FigureShape receives the runtime session type. — String component parameters use static markup text unless prefixed with @; this closes G-15-1 by passing the runtime DrawingPreviewSession.Type value.
 
 ### Pending Todos
 
@@ -320,8 +322,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T21:34:31.140Z
-Stopped at: Completed 15-03-PLAN.md
+Last session: 2026-07-22T22:17:55.707Z
+Stopped at: Completed 15-04-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
