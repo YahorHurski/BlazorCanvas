@@ -327,7 +327,7 @@ silent failure modes are pinned by tests.
   4. Tests prove degenerate (zero width or height) and malformed (missing `innerRatio`, wrong point
      count) star geometry is rejected at both the unit and gateway boundary.
 
-**Plans:** 3 plans (all Wave 1, parallel — no production code change expected; the interaction, sync,
+**Plans:** 4 plans (all Wave 1, parallel — no production code change expected; the interaction, sync,
 and selection-trace paths are already type-blind and handle `star5`, so this phase proves star parity
 and folds in the milestone's test guards)
 
@@ -342,6 +342,9 @@ Plans:
 - [ ] 16-03-PLAN.md — Extend the JS↔C# drift guard, fold a star5 row into the whole-table bbox
       agreement scan, and reject degenerate/malformed star geometry at the gateway and unit boundary
       (TEST-04).
+- [ ] 16-04-PLAN.md — Add a bUnit render-level preview smoke test that renders the active star
+      preview through FigureShape and asserts a polygon is emitted at pointermove before commit, with
+      a negative control that fails under the G-15-1 unbound-literal binding (TEST-04).
 
 **UI hint**: yes
 
