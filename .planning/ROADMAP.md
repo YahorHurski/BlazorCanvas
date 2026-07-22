@@ -258,7 +258,7 @@ old type-specific code paths, and the tests whose subject no longer exists are g
      landmine test, the 32-case guard-vs-CHECK matrix) are all removed, leaving no dead scaffolding —
      and the full solution builds cleanly and passes its whole rebased test suite.
 
-**Plans**: 3 plans in 3 waves
+**Plans**: 5 plans in 5 waves (including 2 verification-gap closure plans)
 
 **Wave 1**
 
@@ -271,6 +271,14 @@ old type-specific code paths, and the tests whose subject no longer exists are g
 **Wave 3** *(blocked on Wave 2 completion)*
 
 - [x] 11-03-PLAN.md — Transactional schema promotion, legacy removal, and rebased full-suite proof.
+
+**Wave 4** *(blocked on Wave 3 completion; gap closure)*
+
+- [ ] 11-04-PLAN.md — Guarded scratch-database cutover state and atomic-rollback proof.
+
+**Wave 5** *(blocked on Wave 4 completion; gap closure)*
+
+- [ ] 11-05-PLAN.md — Final-public two-circuit persistence, queued-delivery, stale-row, and reload-convergence proof.
 
 **Cross-cutting constraints:** v1.1-visible selection and 48px toolbar mapping stay unchanged; drag messages remain UUID-keyed, update-only, 50ms-throttled with a trailing edge; save failure rolls every tab back to the documented reload path.
 
