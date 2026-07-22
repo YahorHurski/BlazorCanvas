@@ -5,16 +5,16 @@ milestone_name: Five-pointed star
 current_phase: 16
 current_phase_name: Interaction, Sync & Test Guards
 status: executing
-stopped_at: Completed BC-16-01-PLAN.md
-last_updated: "2026-07-22T23:38:57.318Z"
+stopped_at: Completed BC-16-interaction-sync-test-guards-03-PLAN.md
+last_updated: "2026-07-22T23:43:01.926Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 15 complete, transitioned to Phase 16
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 12
-  completed_plans: 11
-  percent: 75
+  completed_plans: 12
+  percent: 100
 ---
 
 # Project State
@@ -146,6 +146,7 @@ Last activity: 2026-07-23 — Phase 15 complete, transitioned to Phase 16
 | Phase BC-16 P04 | 4 min | 2 tasks | 2 files |
 | Phase BC-16 P02 | 15min | 2 tasks | 1 files |
 | Phase BC-16 P01 | 5min | 2 tasks | 1 files |
+| Phase BC-16-interaction-sync-test-guards P03 | 8min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -299,6 +300,8 @@ into an earlier phase's automated tests.
 - [Phase BC-16]: Used bUnit 2.7.2 current BunitContext.Render API for component smoke tests. — RenderComponent is error-level obsolete in bUnit 2.x; the current API keeps the test compatible with the pinned package.
 - [Phase BC-16]: Kept the preview smoke test at FigureShape instead of mounting Home. — FigureShape owns the Registry.Contains(PreviewType) gate that caused G-15-1, while Home requires auth and PostgreSQL scaffolding unrelated to this render guard.
 - [Phase BC-16]: Kept Phase 16 Plan 01 test-only: no production coordinator, notifier, or SyncMessage changes were needed for star5 parity. — The existing type-blind coordinator path already satisfied the planned star5 interaction and sync contracts under focused tests.
+- [Phase BC-16-interaction-sync-test-guards]: TEST-04 guard coverage was implemented entirely in tests; no production shape, gateway, repository, JavaScript, schema, or dependency change was needed. — Plan 16-03 only required drift, bbox, gateway, and unit guard coverage around existing star5 production behavior.
+- [Phase BC-16-interaction-sync-test-guards]: The star bbox agreement proof reuses the existing registry-driven whole-table scan instead of introducing a star-specific scanner. — D-67/TEST-04 need every stored row checked by the same invariant, so a seeded star row and corruption probe prove coverage without forking the scanner.
 
 ### Pending Todos
 
@@ -328,8 +331,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T23:38:57.299Z
-Stopped at: Completed BC-16-01-PLAN.md
+Last session: 2026-07-22T23:43:01.889Z
+Stopped at: Completed BC-16-interaction-sync-test-guards-03-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
