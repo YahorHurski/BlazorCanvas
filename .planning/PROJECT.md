@@ -94,8 +94,9 @@ same positions, same look, same live cross-tab glide.
 
 ### Active
 
-**Milestone v1.11 (Storage Model Rewrite) is open.** Phase BC-09 validated its shape registry and
-validation gateway; the remaining storage, renderer/sync cutover, and human-regression requirements
+**Milestone v1.11 (Storage Model Rewrite) is open.** Phases BC-09 and BC-10 validated the shape
+registry/validation gateway plus the additive four-table storage schema, persistence layer, and
+lossless migration proof. The remaining renderer/sync cutover and human-regression requirements
 live in `.planning/REQUIREMENTS.md`; v1.1's are archived at
 `.planning/milestones/v1.1-REQUIREMENTS.md`.
 
@@ -352,11 +353,12 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
-**In flight: v1.11 Storage Model Rewrite** (opened 2026-07-21, branch `Milestone-v1.11`). Phase
-BC-09 is complete: the pure-C# `IShapeDefinition` registry, canonical geometry/style validation
-gateway, and immutable redacted v1.1 fixture are in place and verified. Phase BC-10 next adds the
-four-table schema, persistence layer, and dump-replay proof; the running app remains on its old path
-until Phase BC-11 cutover. **v1.2** (new figures + dynamic toolbar) waits behind it in the backlog.
+**In flight: v1.11 Storage Model Rewrite** (opened 2026-07-21, branch `Milestone-v1.11`). Phases
+BC-09 and BC-10 are complete: the pure-C# `IShapeDefinition` registry, canonical geometry/style
+validation gateway, immutable redacted v1.1 fixture, additive four-table schema, persistence layer,
+and lossless transactional dump-replay proof are verified. The running app remains on its old path
+until Phase BC-11 renderer/sync cutover. **v1.2** (new figures + dynamic toolbar) waits behind it in
+the backlog.
 
 ## Evolution
 
@@ -376,5 +378,5 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-22 — Phase BC-09 complete: SHAPE-01…03 and VALID-01…03 validated; the
-registry, validation gateway, and immutable redacted migration fixture are ready for Phase BC-10.*
+*Last updated: 2026-07-22 — Phase BC-10 complete: MODEL-01…07, MIGR-01…03, and TEST-03 validated;
+the transactionally safe storage/migration layer is ready for Phase BC-11 cutover.*
