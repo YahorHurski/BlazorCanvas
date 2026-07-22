@@ -106,7 +106,7 @@ Phase numbering continues from v1.1's Phase 8 (directories will be `BC-09-…`, 
 - [x] **Phase 9: Shape Registry & Validation Gateway** - Collapse every type-specific figure rule and all client-input validation into two pure-C# abstractions, proven in isolation before any schema or UI change. Also banks the v1.1-era database dump that Phase 10's migration proof depends on (one-shot capture — see phase detail). (completed 2026-07-22)
 - [x] **Phase 10: Storage Schema, Migration & Persistence Layer** - Land the four-table schema and a new persistence layer, and prove every existing figure migrates losslessly — all additive; execution complete, re-verification pending. (completed 2026-07-22)
 - [x] **Phase 11: Renderer, Sync & Cutover** - Switch `Home.razor`, the renderer, and the sync payload onto the new model; retire the old table and its dead tests. (completed 2026-07-22)
-- [ ] **Phase 12: Regression Verification** - A human confirms on the running application that the rewrite is invisible.
+- [ ] **Phase 12: Regression Verification** (1 plan) - A human confirms on the running application that the rewrite is invisible.
 
 ## Phase Details
 
@@ -303,7 +303,13 @@ every user-facing behavior is indistinguishable from v1.1.
   3. A human opens two browser windows on the same account and confirms a drag glides live in the
      second window in real time, exactly as before — the milestone's acceptance gate.
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+
+**Wave 1**
+
+- [ ] 12-01-PLAN.md — Automated local preflight and the blocking, evidenced two-window human REG-01 regression acceptance script.
 
 ## Progress
 
