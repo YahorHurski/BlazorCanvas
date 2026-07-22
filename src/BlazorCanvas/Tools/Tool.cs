@@ -1,13 +1,13 @@
 namespace BlazorCanvas.Tools;
 
 /// <summary>
-/// The five armable toolbar tools. Shape names are selected through the registry rather than a
+/// The six armable toolbar tools. Shape names are selected through the registry rather than a
 /// second legacy geometry type, so the toolbar cannot drift from the persisted shape catalog.
 /// <c>Pointer</c> is deliberately the first member so <c>default(Tool)</c> is <c>Tool.Pointer</c>,
 /// matching D-31: the pointer tool is armed on page load, so a stray first click cannot create a figure.
 /// There is no removal-action member here: removing the selected figure is an action button, not an
-/// armable mode (D-33) — you click it to act on the selected figure, you do not arm it. CANV-02's
-/// "exactly six buttons" is a claim about the toolbar strip, not about this enum; the six are the five
+/// armable mode (D-33) — you click it to act on the selected figure, you do not arm it. CANV-04's
+/// "exactly seven buttons" is a claim about the toolbar strip, not about this enum; the seven are the six
 /// armable tools plus that one action button.
 /// </summary>
 public enum Tool
@@ -16,7 +16,8 @@ public enum Tool
     Line,
     Rectangle,
     Circle,
-    Triangle
+    Triangle,
+    Star
 }
 
 /// <summary>
@@ -36,6 +37,7 @@ public static class ToolMap
         Tool.Rectangle => "rectangle",
         Tool.Circle => "circle",
         Tool.Triangle => "triangle",
+        Tool.Star => "star5",
         _ => throw new ArgumentOutOfRangeException(nameof(tool), tool, "Unknown tool.")
     };
 }
