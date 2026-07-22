@@ -23,10 +23,10 @@ public class BboxCacheAgreementTests
         // in v11.figures, including rows written by other tests, rather than a self-check.
         // Exact equality is appropriate because both values come from BoundsOf over the same parsed
         // doubles. Row order is immaterial because the assertion is independently per row.
-        var mismatches = await FindMismatchesAsync();
-        Assert.Empty(mismatches);
-        Assert.Equal(await CountFiguresAsync(), await CountVisitedRowsAsync());
-        Assert.True(await CountVisitedRowsAsync() >= seeded.All.Count);
+        var inspection = await InspectTableAsync();
+        Assert.Empty(inspection.Mismatches);
+        Assert.Equal(await CountFiguresAsync(), inspection.VisitedRows);
+        Assert.True(inspection.VisitedRows >= seeded.All.Count);
 
         Assert.Equal(0d, seeded.Horizontal.BboxH);
         Assert.Equal(0d, seeded.Vertical.BboxW);
@@ -118,7 +118,10 @@ public class BboxCacheAgreementTests
         return new SeededPopulation(canvasId, all, all[0], all[1], all[4]);
     }
 
-    private async Task<List<string>> FindMismatchesAsync(Guid? onlyId = null, NpgsqlConnection? suppliedConnection = null, NpgsqlTransaction? transaction = null)
+    private async Task<List<string>> FindMismatchesAsync(Guid? onlyId = null, NpgsqlConnection? suppliedConnection = null, NpgsqlTransaction? transaction = null) =>
+        (await InspectTableAsync(onlyId, suppliedConnection, transaction)).Mismatches;
+
+    private async Task<TableInspection> InspectTableAsync(Guid? onlyId = null, NpgsqlConnection? suppliedConnection = null, NpgsqlTransaction? transaction = null)
     {
         const string sql = "SELECT id, type, geometry::text, bbox_x, bbox_y, bbox_w, bbox_h FROM v11.figures";
         var ownsConnection = suppliedConnection is null;
@@ -130,10 +133,12 @@ public class BboxCacheAgreementTests
             var registry = DefaultShapes.CreateRegistry();
             registry.Register(new PentagonShape());
             var mismatches = new List<string>();
+            var visitedRows = 0;
 
             while (await reader.ReadAsync())
             {
                 var id = reader.GetGuid(0);
+                visitedRows++;
                 if (onlyId is Guid expectedId && id != expectedId)
                 {
                     continue;
@@ -149,7 +154,7 @@ public class BboxCacheAgreementTests
                 AssertEqual(bounds.H, reader.GetDouble(6), id, "bbox_h", mismatches);
             }
 
-            return mismatches;
+            return new TableInspection(mismatches, visitedRows);
         }
         finally
         {
@@ -169,13 +174,6 @@ public class BboxCacheAgreementTests
     }
 
     private async Task<int> CountFiguresAsync()
-    {
-        await using var connection = await _fixture.OpenV11ConnectionAsync();
-        await using var command = new NpgsqlCommand("SELECT count(*) FROM v11.figures", connection);
-        return Convert.ToInt32(await command.ExecuteScalarAsync());
-    }
-
-    private async Task<int> CountVisitedRowsAsync()
     {
         await using var connection = await _fixture.OpenV11ConnectionAsync();
         await using var command = new NpgsqlCommand("SELECT count(*) FROM v11.figures", connection);
@@ -214,4 +212,6 @@ public class BboxCacheAgreementTests
     }
 
     private sealed record SeededPopulation(Guid CanvasId, List<FigureRow> All, FigureRow Horizontal, FigureRow Vertical, FigureRow FarFromOrigin);
+
+    private sealed record TableInspection(List<string> Mismatches, int VisitedRows);
 }
