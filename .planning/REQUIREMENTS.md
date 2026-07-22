@@ -86,23 +86,23 @@ for a feature, and the user sees no difference at all.
 
 ### Rendering
 
-- [ ] **RENDER-01**: Each figure renders as a `<g transform="translate(x, y) rotate(…)">` wrapper
+- [x] **RENDER-01**: Each figure renders as a `<g transform="translate(x, y) rotate(…)">` wrapper
       around a shape drawn in local coordinates, and the result is visually identical to v1.1 —
       including selection appearance and the 48px toolbar offset
 
 ### Sync and persistence
 
-- [ ] **SYNC-02**: Live cross-tab sync — draw, delete, and real-time drag glide — behaves exactly
+- [x] **SYNC-02**: Live cross-tab sync — draw, delete, and real-time drag glide — behaves exactly
       as in v1.1 over the new payload (uuid ids, position deltas), preserving D-53's kinds and echo
       filter, D-40's update-only move, D-54's blanket mid-drag discard, and D-47's throttle with
       guaranteed trailing edge
 
-- [ ] **SYNC-03**: The save-failure path still rolls back everywhere and forces a reload (D-52), and
+- [x] **SYNC-03**: The save-failure path still rolls back everywhere and forces a reload (D-52), and
       the staleness guard still removes a figure on a zero-row UPDATE (D-10), under the new model
 
 ### Tests
 
-- [ ] **TEST-02**: Tests whose subject no longer exists are retired — the circle inscribed-square
+- [x] **TEST-02**: Tests whose subject no longer exists are retired — the circle inscribed-square
       round-trip, the line-normalisation landmine test, and the 32-case guard-versus-CHECK matrix —
       leaving no dead scaffolding behind
 
@@ -176,10 +176,10 @@ honest values — PostgreSQL 11+ does not rewrite the table for a defaulted colu
 | VALID-01 | Phase 9 | Complete |
 | VALID-02 | Phase 9 | Complete |
 | VALID-03 | Phase 9 | Complete |
-| RENDER-01 | Phase 11 | Pending |
-| SYNC-02 | Phase 11 | Pending |
-| SYNC-03 | Phase 11 | Pending |
-| TEST-02 | Phase 11 | Pending |
+| RENDER-01 | Phase 11 | Complete |
+| SYNC-02 | Phase 11 | Complete |
+| SYNC-03 | Phase 11 | Complete |
+| TEST-02 | Phase 11 | Complete |
 | TEST-03 | Phase 10 | Complete |
 | REG-01 | Phase 12 | Pending |
 

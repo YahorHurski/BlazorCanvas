@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: Storage Model Rewrite
-current_phase: 11
-current_phase_name: Renderer, Sync & Cutover
-status: executing
+current_phase: 12
+current_phase_name: Regression Verification
+status: planning
 stopped_at: Completed BC-10-06-PLAN.md; re-verification required after migration atomicity gap closure.
-last_updated: "2026-07-22T13:18:01.522Z"
+last_updated: "2026-07-22T14:29:41.220Z"
 last_activity: 2026-07-22
-last_activity_desc: Phase BC-10 complete, transitioned to Phase 11
+last_activity_desc: Phase 11 complete, transitioned to Phase 12
 progress:
   total_phases: 4
-  completed_phases: 2
-  total_plans: 12
-  completed_plans: 12
-  percent: 50
+  completed_phases: 3
+  total_plans: 17
+  completed_plans: 17
+  percent: 75
 ---
 
 # Project State
@@ -43,10 +43,10 @@ archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic to
 
 ## Current Position
 
-Phase: 11 — Renderer, Sync & Cutover
+Phase: 12 — Regression Verification
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-22 — Phase BC-10 complete, transitioned to Phase 11
+Status: Ready to plan
+Last activity: 2026-07-22 — Phase 11 complete, transitioned to Phase 12
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
 Progress: [██████████] 100%
@@ -55,7 +55,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 33
+- Total plans completed: 38
 - Average duration: —
 - Total execution time: —
 
@@ -75,6 +75,7 @@ Progress: [██████████] 100%
 | BC-10 | 6 | - | - |
 | BC-11 | - | - | - |
 | BC-12 | - | - | - |
+| 11 | 5 | - | - |
 
 **Recent Trend:**
 

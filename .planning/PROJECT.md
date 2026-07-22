@@ -88,16 +88,19 @@ same positions, same look, same live cross-tab glide.
 - [x] **ARCH-01** — The former "no hand-authored JavaScript" constraint is removed and the motivations of D-06/D-18/D-33/D-37/D-57 are correctly recorded as MVP simplicity or their independent behavioural rationale — Validated in Phase BC-08: Architecture Constraint Cleanup (2026-07-21); permissive/doc-only, no code change
 - [x] **SHAPE-01/02/03** — Type-specific shape logic is centralized in `IShapeDefinition`, preserves point-list geometry, and proves a fifth test-only shape can register without a schema change — Validated in Phase BC-09: Shape Registry & Validation Gateway (2026-07-22)
 - [x] **VALID-01/02/03** — Client geometry and style are parsed, validated, and re-serialized through one gateway; invalid geometry is silently rejected and style is bounded before SVG rendering — Validated in Phase BC-09: Shape Registry & Validation Gateway (2026-07-22)
+- [x] **RENDER-01** — Figures and selection traces render local geometry under the v1.11 transform while retaining the 48px toolbar mapping — Validated in Phase BC-11: Renderer, Sync & Cutover (2026-07-22)
+- [x] **SYNC-02/03** — Final-public two-circuit synchronization, stale-row removal, and rollback/reload convergence preserve the v1.1 sync contract — Validated in Phase BC-11: Renderer, Sync & Cutover (2026-07-22)
+- [x] **TEST-02** — Obsolete figure-model production code and tests are retired; cutover and final-public persistence evidence are rebased — Validated in Phase BC-11: Renderer, Sync & Cutover (2026-07-22)
 
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
 **All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
 
 ### Active
 
-**Milestone v1.11 (Storage Model Rewrite) is open.** Phases BC-09 and BC-10 validated the shape
-registry/validation gateway plus the additive four-table storage schema, persistence layer, and
-lossless migration proof. The remaining renderer/sync cutover and human-regression requirements
-live in `.planning/REQUIREMENTS.md`; v1.1's are archived at
+**Milestone v1.11 (Storage Model Rewrite) is open.** Phases BC-09 through BC-11 validated the shape
+registry/validation gateway, final-public storage cutover, renderer, and synchronized persistence
+behavior. Only Phase BC-12's live human regression requirement remains in `.planning/REQUIREMENTS.md`;
+v1.1's are archived at
 `.planning/milestones/v1.1-REQUIREMENTS.md`.
 
 **After v1.11: v1.2** — new figure types (ellipse, 5-point star, hexagon, pentagon, right-angle
@@ -354,11 +357,10 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
 **In flight: v1.11 Storage Model Rewrite** (opened 2026-07-21, branch `Milestone-v1.11`). Phases
-BC-09 and BC-10 are complete: the pure-C# `IShapeDefinition` registry, canonical geometry/style
-validation gateway, immutable redacted v1.1 fixture, additive four-table schema, persistence layer,
-and lossless transactional dump-replay proof are verified. The running app remains on its old path
-until Phase BC-11 renderer/sync cutover. **v1.2** (new figures + dynamic toolbar) waits behind it in
-the backlog.
+BC-09 through BC-11 are complete: the pure-C# `IShapeDefinition` registry, canonical geometry/style
+validation gateway, transactional migration/cutover, local SVG renderer, and final-public two-circuit
+sync/recovery behavior are verified. Phase BC-12 is the remaining live human regression gate. **v1.2**
+(new figures + dynamic toolbar) waits behind it in the backlog.
 
 ## Evolution
 
@@ -378,5 +380,5 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-22 — Phase BC-10 complete: MODEL-01…07, MIGR-01…03, and TEST-03 validated;
-the transactionally safe storage/migration layer is ready for Phase BC-11 cutover.*
+*Last updated: 2026-07-22 — Phase BC-11 complete: RENDER-01, SYNC-02/03, and TEST-02 validated;
+Phase BC-12 remains the live human regression gate.*

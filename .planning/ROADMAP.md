@@ -274,11 +274,11 @@ old type-specific code paths, and the tests whose subject no longer exists are g
 
 **Wave 4** *(blocked on Wave 3 completion; gap closure)*
 
-- [ ] 11-04-PLAN.md — Guarded scratch-database cutover state and atomic-rollback proof.
+- [x] 11-04-PLAN.md — Guarded scratch-database cutover state and atomic-rollback proof.
 
 **Wave 5** *(blocked on Wave 4 completion; gap closure)*
 
-- [ ] 11-05-PLAN.md — Final-public two-circuit persistence, queued-delivery, stale-row, and reload-convergence proof.
+- [x] 11-05-PLAN.md — Final-public two-circuit persistence, queued-delivery, stale-row, and reload-convergence proof.
 
 **Cross-cutting constraints:** v1.1-visible selection and 48px toolbar mapping stay unchanged; drag messages remain UUID-keyed, update-only, 50ms-throttled with a trailing edge; save failure rolls every tab back to the documented reload path.
 
@@ -322,7 +322,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Shape Registry & Validation Gateway | v1.11 | 6/6 | Complete    | 2026-07-22 |
 | 10. Storage Schema, Migration & Persistence Layer | v1.11 | 6/6 | Complete    | 2026-07-22 |
-| 11. Renderer, Sync & Cutover | v1.11 | 3/3 | Complete | 2026-07-22 |
+| 11. Renderer, Sync & Cutover | v1.11 | 5/5 | Complete    | 2026-07-22 |
 | 12. Regression Verification | v1.11 | 0/TBD | Not started | - |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
