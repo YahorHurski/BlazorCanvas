@@ -57,7 +57,7 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
 
 ### Rendering
 
-- [ ] **RENDER-02**: A persisted star renders from its local geometry under the v1.11
+- [x] **RENDER-02**: A persisted star renders from its local geometry under the v1.11
       `translate(x,y) rotate(…)` transform, so it survives a page reload with the identical picture
       rather than silently disappearing from the renderer's type switch.
 
@@ -141,7 +141,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIG-05 | Phase 15 | Complete |
 | FIG-06 | Phase 15 | Pending |
 | FIG-07 | Phase 15 | Complete |
-| RENDER-02 | Phase 15 | Pending |
+| RENDER-02 | Phase 15 | Complete |
 | DATA-05 | Phase 15 | Complete |
 | FIG-08 | Phase 16 | Pending |
 | SYNC-04 | Phase 16 | Pending |

@@ -5,15 +5,15 @@ milestone_name: Five-pointed star
 current_phase: 15
 current_phase_name: Draw, Preview, Render & Persist a Star
 status: executing
-stopped_at: Completed 15-01-PLAN.md
-last_updated: "2026-07-22T21:23:16.062Z"
+stopped_at: Completed 15-02-PLAN.md
+last_updated: "2026-07-22T21:27:57.449Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase 15 execution started
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 67
 ---
 
@@ -60,7 +60,7 @@ becomes loud rather than silent. The unreferenced
 ## Current Position
 
 Phase: 15 (Draw, Preview, Render & Persist a Star) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-22 — Phase 15 execution started
 
@@ -142,6 +142,7 @@ Last activity: 2026-07-22 — Phase 15 execution started
 | Phase BC-14 P02 | 3min | 2 tasks | 4 files |
 | Phase BC-14 P03 | 3min | 2 tasks | 5 files |
 | Phase 15 P01 | 25min | 2 tasks | 4 files |
+| Phase BC-15 P02 | 2min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -285,6 +286,8 @@ into an earlier phase's automated tests.
 - [Phase BC-14]: D-73 locks the seven-control toolbar order with Star between Triangle and Delete, while Logout remains outside the count as a POST form. — CANV-04 and ARCH-02 require active docs to match the shipped toolbar.
 - [Phase ?]: Star5 gesture output is normalized so BoundsOf exactly matches the clamped drag box; this preserves the D-70 stretch-to-fill contract and keeps bbox_* authoritative.
 - [Phase ?]: No star-specific coordinator or repository branch was introduced; DrawAsync still uses FigureInputGateway and FigureRepository.InsertAsync.
+- [Phase ?]: FigureShape already rendered Star5Geometry from star.Points under the v1.11 local transform, so Task 2 required no production code change.
+- [Phase ?]: The renderer contract now pins star style and pointer parity against TriangleGeometry rather than only checking that a Star5Geometry branch exists.
 
 ### Pending Todos
 
@@ -314,8 +317,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T21:23:16.046Z
-Stopped at: Completed 15-01-PLAN.md
+Last session: 2026-07-22T21:27:57.433Z
+Stopped at: Completed 15-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
