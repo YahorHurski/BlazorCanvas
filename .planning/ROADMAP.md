@@ -201,7 +201,7 @@ the data layer, before any application code is touched.
      `geometry` for every row; the validation gateway rejects hostile `geometry`/`style`; and a `z`
      collision produces both figures rather than silently losing one.
 
-**Plans**: 2/5 plans executed
+**Plans**: 3/5 plans executed
 
 Plans:
 **Wave 1**
@@ -211,7 +211,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 10-03-PLAN.md — `FigureRepository`: type-blind move, uuid-before-insert, `z = max(z)+1` with collision retry (wave 2)
+- [x] 10-03-PLAN.md — `FigureRepository`: type-blind move, uuid-before-insert, `z = max(z)+1` with collision retry (wave 2)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -295,7 +295,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Shape Registry & Validation Gateway | v1.11 | 6/6 | Complete    | 2026-07-22 |
-| 10. Storage Schema, Migration & Persistence Layer | v1.11 | 2/5 | In Progress|  |
+| 10. Storage Schema, Migration & Persistence Layer | v1.11 | 3/5 | In Progress|  |
 | 11. Renderer, Sync & Cutover | v1.11 | 0/TBD | Not started | - |
 | 12. Regression Verification | v1.11 | 0/TBD | Not started | - |
 
