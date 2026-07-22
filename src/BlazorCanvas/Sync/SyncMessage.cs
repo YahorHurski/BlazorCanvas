@@ -1,31 +1,25 @@
-using BlazorCanvas.Data;
-using BlazorCanvas.Geometry;
+using BlazorCanvas.Data.V11;
 
 namespace BlazorCanvas.Sync;
 
 /// <summary>
-/// D-53's canonical broadcast contract. D-53 supersedes D-11, D-22, and D-40's partial
-/// descriptions of the live-sync payload: one flat record covers draw, move, delete, and rollback.
-/// <c>Sender</c> exists solely for D-11's echo filter, where a circuit ignores messages from its own
-/// per-circuit <see cref="Guid"/>. The type cannot express the most important receiver rule:
-/// <c>move</c> and <c>rollback</c> are UPDATE-ONLY by D-40, so an unknown id is ignored entirely and
-/// never inserted.
+/// D-53's v1.11 wire contract. Draw carries a canonical persisted row; all other kinds are
+/// deliberately position/identity-only so a move can never replace local geometry or style.
 /// </summary>
-public sealed record SyncMessage(string Kind, Guid Sender, int Id, string? Type, int? X1, int? Y1, int? X2, int? Y2)
+public sealed record SyncMessage(string Kind, Guid Sender, Guid Id, FigureRow? Figure, decimal? X, decimal? Y)
 {
-    public static SyncMessage Draw(Figure f, Guid sender) =>
-        new("draw", sender, f.Id, f.Type, f.X1, f.Y1, f.X2, f.Y2);
+    public static SyncMessage Draw(FigureRow figure, Guid sender)
+    {
+        ArgumentNullException.ThrowIfNull(figure);
+        return new("draw", sender, figure.Id, figure, null, null);
+    }
 
-    /// <summary>
-    /// Carries coordinates without <c>Type</c> because D-53 fixes that a figure's type never changes
-    /// and the receiver already knows it.
-    /// </summary>
-    public static SyncMessage Move(int id, Box box, Guid sender) =>
-        new("move", sender, id, null, box.X1, box.Y1, box.X2, box.Y2);
+    public static SyncMessage Move(Guid id, decimal x, decimal y, Guid sender) =>
+        new("move", sender, id, null, x, y);
 
-    public static SyncMessage Delete(int id, Guid sender) =>
-        new("delete", sender, id, null, null, null, null, null);
+    public static SyncMessage Delete(Guid id, Guid sender) =>
+        new("delete", sender, id, null, null, null);
 
-    public static SyncMessage Rollback(int id, Box originalBox, Guid sender) =>
-        new("rollback", sender, id, null, originalBox.X1, originalBox.Y1, originalBox.X2, originalBox.Y2);
+    public static SyncMessage Rollback(Guid id, decimal x, decimal y, Guid sender) =>
+        new("rollback", sender, id, null, x, y);
 }
