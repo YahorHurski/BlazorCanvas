@@ -1,10 +1,10 @@
 ---
-status: diagnosed
+status: testing
 phase: BC-15-draw-preview-render-persist-a-star
 source:
   - 15-VERIFICATION.md
 started: 2026-07-22T23:44:00+02:00
-updated: 2026-07-23T00:04:00+02:00
+updated: 2026-07-23T00:20:00+02:00
 ---
 
 ## Current Test
@@ -22,9 +22,11 @@ awaiting: user response
 ### 1. Browser Star Draw UAT
 
 expected: The toolbar arms Star, the preview follows the cursor as a five-point star, the shape clamps at the canvas edge, commit creates the same five-point star, and refresh reloads it unchanged without pressing a Save button.
-result: issue
+result: pending
+previous_result: issue
 reported: "not pass. I dont see preview of any figure. But star is creating good, and i see button on the toolbar. So the only problem fjr now is preview"
 severity: major
+retest_reason: "Gap G-15-1 was fixed by 15-04-SUMMARY.md; browser UAT needs a fresh confirmation."
 
 Instructions:
 
@@ -40,8 +42,8 @@ Instructions:
 
 total: 1
 passed: 0
-issues: 1
-pending: 0
+issues: 0
+pending: 1
 skipped: 0
 blocked: 0
 
@@ -49,10 +51,12 @@ blocked: 0
 
 - gap_id: G-15-1
   truth: "The toolbar arms Star, the preview follows the cursor as a five-point star, the shape clamps at the canvas edge, commit creates the same five-point star, and refresh reloads it unchanged without pressing a Save button."
-  status: failed
+  status: resolved
   reason: "User reported: not pass. I dont see preview of any figure. But star is creating good, and i see button on the toolbar. So the only problem fjr now is preview"
   severity: major
   test: 1
+  resolved_by: "15-04-PLAN.md"
+  resolved_at: 2026-07-23T00:20:00+02:00
   root_cause: "Home.razor passes the preview type string parameter as the literal value `preview.Type` (`PreviewType=\"preview.Type\"`) instead of binding the active `preview.Type` value. FigureShape rejects that literal through `Registry.Contains(PreviewType)`, so Geometry stays null and no preview SVG is emitted for any shape."
   artifacts:
     - path: "src/BlazorCanvas/Components/Pages/Home.razor"
