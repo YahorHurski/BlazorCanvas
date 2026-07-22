@@ -14,7 +14,8 @@ public class HomePreviewSourceTests
 
         Assert.Contains("<FigureShape", previewBlock);
         Assert.Contains("PreviewPlacement=\"preview.Placement\"", previewBlock);
-        Assert.Contains("PreviewType=\"preview.Type\"", previewBlock);
+        Assert.Contains("PreviewType=\"@preview.Type\"", previewBlock);
+        Assert.DoesNotContain("PreviewType=\"preview.Type\"", previewBlock);
         Assert.Contains("Selectable=\"false\"", previewBlock);
         Assert.Contains("SelectionTrace Figure=\"selected\"", svgBody);
         Assert.True(
