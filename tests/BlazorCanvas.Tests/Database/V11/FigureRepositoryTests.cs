@@ -442,6 +442,17 @@ public class FigureRepositoryTests
 internal static class V11JsonAssertions
 {
     public static async Task AssertJsonbEqualAsync(
+        NpgsqlDataSource dataSource,
+        Guid figureId,
+        string column,
+        string expectedJson)
+    {
+        ArgumentNullException.ThrowIfNull(dataSource);
+        await using var connection = await dataSource.OpenConnectionAsync();
+        await AssertJsonbEqualAsync(connection, figureId, column, expectedJson);
+    }
+
+    public static async Task AssertJsonbEqualAsync(
         DatabaseFixture fixture,
         Guid figureId,
         string column,
@@ -452,8 +463,22 @@ internal static class V11JsonAssertions
             throw new ArgumentOutOfRangeException(nameof(column));
         }
 
-        var sql = $"SELECT {column} = @expected::jsonb FROM v11.figures WHERE id = @id";
         await using var connection = await fixture.OpenV11ConnectionAsync();
+        await AssertJsonbEqualAsync(connection, figureId, column, expectedJson);
+    }
+
+    private static async Task AssertJsonbEqualAsync(
+        NpgsqlConnection connection,
+        Guid figureId,
+        string column,
+        string expectedJson)
+    {
+        if (column is not ("geometry" or "style"))
+        {
+            throw new ArgumentOutOfRangeException(nameof(column));
+        }
+
+        var sql = $"SELECT {column} = @expected::jsonb FROM v11.figures WHERE id = @id";
         await using var command = new NpgsqlCommand(sql, connection);
         command.Parameters.AddWithValue("expected", expectedJson);
         command.Parameters.AddWithValue("id", figureId);
