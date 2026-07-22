@@ -143,9 +143,9 @@ public class Star5ShapeTests
     }
 
     [Fact]
-    public void DefaultRegistry_DoesNotContainStar5DuringPhase13()
+    public void DefaultRegistry_ContainsStar5AfterTriangle()
     {
-        Assert.Equal(new[] { "line", "rectangle", "circle", "triangle" }, DefaultShapes.CreateRegistry().Names);
+        Assert.Equal(new[] { "line", "rectangle", "circle", "triangle", "star5" }, DefaultShapes.CreateRegistry().Names);
     }
 
     private static IReadOnlyList<LocalPoint> ExpectedStarPoints(double width, double height, double innerRatio)

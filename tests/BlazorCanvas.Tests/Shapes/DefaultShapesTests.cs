@@ -8,7 +8,7 @@ public class DefaultShapesTests
     [Fact]
     public void CreateRegistry_RegistersCanonicalNamesInSeedOrder()
     {
-        Assert.Equal(new[] { "line", "rectangle", "circle", "triangle" }, DefaultShapes.CreateRegistry().Names);
+        Assert.Equal(new[] { "line", "rectangle", "circle", "triangle", "star5" }, DefaultShapes.CreateRegistry().Names);
     }
 
     [Fact]
@@ -53,7 +53,8 @@ public class DefaultShapesTests
             ["line"] = (new CanvasPoint(10, 20), new CanvasPoint(110, 60)),
             ["rectangle"] = (new CanvasPoint(10, 20), new CanvasPoint(110, 60)),
             ["circle"] = (new CanvasPoint(300, 300), new CanvasPoint(350, 300)),
-            ["triangle"] = (new CanvasPoint(10, 20), new CanvasPoint(110, 60))
+            ["triangle"] = (new CanvasPoint(10, 20), new CanvasPoint(110, 60)),
+            ["star5"] = (new CanvasPoint(10, 20), new CanvasPoint(110, 60))
         };
 
         foreach (var name in registry.Names)
