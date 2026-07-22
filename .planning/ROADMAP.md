@@ -327,7 +327,21 @@ silent failure modes are pinned by tests.
   4. Tests prove degenerate (zero width or height) and malformed (missing `innerRatio`, wrong point
      count) star geometry is rejected at both the unit and gateway boundary.
 
-**Plans**: TBD
+**Plans:** 3 plans (all Wave 1, parallel — no production code change expected; the interaction, sync,
+and selection-trace paths are already type-blind and handle `star5`, so this phase proves star parity
+and folds in the milestone's test guards)
+
+Plans:
+
+**Wave 1** *(fully parallel — disjoint test files)*
+
+- [ ] 16-01-PLAN.md — Prove star5 select, click-vs-drag, edge-clamped drag, delete, D-40 update-only,
+      D-54 discard-all, and echo filter at the coordinator boundary (FIG-08, SYNC-04).
+- [ ] 16-02-PLAN.md — Prove two-circuit final-public star draw/glide/delete relay, the D-40
+      resurrection guard, and a persisted select/drag-clamp/delete round-trip (SYNC-04, FIG-08).
+- [ ] 16-03-PLAN.md — Extend the JS↔C# drift guard, fold a star5 row into the whole-table bbox
+      agreement scan, and reject degenerate/malformed star geometry at the gateway and unit boundary
+      (TEST-04).
 
 **UI hint**: yes
 
@@ -375,7 +389,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Star Shape Core | v1.12 | 1/1 | Complete | 2026-07-22 |
 | 14. Catalog Seed, Toolbar & Decisions | v1.12 | 3/3 | Complete | 2026-07-22 |
 | 15. Draw, Preview, Render & Persist a Star | v1.12 | 4/4 | Complete | 2026-07-23 |
-| 16. Interaction, Sync & Test Guards | v1.12 | 0/TBD | Not started | - |
+| 16. Interaction, Sync & Test Guards | v1.12 | 0/3 | Planned | - |
 | 17. Regression Verification | v1.12 | 0/TBD | Not started | - |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
