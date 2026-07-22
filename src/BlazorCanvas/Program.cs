@@ -36,9 +36,7 @@ builder.Services.AddDbContextFactory<CanvasDbContext>(options =>
             maxRetryDelay: TimeSpan.FromMilliseconds(200),
             errorCodesToAdd: null)));
 
-builder.Services.AddScoped<FigureStore>();
-// Phase 11 keeps the v1.11 persistence graph independent from the legacy EF FigureStore until
-// cutover. NpgsqlDataSource is a singleton pooled transport with no per-user state; ownership is
+// NpgsqlDataSource is a singleton pooled transport with no per-user state; ownership is
 // enforced by CanvasRepository's owner-derived canvas id and FigureRepository canvas predicates.
 builder.Services.AddSingleton<NpgsqlDataSource>(_ => NpgsqlDataSource.Create(
     builder.Configuration.GetConnectionString("Canvas")
@@ -94,9 +92,8 @@ var app = builder.Build();
     }
 }
 
-// This runs after the EF users migration, but before any component route can create an interactive
-// circuit. It remains additive: public.figures is retained until 11-03's explicit cutover.
-await V11RuntimeBootstrap.EnsureAsync(
+// This runs after the EF users migration and before any component route can create a circuit.
+await V11Cutover.EnsureAsync(
     app.Services.GetRequiredService<NpgsqlDataSource>(),
     app.Services.GetRequiredService<ShapeRegistry>());
 

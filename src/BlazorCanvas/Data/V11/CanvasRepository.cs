@@ -21,14 +21,14 @@ public sealed record CanvasRow(
 public sealed class CanvasRepository(NpgsqlDataSource dataSource)
 {
     private const string EnsureSql = """
-        INSERT INTO v11.canvases (id, owner_id, name, width, height, background)
+        INSERT INTO public.canvases (id, owner_id, name, width, height, background)
         VALUES (@id, @owner_id, 'Canvas', 1472, 828, '#FFFFFF')
         ON CONFLICT (id) DO NOTHING
         """;
 
     private const string LoadSql = """
         SELECT id, owner_id, width, height, name, background
-        FROM v11.canvases
+        FROM public.canvases
         WHERE id = @id AND owner_id = @owner_id
         """;
 

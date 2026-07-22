@@ -4,8 +4,7 @@ using Npgsql;
 namespace BlazorCanvas.Data.V11;
 
 /// <summary>
-/// The small v1.11 persistence surface that Phase 11 substitutes for <c>FigureStore</c> without
-/// redesigning the application. Every geometry/style write takes <see cref="ValidatedFigureInput"/>,
+/// The final v1.11 persistence surface. Every geometry/style write takes <see cref="ValidatedFigureInput"/>,
 /// so client data cannot bypass <see cref="FigureInputGateway"/>.
 /// </summary>
 public sealed class FigureRepository(NpgsqlDataSource dataSource)
@@ -15,22 +14,22 @@ public sealed class FigureRepository(NpgsqlDataSource dataSource)
 
     private const string LoadSql = """
         SELECT id, canvas_id, type, x, y, rotation, geometry::text, style::text, z, bbox_x, bbox_y, bbox_w, bbox_h
-        FROM v11.figures
+        FROM public.figures
         WHERE canvas_id = @canvas_id
         ORDER BY z
         """;
 
     // D-63 makes z the SVG stacking order. UNIQUE (canvas_id, z) makes this ordering total.
     private const string AutoInsertSql = """
-        INSERT INTO v11.figures (id, canvas_id, type, x, y, rotation, geometry, style, z, bbox_x, bbox_y, bbox_w, bbox_h)
+        INSERT INTO public.figures (id, canvas_id, type, x, y, rotation, geometry, style, z, bbox_x, bbox_y, bbox_w, bbox_h)
         VALUES (@id, @canvas_id, @type, @x, @y, @rotation, @geometry::jsonb, @style::jsonb,
-            COALESCE((SELECT MAX(z) FROM v11.figures WHERE canvas_id = @canvas_id), 0) + 1,
+            COALESCE((SELECT MAX(z) FROM public.figures WHERE canvas_id = @canvas_id), 0) + 1,
             @bbox_x, @bbox_y, @bbox_w, @bbox_h)
         RETURNING id, canvas_id, type, x, y, rotation, geometry::text, style::text, z, bbox_x, bbox_y, bbox_w, bbox_h
         """;
 
     private const string ExplicitInsertSql = """
-        INSERT INTO v11.figures (id, canvas_id, type, x, y, rotation, geometry, style, z, bbox_x, bbox_y, bbox_w, bbox_h)
+        INSERT INTO public.figures (id, canvas_id, type, x, y, rotation, geometry, style, z, bbox_x, bbox_y, bbox_w, bbox_h)
         VALUES (@id, @canvas_id, @type, @x, @y, @rotation, @geometry::jsonb, @style::jsonb, @z,
             @bbox_x, @bbox_y, @bbox_w, @bbox_h)
         ON CONFLICT (id) DO NOTHING
@@ -38,8 +37,8 @@ public sealed class FigureRepository(NpgsqlDataSource dataSource)
         """;
 
     // MODEL-01 is literal here: a move writes exactly these two local-frame-independent columns.
-    private const string MoveSql = "UPDATE v11.figures SET x = @x, y = @y WHERE id = @id AND canvas_id = @canvas_id";
-    private const string DeleteSql = "DELETE FROM v11.figures WHERE id = @id AND canvas_id = @canvas_id";
+    private const string MoveSql = "UPDATE public.figures SET x = @x, y = @y WHERE id = @id AND canvas_id = @canvas_id";
+    private const string DeleteSql = "DELETE FROM public.figures WHERE id = @id AND canvas_id = @canvas_id";
 
     /// <summary>
     /// Loads one owned canvas in ascending z order. SVG paints in document order, so ordering is
@@ -115,29 +114,6 @@ public sealed class FigureRepository(NpgsqlDataSource dataSource)
         return await InsertCoreAsync(ExplicitInsertSql, id, canvasId, input, x, y, rotation, z, ct) is not null;
     }
 
-    /// <summary>
-    /// Inserts a migration row through an existing transaction. This deliberately remains internal:
-    /// the public persistence surface stays connection-free while V11DataMigration keeps its whole
-    /// replay atomic without creating a second bbox-writing INSERT statement.
-    /// </summary>
-    internal async Task<bool> InsertWithIdAndZAsync(
-        NpgsqlConnection connection,
-        NpgsqlTransaction transaction,
-        Guid id,
-        Guid canvasId,
-        ValidatedFigureInput input,
-        decimal x,
-        decimal y,
-        decimal z,
-        decimal rotation = 0m,
-        CancellationToken ct = default)
-    {
-        ArgumentNullException.ThrowIfNull(connection);
-        ArgumentNullException.ThrowIfNull(transaction);
-        ArgumentNullException.ThrowIfNull(input);
-        return await InsertCoreAsync(
-            ExplicitInsertSql, connection, transaction, id, canvasId, input, x, y, rotation, z, ct) is not null;
-    }
 
     /// <summary>
     /// Moves an owned figure with one UPDATE and no geometry read or type dispatch. Its affected-row
@@ -191,24 +167,6 @@ public sealed class FigureRepository(NpgsqlDataSource dataSource)
         return await reader.ReadAsync(ct) ? ReadRow(reader) : null;
     }
 
-    private static async Task<FigureRow?> InsertCoreAsync(
-        string sql,
-        NpgsqlConnection connection,
-        NpgsqlTransaction transaction,
-        Guid id,
-        Guid canvasId,
-        ValidatedFigureInput input,
-        decimal x,
-        decimal y,
-        decimal rotation,
-        decimal? z,
-        CancellationToken ct)
-    {
-        await using var command = new NpgsqlCommand(sql, connection, transaction);
-        AddInsertParameters(command, id, canvasId, input, x, y, rotation, z);
-        await using var reader = await command.ExecuteReaderAsync(ct);
-        return await reader.ReadAsync(ct) ? ReadRow(reader) : null;
-    }
 
     private static void AddInsertParameters(
         NpgsqlCommand command,
