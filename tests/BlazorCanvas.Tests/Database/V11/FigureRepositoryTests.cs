@@ -56,14 +56,26 @@ public class FigureRepositoryTests
             await EnsureFigureTypeAsync(type);
         }
 
-        var inserted = await repository.InsertAsync(canvasId, CreateInput(type), 10m, 20m);
+        Guid? insertedId = null;
+        try
+        {
+            var inserted = await repository.InsertAsync(canvasId, CreateInput(type), 10m, 20m);
+            insertedId = inserted.Id;
 
-        Assert.Equal(1, await repository.MoveAsync(canvasId, inserted.Id, 47.5m, 7.75m));
-        var moved = Assert.Single(await repository.LoadAsync(canvasId));
+            Assert.Equal(1, await repository.MoveAsync(canvasId, inserted.Id, 47.5m, 7.75m));
+            var moved = Assert.Single(await repository.LoadAsync(canvasId));
 
-        // The five-vertex pentagon takes the identical call: D-22's promise is not four-shape-only.
-        Assert.Equal(47.5m, moved.X);
-        Assert.Equal(7.75m, moved.Y);
+            // The five-vertex pentagon takes the identical call: D-22's promise is not four-shape-only.
+            Assert.Equal(47.5m, moved.X);
+            Assert.Equal(7.75m, moved.Y);
+        }
+        finally
+        {
+            if (type == "pentagon")
+            {
+                await RemoveTestOnlyPentagonAsync(insertedId);
+            }
+        }
     }
 
     [Fact]
@@ -386,6 +398,23 @@ public class FigureRepositoryTests
         await using var command = new NpgsqlCommand(sql, connection);
         command.Parameters.AddWithValue("name", type);
         await command.ExecuteNonQueryAsync();
+    }
+
+    private async Task RemoveTestOnlyPentagonAsync(Guid? figureId)
+    {
+        const string deleteFigureSql = "DELETE FROM v11.figures WHERE id = @id";
+        const string deleteTypeSql = "DELETE FROM v11.figure_types WHERE name = @name";
+        await using var connection = await _fixture.OpenV11ConnectionAsync();
+        if (figureId is Guid id)
+        {
+            await using var figureCommand = new NpgsqlCommand(deleteFigureSql, connection);
+            figureCommand.Parameters.AddWithValue("id", id);
+            await figureCommand.ExecuteNonQueryAsync();
+        }
+
+        await using var typeCommand = new NpgsqlCommand(deleteTypeSql, connection);
+        typeCommand.Parameters.AddWithValue("name", "pentagon");
+        await typeCommand.ExecuteNonQueryAsync();
     }
 
     private sealed record FigureSnapshot(
