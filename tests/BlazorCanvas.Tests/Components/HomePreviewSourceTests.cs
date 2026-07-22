@@ -1,3 +1,6 @@
+using System.Globalization;
+using BlazorCanvas.Shapes;
+
 namespace BlazorCanvas.Tests.Components;
 
 public class HomePreviewSourceTests
@@ -30,19 +33,33 @@ public class HomePreviewSourceTests
     public void HomeScript_KeepsPointerCaptureCleanupButDoesNotOwnPreviewGeometry()
     {
         var script = Source("Home.razor.js");
+        var innerRatioLiteral = Star5Shape.DefaultInnerRatio.ToString("0.###", CultureInfo.InvariantCulture);
 
         Assert.Contains("setPointerCapture", script);
         Assert.Contains("releasePointerCapture", script);
         Assert.Contains("data-local-drawing-preview", script);
         Assert.Contains("removePreview(surface)", script);
 
+        // TEST-04 / D-70 / D-71: visible star preview geometry must stay in the C# registry path.
         Assert.DoesNotContain("star5", script, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("innerRatio", script, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(innerRatioLiteral, script);
+        Assert.DoesNotContain($".{innerRatioLiteral.Split('.')[1]}", script);
         Assert.DoesNotContain("document.createElementNS", script);
         Assert.DoesNotContain("svgNamespace", script);
         Assert.DoesNotContain("setAttribute(\"points\"", script);
+        Assert.DoesNotContain(".points", script, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("createElementNS(svgNamespace, type === \"line\" ? \"line\" : type === \"rectangle\" ? \"rect\" : type === \"circle\" ? \"circle\" : \"polygon\")", script);
+        Assert.DoesNotContain("Math.PI", script, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("Math.cos", script, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("Math.sin", script, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void StarPreviewInnerRatio_IsPinnedToStar5ShapeProductionConstant()
+    {
+        // TEST-04 / D-70 / D-71: the C# shape definition is the single production source.
+        Assert.Equal(0.382, Star5Shape.DefaultInnerRatio);
     }
 
     private static string Source(string name)
