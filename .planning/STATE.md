@@ -4,9 +4,9 @@ milestone: v1.11
 milestone_name: Storage Model Rewrite
 current_phase: 12
 current_phase_name: Regression Verification
-status: planning
+status: executing
 stopped_at: Completed BC-10-06-PLAN.md; re-verification required after migration atomicity gap closure.
-last_updated: "2026-07-22T14:29:41.220Z"
+last_updated: "2026-07-22T14:57:33.111Z"
 last_activity: 2026-07-22
 last_activity_desc: Phase 11 complete, transitioned to Phase 12
 progress:
@@ -45,7 +45,7 @@ archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic to
 
 Phase: 12 — Regression Verification
 Plan: Not started
-Status: Ready to plan
+Status: Ready to execute
 Last activity: 2026-07-22 — Phase 11 complete, transitioned to Phase 12
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
