@@ -1,0 +1,111 @@
+using BlazorCanvas.Components.Pages;
+using BlazorCanvas.Data.V11;
+using BlazorCanvas.Shapes;
+using BlazorCanvas.Sync;
+
+namespace BlazorCanvas.Tests.Components;
+
+public class CanvasInteractionCoordinatorTests
+{
+    [Fact]
+    public async Task CanonicalDrawAndUpdateOnlyProtocol_ConvergeTwoCircuits()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var rows = new List<FigureRow>();
+        var a = Create(notifier, rows, out var aSubscription);
+        var b = Create(notifier, rows, out var bSubscription);
+        using (aSubscription) using (bSubscription)
+        {
+            await a.DrawAsync("rectangle", new CanvasPoint(10, 20), new CanvasPoint(30, 40));
+            var first = Assert.Single(a.Figures);
+            var received = Assert.Single(b.Figures);
+            Assert.Equal(first, received);
+
+            notifier.Publish(7, SyncMessage.Draw(first, Guid.NewGuid()));
+            notifier.Publish(7, SyncMessage.Move(Guid.NewGuid(), 99m, 99m, Guid.NewGuid()));
+            notifier.Publish(7, SyncMessage.Rollback(Guid.NewGuid(), 1m, 1m, Guid.NewGuid()));
+
+            Assert.Single(b.Figures);
+            Assert.Equal(first.Id, b.Figures[0].Id);
+        }
+    }
+
+    [Fact]
+    public async Task Drag_ThrottlesThenTrailingEdgePrecedesSinglePersistence()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var rows = new List<FigureRow> { Row() };
+        var clock = 1L;
+        var moveCalls = 0;
+        var publications = new List<SyncMessage>();
+        using var observer = notifier.Subscribe(7, publications.Add);
+        var coordinator = Create(notifier, rows, out var subscription, () => clock, (_, x, y, _) => { moveCalls++; return Task.FromResult(1); });
+        using (subscription)
+        {
+            coordinator.BeginDrag(rows[0].Id, new CanvasPoint(0, 0));
+            coordinator.ContinueDrag(new CanvasPoint(4, 0));
+            coordinator.ContinueDrag(new CanvasPoint(8, 0));
+            await coordinator.CommitDragAsync();
+        }
+
+        Assert.Equal(1, moveCalls);
+        var moves = publications.Where(message => message.Kind == "move").ToList();
+        Assert.Equal(2, moves.Count); // initial throttle publication plus forced trailing edge
+        Assert.Equal(8m, moves.Last().X);
+    }
+
+    [Fact]
+    public async Task RemoteMessagesAreDiscardedDuringDrag_AndFailureRollsPeersBack()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var row = Row();
+        var rows = new List<FigureRow> { row };
+        var a = Create(notifier, rows, out var aSubscription, move: (_, _, _, _) => throw new InvalidOperationException());
+        var b = Create(notifier, rows, out var bSubscription);
+        using (aSubscription) using (bSubscription)
+        {
+            b.BeginDrag(row.Id, new CanvasPoint(0, 0));
+            notifier.Publish(7, SyncMessage.Delete(row.Id, Guid.NewGuid()));
+            Assert.Single(b.Figures); // D-54 discard precedes every kind
+            await b.CommitDragAsync();
+            notifier.Publish(7, SyncMessage.Draw(row, Guid.NewGuid())); // restore A's stale row for failure exercise
+
+            a.BeginDrag(row.Id, new CanvasPoint(0, 0));
+            a.ContinueDrag(new CanvasPoint(10, 0));
+            await a.CommitDragAsync();
+
+            Assert.True(a.ShowSaveFailedModal);
+            Assert.Equal(row.X, a.Figures.Single().X);
+            Assert.Equal(row.X, b.Figures.Single().X);
+        }
+    }
+
+    private static CanvasInteractionCoordinator Create(
+        CanvasSyncNotifier notifier,
+        List<FigureRow> rows,
+        out IDisposable subscription,
+        Func<long>? clock = null,
+        Func<Guid, decimal, decimal, CancellationToken, Task<int>>? move = null)
+    {
+        var registry = DefaultShapes.CreateRegistry();
+        var gateway = new FigureInputGateway(registry);
+        var coordinator = new CanvasInteractionCoordinator(
+            gateway, notifier, 7, Guid.NewGuid(),
+            _ => Task.FromResult<IReadOnlyList<FigureRow>>(rows.ToList()),
+            (input, x, y, _) =>
+            {
+                var row = new FigureRow(Guid.NewGuid(), Guid.NewGuid(), input.Type, x, y, 0, input.GeometryJson, input.StyleJson, rows.Count + 1, input.Bounds.X, input.Bounds.Y, input.Bounds.W, input.Bounds.H);
+                rows.Add(row);
+                return Task.FromResult(row);
+            },
+            move ?? ((id, x, y, _) => Task.FromResult(1)),
+            (id, _) => { rows.RemoveAll(row => row.Id == id); return Task.FromResult(1); },
+            clock);
+        coordinator.LoadAsync().GetAwaiter().GetResult();
+        subscription = notifier.Subscribe(7, coordinator.ApplyRemoteMessage);
+        return coordinator;
+    }
+
+    private static FigureRow Row() => new(Guid.NewGuid(), Guid.NewGuid(), "rectangle", 0, 0, 0,
+        "{\"w\":20,\"h\":10}", "{}", 1, 0, 0, 20, 10);
+}
