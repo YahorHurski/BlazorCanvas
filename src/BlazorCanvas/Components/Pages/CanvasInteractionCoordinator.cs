@@ -11,6 +11,13 @@ namespace BlazorCanvas.Components.Pages;
 /// </summary>
 internal sealed class CanvasInteractionCoordinator
 {
+    /// <summary>
+    /// A remote message accepted at the circuit delivery boundary. The message is deliberately
+    /// captured before scheduling UI work: the drag state at receipt, rather than at callback
+    /// execution time, is D-54's authority.
+    /// </summary>
+    internal sealed record AuthorizedRemoteDelivery(SyncMessage Message);
+
     private readonly FigureInputGateway _gateway;
     private readonly CanvasSyncNotifier _notifier;
     private readonly int _ownerId;
@@ -185,9 +192,34 @@ internal sealed class CanvasInteractionCoordinator
         ShowSaveFailedModal = false;
     }
 
+    /// <summary>
+    /// Accepts a notifier message synchronously at receipt time. A message arriving while this
+    /// circuit is dragging (or sent by this circuit) is never eligible for later delivery.
+    /// </summary>
+    internal AuthorizedRemoteDelivery? TryAuthorizeRemoteDelivery(SyncMessage message)
+    {
+        return message.Sender == _sender || IsDragging ? null : new AuthorizedRemoteDelivery(message);
+    }
+
+    /// <summary>
+    /// Applies a message which was already authorised by <see cref="TryAuthorizeRemoteDelivery"/>.
+    /// This intentionally does not re-check drag state: a queued UI callback must preserve the
+    /// receipt decision rather than allowing a pointer-up to change it.
+    /// </summary>
+    internal void ApplyAuthorizedRemoteDelivery(AuthorizedRemoteDelivery delivery) => ApplyRemoteMessageCore(delivery.Message);
+
+    /// <summary>
+    /// Defensive direct-call seam used by non-UI callers and tests. The production circuit bridge
+    /// uses the receipt-time methods above so deferred scheduling cannot bypass D-54.
+    /// </summary>
     public void ApplyRemoteMessage(SyncMessage message)
     {
-        if (message.Sender == _sender || IsDragging) return;
+        var delivery = TryAuthorizeRemoteDelivery(message);
+        if (delivery is not null) ApplyAuthorizedRemoteDelivery(delivery);
+    }
+
+    private void ApplyRemoteMessageCore(SyncMessage message)
+    {
         switch (message.Kind)
         {
             case "draw" when message.Figure is not null && !Figures.Any(figure => figure.Id == message.Id):

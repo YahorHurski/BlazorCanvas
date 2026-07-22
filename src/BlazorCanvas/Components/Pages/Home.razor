@@ -144,9 +144,12 @@
 
     private void HandleRemoteMessage(SyncMessage message)
     {
+        var delivery = coordinator?.TryAuthorizeRemoteDelivery(message);
+        if (delivery is null) return;
+
         _ = InvokeAsync(() =>
         {
-            try { coordinator?.ApplyRemoteMessage(message); StateHasChanged(); }
+            try { coordinator?.ApplyAuthorizedRemoteDelivery(delivery); StateHasChanged(); }
             catch (ObjectDisposedException) { }
         });
     }

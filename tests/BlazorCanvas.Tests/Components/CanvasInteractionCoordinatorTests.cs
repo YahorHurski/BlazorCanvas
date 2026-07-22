@@ -2,6 +2,7 @@ using BlazorCanvas.Components.Pages;
 using BlazorCanvas.Data.V11;
 using BlazorCanvas.Shapes;
 using BlazorCanvas.Sync;
+using System.Text.RegularExpressions;
 
 namespace BlazorCanvas.Tests.Components;
 
@@ -80,6 +81,72 @@ public class CanvasInteractionCoordinatorTests
         }
     }
 
+    [Theory]
+    [InlineData("draw")]
+    [InlineData("move")]
+    [InlineData("delete")]
+    [InlineData("rollback")]
+    public async Task ReceiptDuringDrag_IsNeverAuthorizedEvenWhenCommitPrecedesDeferredCallback(string kind)
+    {
+        var notifier = new CanvasSyncNotifier();
+        var row = Row();
+        var rows = new List<FigureRow> { row };
+        var coordinator = Create(notifier, rows, out var subscription);
+        using (subscription)
+        {
+            coordinator.BeginDrag(row.Id, new CanvasPoint(0, 0));
+            var message = kind switch
+            {
+                "draw" => SyncMessage.Draw(Row(), Guid.NewGuid()),
+                "move" => SyncMessage.Move(row.Id, 99m, 99m, Guid.NewGuid()),
+                "delete" => SyncMessage.Delete(row.Id, Guid.NewGuid()),
+                _ => SyncMessage.Rollback(row.Id, 99m, 99m, Guid.NewGuid())
+            };
+
+            var deferred = coordinator.TryAuthorizeRemoteDelivery(message);
+            Assert.Null(deferred);
+
+            await coordinator.CommitDragAsync(); // models pointer-up before a queued InvokeAsync callback drains
+            Assert.Single(coordinator.Figures);
+            Assert.Equal(row, coordinator.Figures.Single());
+            Assert.Equal(row.Id, coordinator.SelectedId);
+        }
+    }
+
+    [Fact]
+    public void AuthorizedQueuedDelivery_AppliesTheReceivedMessageOnce()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var rows = new List<FigureRow>();
+        var coordinator = Create(notifier, rows, out var subscription);
+        using (subscription)
+        {
+            var remote = Row();
+            var delivery = coordinator.TryAuthorizeRemoteDelivery(SyncMessage.Draw(remote, Guid.NewGuid()));
+
+            Assert.NotNull(delivery);
+            coordinator.ApplyAuthorizedRemoteDelivery(delivery!);
+
+            Assert.Equal(remote, Assert.Single(coordinator.Figures));
+        }
+    }
+
+    [Fact]
+    public void HomeAuthorizesRemoteDeliveryBeforeQueuingInvokeAsync()
+    {
+        var home = FindFromRepositoryRoot("src", "BlazorCanvas", "Components", "Pages", "Home.razor");
+        var source = File.ReadAllText(home);
+        var method = Regex.Match(source, @"private void HandleRemoteMessage\(SyncMessage message\)(?<body>.*?)\n    }\n\n    private static", RegexOptions.Singleline).Groups["body"].Value;
+
+        Assert.NotEmpty(method);
+        var authorization = method.IndexOf("TryAuthorizeRemoteDelivery", StringComparison.Ordinal);
+        var invokeAsync = method.IndexOf("InvokeAsync", StringComparison.Ordinal);
+        var apply = method.IndexOf("ApplyAuthorizedRemoteDelivery", StringComparison.Ordinal);
+        Assert.True(authorization >= 0 && authorization < invokeAsync, "Home must authorize D-54 receipt before InvokeAsync queues UI work.");
+        Assert.True(apply > invokeAsync, "The queued callback must apply only the pre-authorized delivery token.");
+        Assert.DoesNotContain("ApplyRemoteMessage(message)", method, StringComparison.Ordinal);
+    }
+
     private static CanvasInteractionCoordinator Create(
         CanvasSyncNotifier notifier,
         List<FigureRow> rows,
@@ -108,4 +175,15 @@ public class CanvasInteractionCoordinatorTests
 
     private static FigureRow Row() => new(Guid.NewGuid(), Guid.NewGuid(), "rectangle", 0, 0, 0,
         "{\"w\":20,\"h\":10}", "{}", 1, 0, 0, 20, 10);
+
+    private static string FindFromRepositoryRoot(params string[] parts)
+    {
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
+        {
+            var candidate = Path.Combine([directory.FullName, .. parts]);
+            if (File.Exists(candidate)) return candidate;
+        }
+
+        throw new FileNotFoundException("Could not locate the repository Home.razor source contract.");
+    }
 }
