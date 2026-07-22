@@ -169,14 +169,19 @@ public class CanvasInteractionCoordinatorTests
     public void HomeDrawingPreview_IsCircuitLocalAndUsesCompletedGestureForCommit()
     {
         var home = FindFromRepositoryRoot("src", "BlazorCanvas", "Components", "Pages", "Home.razor");
+        var previewScript = FindFromRepositoryRoot("src", "BlazorCanvas", "Components", "Pages", "Home.razor.js");
         var source = File.ReadAllText(home);
+        var script = File.ReadAllText(previewScript);
         var commit = Regex.Match(source, @"private async Task CommitDrawAsync\(\)(?<body>.*?)\n    }\n\n    private Task HandleDeleteAsync", RegexOptions.Singleline).Groups["body"].Value;
 
         Assert.Contains("DrawingPreviewSession", source, StringComparison.Ordinal);
-        Assert.Contains("PreviewPlacement=\"preview.Placement\" PreviewType=\"preview.Type\"", source, StringComparison.Ordinal);
+        Assert.Contains("data-preview-tool", source, StringComparison.Ordinal);
+        Assert.Contains("Home.razor.js", source, StringComparison.Ordinal);
         Assert.Contains("preview.Begin", source, StringComparison.Ordinal);
         Assert.Contains("preview.Update", source, StringComparison.Ordinal);
-        Assert.Contains("await InvokeAsync(StateHasChanged)", source, StringComparison.Ordinal);
+        Assert.Contains("pointer-events", script, StringComparison.Ordinal);
+        Assert.Contains("setPointerCapture", script, StringComparison.Ordinal);
+        Assert.Contains("removePreview", script, StringComparison.Ordinal);
         Assert.NotEmpty(commit);
         Assert.Contains("preview?.Complete", commit, StringComparison.Ordinal);
         Assert.Contains("coordinator.DrawAsync(completed.Type, completed.Press, completed.Cursor)", commit, StringComparison.Ordinal);

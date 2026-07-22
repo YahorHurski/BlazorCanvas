@@ -12,23 +12,20 @@
 @inject FigureInputGateway FigureGateway
 @inject ShapeRegistry ShapeRegistry
 @inject CanvasSyncNotifier Notifier
-@implements IDisposable
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <PageTitle>BlazorCanvas</PageTitle>
 
 <div class="app-shell" @onpointermove="OnWrapperPointerMove" @onpointerup="OnWrapperPointerUp" @onpointerleave="OnWrapperPointerLeave">
     <Toolbar @bind-Armed="armedTool" DeleteEnabled="@(coordinator?.SelectedId is not null)" OnDelete="HandleDeleteAsync" OnDeselect="Deselect" />
     <div class="canvas-area">
-        <svg class="@CanvasSurfaceClass" width="@CanvasBounds.Width" height="@CanvasBounds.Height" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
+        <svg @ref="canvasSurface" class="@CanvasSurfaceClass" width="@CanvasBounds.Width" height="@CanvasBounds.Height" data-preview-tool="@ToolMap.ToShapeName(armedTool)" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
             @if (coordinator is not null)
             {
                 @foreach (var figure in coordinator.Figures)
                 {
                     <FigureShape @key="figure.Id" Figure="figure" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(figure.Id, e)" />
-                }
-                @if (preview?.Placement is not null)
-                {
-                    <FigureShape PreviewPlacement="preview.Placement" PreviewType="preview.Type" />
                 }
                 @if (coordinator.SelectedId is { } selectedId)
                 {
@@ -59,6 +56,8 @@
     private IDisposable? subscription;
     private Tool armedTool = Tool.Pointer;
     private DrawingPreviewSession? preview;
+    private ElementReference canvasSurface;
+    private IJSObjectReference? previewModule;
 
     private string CanvasSurfaceClass => "canvas-surface"
         + (armedTool != Tool.Pointer ? " shape-armed" : string.Empty)
@@ -83,9 +82,31 @@
         subscription = Notifier.Subscribe(ownerId, HandleRemoteMessage);
     }
 
-    public void Dispose() => subscription?.Dispose();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
 
-    private async Task OnPointerDown(PointerEventArgs e)
+        previewModule = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/Home.razor.js");
+        await previewModule.InvokeVoidAsync("attach", canvasSurface);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        subscription?.Dispose();
+        if (previewModule is null) return;
+
+        try
+        {
+            await previewModule.InvokeVoidAsync("detach", canvasSurface);
+            await previewModule.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+            // The browser can close before circuit disposal; no local preview remains to clean up.
+        }
+    }
+
+    private void OnPointerDown(PointerEventArgs e)
     {
         if (e.Button != 0 || coordinator is null) return;
         Deselect();
@@ -93,7 +114,6 @@
         if (type is null) return;
         preview ??= new DrawingPreviewSession(ShapeRegistry);
         preview.Begin(type, ToCanvasPoint(e));
-        await InvokeAsync(StateHasChanged);
     }
 
     private void HandleFigurePointerDown(Guid id, PointerEventArgs e)
@@ -120,7 +140,6 @@
         if (preview?.IsActive != true) return;
         if ((e.Buttons & 1) == 0) { await CommitDrawAsync(); return; }
         preview.Update(ToCanvasPoint(e));
-        await InvokeAsync(StateHasChanged);
     }
 
     private async Task OnPointerUp(PointerEventArgs _) { if (coordinator?.IsDragging == true) await coordinator.CommitDragAsync(); else if (preview?.IsActive == true) await CommitDrawAsync(); }
