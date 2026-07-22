@@ -51,7 +51,7 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
 
 ### Toolbar
 
-- [ ] **CANV-04**: The toolbar presents seven buttons — `[pointer] [line] [rectangle] [circle]
+- [x] **CANV-04**: The toolbar presents seven buttons — `[pointer] [line] [rectangle] [circle]
       [triangle] [star] [delete]` — with the star button between `triangle` and `delete`, arming and
       un-arming like every other tool, and the 48px strip and right-aligned logout unchanged.
 
@@ -136,7 +136,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SHAPE-05 | Phase 13 | Complete |
 | SHAPE-06 | Phase 13 | Complete |
 | MODEL-08 | Phase 14 | Complete |
-| CANV-04 | Phase 14 | Pending |
+| CANV-04 | Phase 14 | Complete |
 | ARCH-02 | Phase 14 | Pending |
 | FIG-05 | Phase 15 | Pending |
 | FIG-06 | Phase 15 | Pending |

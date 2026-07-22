@@ -5,15 +5,15 @@ milestone_name: Five-pointed star
 current_phase: 14
 current_phase_name: Catalog Seed, Toolbar & Decisions
 status: executing
-stopped_at: Completed BC-14-01-PLAN.md
-last_updated: "2026-07-22T20:06:58.004Z"
+stopped_at: Completed BC-14-02-PLAN.md
+last_updated: "2026-07-22T20:13:23.030Z"
 last_activity: 2026-07-22
-last_activity_desc: Phase BC-13 complete, transitioned to Phase 14
+last_activity_desc: Completed BC-14-02 armable star toolbar tool plan
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
   percent: 50
 ---
 
@@ -60,9 +60,9 @@ becomes loud rather than silent. The unreferenced
 ## Current Position
 
 Phase: 14 — Catalog Seed, Toolbar & Decisions
-Plan: 14-02 next
+Plan: 14-03 next
 Status: In progress
-Last activity: 2026-07-22 — Completed BC-14-01 catalog seed registration plan
+Last activity: 2026-07-22 — Completed BC-14-02 armable star toolbar tool plan
 
 ## Performance Metrics
 
@@ -138,6 +138,7 @@ Last activity: 2026-07-22 — Completed BC-14-01 catalog seed registration plan
 | Phase BC-10 P06 | 3min | 2 tasks | 3 files |
 | Phase BC-13 P01 | 5min | 2 tasks | 3 files |
 | Phase BC-14 P01 | 4min | 2 tasks | 7 files |
+| Phase BC-14 P02 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -274,6 +275,7 @@ into an earlier phase's automated tests.
 - [Phase ?]: Star5Geometry.InnerRatio is required and preserved, but bounds remain a pure function of Points.
 - [Phase BC-14]: Star5Shape now participates in the default registry and figure_types seed order immediately after triangle. — MODEL-08 requires newly registered shapes to become writable through registry-driven startup seeding.
 - [Phase BC-14]: Completed public catalogs seed missing registry-owned figure_types rows idempotently instead of remaining exact no-ops. — Existing completed databases must gain star5 without migration or manual SQL while preserving transaction/advisory-lock boundaries.
+- [Phase BC-14]: Star is represented as an armable Tool enum value and maps to star5; Delete and logout remain action/form controls outside Tool.
 
 ### Pending Todos
 
@@ -303,10 +305,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T20:06:57.990Z
-Stopped at: Completed BC-14-01-PLAN.md
+Last session: 2026-07-22T20:13:22.724Z
+Stopped at: Completed BC-14-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
 
-- Run `/gsd-execute-phase 14` to continue with Plan 14-02.
+- Run `/gsd-execute-phase 14` to continue with Plan 14-03.
