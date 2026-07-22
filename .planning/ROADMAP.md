@@ -104,7 +104,7 @@ Phase numbering continues from v1.1's Phase 8 (directories will be `BC-09-…`, 
 `BC-12-…`, matching the established `BC-01-…`…`BC-08-…` pattern).
 
 - [x] **Phase 9: Shape Registry & Validation Gateway** - Collapse every type-specific figure rule and all client-input validation into two pure-C# abstractions, proven in isolation before any schema or UI change. Also banks the v1.1-era database dump that Phase 10's migration proof depends on (one-shot capture — see phase detail). (completed 2026-07-22)
-- [ ] **Phase 10: Storage Schema, Migration & Persistence Layer** - Land the four-table schema and a new persistence layer, and prove every existing figure migrates losslessly — all additive; the running app stays untouched and green.
+- [ ] **Phase 10: Storage Schema, Migration & Persistence Layer** - Land the four-table schema and a new persistence layer, and prove every existing figure migrates losslessly — all additive; execution complete, re-verification pending.
 - [ ] **Phase 11: Renderer, Sync & Cutover** - Switch `Home.razor`, the renderer, and the sync payload onto the new model; retire the old table and its dead tests.
 - [ ] **Phase 12: Regression Verification** - A human confirms on the running application that the rewrite is invisible.
 
@@ -201,7 +201,7 @@ the data layer, before any application code is touched.
      `geometry` for every row; the validation gateway rejects hostile `geometry`/`style`; and a `z`
      collision produces both figures rather than silently losing one.
 
-**Plans**: 5/5 plans executed
+**Plans**: 6/6 plans executed (re-verification pending)
 
 Plans:
 **Wave 1**
@@ -217,6 +217,10 @@ Plans:
 
 - [x] 10-04-PLAN.md — `V11DataMigration` and the scratch-database replay proof against the committed v1.1 dump (wave 3)
 - [x] 10-05-PLAN.md — TEST-03 guards: whole-table bbox-vs-geometry agreement and hostile-input rejection at the database boundary (wave 3)
+
+**Wave 4 — gap closure**
+
+- [x] 10-06-PLAN.md — Encloses v11 DDL, type seeding, canvases, and figures in one migration transaction and proves invalid legacy rows leave no catalog residue.
 
 Notes: the v1.1-era dump that criterion 3's replay test consumes is **captured in Phase 9**, not
 here — see the warning at the end of Phase 9. This phase consumes that committed fixture; it must
@@ -295,7 +299,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Shape Registry & Validation Gateway | v1.11 | 6/6 | Complete    | 2026-07-22 |
-| 10. Storage Schema, Migration & Persistence Layer | v1.11 | 5/5 | In Progress|  |
+| 10. Storage Schema, Migration & Persistence Layer | v1.11 | 6/6 | Re-verification pending |  |
 | 11. Renderer, Sync & Cutover | v1.11 | 0/TBD | Not started | - |
 | 12. Regression Verification | v1.11 | 0/TBD | Not started | - |
 

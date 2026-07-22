@@ -4,16 +4,16 @@ milestone: v1.11
 milestone_name: Storage Model Rewrite
 current_phase: 10
 current_phase_name: Storage Schema, Migration & Persistence Layer
-status: executing
-stopped_at: Completed BC-10-05-PLAN.md
-last_updated: "2026-07-22T12:26:32.421Z"
+status: awaiting_verification
+stopped_at: Completed BC-10-06-PLAN.md; migration atomicity re-verification pending
+last_updated: "2026-07-22T14:30:12+02:00"
 last_activity: 2026-07-22
-last_activity_desc: "completed BC-10 Plan 01: isolated v11 schema and live catalog proof"
+last_activity_desc: "completed BC-10 Plan 06: atomic v11 migration schema and seed rollback"
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 12
+  completed_plans: 12
   percent: 50
 ---
 
@@ -44,9 +44,9 @@ archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic to
 ## Current Position
 
 Phase: 10 — Storage Schema, Migration & Persistence Layer
-Plan: 5 of 05
-Status: Ready to execute
-Last activity: 2026-07-22 — completed BC-10 Plan 01: isolated v11 schema and live catalog proof
+Plan: 6 of 06
+Status: Awaiting re-verification
+Last activity: 2026-07-22 — completed BC-10 Plan 06: atomic v11 migration schema and seed rollback
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
 Progress: [██████████] 100%
@@ -119,6 +119,7 @@ Progress: [██████████] 100%
 | Phase BC-10 P03 | 7min | 3 tasks | 4 files |
 | Phase BC-10 P04 | 5min | 3 tasks | 5 files |
 | Phase BC-10 P05 | 30min | 2 tasks | 2 files |
+| Phase BC-10 P06 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -262,12 +263,11 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-07-22T12:00:25.490Z
-Stopped at: Completed BC-10-05-PLAN.md
+Stopped at: Completed BC-10-06-PLAN.md; re-verification required after migration atomicity gap closure.
 Phase BC-09 verified passed (45/45 must-haves), UAT approved, 22/22 requirements mapped.
 Resume file: None
 
 ## Operator Next Steps
 
-- Discuss or plan Phase 10 (Storage Schema, Migration & Persistence Layer).
-- Phase 10 must consume the BC-09 fixture and gateway; Phase 11 performs cutover; Phase 12 remains
-  the final human regression gate.
+- Re-run Phase 10 verification; the invalid-row regression now proves no v11 schema or type-seed residue.
+- Phase 11 performs cutover; Phase 12 remains the final human regression gate.
