@@ -157,6 +157,14 @@ After the visible-preview failure is resolved, rerun the complete seven-step two
 - The local acceptance host for this retest (`BlazorCanvas.exe`, PID 14740) was safely stopped after the report.
 - No product code was changed while recording this failed retest; no schema, persistence model, protocol kinds, notifier behavior, or committed-drag synchronization changed during this continuation.
 
+## Debug-Fix Reverification Addendum
+
+The failed evidence above remains the original acceptance record. A follow-up debug session identified that the preview relied on Blazor Server render batches during pointer movement. The fix adds a browser-local SVG preview in `Home.razor.js`; it is not persisted or published, while the existing C# path still commits the canonical figure on release.
+
+**Approved human retest:** the initiating tab now visibly previews the figure during the gesture, and the second tab remains unchanged until release commits the figure. The release suite passed **303/303**, JavaScript syntax and diff checks passed, and no sync/storage semantics changed.
+
+The remaining Phase 12 acceptance work is to rerun the unreported portions of the complete REG-01 script: all four shapes with clamping, selection/deselection, drag/delete, and slow committed-drag glide in the second tab.
+
 ## Self-Check: PASSED
 
 - The session remains independent of `CanvasInteractionCoordinator`, repositories, `CanvasSyncNotifier`, `SyncMessage`, and `FigureRow`.

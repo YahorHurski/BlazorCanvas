@@ -103,3 +103,18 @@ REG-01 is not achieved. Automated preflight passed, but it cannot replace a huma
 
 _Verified: 2026-07-22T17:20:32+02:00_
 _Verifier: generic-agent workaround acting as independent GSD verifier_
+
+## Debug-Fix Reverification Addendum
+
+**Recorded:** 2026-07-22
+**Scope:** The blocker that caused the original run to stop.
+
+The preceding failed evidence is preserved. The preview implementation was corrected after diagnosis: the temporary SVG is now drawn directly in the initiating browser with pointer capture, and it never enters shared state, persistence, or `CanvasSyncNotifier`.
+
+The reporter approved the two-tab retest:
+
+1. The initiating tab visibly renders the preview during drawing.
+2. The second tab remains unchanged while the pointer is held.
+3. The created figure appears in the second tab only after release/commit.
+
+`dotnet test BlazorCanvas.sln --nologo -c Release --no-restore` also passed **303/303**, and JavaScript syntax/diff checks passed. This closes the preview-specific blocking gap. Phase-level REG-01 remains **partially verified** until the remaining documented human checks (four-shape clamp, selection/deselection, drag/delete, and slow committed-drag glide) are rerun and recorded.
