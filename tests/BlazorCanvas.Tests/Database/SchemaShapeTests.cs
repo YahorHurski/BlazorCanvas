@@ -38,6 +38,7 @@ public class SchemaShapeTests
     [Fact]
     public async Task PublicSchema_ContainsExactlyTheThreeExpectedTables_NoCanvasesTable()
     {
+        // This is specifically public: v11.canvases exists until Phase 11 moves it during cutover.
         await using var conn = await OpenConnectionAsync();
         var tables = await QueryStringsAsync(
             conn,
@@ -118,7 +119,7 @@ public class SchemaShapeTests
         await using var conn = await OpenConnectionAsync();
         var names = await QueryStringsAsync(
             conn,
-            "SELECT conname FROM pg_constraint WHERE conrelid = 'figures'::regclass " +
+            "SELECT conname FROM pg_constraint WHERE conrelid = 'public.figures'::regclass " +
             "AND contype = 'c' ORDER BY conname");
 
         Assert.Equal(4, names.Count);
@@ -133,7 +134,7 @@ public class SchemaShapeTests
     {
         await using var conn = await OpenConnectionAsync();
         await using var cmd = new NpgsqlCommand(
-            "SELECT indexname FROM pg_indexes WHERE tablename = 'figures' AND indexname = 'ix_figures_user_id'",
+            "SELECT indexname FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'figures' AND indexname = 'ix_figures_user_id'",
             conn);
         var indexName = (string?)await cmd.ExecuteScalarAsync();
         Assert.Equal("ix_figures_user_id", indexName);
@@ -143,7 +144,7 @@ public class SchemaShapeTests
     public async Task FiguresTable_HasCommentDocumentingTheCircleConvention()
     {
         await using var conn = await OpenConnectionAsync();
-        await using var cmd = new NpgsqlCommand("SELECT obj_description('figures'::regclass)", conn);
+        await using var cmd = new NpgsqlCommand("SELECT obj_description('public.figures'::regclass)", conn);
         var comment = (string?)await cmd.ExecuteScalarAsync();
 
         Assert.NotNull(comment);
@@ -160,8 +161,9 @@ public class SchemaShapeTests
             FROM pg_index ix
             JOIN pg_class i ON i.oid = ix.indexrelid
             JOIN pg_class t ON t.oid = ix.indrelid
+            JOIN pg_namespace n ON n.oid = t.relnamespace
             JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = ANY(ix.indkey)
-            WHERE t.relname = 'users' AND a.attname = 'username' AND ix.indisunique
+            WHERE n.nspname = 'public' AND t.relname = 'users' AND a.attname = 'username' AND ix.indisunique
             """,
             conn);
         var indexName = (string?)await cmd.ExecuteScalarAsync();
@@ -179,7 +181,8 @@ public class SchemaShapeTests
             FROM information_schema.referential_constraints rc
             JOIN information_schema.table_constraints tc
               ON tc.constraint_name = rc.constraint_name AND tc.table_schema = rc.constraint_schema
-            WHERE tc.table_name = 'figures'
+            -- v11.figures has two FKs; without public this scalar query depends on catalog row order.
+            WHERE tc.table_name = 'figures' AND tc.table_schema = 'public'
             """,
             conn);
         var deleteRule = (string?)await cmd.ExecuteScalarAsync();

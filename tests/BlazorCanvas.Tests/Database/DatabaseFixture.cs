@@ -1,5 +1,7 @@
 using BlazorCanvas.Data;
+using BlazorCanvas.Data.V11;
 using BlazorCanvas.Geometry;
+using BlazorCanvas.Shapes;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -30,17 +32,24 @@ public class DatabaseFixture : IAsyncLifetime
         Environment.GetEnvironmentVariable("BLAZORCANVAS_TEST_CONNECTION")
         ?? "Host=localhost;Port=5433;Database=canvas;Username=postgres;Password=postgres";
 
+    /// <summary>
+    /// Shared data source for v11's parameterised Npgsql tests and repository tests.
+    /// </summary>
+    public NpgsqlDataSource DataSource { get; private set; } = null!;
+
     public async Task InitializeAsync()
     {
         try
         {
             await using var context = CreateContext();
             await context.Database.MigrateAsync();
+            DataSource = NpgsqlDataSource.Create(ConnectionString);
+            await V11Schema.ApplyAndSeedAsync(ConnectionString, DefaultShapes.CreateRegistry());
         }
         catch (Exception ex)
         {
             throw new InvalidOperationException(
-                "The BlazorCanvas.Tests.Database suite could not reach PostgreSQL. " +
+                "The BlazorCanvas.Tests.Database suite could not migrate or apply the v11 schema. " +
                 "Run 'docker compose up -d' from the repository root and retry. " +
                 $"Connection string used: \"{ConnectionString}\". " +
                 $"Underlying error: {ex.GetType().Name}: {ex.Message}",
@@ -48,7 +57,13 @@ public class DatabaseFixture : IAsyncLifetime
         }
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public async Task DisposeAsync()
+    {
+        if (DataSource is not null)
+        {
+            await DataSource.DisposeAsync();
+        }
+    }
 
     public CanvasDbContext CreateContext()
     {
@@ -56,6 +71,26 @@ public class DatabaseFixture : IAsyncLifetime
             .UseNpgsql(ConnectionString)
             .Options;
         return new CanvasDbContext(options);
+    }
+
+    /// <summary>
+    /// Opens a v11 connection from the shared data source.
+    /// </summary>
+    public async Task<NpgsqlConnection> OpenV11ConnectionAsync() =>
+        await DataSource.OpenConnectionAsync();
+
+    /// <summary>
+    /// Creates a v11 canvas with schema defaults for the supplied existing owner.
+    /// </summary>
+    public static async Task<Guid> CreateTestCanvasAsync(NpgsqlConnection connection, int ownerId)
+    {
+        var canvasId = Guid.NewGuid();
+        await using var command = new NpgsqlCommand(
+            "INSERT INTO v11.canvases (id, owner_id) VALUES (@id, @ownerId)", connection);
+        command.Parameters.AddWithValue("id", canvasId);
+        command.Parameters.AddWithValue("ownerId", ownerId);
+        await command.ExecuteNonQueryAsync();
+        return canvasId;
     }
 
     /// <summary>
