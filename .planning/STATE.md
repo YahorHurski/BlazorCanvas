@@ -2,36 +2,34 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: Five-pointed star
-current_phase: 15
-current_phase_name: Draw, Preview, Render & Persist a Star
-status: verifying
-stopped_at: Completed 15-04-PLAN.md
-last_updated: "2026-07-22T22:18:09.448Z"
-last_activity: 2026-07-22
-last_activity_desc: Phase 15 execution started
+current_phase: 16
+current_phase_name: Interaction, Sync & Test Guards
+status: planning
+stopped_at: Phase 15 complete, ready to plan Phase 16
+last_updated: "2026-07-22T22:38:01.826Z"
+last_activity: 2026-07-23
+last_activity_desc: Phase 15 complete, transitioned to Phase 16
 progress:
-  total_phases: 3
+  total_phases: 5
   completed_phases: 3
   total_plans: 8
   completed_plans: 8
-  percent: 100
+  percent: 60
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-22 at v1.12 milestone open)
+See: .planning/PROJECT.md (updated 2026-07-23 after Phase 15)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** Phase 15 — Draw, Preview, Render & Persist a Star
-Add `star5` as the fifth figure type end-to-end: stretchable, point-up, corner-to-corner gesture,
-inner ratio 0.382, geometry `{"points": [[x,y] × 10], "innerRatio": 0.382}` with points authoritative
-and the ratio required on parse. Plus a seventh toolbar button between `triangle` and `delete`, an
-idempotent `figure_types` seed on every startup, and a `Home.razor.js` star branch with a drift guard.
-Scope is **one figure** — carried debt stays carried. Ends with a human acceptance gate.
+**Current focus:** Phase 16 — Interaction, Sync & Test Guards
+Select, drag, delete, and live-sync a persisted `star5` exactly like the four existing shapes, then
+pin the remaining silent-failure guards around star rows, bbox agreement, degenerate/malformed
+geometry rejection, and no drift back into client-owned preview formulas.
 
 **Roadmap created 2026-07-22** — Phases 13–17, continuing numbering from v1.11's Phase 12. All 15
 v1.12 requirements mapped, 100% coverage, no orphans. See `.planning/ROADMAP.md` → "Phase Details".
@@ -47,10 +45,9 @@ test output but has no C# consumer. Accepted because the migration path is perma
 `.planning/milestones/v1.11-MILESTONE-AUDIT.md` → "Outstanding Work".
 
 **Carried forward — tech debt.** `ShapeRegistry.All`/`.Names` return live `List` instances behind
-`IReadOnlyList` (09-REVIEW WR-03) — **explicitly out of v1.12 scope**. `Home.razor.js` reimplements
-shape preview geometry outside the registry with no drift guard; v1.12 does **not** close this, but
-it does add a drift-guard test pinning the JS inner-ratio constant to the C# one, so the duplication
-becomes loud rather than silent. The unreferenced
+`IReadOnlyList` (09-REVIEW WR-03) — **explicitly out of v1.12 scope**. Phase 15 removed the
+`Home.razor.js` shape-preview geometry duplication; Phase 16 should preserve that boundary with a
+regression guard instead of reintroducing client-owned formulas. The unreferenced
 `V11DataMigration.RunAsync(NpgsqlDataSource, …)` overload also stays.
 
 **v1.0, v1.1 and v1.11 are all archived** under `.planning/milestones/`. **v1.2** (the remaining
@@ -59,16 +56,16 @@ becomes loud rather than silent. The unreferenced
 
 ## Current Position
 
-Phase: 15 (Draw, Preview, Render & Persist a Star) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
-Last activity: 2026-07-22 — Phase 15 execution started
+Phase: 16 — Interaction, Sync & Test Guards
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-07-23 — Phase 15 complete, transitioned to Phase 16
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 44
+- Total plans completed: 48
 - Average duration: —
 - Total execution time: —
 
@@ -92,6 +89,7 @@ Last activity: 2026-07-22 — Phase 15 execution started
 | 12 | 2 | - | - |
 | BC-13 | 1 | - | - |
 | 14 | 3 | - | - |
+| 15 | 4 | - | - |
 
 **Recent Trend:**
 
@@ -165,8 +163,8 @@ unsatisfiable forever — together with the seventh toolbar button and the decis
 button requires. Phase 15 (Draw, Preview, Render & Persist a Star) is the first phase that actually
 writes and renders a star, depending on both prior phases. Phase 16 (Interaction, Sync & Test Guards)
 proves selection/drag/delete and live cross-tab sync match the four existing shapes, and folds in
-this milestone's test guards (drift guard, bbox agreement, degenerate/malformed rejection) once all
-the code they guard exists. Phase 17 (Regression Verification, REG-02) is deliberately last and
+this milestone's test guards (no JS preview formula regression, bbox agreement, degenerate/malformed
+rejection) once all the code they guard exists. Phase 17 (Regression Verification, REG-02) is deliberately last and
 stands alone — the milestone's human acceptance gate, mirroring v1.11's Phase 12 — and must not be
 folded into any earlier phase's automated tests.
 
@@ -322,10 +320,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T22:17:55.707Z
-Stopped at: Completed 15-04-PLAN.md
+Last session: 2026-07-23T00:38:00+02:00
+Stopped at: Phase 15 complete, ready to plan Phase 16
 Resume file: None
 
 ## Operator Next Steps
 
-- Run `/gsd-plan-phase 15` to plan Draw, Preview, Render & Persist a Star.
+- Run `/gsd-plan-phase 16` to plan Interaction, Sync & Test Guards.

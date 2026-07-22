@@ -82,9 +82,9 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
 
 ### Tests
 
-- [ ] **TEST-04**: Guards exist for this milestone's *silent* failure modes — a drift guard failing
-      if the `Home.razor.js` inner-ratio constant diverges from the C# one, `bbox_*` agreement for
-      star rows, and rejection of degenerate and malformed star geometry.
+- [ ] **TEST-04**: Guards exist for this milestone's *silent* failure modes — preview geometry must
+      stay out of `Home.razor.js`, `bbox_*` must agree for star rows, and degenerate/malformed star
+      geometry must be rejected.
 
 ### Regression
 
@@ -123,7 +123,7 @@ Deferred. Tracked, not in this roadmap.
 | Fixing `ShapeRegistry.All`/`.Names` live-list exposure (09-REVIEW WR-03) | Carried tech debt, explicitly out. Scope is one figure. |
 | Closing MIGR-03 | Accepted gap from v1.11; the migration path is permanently unreachable and forward risk is zero. |
 | Removing the unreferenced `V11DataMigration.RunAsync(NpgsqlDataSource, …)` overload | Carried tech debt, explicitly out. |
-| Driving the JS preview from the C# registry | The larger fix for preview-geometry duplication. v1.12 adds a drift guard instead, making the duplication loud rather than silent. |
+| Reintroducing JS-owned preview geometry | Phase 15 moved visible previews to the registry-backed Razor/FigureShape path; JS remains lifecycle-only. |
 | A rotate/resize handle on a drawn star | D-04: the app has exactly three verbs — draw, drag, delete. |
 
 ## Traceability
@@ -157,4 +157,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-07-22*
-*Last updated: 2026-07-22 — roadmap created, all 15 requirements mapped to Phases 13–17 (100% coverage).*
+*Last updated: 2026-07-23 — Phase 15 validated FIG-05, FIG-06, FIG-07, RENDER-02, and DATA-05; 11/15 v1.12 requirements complete.*

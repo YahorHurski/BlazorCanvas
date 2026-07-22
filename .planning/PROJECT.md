@@ -36,10 +36,10 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 
 ## Current Milestone: v1.12 Five-pointed star
 
-**Opened 2026-07-22.** Branch `Milestone-v1.12`. Phase 13 is complete: the pure C# `Star5Shape` /
-`Star5Geometry` core is built and directly tested. Phase 14 has exposed that core through the
-registry, catalog seed, and seven-button toolbar; its final slice records the D-70+ decision
-amendments.
+**Opened 2026-07-22.** Branch `Milestone-v1.12`. Phases 13-15 are complete: the pure C#
+`Star5Shape` / `Star5Geometry` core is built, registered, seeded, exposed through the toolbar, and
+now drawable end-to-end with live Razor/FigureShape preview, edge clamp, immediate persistence, and
+reload proof.
 
 **Goal:** Add `star5` as the fifth figure type end-to-end — drawn, previewed, persisted, synced,
 selected, dragged and deleted exactly like the four that came before it.
@@ -58,9 +58,9 @@ selected, dragged and deleted exactly like the four that came before it.
   `CatalogState.Completed`, so `SeedFigureTypesAsync` never runs again on the existing database and
   `figures.type`'s foreign key to `figure_types(name)` rejects every star. Fixing it once makes every
   future figure type free.
-- **A `star5` branch in `Home.razor.js`**, plus a **drift-guard test** pinning the JS inner-ratio
-  constant to the C# one. Today the preview falls through to a hard-coded triangle polygon, so
-  without this a star previews as a triangle.
+- **Registry-backed Razor preview rendering** — live drawing previews render through
+  `DrawingPreviewSession` and `FigureShape`, while `Home.razor.js` is lifecycle-only pointer-capture
+  cleanup. This removes the old hard-coded triangle fallback and avoids a second star formula.
 - **Decision amendments** — D-16/D-33/D-56/D-58 now describe seven toolbar controls, with logout
   outside the count; CANV-02's old toolbar count remains historical; the star's own decisions land
   from **D-70**.
@@ -145,7 +145,7 @@ same positions, same look, same live cross-tab glide.
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
 **All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
 **21 of 22 v1.11 requirements validated — shipped in v1.11 (2026-07-22).**
-**3 of 15 v1.12 requirements validated — Phase 13 complete (2026-07-22).**
+**11 of 15 v1.12 requirements validated — Phase 15 complete (2026-07-23).**
 
 ### Accepted Gaps
 
@@ -161,9 +161,9 @@ same positions, same look, same live cross-tab glide.
 
 ### Active
 
-**v1.12 Five-pointed star** — opened 2026-07-22. Phase 13 is complete; active work moves to Phase
-14: Catalog Seed, Toolbar & Decisions. Requirements for v1.0, v1.1, and v1.11 are archived under
-`.planning/milestones/`.
+**v1.12 Five-pointed star** — opened 2026-07-22. Phases 13-15 are complete; active work moves to
+Phase 16: Interaction, Sync & Test Guards. Requirements for v1.0, v1.1, and v1.11 are archived
+under `.planning/milestones/`.
 
 **After v1.12: v1.2** — the remaining new figure types (ellipse, hexagon, pentagon, right-angle
 triangle L/R, four arrows — **nine, not ten: v1.12 delivers the 5-point star**) plus a dynamic
@@ -407,8 +407,8 @@ user-observable change, which was the milestone's governing invariant.
   promoted `public.*` schema (commit `2f58086`), returning 197 tests and taking the suite 303 → 500.
 - **Archived:** `.planning/milestones/v1.11-ROADMAP.md`, `v1.11-REQUIREMENTS.md`,
   `v1.11-MILESTONE-AUDIT.md`, and phase artifacts under `v1.11-phases/`.
-- **New tech debt:** `ShapeRegistry` read-only views expose their backing lists (09-REVIEW WR-03);
-  `Home.razor.js` duplicates shape preview geometry outside the registry with no drift guard.
+- **New tech debt:** `ShapeRegistry` read-only views expose their backing lists (09-REVIEW WR-03).
+  The former `Home.razor.js` shape-preview duplication was removed in v1.12 Phase 15.
 
 **v1.1 shipped 2026-07-21** (opened 2026-07-20 — a four-day milestone). Phases BC-06 and BC-07
 delivered the 1472 × 828 canvas and the local selection lifecycle with its topmost blue-and-white
@@ -442,10 +442,9 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
 **v1.12** (the five-pointed star) opened 2026-07-22 on branch `Milestone-v1.12` and is the active
-milestone — see *Current Milestone* above. Phase 13 completed the first slice of v1.11's extensibility
-claim: one unregistered C# shape core with no schema, database, UI, renderer, or sync changes. Phase
-14 now owns the catalog-seed gap where `figure_types` never runs again on a database already in
-`CatalogState.Completed`.
+milestone — see *Current Milestone* above. Phases 13-15 completed the shape core, registry/catalog
+exposure, toolbar, draw/preview/render/persist path, and UAT-confirmed visible preview. Phase 16 now
+owns selection, drag/delete, live cross-tab sync, and this milestone's remaining test guards.
 
 **v1.2** (the remaining nine figures + dynamic toolbar) is scoped in
 `.planning/backlog/v1.2-figures-and-toolbar.md` and follows v1.12. Its remaining decision amendments
@@ -469,6 +468,6 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-22 during Phase BC-14 Plan 03 — active decisions and planning intel now
-record the seven-button toolbar and D-70+ `star5` amendments.
-Previous update: 2026-07-22 at v1.12 milestone open.*
+*Last updated: 2026-07-23 after Phase 15 — star draw, preview, render, and immediate persistence are
+validated; active work moves to Phase 16 interaction, sync, and guards.
+Previous update: 2026-07-22 during Phase BC-14 Plan 03.*

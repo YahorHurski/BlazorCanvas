@@ -157,11 +157,11 @@ the established `BC-01-…`…`BC-12-…` pattern).
       `figure_types` seed runs idempotently on every startup, a seventh toolbar button arms the star
       tool, and the locked decisions are amended for seven buttons.
 
-- [ ] **Phase 15: Draw, Preview, Render & Persist a Star** - A user draws a star end-to-end — live
+- [x] **Phase 15: Draw, Preview, Render & Persist a Star** - A user draws a star end-to-end — live (completed 2026-07-23)
       preview, edge clamp, correct render on commit and reload, immediate persistence.
 
 - [ ] **Phase 16: Interaction, Sync & Test Guards** - Select, drag, and delete a star like the four
-      existing shapes; live cross-tab glide; drift-guard, bbox-agreement, and degenerate-rejection
+      existing shapes; live cross-tab glide; preview-ownership, bbox-agreement, and degenerate-rejection
       tests.
 
 - [ ] **Phase 17: Regression Verification** - Human acceptance on the running application confirms
@@ -320,9 +320,9 @@ silent failure modes are pinned by tests.
   2. A star appears live in the user's other open tabs on draw, glides in real time during a drag,
      and disappears on delete — under the unchanged D-53 message contract.
 
-  3. A test fails if the `Home.razor.js` inner-ratio constant diverges from the C# `0.382` constant
-     (the drift guard), and a test proves `bbox_*` agreement for star rows against a fresh geometry
-     recompute.
+  3. A test fails if visible preview geometry drifts back into `Home.razor.js` instead of the
+     registry-backed Razor/FigureShape path, and a test proves `bbox_*` agreement for star rows
+     against a fresh geometry recompute.
 
   4. Tests prove degenerate (zero width or height) and malformed (missing `innerRatio`, wrong point
      count) star geometry is rejected at both the unit and gateway boundary.
@@ -374,7 +374,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 12. Regression Verification | v1.11 | 2/2 | Complete    | 2026-07-22 |
 | 13. Star Shape Core | v1.12 | 1/1 | Complete | 2026-07-22 |
 | 14. Catalog Seed, Toolbar & Decisions | v1.12 | 3/3 | Complete | 2026-07-22 |
-| 15. Draw, Preview, Render & Persist a Star | v1.12 | 4/4 | In Progress|  |
+| 15. Draw, Preview, Render & Persist a Star | v1.12 | 4/4 | Complete | 2026-07-23 |
 | 16. Interaction, Sync & Test Guards | v1.12 | 0/TBD | Not started | - |
 | 17. Regression Verification | v1.12 | 0/TBD | Not started | - |
 
@@ -382,7 +382,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 **v1.1: 3/3 phases, 4/4 plans, 4/4 requirements — all phases verified `passed`.**
 **v1.11: 4/4 phases, 19/19 plans, 21/22 requirements satisfied — shipped 2026-07-22 as
 `override_closeout`; MIGR-03 accepted as a documented gap.**
-**v1.12: 0/5 phases, 0/15 requirements — roadmap created 2026-07-22, not yet planned.**
+**v1.12: 3/5 phases, 11/15 requirements — Phase 15 complete 2026-07-23; Phase 16 is next.**
 
 ## Requirement Coverage
 
@@ -411,17 +411,17 @@ v1.12: 15/15 requirements mapped. No orphans. No duplicates.**
 
 ## What's Next
 
-**v1.12 roadmap created 2026-07-22.** Suggested next step: `/gsd-plan-phase 13` to begin the star
-geometry core.
+**v1.12 Phase 15 complete 2026-07-23.** Suggested next step: `/gsd-plan-phase 16` to plan star
+interaction, sync, and test guards.
 
 **v1.11 is shipped and archived.** MIGR-03 carries forward as an accepted gap, not a completed
 requirement. Closing it later means restoring `V11MigrationReplayTests.cs` against the committed
 `v1.1-pre-rewrite.sql` fixture — see the audit's "Outstanding Work" section.
 
 **Tech debt carried forward:** `ShapeRegistry` read-only views expose their backing lists
-(09-REVIEW WR-03, explicitly out of v1.12 scope); `Home.razor.js` duplicates shape preview geometry
-outside the registry — v1.12 does not close this, but Phase 16 adds a drift-guard test pinning the JS
-inner-ratio constant to the C# one, making the duplication loud rather than silent. The unreferenced
+(09-REVIEW WR-03, explicitly out of v1.12 scope). Phase 15 removed the `Home.razor.js` preview
+geometry duplication; Phase 16 should keep that as a regression guard while adding bbox and
+malformed-geometry guards. The unreferenced
 `V11DataMigration.RunAsync(NpgsqlDataSource, …)` overload also stays. Known v1.0 tech debt
 (~11 low-severity items) remains recorded in
 [`milestones/v1.0-MILESTONE-AUDIT.md`](milestones/v1.0-MILESTONE-AUDIT.md). None blocks a requirement.
@@ -438,5 +438,6 @@ inner-ratio constant to the C# one, making the duplication loud rather than sile
 `milestones/v1.11-MILESTONE-AUDIT.md`. Closed as `override_closeout` with MIGR-03 accepted as a
 documented gap.*
 *v1.12 roadmap added: 2026-07-22 — phases 13–17 continue numbering from Phase 12; all 15 requirements
-mapped, 100% coverage, no orphans. Phase numbering continues; Phase 17 (Regression Verification)
-stands alone as the milestone's human acceptance gate, mirroring v1.11's Phase 12.*
+mapped, 100% coverage, no orphans. Phase 15 completed 2026-07-23 after the preview UAT gap was fixed
+and retested. Phase 17 (Regression Verification) stands alone as the milestone's human acceptance
+gate, mirroring v1.11's Phase 12.*
