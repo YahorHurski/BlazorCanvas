@@ -112,7 +112,7 @@ for a feature, and the user sees no difference at all.
 
 ### Regression
 
-- [ ] **REG-01**: A human confirms on the running application that drawing all four shapes, edge
+- [x] **REG-01**: A human confirms on the running application that drawing all four shapes, edge
       clamping, dragging, deleting, selection, and two-window live glide are indistinguishable from
       v1.1
 
@@ -181,7 +181,7 @@ honest values — PostgreSQL 11+ does not rewrite the table for a defaulted colu
 | SYNC-03 | Phase 11 | Complete |
 | TEST-02 | Phase 11 | Complete |
 | TEST-03 | Phase 10 | Complete |
-| REG-01 | Phase 12 | Pending |
+| REG-01 | Phase 12 | Complete |
 
 **Coverage:**
 

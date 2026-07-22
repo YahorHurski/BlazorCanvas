@@ -3,34 +3,32 @@ gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: Storage Model Rewrite
 current_phase: 12
-current_phase_name: Regression Verification
-status: executing
-stopped_at: Completed BC-10-06-PLAN.md; re-verification required after migration atomicity gap closure.
-last_updated: "2026-07-22T14:57:33.111Z"
+status: completed
+stopped_at: Phase BC-12 complete; v1.11 ready for milestone archiving.
+last_updated: "2026-07-22T16:23:50.225Z"
 last_activity: 2026-07-22
-last_activity_desc: Phase 11 complete, transitioned to Phase 12
+last_activity_desc: Phase 12 complete
 progress:
   total_phases: 4
-  completed_phases: 3
-  total_plans: 17
-  completed_plans: 17
-  percent: 75
+  completed_phases: 4
+  total_plans: 19
+  completed_plans: 19
+  percent: 100
+current_phase_name: Regression Verification
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-22 — Phase BC-09 complete)
+See: .planning/PROJECT.md (updated 2026-07-22 — Phase BC-12 complete)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** Phase 10 — Storage Schema, Migration & Persistence Layer
-Replace the four-integer bounding-box model with the position/shape split (D-59…D-69): four tables,
-`x, y, rotation` + `geometry jsonb` in local coordinates, `numeric` coords, `uuid` ids, a `z` column
-unique per canvas, validated `style`, and a `bbox_*` cache. **Phase BC-09 delivered the pure-C# shape
-registry and validation foundation; schema, persistence, renderer, and sync cutover remain.**
+**Current focus:** Complete Milestone v1.11
+All four v1.11 phases are complete and all 22 v1.11 requirements are validated. The next workflow
+step is milestone archiving before starting v1.2 planning.
 
 **Scope boundary confirmed with the user:** a pure storage swap — **zero user-visible change**. Same
 four shapes, same three verbs, same look, same live cross-tab glide. Rotation, vertex editing,
@@ -38,15 +36,15 @@ z-order and per-figure style become possible and stay unused. Includes the lossl
 v1.1-dump replay test, the `IShapeDefinition` registry, and a retire-and-rewrite test rebase.
 
 **v1.1 shipped 2026-07-21** (canvas 1472 × 828, selection lifecycle + restyle, no-JS rule removed);
-archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic toolbar) waits in
-`.planning/backlog/v1.2-figures-and-toolbar.md` and gets cheaper once v1.11 lands.
+archived under `.planning/milestones/v1.1-*`. **v1.11 is phase-complete as of 2026-07-22.**
+**v1.2** (new figures + dynamic toolbar) waits in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 
 ## Current Position
 
-Phase: 12 — Regression Verification
+Phase: 12
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-22 — Phase 11 complete, transitioned to Phase 12
+Status: All phases complete
+Last activity: 2026-07-22 — Phase 12 complete
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
 Progress: [██████████] 100%
@@ -55,7 +53,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 38
+- Total plans completed: 40
 - Average duration: —
 - Total execution time: —
 
@@ -76,6 +74,7 @@ Progress: [██████████] 100%
 | BC-11 | - | - | - |
 | BC-12 | - | - | - |
 | 11 | 5 | - | - |
+| 12 | 2 | - | - |
 
 **Recent Trend:**
 
@@ -263,12 +262,12 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T12:00:25.490Z
-Stopped at: Completed BC-10-06-PLAN.md; re-verification required after migration atomicity gap closure.
-Phase BC-09 verified passed (45/45 must-haves), UAT approved, 22/22 requirements mapped.
+Last session: 2026-07-22T16:23:50.225Z
+Stopped at: Phase BC-12 complete; v1.11 ready for milestone archiving.
+Phase BC-12 verified passed, UAT completed 3/3, security threats_open: 0, and all 22 v1.11 requirements are validated.
 Resume file: None
 
 ## Operator Next Steps
 
-- Re-run Phase 10 verification; the invalid-row regression now proves no v11 schema or type-seed residue.
-- Phase 11 performs cutover; Phase 12 remains the final human regression gate.
+- Complete and archive the milestone: `$gsd-complete-milestone v1.11`.
+- After archiving, begin v1.2 planning from `.planning/backlog/v1.2-figures-and-toolbar.md`.

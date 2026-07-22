@@ -4,7 +4,7 @@
 
 - ✅ **v1.0 MinVP** — Phases 1–5 (shipped 2026-07-17)
 - ✅ **v1.1 Canvas resize · selection UX · no-JS removal** — Phases 6–8 (shipped 2026-07-21)
-- 🚧 **v1.11 Storage Model Rewrite** — Phases 9–12 (in progress)
+- ✅ **v1.11 Storage Model Rewrite** — Phases 9–12 complete; ready to archive
 - 📋 **v1.2 Figures & dynamic toolbar** — scoped, waiting behind v1.11
 
 v1.0 detail: [`milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.md) ·
@@ -75,7 +75,7 @@ topmost blue+white dashed trace replacing the red outline); and formally remove 
 
 </details>
 
-### 🚧 v1.11 Storage Model Rewrite (Phases 9–12, in progress)
+### ✅ v1.11 Storage Model Rewrite (Phases 9–12 complete; ready to archive)
 
 **Milestone goal:** Replace the four-integer bounding-box storage model with the position/shape
 split (D-59…D-69) — `x, y, rotation` for where a figure is, `geometry jsonb` in local coordinates for
@@ -104,9 +104,9 @@ Phase numbering continues from v1.1's Phase 8 (directories will be `BC-09-…`, 
 `BC-12-…`, matching the established `BC-01-…`…`BC-08-…` pattern).
 
 - [x] **Phase 9: Shape Registry & Validation Gateway** - Collapse every type-specific figure rule and all client-input validation into two pure-C# abstractions, proven in isolation before any schema or UI change. Also banks the v1.1-era database dump that Phase 10's migration proof depends on (one-shot capture — see phase detail). (completed 2026-07-22)
-- [x] **Phase 10: Storage Schema, Migration & Persistence Layer** - Land the four-table schema and a new persistence layer, and prove every existing figure migrates losslessly — all additive; execution complete, re-verification pending. (completed 2026-07-22)
+- [x] **Phase 10: Storage Schema, Migration & Persistence Layer** - Land the four-table schema and a new persistence layer, and prove every existing figure migrates losslessly. (completed 2026-07-22)
 - [x] **Phase 11: Renderer, Sync & Cutover** - Switch `Home.razor`, the renderer, and the sync payload onto the new model; retire the old table and its dead tests. (completed 2026-07-22)
-- [ ] **Phase 12: Regression Verification** (2 plans) - A human confirms on the running application that the rewrite is invisible; the local-only drawing-preview regression is closed before re-running acceptance.
+- [x] **Phase 12: Regression Verification** (2 plans) - A human confirms on the running application that the rewrite is invisible; the local-only drawing-preview regression is closed before re-running acceptance. (completed 2026-07-22)
 
 ## Phase Details
 
@@ -201,7 +201,7 @@ the data layer, before any application code is touched.
      `geometry` for every row; the validation gateway rejects hostile `geometry`/`style`; and a `z`
      collision produces both figures rather than silently losing one.
 
-**Plans**: 6/6 plans executed (re-verification pending)
+**Plans**: 6/6 plans executed
 
 Plans:
 **Wave 1**
@@ -309,8 +309,8 @@ Plans:
 
 **Wave 1**
 
-- [ ] 12-01-PLAN.md — Automated local preflight and the blocking, evidenced two-window human REG-01 regression acceptance script.
-- [ ] 12-02-PLAN.md — Restore and test the initiating-tab-only drawing preview while preserving commit-only cross-tab creation.
+- [x] 12-01-PLAN.md — Automated local preflight and the blocking, evidenced two-window human REG-01 regression acceptance script.
+- [x] 12-02-PLAN.md — Restore and test the initiating-tab-only drawing preview while preserving commit-only cross-tab creation.
 
 ## Progress
 
@@ -330,11 +330,11 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 9. Shape Registry & Validation Gateway | v1.11 | 6/6 | Complete    | 2026-07-22 |
 | 10. Storage Schema, Migration & Persistence Layer | v1.11 | 6/6 | Complete    | 2026-07-22 |
 | 11. Renderer, Sync & Cutover | v1.11 | 5/5 | Complete    | 2026-07-22 |
-| 12. Regression Verification | v1.11 | 0/TBD | Not started | - |
+| 12. Regression Verification | v1.11 | 2/2 | Complete    | 2026-07-22 |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 3/3 phases, 4/4 plans, 4/4 requirements — all phases verified `passed`.**
-**v1.11: 0/4 phases complete — roadmap created 2026-07-21; all 22 requirements mapped.**
+**v1.11: 4/4 phases, 19/19 plans, 22/22 requirements — all phases complete and ready for milestone archiving.**
 
 ## Requirement Coverage
 
@@ -358,10 +358,9 @@ No orphans. No duplicates.**
 
 ## What's Next
 
-**v1.11 is active** — 4 phases (9, 10, 11, 12) cover all 22 requirements; none has started yet.
-Suggested next step: `/gsd-plan-phase 9`. Phase 9 has zero database dependency and is a natural fit
-to plan and execute first; phases 10 and 11 depend on it in sequence, and phase 12 (human
-regression verification) must be last.
+**v1.11 is phase-complete** — phases 9 through 12 cover all 22 requirements and have all completed.
+Suggested next step: `$gsd-complete-milestone v1.11` to archive the milestone and prepare the next
+cycle.
 
 **v1.2 is scoped, not started, and waits behind v1.11:** new figure types (ellipse, 5-point star,
 hexagon, pentagon, right-angle triangle L/R, four arrows) + a dynamic split-button toolbar. Full

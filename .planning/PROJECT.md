@@ -12,7 +12,7 @@ It is a deliberate learning project: MinVP and fiercely scoped. *(v1.0 was built
 line of hand-authored JavaScript; that self-imposed rule was **removed in v1.1** — see Constraints —
 because the real motivation was always MVP simplicity, not JS avoidance.)*
 
-> 🛑 **v1.11 (in progress) replaces the storage model.** MinVP is deliberately **suspended for the
+> 🛑 **v1.11 (phase-complete, ready to archive) replaces the storage model.** MinVP was deliberately **suspended for the
 > data model only**: the schema is designed for the full intended horizon — vertex editing,
 > rotation, arbitrary polygons, layers, groups, per-figure style, undo — because a schema is the
 > one thing whose late change costs a migration over live data. Feature scope is unchanged; v1.11
@@ -91,17 +91,16 @@ same positions, same look, same live cross-tab glide.
 - [x] **RENDER-01** — Figures and selection traces render local geometry under the v1.11 transform while retaining the 48px toolbar mapping — Validated in Phase BC-11: Renderer, Sync & Cutover (2026-07-22)
 - [x] **SYNC-02/03** — Final-public two-circuit synchronization, stale-row removal, and rollback/reload convergence preserve the v1.1 sync contract — Validated in Phase BC-11: Renderer, Sync & Cutover (2026-07-22)
 - [x] **TEST-02** — Obsolete figure-model production code and tests are retired; cutover and final-public persistence evidence are rebased — Validated in Phase BC-11: Renderer, Sync & Cutover (2026-07-22)
+- [x] **REG-01** — Human regression verification confirms the v1.11 storage rewrite is invisible: drawing, clamping, dragging, deletion, selection, refresh persistence, local-only preview, commit-only remote creation, and two-window live glide all match v1.1 — Validated in Phase BC-12: Regression Verification (2026-07-22)
 
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
 **All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
 
 ### Active
 
-**Milestone v1.11 (Storage Model Rewrite) is open.** Phases BC-09 through BC-11 validated the shape
-registry/validation gateway, final-public storage cutover, renderer, and synchronized persistence
-behavior. Only Phase BC-12's live human regression requirement remains in `.planning/REQUIREMENTS.md`;
-v1.1's are archived at
-`.planning/milestones/v1.1-REQUIREMENTS.md`.
+**Milestone v1.11 (Storage Model Rewrite) is phase-complete and ready to archive.** Phases BC-09
+through BC-12 validated all 22 v1.11 requirements, including the final live human regression gate
+for REG-01. v1.1's requirements are archived at `.planning/milestones/v1.1-REQUIREMENTS.md`.
 
 **After v1.11: v1.2** — new figure types (ellipse, 5-point star, hexagon, pentagon, right-angle
 triangle L/R, four arrows) + a dynamic split-button toolbar. Scoped in
@@ -356,11 +355,11 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
-**In flight: v1.11 Storage Model Rewrite** (opened 2026-07-21, branch `Milestone-v1.11`). Phases
-BC-09 through BC-11 are complete: the pure-C# `IShapeDefinition` registry, canonical geometry/style
-validation gateway, transactional migration/cutover, local SVG renderer, and final-public two-circuit
-sync/recovery behavior are verified. Phase BC-12 is the remaining live human regression gate. **v1.2**
-(new figures + dynamic toolbar) waits behind it in the backlog.
+**v1.11 Storage Model Rewrite is phase-complete** (opened 2026-07-21, branch `Milestone-v1.11`).
+Phases BC-09 through BC-12 are complete: the pure-C# `IShapeDefinition` registry, canonical
+geometry/style validation gateway, transactional migration/cutover, local SVG renderer,
+final-public two-circuit sync/recovery behavior, and the live human regression gate are verified.
+**v1.2** (new figures + dynamic toolbar) waits behind milestone archiving in the backlog.
 
 ## Evolution
 
@@ -380,5 +379,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-22 — Phase BC-11 complete: RENDER-01, SYNC-02/03, and TEST-02 validated;
-Phase BC-12 remains the live human regression gate.*
+*Last updated: 2026-07-22 — Phase BC-12 complete: REG-01 validated; v1.11 is ready for milestone archiving.*
