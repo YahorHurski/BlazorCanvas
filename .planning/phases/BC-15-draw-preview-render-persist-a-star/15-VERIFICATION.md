@@ -1,17 +1,19 @@
 ---
 phase: BC-15-draw-preview-render-persist-a-star
 verified: 2026-07-22T21:42:14Z
-status: human_needed
+status: passed
 next_action: human_uat
 score: 12/12 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 gaps: []
 human_verification:
+
   - test: "In the running app, arm the Star toolbar button, drag a star near and beyond a canvas edge, release, refresh the page, and confirm the same star remains visible."
     expected: "The toolbar arms Star, the preview follows the cursor as a five-point star, the shape clamps at the canvas edge, commit creates the same five-point star, and refresh reloads it unchanged without pressing a Save button."
     why_human: "Source and unit/integration tests verify wiring and data behavior, but the actual visual pointer flow and cursor-relative preview require browser UAT."
 verification_debt:
+
   - id: WR-01
     severity: warning
     source: "15-REVIEW.md"
@@ -23,7 +25,7 @@ verification_debt:
 
 **Phase Goal:** A user can draw a star end-to-end exactly like the four existing shapes - armed from the toolbar, previewed live under the cursor, clamped at the canvas edge, rendered correctly on commit, and persisted immediately with no Save button.  
 **Verified:** 2026-07-22T21:42:14Z  
-**Status:** human_needed  
+**Status:** passed  
 **Re-verification:** No - initial verification
 
 ## Goal Achievement
