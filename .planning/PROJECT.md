@@ -34,13 +34,15 @@ The project is done when the user can do this, in one sitting:
 This deliberately makes the hardest feature — live cross-tab sync with real-time drag glide
 (D-11, D-47, D-53, D-54) — part of the definition of success, so **no phase can quietly defer it**.
 
-## Current Milestone: v1.11 Storage Model Rewrite
+## Last Shipped Milestone: v1.11 Storage Model Rewrite
 
-**Goal:** Replace the four-integer bounding-box storage model with the position/shape split
+**Shipped 2026-07-22.** No milestone is currently in progress; v1.2 is scoped and next.
+
+**Goal (met):** Replace the four-integer bounding-box storage model with the position/shape split
 (D-59…D-69), migrating every existing figure intact — so the schema never has to change again for a
 feature, and the user sees no difference at all.
 
-**Target features:**
+**Delivered:**
 
 - **Four-table schema** — `users` (unchanged), `canvases`, `figures`, `figure_types`. Exactly one
   canvas auto-created per user; no UI to create more.
@@ -88,6 +90,9 @@ same positions, same look, same live cross-tab glide.
 - [x] **ARCH-01** — The former "no hand-authored JavaScript" constraint is removed and the motivations of D-06/D-18/D-33/D-37/D-57 are correctly recorded as MVP simplicity or their independent behavioural rationale — Validated in Phase BC-08: Architecture Constraint Cleanup (2026-07-21); permissive/doc-only, no code change
 - [x] **SHAPE-01/02/03** — Type-specific shape logic is centralized in `IShapeDefinition`, preserves point-list geometry, and proves a fifth test-only shape can register without a schema change — Validated in Phase BC-09: Shape Registry & Validation Gateway (2026-07-22)
 - [x] **VALID-01/02/03** — Client geometry and style are parsed, validated, and re-serialized through one gateway; invalid geometry is silently rejected and style is bounded before SVG rendering — Validated in Phase BC-09: Shape Registry & Validation Gateway (2026-07-22)
+- [x] **MODEL-01…07** — Position/shape split with type-blind `x, y`-only moves; four tables with one canvas per user; figure types as rows, not structure; `numeric` coordinates and application-generated `uuid` ids; `z` unique per canvas with collision retry; validated `style` reproducing the fixed v1.1 appearance; and a `bbox_*` cache computed by exactly one code path that the edge clamp reads — Validated in Phase BC-10: Storage Schema, Migration & Persistence Layer (2026-07-22)
+- [x] **MIGR-01/02** — Pre-upgrade figures survive the rewrite with the identical picture; every existing user receives exactly one 1472 × 828 canvas holding all their figures — Validated in Phase BC-10: Storage Schema, Migration & Persistence Layer (2026-07-22)
+- [x] **TEST-03** — Guards for this model's silent failure modes: whole-table `bbox_*` agreement with a fresh geometry recompute, gateway rejection of hostile geometry/style at both the unit and database boundary, and a `z` collision that yields both figures — Validated in Phase BC-10: Storage Schema, Migration & Persistence Layer (2026-07-22)
 - [x] **RENDER-01** — Figures and selection traces render local geometry under the v1.11 transform while retaining the 48px toolbar mapping — Validated in Phase BC-11: Renderer, Sync & Cutover (2026-07-22)
 - [x] **SYNC-02/03** — Final-public two-circuit synchronization, stale-row removal, and rollback/reload convergence preserve the v1.1 sync contract — Validated in Phase BC-11: Renderer, Sync & Cutover (2026-07-22)
 - [x] **TEST-02** — Obsolete figure-model production code and tests are retired; cutover and final-public persistence evidence are rebased — Validated in Phase BC-11: Renderer, Sync & Cutover (2026-07-22)
@@ -95,12 +100,24 @@ same positions, same look, same live cross-tab glide.
 
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
 **All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
+**21 of 22 v1.11 requirements validated — shipped in v1.11 (2026-07-22).**
+
+### Accepted Gaps
+
+- [ ] **MIGR-03** — *"A test loads a v1.1-era database dump, runs the migration, and verifies every
+  figure's rendered vertices and stacking order against expected values — the migration is proven
+  lossless, not assumed."* **Not satisfied.** Shipped in v1.11 as a documented gap rather than
+  rewriting the requirement to fit what was built. The migration path is permanently unreachable
+  (the sole database is in `CatalogState.Completed`; a fresh volume never calls
+  `LegacyFigureConversion`; D-08 locks the project against deployment), so forward risk is zero.
+  The restored conversion tests cover all 8 curated manifest rows; the 795-row database round-trip
+  remains unproven. Full reasoning and the route to closing it:
+  `.planning/milestones/v1.11-MILESTONE-AUDIT.md`.
 
 ### Active
 
-**Milestone v1.11 (Storage Model Rewrite) is phase-complete and ready to archive.** Phases BC-09
-through BC-12 validated all 22 v1.11 requirements, including the final live human regression gate
-for REG-01. v1.1's requirements are archived at `.planning/milestones/v1.1-REQUIREMENTS.md`.
+**No milestone in progress.** v1.11 shipped and archived 2026-07-22; v1.2 is scoped but not started.
+Requirements for v1.0, v1.1, and v1.11 are archived under `.planning/milestones/`.
 
 **After v1.11: v1.2** — new figure types (ellipse, 5-point star, hexagon, pentagon, right-angle
 triangle L/R, four arrows) + a dynamic split-button toolbar. Scoped in
@@ -324,6 +341,27 @@ filter was never built.
 
 ## Current State
 
+**v1.11 shipped 2026-07-22** (opened 2026-07-21 — a two-day milestone, branch `Milestone-v1.11`).
+The storage model rewrite landed invisibly: the position/shape split, four tables, the
+`IShapeDefinition` registry, one validation gateway, and a transactional cutover — with no
+user-observable change, which was the milestone's governing invariant.
+
+- **Delivered:** 4 phases, 19 plans, 35 tasks; 21 of 22 requirements satisfied, all 4 phases
+  verified `passed`.
+- **Gates:** `dotnet build BlazorCanvas.sln` clean (0 warnings, 0 errors); 500/500 tests passing.
+- **Human verification:** BC-12 REG-01 passed 3/3 on the running application — four shapes with
+  edge clamping, selection and deletion across two windows, and a visibly gliding committed drag.
+- **Closeout:** `override_closeout`. MIGR-03 is an accepted, documented gap — see Accepted Gaps
+  above and `.planning/milestones/v1.11-MILESTONE-AUDIT.md`.
+- **Evidence restoration at close:** the milestone audit found that Phase 11's cutover-cleanup
+  commit `1aaf45b` deleted 20 test files (4,239 lines). Eleven were correct TEST-02 retirement; the
+  other nine removed the only proof for live requirements. Six were restored and rebased onto the
+  promoted `public.*` schema (commit `2f58086`), returning 197 tests and taking the suite 303 → 500.
+- **Archived:** `.planning/milestones/v1.11-ROADMAP.md`, `v1.11-REQUIREMENTS.md`,
+  `v1.11-MILESTONE-AUDIT.md`, and phase artifacts under `v1.11-phases/`.
+- **New tech debt:** `ShapeRegistry` read-only views expose their backing lists (09-REVIEW WR-03);
+  `Home.razor.js` duplicates shape preview geometry outside the registry with no drift guard.
+
 **v1.1 shipped 2026-07-21** (opened 2026-07-20 — a four-day milestone). Phases BC-06 and BC-07
 delivered the 1472 × 828 canvas and the local selection lifecycle with its topmost blue-and-white
 dashed trace. Phase BC-08 then reconciled the permissive JavaScript policy across the active
@@ -355,11 +393,10 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
-**v1.11 Storage Model Rewrite is phase-complete** (opened 2026-07-21, branch `Milestone-v1.11`).
-Phases BC-09 through BC-12 are complete: the pure-C# `IShapeDefinition` registry, canonical
-geometry/style validation gateway, transactional migration/cutover, local SVG renderer,
-final-public two-circuit sync/recovery behavior, and the live human regression gate are verified.
-**v1.2** (new figures + dynamic toolbar) waits behind milestone archiving in the backlog.
+**v1.2** (new figures + dynamic toolbar) is scoped in
+`.planning/backlog/v1.2-figures-and-toolbar.md` and is next. It is materially cheaper now that
+v1.11 has landed: a new figure type costs one C# class plus one `figure_types` row, with no schema
+change. Its decision amendments happen when v1.2 is kicked off.
 
 ## Evolution
 
@@ -379,4 +416,5 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-22 — Phase BC-12 complete: REG-01 validated; v1.11 is ready for milestone archiving.*
+*Last updated: 2026-07-22 after v1.11 milestone — shipped and archived, 21/22 requirements
+satisfied, MIGR-03 recorded as an accepted gap.*

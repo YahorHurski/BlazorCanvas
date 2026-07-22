@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: Storage Model Rewrite
-current_phase: 12
-status: completed
-stopped_at: Phase BC-12 complete; v1.11 ready for milestone archiving.
-last_updated: "2026-07-22T16:23:50.225Z"
+status: Awaiting next milestone
+stopped_at: v1.11 shipped and archived 2026-07-22 (override_closeout; MIGR-03 accepted gap). Awaiting /gsd-new-milestone for v1.2.
+last_updated: "2026-07-22T17:25:39.718Z"
 last_activity: 2026-07-22
-last_activity_desc: Phase 12 complete
+last_activity_desc: Milestone v1.11 completed and archived
 progress:
   total_phases: 4
   completed_phases: 4
   total_plans: 19
   completed_plans: 19
   percent: 100
+current_phase: 12
 current_phase_name: Regression Verification
 ---
 
@@ -21,33 +21,35 @@ current_phase_name: Regression Verification
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-22 — Phase BC-12 complete)
+See: .planning/PROJECT.md (updated 2026-07-22 after v1.11 milestone)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** Complete Milestone v1.11
-All four v1.11 phases are complete and all 22 v1.11 requirements are validated. The next workflow
-step is milestone archiving before starting v1.2 planning.
+**Current focus:** Planning the next milestone.
+v1.11 shipped and archived 2026-07-22 as `override_closeout` — 21/22 requirements satisfied, build
+clean, 500/500 tests passing. Next workflow step: `/gsd-new-milestone` to open v1.2.
 
-**Scope boundary confirmed with the user:** a pure storage swap — **zero user-visible change**. Same
-four shapes, same three verbs, same look, same live cross-tab glide. Rotation, vertex editing,
-z-order and per-figure style become possible and stay unused. Includes the lossless migration with a
-v1.1-dump replay test, the `IShapeDefinition` registry, and a retire-and-rewrite test rebase.
+**Carried forward — MIGR-03 (accepted gap, not complete).** The fixture-backed migration replay
+proof was written in Phase 10, passed 27/27, and was deleted in Phase 11's cutover-cleanup commit
+`1aaf45b`. `tests/BlazorCanvas.Tests/Fixtures/v1.1-pre-rewrite.sql` is still committed and copied to
+test output but has no C# consumer. Accepted because the migration path is permanently unreachable
+(forward risk zero); the residual risk is retrospective. Route to closing it:
+`.planning/milestones/v1.11-MILESTONE-AUDIT.md` → "Outstanding Work".
 
-**v1.1 shipped 2026-07-21** (canvas 1472 × 828, selection lifecycle + restyle, no-JS rule removed);
-archived under `.planning/milestones/v1.1-*`. **v1.11 is phase-complete as of 2026-07-22.**
-**v1.2** (new figures + dynamic toolbar) waits in `.planning/backlog/v1.2-figures-and-toolbar.md`.
+**Carried forward — tech debt.** `ShapeRegistry.All`/`.Names` return live `List` instances behind
+`IReadOnlyList` (09-REVIEW WR-03). `Home.razor.js` reimplements shape preview geometry outside the
+registry with no drift guard — worth closing before v1.2 adds figure types.
+
+**v1.0, v1.1 and v1.11 are all archived** under `.planning/milestones/`. **v1.2** (new figures +
+dynamic toolbar) is scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 
 ## Current Position
 
-Phase: 12
-Plan: Not started
-Status: All phases complete
-Last activity: 2026-07-22 — Phase 12 complete
-all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
-
-Progress: [██████████] 100%
+Phase: Milestone v1.11 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-22 — Milestone v1.11 completed and archived
 
 ## Performance Metrics
 
@@ -269,5 +271,4 @@ Resume file: None
 
 ## Operator Next Steps
 
-- Complete and archive the milestone: `$gsd-complete-milestone v1.11`.
-- After archiving, begin v1.2 planning from `.planning/backlog/v1.2-figures-and-toolbar.md`.
+- Start the next milestone with /gsd-new-milestone
