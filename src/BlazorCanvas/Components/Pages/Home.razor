@@ -26,9 +26,9 @@
                 {
                     <FigureShape @key="figure.Id" Figure="figure" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(figure.Id, e)" />
                 }
-                @if (drawing && previewPlacement is not null)
+                @if (preview?.Placement is not null)
                 {
-                    <FigureShape PreviewPlacement="previewPlacement" PreviewType="previewType" />
+                    <FigureShape PreviewPlacement="preview.Placement" PreviewType="preview.Type" />
                 }
                 @if (coordinator.SelectedId is { } selectedId)
                 {
@@ -58,11 +58,7 @@
     private CanvasInteractionCoordinator? coordinator;
     private IDisposable? subscription;
     private Tool armedTool = Tool.Pointer;
-    private bool drawing;
-    private CanvasPoint press;
-    private CanvasPoint drawCursor;
-    private string? previewType;
-    private ShapePlacement? previewPlacement;
+    private DrawingPreviewSession? preview;
 
     private string CanvasSurfaceClass => "canvas-surface"
         + (armedTool != Tool.Pointer ? " shape-armed" : string.Empty)
@@ -70,6 +66,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        preview = new DrawingPreviewSession(ShapeRegistry);
         var state = await AuthStateTask!;
         var ownerId = int.Parse(state.User.FindFirst("user_id")!.Value);
         var canvas = await Canvases.EnsureForOwnerAsync(ownerId);
@@ -88,17 +85,15 @@
 
     public void Dispose() => subscription?.Dispose();
 
-    private void OnPointerDown(PointerEventArgs e)
+    private async Task OnPointerDown(PointerEventArgs e)
     {
         if (e.Button != 0 || coordinator is null) return;
         Deselect();
         var type = ToolMap.ToShapeName(armedTool);
         if (type is null) return;
-        press = ToCanvasPoint(e);
-        drawCursor = press;
-        previewType = type;
-        previewPlacement = ShapeRegistry.Get(previewType).FromGesture(press, press);
-        drawing = true;
+        preview ??= new DrawingPreviewSession(ShapeRegistry);
+        preview.Begin(type, ToCanvasPoint(e));
+        await InvokeAsync(StateHasChanged);
     }
 
     private void HandleFigurePointerDown(Guid id, PointerEventArgs e)
@@ -122,20 +117,20 @@
     private async Task OnPointerMove(PointerEventArgs e)
     {
         if (coordinator?.IsDragging == true) { await ContinueDragAsync(e); return; }
-        if (!drawing || previewType is null) return;
+        if (preview?.IsActive != true) return;
         if ((e.Buttons & 1) == 0) { await CommitDrawAsync(); return; }
-        drawCursor = ToCanvasPoint(e);
-        previewPlacement = ShapeRegistry.Get(previewType).FromGesture(press, drawCursor);
+        preview.Update(ToCanvasPoint(e));
+        await InvokeAsync(StateHasChanged);
     }
 
-    private async Task OnPointerUp(PointerEventArgs _) { if (coordinator?.IsDragging == true) await coordinator.CommitDragAsync(); else if (drawing) await CommitDrawAsync(); }
-    private async Task OnPointerLeave(PointerEventArgs _) { if (coordinator?.IsDragging == true) await coordinator.CommitDragAsync(); else if (drawing) await CommitDrawAsync(); }
+    private async Task OnPointerUp(PointerEventArgs _) { if (coordinator?.IsDragging == true) await coordinator.CommitDragAsync(); else if (preview?.IsActive == true) await CommitDrawAsync(); }
+    private async Task OnPointerLeave(PointerEventArgs _) { if (coordinator?.IsDragging == true) await coordinator.CommitDragAsync(); else if (preview?.IsActive == true) await CommitDrawAsync(); }
 
     private async Task CommitDrawAsync()
     {
-        drawing = false;
-        if (coordinator is not null && previewType is not null && previewPlacement is not null)
-            await coordinator.DrawAsync(previewType, press, drawCursor);
+        var completed = preview?.Complete();
+        if (coordinator is not null && completed is not null)
+            await coordinator.DrawAsync(completed.Type, completed.Press, completed.Cursor);
     }
 
     private Task HandleDeleteAsync() => coordinator?.DeleteAsync() ?? Task.CompletedTask;

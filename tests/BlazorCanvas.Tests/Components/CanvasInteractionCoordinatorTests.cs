@@ -32,6 +32,24 @@ public class CanvasInteractionCoordinatorTests
     }
 
     [Fact]
+    public async Task Draw_PublishesCreateWithoutPositionMessage()
+    {
+        var notifier = new CanvasSyncNotifier();
+        var rows = new List<FigureRow>();
+        var publications = new List<SyncMessage>();
+        using var observer = notifier.Subscribe(7, publications.Add);
+        var coordinator = Create(notifier, rows, out var subscription);
+        using (subscription)
+        {
+            await coordinator.DrawAsync("rectangle", new CanvasPoint(10, 20), new CanvasPoint(30, 40));
+        }
+
+        Assert.Single(publications);
+        Assert.Equal("draw", publications.Single().Kind);
+        Assert.DoesNotContain(publications, message => message.Kind == "move");
+    }
+
+    [Fact]
     public async Task Drag_ThrottlesThenTrailingEdgePrecedesSinglePersistence()
     {
         var notifier = new CanvasSyncNotifier();
@@ -145,6 +163,24 @@ public class CanvasInteractionCoordinatorTests
         Assert.True(authorization >= 0 && authorization < invokeAsync, "Home must authorize D-54 receipt before InvokeAsync queues UI work.");
         Assert.True(apply > invokeAsync, "The queued callback must apply only the pre-authorized delivery token.");
         Assert.DoesNotContain("ApplyRemoteMessage(message)", method, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void HomeDrawingPreview_IsCircuitLocalAndUsesCompletedGestureForCommit()
+    {
+        var home = FindFromRepositoryRoot("src", "BlazorCanvas", "Components", "Pages", "Home.razor");
+        var source = File.ReadAllText(home);
+        var commit = Regex.Match(source, @"private async Task CommitDrawAsync\(\)(?<body>.*?)\n    }\n\n    private Task HandleDeleteAsync", RegexOptions.Singleline).Groups["body"].Value;
+
+        Assert.Contains("DrawingPreviewSession", source, StringComparison.Ordinal);
+        Assert.Contains("PreviewPlacement=\"preview.Placement\" PreviewType=\"preview.Type\"", source, StringComparison.Ordinal);
+        Assert.Contains("preview.Begin", source, StringComparison.Ordinal);
+        Assert.Contains("preview.Update", source, StringComparison.Ordinal);
+        Assert.Contains("await InvokeAsync(StateHasChanged)", source, StringComparison.Ordinal);
+        Assert.NotEmpty(commit);
+        Assert.Contains("preview?.Complete", commit, StringComparison.Ordinal);
+        Assert.Contains("coordinator.DrawAsync(completed.Type, completed.Press, completed.Cursor)", commit, StringComparison.Ordinal);
+        Assert.DoesNotContain("Notifier.Publish", source, StringComparison.Ordinal);
     }
 
     private static CanvasInteractionCoordinator Create(
