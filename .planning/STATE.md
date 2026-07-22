@@ -5,8 +5,8 @@ milestone_name: Five-pointed star
 current_phase: 16
 current_phase_name: Interaction, Sync & Test Guards
 status: executing
-stopped_at: Completed BC-16-02-PLAN.md
-last_updated: "2026-07-22T23:38:36.457Z"
+stopped_at: Completed BC-16-01-PLAN.md
+last_updated: "2026-07-22T23:38:57.318Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 15 complete, transitioned to Phase 16
 progress:
@@ -145,6 +145,7 @@ Last activity: 2026-07-23 — Phase 15 complete, transitioned to Phase 16
 | Phase BC-15 P04 | 3min | 1 tasks | 3 files |
 | Phase BC-16 P04 | 4 min | 2 tasks | 2 files |
 | Phase BC-16 P02 | 15min | 2 tasks | 1 files |
+| Phase BC-16 P01 | 5min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -297,6 +298,7 @@ into an earlier phase's automated tests.
 - [Phase BC-16]: D-40/D-53 star evidence is pinned in the final-public integration harness rather than by adding a star-specific persistence or sync branch. — The plan required test evidence only and the unchanged type-blind implementation satisfied it.
 - [Phase BC-16]: Used bUnit 2.7.2 current BunitContext.Render API for component smoke tests. — RenderComponent is error-level obsolete in bUnit 2.x; the current API keeps the test compatible with the pinned package.
 - [Phase BC-16]: Kept the preview smoke test at FigureShape instead of mounting Home. — FigureShape owns the Registry.Contains(PreviewType) gate that caused G-15-1, while Home requires auth and PostgreSQL scaffolding unrelated to this render guard.
+- [Phase BC-16]: Kept Phase 16 Plan 01 test-only: no production coordinator, notifier, or SyncMessage changes were needed for star5 parity. — The existing type-blind coordinator path already satisfied the planned star5 interaction and sync contracts under focused tests.
 
 ### Pending Todos
 
@@ -326,8 +328,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T23:38:18.462Z
-Stopped at: Completed BC-16-02-PLAN.md
+Last session: 2026-07-22T23:38:57.299Z
+Stopped at: Completed BC-16-01-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
