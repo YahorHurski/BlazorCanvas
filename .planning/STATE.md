@@ -1,34 +1,36 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.11
-milestone_name: Storage Model Rewrite
-status: Awaiting next milestone
-stopped_at: v1.11 shipped and archived 2026-07-22 (override_closeout; MIGR-03 accepted gap). Awaiting /gsd-new-milestone for v1.2.
-last_updated: "2026-07-22T17:25:39.718Z"
+milestone: v1.12
+milestone_name: Five-pointed star
+status: planning
+last_updated: "2026-07-22T18:17:29.328Z"
 last_activity: 2026-07-22
-last_activity_desc: Milestone v1.11 completed and archived
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 19
-  completed_plans: 19
-  percent: 100
-current_phase: 12
-current_phase_name: Regression Verification
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-22 after v1.11 milestone)
+See: .planning/PROJECT.md (updated 2026-07-22 at v1.12 milestone open)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** Planning the next milestone.
+**Current focus:** **v1.12 Five-pointed star** — opened 2026-07-22 on branch `Milestone-v1.12`.
+Add `star5` as the fifth figure type end-to-end: stretchable, point-up, corner-to-corner gesture,
+inner ratio 0.382, geometry `{"points": [[x,y] × 10], "innerRatio": 0.382}` with points authoritative
+and the ratio required on parse. Plus a seventh toolbar button between `triangle` and `delete`, an
+idempotent `figure_types` seed on every startup, and a `Home.razor.js` star branch with a drift guard.
+Scope is **one figure** — carried debt stays carried. Ends with a human acceptance gate.
+
 v1.11 shipped and archived 2026-07-22 as `override_closeout` — 21/22 requirements satisfied, build
-clean, 500/500 tests passing. Next workflow step: `/gsd-new-milestone` to open v1.2.
+clean, 500/500 tests passing.
 
 **Carried forward — MIGR-03 (accepted gap, not complete).** The fixture-backed migration replay
 proof was written in Phase 10, passed 27/27, and was deleted in Phase 11's cutover-cleanup commit
@@ -38,18 +40,22 @@ test output but has no C# consumer. Accepted because the migration path is perma
 `.planning/milestones/v1.11-MILESTONE-AUDIT.md` → "Outstanding Work".
 
 **Carried forward — tech debt.** `ShapeRegistry.All`/`.Names` return live `List` instances behind
-`IReadOnlyList` (09-REVIEW WR-03). `Home.razor.js` reimplements shape preview geometry outside the
-registry with no drift guard — worth closing before v1.2 adds figure types.
+`IReadOnlyList` (09-REVIEW WR-03) — **explicitly out of v1.12 scope**. `Home.razor.js` reimplements
+shape preview geometry outside the registry with no drift guard; v1.12 does **not** close this, but
+it does add a drift-guard test pinning the JS inner-ratio constant to the C# one, so the duplication
+becomes loud rather than silent. The unreferenced
+`V11DataMigration.RunAsync(NpgsqlDataSource, …)` overload also stays.
 
-**v1.0, v1.1 and v1.11 are all archived** under `.planning/milestones/`. **v1.2** (new figures +
-dynamic toolbar) is scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
+**v1.0, v1.1 and v1.11 are all archived** under `.planning/milestones/`. **v1.2** (the remaining
+**nine** figures + dynamic toolbar — v1.12 delivers the 5-point star) is scoped in
+`.planning/backlog/v1.2-figures-and-toolbar.md` and follows v1.12.
 
 ## Current Position
 
-Phase: Milestone v1.11 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-22 — Milestone v1.11 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-22 — Milestone v1.12 started
 
 ## Performance Metrics
 

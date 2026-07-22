@@ -34,9 +34,49 @@ The project is done when the user can do this, in one sitting:
 This deliberately makes the hardest feature — live cross-tab sync with real-time drag glide
 (D-11, D-47, D-53, D-54) — part of the definition of success, so **no phase can quietly defer it**.
 
+## Current Milestone: v1.12 Five-pointed star
+
+**Opened 2026-07-22.** Branch `Milestone-v1.12`. The first milestone to exercise v1.11's claim that
+adding a figure costs *one C# class, one `figure_types` row, one toolbar button*.
+
+**Goal:** Add `star5` as the fifth figure type end-to-end — drawn, previewed, persisted, synced,
+selected, dragged and deleted exactly like the four that came before it.
+
+**Target features:**
+
+- **`Star5Shape` / `Star5Geometry`** — stretchable (fills the dragged box, not aspect-locked),
+  **point-up** (first vertex at top-centre, sweep starts at −π/2), **corner-to-corner** gesture like
+  triangle and rectangle, inner-radius ratio **0.382** (1/φ², the true pentagram). Stored geometry is
+  `{"points": [[x,y] × 10], "innerRatio": 0.382}` — **points are authoritative** for render and
+  `bbox_*`; `innerRatio` is descriptive but **required** by `TryParseGeometry` so the round-trip stays
+  symmetric. Drawable when width > 0 **and** height > 0, the rule rectangle already uses.
+- **A seventh toolbar button**, between `triangle` and `delete`.
+- **Idempotent `figure_types` seed on every startup** — the registry becomes the catalog's source of
+  truth. Without it the star cannot be written at all: `V11Cutover.EnsureAsync` returns early at
+  `CatalogState.Completed`, so `SeedFigureTypesAsync` never runs again on the existing database and
+  `figures.type`'s foreign key to `figure_types(name)` rejects every star. Fixing it once makes every
+  future figure type free.
+- **A `star5` branch in `Home.razor.js`**, plus a **drift-guard test** pinning the JS inner-ratio
+  constant to the C# one. Today the preview falls through to a hard-coded triangle polygon, so
+  without this a star previews as a triangle.
+- **Decision amendments** — D-16/D-33/D-58 six buttons → seven; CANV-02's "exactly six buttons"
+  requirement text; the star's own decisions land from **D-70**.
+
+**Scope boundary — one figure, nothing else.** Carried tech debt stays carried and is explicitly out:
+`ShapeRegistry.All`/`.Names` returning live `List` instances (09-REVIEW WR-03), the MIGR-03 accepted
+gap, and the unreferenced `V11DataMigration.RunAsync(NpgsqlDataSource, …)` overload.
+
+**Definition of done:**
+
+> "I can arm a star tool in the toolbar, drag a box on the canvas, and watch a five-pointed star
+> preview follow my cursor and commit — persisting across a refresh, appearing live in a second tab,
+> and dragging, selecting, and deleting exactly like the four shapes that came before it."
+
+The milestone ends with a **human acceptance gate**, as v1.11's Phase 12 did.
+
 ## Last Shipped Milestone: v1.11 Storage Model Rewrite
 
-**Shipped 2026-07-22.** No milestone is currently in progress; v1.2 is scoped and next.
+**Shipped 2026-07-22.** Superseded as the active milestone by v1.12 (above).
 
 **Goal (met):** Replace the four-integer bounding-box storage model with the position/shape split
 (D-59…D-69), migrating every existing figure intact — so the schema never has to change again for a
@@ -116,14 +156,16 @@ same positions, same look, same live cross-tab glide.
 
 ### Active
 
-**No milestone in progress.** v1.11 shipped and archived 2026-07-22; v1.2 is scoped but not started.
-Requirements for v1.0, v1.1, and v1.11 are archived under `.planning/milestones/`.
+**v1.12 Five-pointed star** — opened 2026-07-22, requirements being defined. See *Current Milestone*
+above. Requirements for v1.0, v1.1, and v1.11 are archived under `.planning/milestones/`.
 
-**After v1.11: v1.2** — new figure types (ellipse, 5-point star, hexagon, pentagon, right-angle
-triangle L/R, four arrows) + a dynamic split-button toolbar. Scoped in
-`.planning/backlog/v1.2-figures-and-toolbar.md`, **and materially cheaper once v1.11 lands** — its
-4-integer workarounds (orientation smuggled into type names, fixed ratios, per-shape CHECK
-avoidance) become unnecessary. Its decision amendments happen when v1.2 is kicked off. Anything not
+**After v1.12: v1.2** — the remaining new figure types (ellipse, hexagon, pentagon, right-angle
+triangle L/R, four arrows — **nine, not ten: v1.12 delivers the 5-point star**) plus a dynamic
+split-button toolbar. Scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`, **and materially
+cheaper now that v1.11 has landed** — its 4-integer workarounds (orientation smuggled into type
+names, fixed ratios, per-shape CHECK avoidance) are unnecessary. v1.12 also pays down two of its
+costs in advance: the `figure_types` seed becomes automatic, and the toolbar's six-button decisions
+are already amended. Its remaining decision amendments happen when v1.2 is kicked off. Anything not
 named in `docs/DECISIONS.md` is still out until added there **by name**.
 
 ### Out of Scope
@@ -393,10 +435,15 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
-**v1.2** (new figures + dynamic toolbar) is scoped in
-`.planning/backlog/v1.2-figures-and-toolbar.md` and is next. It is materially cheaper now that
-v1.11 has landed: a new figure type costs one C# class plus one `figure_types` row, with no schema
-change. Its decision amendments happen when v1.2 is kicked off.
+**v1.12** (the five-pointed star) opened 2026-07-22 on branch `Milestone-v1.12` and is the active
+milestone — see *Current Milestone* above. It is the first real test of v1.11's claim that a new
+figure type costs one C# class plus one `figure_types` row with no schema change, and it closes the
+one gap in that claim: the seed that populates `figure_types` never runs again on a database already
+in `CatalogState.Completed`.
+
+**v1.2** (the remaining nine figures + dynamic toolbar) is scoped in
+`.planning/backlog/v1.2-figures-and-toolbar.md` and follows v1.12. Its remaining decision amendments
+happen when v1.2 is kicked off.
 
 ## Evolution
 
@@ -416,5 +463,6 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-22 after v1.11 milestone — shipped and archived, 21/22 requirements
+*Last updated: 2026-07-22 at v1.12 milestone open — five-pointed star (`star5`), one figure type
+end-to-end. Previous update: 2026-07-22 after v1.11 shipped and was archived, 21/22 requirements
 satisfied, MIGR-03 recorded as an accepted gap.*
