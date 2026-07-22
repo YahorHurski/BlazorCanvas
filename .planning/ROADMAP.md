@@ -201,13 +201,13 @@ the data layer, before any application code is touched.
      `geometry` for every row; the validation gateway rejects hostile `geometry`/`style`; and a `z`
      collision produces both figures rather than silently losing one.
 
-**Plans**: 1/5 plans executed
+**Plans**: 2/5 plans executed
 
 Plans:
 **Wave 1**
 
 - [x] 10-01-PLAN.md — The `v11` four-table schema, its idempotent applier, and live-catalog shape assertions (wave 1, blocking schema push)
-- [ ] 10-02-PLAN.md — The four v1.1→v1.11 conversion formulas and deterministic id derivation, database-free (wave 1)
+- [x] 10-02-PLAN.md — The four v1.1→v1.11 conversion formulas and deterministic id derivation, database-free (wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -295,7 +295,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Shape Registry & Validation Gateway | v1.11 | 6/6 | Complete    | 2026-07-22 |
-| 10. Storage Schema, Migration & Persistence Layer | v1.11 | 1/5 | In Progress|  |
+| 10. Storage Schema, Migration & Persistence Layer | v1.11 | 2/5 | In Progress|  |
 | 11. Renderer, Sync & Cutover | v1.11 | 0/TBD | Not started | - |
 | 12. Regression Verification | v1.11 | 0/TBD | Not started | - |
 

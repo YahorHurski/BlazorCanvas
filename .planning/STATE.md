@@ -5,15 +5,15 @@ milestone_name: Storage Model Rewrite
 current_phase: 10
 current_phase_name: Storage Schema, Migration & Persistence Layer
 status: executing
-stopped_at: Completed BC-10-01-PLAN.md
-last_updated: "2026-07-22T00:23:29.771Z"
+stopped_at: Completed BC-10-02-PLAN.md
+last_updated: "2026-07-22T01:49:43.061Z"
 last_activity: 2026-07-22
-last_activity_desc: Phase BC-09 complete, transitioned to Phase 10
+last_activity_desc: "completed BC-10 Plan 01: isolated v11 schema and live catalog proof"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 11
-  completed_plans: 7
+  completed_plans: 8
   percent: 25
 ---
 
@@ -44,12 +44,12 @@ archived under `.planning/milestones/v1.1-*`. **v1.2** (new figures + dynamic to
 ## Current Position
 
 Phase: 10 — Storage Schema, Migration & Persistence Layer
-Plan: 02 of 05
-Status: In progress
+Plan: 3 of 05
+Status: Ready to execute
 Last activity: 2026-07-22 — completed BC-10 Plan 01: isolated v11 schema and live catalog proof
 all 22 v1.11 requirements mapped, 100% coverage, no orphans, no duplicates.
 
-Progress: [██████░░░░] 64%
+Progress: [███████░░░] 73%
 
 ## Performance Metrics
 
@@ -115,6 +115,7 @@ Progress: [██████░░░░] 64%
 | Phase BC-09 P05 | 25min | 3 tasks | 4 files |
 | Phase BC-09 P06 | 15min | 2 tasks | 3 files |
 | Phase BC-10 P01 | 28min | 3 tasks | 5 files |
+| Phase BC-10 P02 | 4min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -218,6 +219,8 @@ into an earlier phase's automated tests.
 - [Phase BC-10]: New storage tables remain in v11, preserving public.figures until Phase 11 cutover.
 - [Phase BC-10]: bbox_* stores local geometry extent so moves write only x and y.
 - [Phase BC-10]: Registry seeding uses parameterised ON CONFLICT handling for concurrent callers.
+- [Phase ?]: D-60 conversion preserves legacy line point order; it never canonicalises a diagonal.
+- [Phase ?]: D-62 legacy IDs map deterministically into frozen, namespace-separated version-8 UUID layouts.
 
 ### Pending Todos
 
@@ -247,8 +250,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T00:23:29.748Z
-Stopped at: Completed BC-10-01-PLAN.md
+Last session: 2026-07-22T01:49:43.045Z
+Stopped at: Completed BC-10-02-PLAN.md
 Phase BC-09 verified passed (45/45 must-haves), UAT approved, 22/22 requirements mapped.
 Resume file: None
 

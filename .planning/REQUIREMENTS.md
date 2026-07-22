@@ -48,7 +48,7 @@ for a feature, and the user sees no difference at all.
 
 ### Migration of existing data
 
-- [ ] **MIGR-01**: A user who had figures before the upgrade opens the canvas afterwards and sees
+- [x] **MIGR-01**: A user who had figures before the upgrade opens the canvas afterwards and sees
       the identical picture — same shapes, same positions, same overlap order, same appearance
 
 - [ ] **MIGR-02**: Each existing user receives exactly one canvas row at 1472 × 828, and every one
@@ -167,7 +167,7 @@ honest values — PostgreSQL 11+ does not rewrite the table for a defaulted colu
 | MODEL-05 | Phase 10 | Pending |
 | MODEL-06 | Phase 10 | Pending |
 | MODEL-07 | Phase 10 | Pending |
-| MIGR-01 | Phase 10 | Pending |
+| MIGR-01 | Phase 10 | Complete |
 | MIGR-02 | Phase 10 | Pending |
 | MIGR-03 | Phase 10 | Pending |
 | SHAPE-01 | Phase 9 | Complete |
