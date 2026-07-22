@@ -6,14 +6,14 @@ current_phase: 16
 current_phase_name: Interaction, Sync & Test Guards
 status: executing
 stopped_at: Completed BC-16-02-PLAN.md
-last_updated: "2026-07-22T23:38:18.487Z"
+last_updated: "2026-07-22T23:38:36.457Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 15 complete, transitioned to Phase 16
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 12
-  completed_plans: 10
+  completed_plans: 11
   percent: 75
 ---
 
@@ -295,6 +295,8 @@ into an earlier phase's automated tests.
 - [Phase BC-15]: PreviewType for active drawing previews is explicitly bound as a Razor expression so FigureShape receives the runtime session type. — String component parameters use static markup text unless prefixed with @; this closes G-15-1 by passing the runtime DrawingPreviewSession.Type value.
 - [Phase BC-16]: Star5 cross-circuit sync remains type-blind; no coordinator, repository, notifier, schema, migration, or package change was needed. — Final-public star draw/glide/delete and stale-row tests passed through existing FigureRepository and CanvasSyncNotifier paths.
 - [Phase BC-16]: D-40/D-53 star evidence is pinned in the final-public integration harness rather than by adding a star-specific persistence or sync branch. — The plan required test evidence only and the unchanged type-blind implementation satisfied it.
+- [Phase BC-16]: Used bUnit 2.7.2 current BunitContext.Render API for component smoke tests. — RenderComponent is error-level obsolete in bUnit 2.x; the current API keeps the test compatible with the pinned package.
+- [Phase BC-16]: Kept the preview smoke test at FigureShape instead of mounting Home. — FigureShape owns the Registry.Contains(PreviewType) gate that caused G-15-1, while Home requires auth and PostgreSQL scaffolding unrelated to this render guard.
 
 ### Pending Todos
 
