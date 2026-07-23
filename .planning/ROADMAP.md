@@ -83,6 +83,7 @@ model change plus the downstream code churn it forces.
 - [ ] **Phase 9: Schema, Entity & Data-Preserving Migration** - The new anchor+geometry `figures`
       schema and Figure entity, plus a hand-written backfill of every existing figure verified by a
       round-trip test against the immutable v1.1 fixture.
+
 - [ ] **Phase 10: Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression** - All four shapes
       draw, drag, delete, and sync live on the new model; the canvas-edge clamp is removed; the
       degenerate-draw guard and per-type normalisation are re-expressed in code; the D-53 broadcast
@@ -91,31 +92,50 @@ model change plus the downstream code churn it forces.
 ## Phase Details
 
 ### Phase 9: Schema, Entity & Data-Preserving Migration
+
 **Goal**: The `figures` table and Figure entity adopt the anchor (`x,y`) + `geometry jsonb` model
 (D-59), and every existing figure survives the upgrade with its exact position and appearance
 preserved.
 **Depends on**: Nothing (first phase of v1.11)
 **Requirements**: STOR-01, MIG-01, MIG-02
 **Success Criteria** (what must be TRUE):
+
   1. The live `figures` table matches THE SCHEMA (D-59): `uuid` id (`gen_random_uuid()`), integer
      `x`/`y` anchor columns, `geometry jsonb`, `numeric z`, `type text` + whitelist CHECK, composite
      index `(user_id, z)`, no `created_at`, no CHECK on `geometry` — confirmed against a live
      Postgres database, not merely a green build.
+
   2. Figures load in `z, id` order via `SELECT * FROM figures WHERE user_id = @id ORDER BY z, id`.
   3. Running the new EF migration against a database seeded from the immutable `v1.1-pre-rewrite.sql`
      fixture leaves every pre-existing figure's position and appearance unchanged — no figure is lost
      or visually altered.
+
   4. An automated round-trip test compares the migrated rows to `v1.1-pre-rewrite-MANIFEST.md`'s
      expected anchor+geometry values for every one of the four shape types, and passes.
 **Plans**: 6 plans (5 waves)
+**Wave 1**
+
 - [ ] 09-01-PLAN.md — GeometryCodec: Box ↔ anchor+geometry per type (TDD foundation) [wave 1]
 - [ ] 09-02-PLAN.md — Port immutable v1.1 fixture + re-derive expected-values MANIFEST [wave 1]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 09-03-PLAN.md — Storage-model swap (Figure entity + DbContext + FigureStore + SyncMessage + Home.razor), build-green production [wave 2]
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 09-04-PLAN.md — EF AnchorGeometryRewrite migration + hand-written backfill + apply-to-live + live-schema assertion [wave 3]
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 09-05-PLAN.md — Test-suite build-continuity adaptation → full solution green on the new model [wave 4]
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 09-06-PLAN.md — Round-trip migration test against the immutable fixture (MIG-02 proof) [wave 5]
 
 ### Phase 10: Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression
+
 **Goal**: All four shapes draw, drag, delete, and sync live on the anchor+geometry model, with the
 canvas-edge clamp removed and geometry well-formedness guaranteed in code rather than the database;
 the D-53 broadcast payload carries anchor+geometry with unchanged sync semantics; and the full test
@@ -123,25 +143,31 @@ suite is reworked to the new model and green on a clean build.
 **Depends on**: Phase 9
 **Requirements**: STOR-02, STOR-03, STOR-04, STOR-05, SYNC-02, TEST-02
 **Success Criteria** (what must be TRUE):
+
   1. Each of the four shapes (line, rectangle, circle, triangle) renders from its anchor (`x,y`) +
      `geometry` (circle `{r}`, rectangle/triangle `{w,h}`, line `{dx,dy}`) instead of the retired
      bounding box, and looks identical to before. Dragging any figure updates only its `x,y` anchor —
      in the database and in the rendered position; its `geometry` never changes on a move.
+
   2. A figure may now be drawn or dragged past the canvas edge — no clamping occurs for any shape, on
      draw or on drag. A strictly zero-size draw (a click without a drag) is still rejected in code
      before persistence, for all four shapes — no figure appears, no error is shown.
+
   3. All three verbs — draw, drag, delete — still work end to end for all four shapes and persist
      per-operation (`INSERT`/`UPDATE`/`DELETE`), including a diagonal line surviving reload without
      flipping to the opposite diagonal.
+
   4. Live cross-tab sync works on the reworked payload (D-53 amended): a `draw` carries anchor +
      `type` + `geometry` and appears in another tab; a `move` carries only the anchor, is UPDATE-only,
      and is ignored by a receiving tab if the figure is unknown; a figure glides in real time in the
      other tab; mid-drag a tab discards all incoming broadcasts and the 50 ms trailing edge holds; a
      save failure broadcasts an anchor-only rollback, restores locally, and reloads from Postgres.
+
   5. The test suite is reworked to the new model: schema-shape assertions assert the anchor+geometry+
      `uuid`+`numeric z` model; the old edge-clamp tests are removed or repurposed to assert the new
      no-clamp behaviour; TEST-01's three silent-failure tests are re-evaluated (the circle round-trip
      becomes a `geometry {r}` assertion; the line-normalisation landmine test carries over unchanged).
+
   6. `dotnet build BlazorCanvas.sln` is clean (0 warnings, 0 errors) and the full `dotnet test` suite
      passes.
 **Plans**: TBD
