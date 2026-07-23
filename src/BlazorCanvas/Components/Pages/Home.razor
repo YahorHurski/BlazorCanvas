@@ -19,21 +19,21 @@
         <svg class="@CanvasSurfaceClass" width="@CanvasBounds.Width" height="@CanvasBounds.Height" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
             @foreach (var f in figures)
             {
-                var box = dragging && f.Id == dragFigureId ? dragCurrentBox : new Box(f.X1, f.Y1, f.X2, f.Y2);
+                var box = dragging && f.Id == dragFigureId ? dragCurrentBox : FigureBox(f);
                 <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" Box="box" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
             }
             @if (drawing)
             {
                 <FigureShape Type="previewType" Box="previewBox" Preview="true" />
             }
-            @if (selectedId is int selectedFigureId)
+            @if (selectedId is Guid selectedFigureId)
             {
                 var selected = figures.FirstOrDefault(f => f.Id == selectedFigureId);
                 if (selected is not null)
                 {
                     var selectedBox = dragging && selected.Id == dragFigureId
                         ? dragCurrentBox
-                        : new Box(selected.X1, selected.Y1, selected.X2, selected.Y2);
+                        : FigureBox(selected);
                     <SelectionTrace Type="FigureTypeNames.Parse(selected.Type)" Box="selectedBox" />
                 }
             }
@@ -63,10 +63,10 @@
 
     private List<Figure> figures = new();
     private bool drawing;
-    private int? selectedId;
+    private Guid? selectedId;
     private bool showSaveFailedModal;
     private bool dragging;
-    private int? dragFigureId;
+    private Guid? dragFigureId;
     private readonly Guid _sender = Guid.NewGuid();
     private IDisposable? _subscription;
     private long _lastBroadcastTicks;
@@ -142,7 +142,7 @@
         drawing = true;
     }
 
-    private void HandleFigurePointerDown(int figureId, PointerEventArgs e)
+    private void HandleFigurePointerDown(Guid figureId, PointerEventArgs e)
     {
         if (e.Button != 0)
         {
@@ -158,7 +158,7 @@
         }
 
         dragFigureId = figureId;
-        dragOriginalBox = new Box(figure.X1, figure.Y1, figure.X2, figure.Y2);
+        dragOriginalBox = FigureBox(figure);
         dragCurrentBox = dragOriginalBox;
 
         var point = CanvasCoordinates.FromPage(e.PageX, e.PageY);
@@ -330,10 +330,7 @@
         var figure = figures.FirstOrDefault(f => f.Id == figureId.Value);
         if (figure is not null)
         {
-            figure.X1 = box.X1;
-            figure.Y1 = box.Y1;
-            figure.X2 = box.X2;
-            figure.Y2 = box.Y2;
+            ApplyBox(figure, box);
         }
 
         Notifier.Publish(userId, SyncMessage.Move(figureId.Value, box, _sender));
@@ -359,10 +356,7 @@
             // circuit alive (D-45) while restoring every screen to the database's original position.
             if (figure is not null)
             {
-                figure.X1 = dragOriginalBox.X1;
-                figure.Y1 = dragOriginalBox.Y1;
-                figure.X2 = dragOriginalBox.X2;
-                figure.Y2 = dragOriginalBox.Y2;
+                ApplyBox(figure, dragOriginalBox);
             }
 
             Notifier.Publish(userId, SyncMessage.Rollback(figureId.Value, dragOriginalBox, _sender));
@@ -422,7 +416,7 @@
     /// other tab converge too, including tabs that missed the earlier rollback while showing an
     /// optimistic final drag position.
     /// </summary>
-    private void BroadcastReloadedSnapshot(HashSet<int> beforeReloadIds)
+    private void BroadcastReloadedSnapshot(HashSet<Guid> beforeReloadIds)
     {
         var afterReloadIds = figures.Select(f => f.Id).ToHashSet();
 
@@ -434,7 +428,7 @@
         foreach (var figure in figures)
         {
             Notifier.Publish(userId, SyncMessage.Draw(figure, _sender));
-            Notifier.Publish(userId, SyncMessage.Move(figure.Id, new Box(figure.X1, figure.Y1, figure.X2, figure.Y2), _sender));
+            Notifier.Publish(userId, SyncMessage.Move(figure.Id, FigureBox(figure), _sender));
         }
     }
 
@@ -484,11 +478,9 @@
                         Id = msg.Id,
                         UserId = userId,
                         Type = msg.Type!,
-                        X1 = msg.X1!.Value,
-                        Y1 = msg.Y1!.Value,
-                        X2 = msg.X2!.Value,
-                        Y2 = msg.Y2!.Value,
+                        Z = NextLocalZ(),
                     });
+                    ApplyBox(figures[^1], MessageBox(msg));
                 }
 
                 break;
@@ -500,10 +492,7 @@
                     return;
                 }
 
-                existing.X1 = msg.X1!.Value;
-                existing.Y1 = msg.Y1!.Value;
-                existing.X2 = msg.X2!.Value;
-                existing.Y2 = msg.Y2!.Value;
+                ApplyBox(existing, MessageBox(msg));
                 break;
             case "delete":
                 figures.RemoveAll(f => f.Id == msg.Id);
@@ -515,6 +504,23 @@
                 break;
         }
     }
+
+    private static Box FigureBox(Figure figure) =>
+        GeometryCodec.DecodeToBox(FigureTypeNames.Parse(figure.Type), figure.X, figure.Y, figure.Geometry);
+
+    private static Box MessageBox(SyncMessage msg) =>
+        new(msg.X1!.Value, msg.Y1!.Value, msg.X2!.Value, msg.Y2!.Value);
+
+    private static void ApplyBox(Figure figure, Box box)
+    {
+        var encoded = GeometryCodec.Encode(FigureTypeNames.Parse(figure.Type), box);
+        figure.X = encoded.X;
+        figure.Y = encoded.Y;
+        figure.Geometry = encoded.Geometry;
+    }
+
+    private decimal NextLocalZ() =>
+        figures.Count == 0 ? 1m : figures.Max(f => f.Z) + 1m;
 }
 
 
