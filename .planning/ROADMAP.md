@@ -164,7 +164,7 @@ the established `BC-01-…`…`BC-12-…` pattern).
       existing shapes; live cross-tab glide; preview-ownership, bbox-agreement, and degenerate-rejection
       tests.
 
-- [ ] **Phase 17: Regression Verification** - Human acceptance on the running application confirms
+- [x] **Phase 17: Regression Verification** - Human acceptance on the running application confirms
       the milestone's definition of done.
 
 ### 📋 v1.2 Figures & dynamic toolbar (Planned)
@@ -370,11 +370,11 @@ existing shapes end-to-end — the milestone's definition of done.
   3. A human opens a second browser window on the same account and watches a star glide live in real
      time during a drag from the first — the milestone's acceptance gate.
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans executed
 
 Plans:
 
-- [ ] 17-01-PLAN.md — Run the acceptance-only REG-02 human UAT gate with preflight smoke checks, one app process, two same-profile browser windows, evidence capture, and fail-fast handling.
+- [x] 17-01-PLAN.md — Run the acceptance-only REG-02 human UAT gate with preflight smoke checks, one app process, two same-profile browser windows, evidence capture, and fail-fast handling.
 
 ## Progress
 
@@ -399,14 +399,14 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Star Shape Core | v1.12 | 1/1 | Complete | 2026-07-22 |
 | 14. Catalog Seed, Toolbar & Decisions | v1.12 | 3/3 | Complete | 2026-07-22 |
 | 15. Draw, Preview, Render & Persist a Star | v1.12 | 4/4 | Complete | 2026-07-23 |
-| 16. Interaction, Sync & Test Guards | v1.12 | 4/4 | In Progress|  |
-| 17. Regression Verification | v1.12 | 0/TBD | Not started | - |
+| 16. Interaction, Sync & Test Guards | v1.12 | 4/4 | Complete | 2026-07-23 |
+| 17. Regression Verification | v1.12 | 1/1 | Complete | 2026-07-23 |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 3/3 phases, 4/4 plans, 4/4 requirements — all phases verified `passed`.**
 **v1.11: 4/4 phases, 19/19 plans, 21/22 requirements satisfied — shipped 2026-07-22 as
 `override_closeout`; MIGR-03 accepted as a documented gap.**
-**v1.12: 3/5 phases, 11/15 requirements — Phase 15 complete 2026-07-23; Phase 16 is next.**
+**v1.12: 5/5 phases, 15/15 requirements — Phase 17 REG-02 human acceptance complete 2026-07-23.**
 
 ## Requirement Coverage
 
@@ -462,6 +462,5 @@ malformed-geometry guards. The unreferenced
 `milestones/v1.11-MILESTONE-AUDIT.md`. Closed as `override_closeout` with MIGR-03 accepted as a
 documented gap.*
 *v1.12 roadmap added: 2026-07-22 — phases 13–17 continue numbering from Phase 12; all 15 requirements
-mapped, 100% coverage, no orphans. Phase 15 completed 2026-07-23 after the preview UAT gap was fixed
-and retested. Phase 17 (Regression Verification) stands alone as the milestone's human acceptance
-gate, mirroring v1.11's Phase 12.*
+mapped, 100% coverage, no orphans. Phase 17 REG-02 human acceptance completed 2026-07-23 after the
+preflight smoke checks and two-window UAT gate passed.*

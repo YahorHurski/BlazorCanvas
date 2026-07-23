@@ -5,15 +5,15 @@ milestone_name: Five-pointed star
 current_phase: 17
 current_phase_name: Regression Verification
 status: executing
-stopped_at: Completed BC-16-interaction-sync-test-guards-03-PLAN.md
-last_updated: "2026-07-23T00:18:00.725Z"
+stopped_at: Completed BC-17-regression-verification-01-PLAN.md
+last_updated: "2026-07-23T00:34:44.591Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase BC-16 complete, transitioned to Phase 17
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 12
-  completed_plans: 12
+  total_phases: 5
+  completed_phases: 5
+  total_plans: 13
+  completed_plans: 13
   percent: 100
 ---
 
@@ -26,10 +26,9 @@ See: .planning/PROJECT.md (updated 2026-07-23 after Phase 15)
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** Phase 16 — Interaction, Sync & Test Guards
-Select, drag, delete, and live-sync a persisted `star5` exactly like the four existing shapes, then
-pin the remaining silent-failure guards around star rows, bbox agreement, degenerate/malformed
-geometry rejection, and no drift back into client-owned preview formulas.
+**Current focus:** Phase 17 — Regression Verification complete
+REG-02 human acceptance approved the running application's star arm, live preview, edge clamp,
+refresh persistence, selection trace, edge-clamped drag, delete, and second-window live glide.
 
 **Roadmap created 2026-07-22** — Phases 13–17, continuing numbering from v1.11's Phase 12. All 15
 v1.12 requirements mapped, 100% coverage, no orphans. See `.planning/ROADMAP.md` → "Phase Details".
@@ -57,9 +56,9 @@ regression guard instead of reintroducing client-owned formulas. The unreference
 ## Current Position
 
 Phase: 17 — Regression Verification
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-23 — Phase BC-16 complete, transitioned to Phase 17
+Plan: 17-01 complete
+Status: Ready for milestone closeout
+Last activity: 2026-07-23 — REG-02 human UAT approved and Phase 17 completed
 
 ## Performance Metrics
 
@@ -148,6 +147,7 @@ Last activity: 2026-07-23 — Phase BC-16 complete, transitioned to Phase 17
 | Phase BC-16 P02 | 15min | 2 tasks | 1 files |
 | Phase BC-16 P01 | 5min | 2 tasks | 1 files |
 | Phase BC-16-interaction-sync-test-guards P03 | 8min | 3 tasks | 4 files |
+| Phase BC-17-regression-verification P01 | 9min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -332,10 +332,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T23:43:01.889Z
-Stopped at: Completed BC-16-interaction-sync-test-guards-03-PLAN.md
+Last session: 2026-07-23T00:34:44.430Z
+Stopped at: Completed BC-17-regression-verification-01-PLAN.md
 Resume file: None
 
 ## Operator Next Steps
 
-- Run `/gsd-plan-phase 16` to plan Interaction, Sync & Test Guards.
+- Run `/gsd-complete-milestone` to close v1.12, or `/gsd-verify-work` if you want an additional audit pass first.

@@ -88,7 +88,7 @@ Previous highs: `SHAPE-03`, `VALID-03`, `FIG-04`, `CANV-03`, `DATA-04`, `SYNC-03
 
 ### Regression
 
-- [ ] **REG-02**: Human acceptance on the running application confirms the definition of done: arm,
+- [x] **REG-02**: Human acceptance on the running application confirms the definition of done: arm,
       draw with a live preview, edge-clamp, refresh, select, drag, delete, and watch a star glide in
       a second window.
 
@@ -146,7 +146,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIG-08 | Phase 16 | Complete |
 | SYNC-04 | Phase 16 | Complete |
 | TEST-04 | Phase 16 | Complete |
-| REG-02 | Phase 17 | Pending |
+| REG-02 | Phase 17 | Complete |
 
 **Coverage:**
 
@@ -157,4 +157,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-07-22*
-*Last updated: 2026-07-23 — Phase 15 validated FIG-05, FIG-06, FIG-07, RENDER-02, and DATA-05; 11/15 v1.12 requirements complete.*
+*Last updated: 2026-07-23 — Phase 17 validated REG-02 by human UAT; 15/15 v1.12 requirements complete.*
