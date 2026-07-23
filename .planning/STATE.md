@@ -2,14 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: Storage model rewrite (anchor + geometry JSON)
+current_phase: 9
+current_phase_name: Schema, Entity & Data-Preserving Migration
 status: planning
-last_updated: "2026-07-23T18:30:00.000Z"
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-07-23T17:55:16.630Z"
 last_activity: 2026-07-23
+last_activity_desc: ROADMAP.md written and revised to 2 phases (9–10) per user; the 9 v1.11
 progress:
   total_phases: 2
   completed_phases: 0
   total_plans: 6
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -198,8 +202,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-23T18:30:00.000Z
-Stopped at: Phase 9 planned — 6 plans in 5 waves (plan-checker VERIFICATION PASSED); 09-CONTEXT.md
+Last session: 2026-07-23T17:55:16.613Z
+Stopped at: Completed 09-01-PLAN.md
 captured D-59's five plan-time decisions. Committed db63895 + 0a3878f on branch v1.11.
 Resume file: None
 
@@ -207,4 +211,5 @@ Resume file: None
 
 - Execute Phase 9 (Schema, Entity & Data-Preserving Migration) with `/gsd-execute-phase 9` — 6 plans
   in 5 waves, verified. Waves 3–5 need Compose Postgres up (`docker compose up -d --wait`, host 5433).
+
 - Then plan Phase 10 (geometry/draw/drag/sync rework + regression) with `/gsd-plan-phase 10`.
