@@ -103,10 +103,7 @@ public class FigureStoreTests
         var expectedIds = new[] { f1.Id, f2.Id, f3.Id, f4.Id };
         Assert.Equal(expectedIds, loaded.Select(f => f.Id));
 
-        for (var i = 1; i < loaded.Count; i++)
-        {
-            Assert.True(loaded[i].Id > loaded[i - 1].Id, "Expected strictly ascending ids.");
-        }
+        Assert.Equal(new[] { 1m, 2m, 3m, 4m }, loaded.Select(f => f.Z));
     }
 
     [Fact]
@@ -122,7 +119,7 @@ public class FigureStoreTests
 
         var inserted = await store.InsertAsync(userId, FigureType.Rectangle, Rect);
 
-        Assert.True(inserted.Id > 0, "InsertAsync must return a Figure with a database-assigned Id.");
+        Assert.NotEqual(Guid.Empty, inserted.Id);
 
         var loaded = await store.LoadAsync(userId);
         Assert.Contains(loaded, f => f.Id == inserted.Id);
@@ -205,10 +202,7 @@ public class FigureStoreTests
         Assert.Equal(1, affected);
         var loaded = await store.LoadAsync(userId);
         var moved = Assert.Single(loaded, f => f.Id == inserted.Id);
-        Assert.Equal(20, moved.X1);
-        Assert.Equal(20, moved.Y1);
-        Assert.Equal(30, moved.X2);
-        Assert.Equal(30, moved.Y2);
+        Assert.Equal(new Box(20, 20, 30, 30), FigureBox(moved));
     }
 
     [Fact]
@@ -230,7 +224,7 @@ public class FigureStoreTests
         Assert.Equal(1, affected);
         var loaded = await store.LoadAsync(userId);
         var moved = Assert.Single(loaded, f => f.Id == inserted.Id);
-        var after = CircleEncoding.ToCentreRadius(new Box(moved.X1, moved.Y1, moved.X2, moved.Y2));
+        var after = CircleEncoding.ToCentreRadius(FigureBox(moved));
 
         Assert.Equal(before.R, after.R);
         Assert.Equal(before.Cx + 100, after.Cx);
@@ -248,7 +242,7 @@ public class FigureStoreTests
             userId = await DatabaseFixture.CreateTestUserAsync(context);
         }
 
-        var affected = await store.UpdateAsync(userId, 999_999, new Box(20, 20, 30, 30));
+        var affected = await store.UpdateAsync(userId, Guid.NewGuid(), new Box(20, 20, 30, 30));
 
         Assert.Equal(0, affected);
     }
@@ -273,10 +267,7 @@ public class FigureStoreTests
         Assert.Equal(0, affected);
         var loaded = await store.LoadAsync(userA);
         var unchanged = Assert.Single(loaded, f => f.Id == figureA.Id);
-        Assert.Equal(0, unchanged.X1);
-        Assert.Equal(0, unchanged.Y1);
-        Assert.Equal(10, unchanged.X2);
-        Assert.Equal(10, unchanged.Y2);
+        Assert.Equal(Rect, FigureBox(unchanged));
     }
 
     [Fact]
@@ -312,7 +303,7 @@ public class FigureStoreTests
             userId = await DatabaseFixture.CreateTestUserAsync(context);
         }
 
-        var affected = await store.DeleteAsync(userId, 999_999);
+        var affected = await store.DeleteAsync(userId, Guid.NewGuid());
 
         Assert.Equal(0, affected);
     }
@@ -338,4 +329,7 @@ public class FigureStoreTests
         var loaded = await store.LoadAsync(userA);
         Assert.Contains(loaded, f => f.Id == figureA.Id);
     }
+
+    private static Box FigureBox(Figure figure) =>
+        GeometryCodec.DecodeToBox(FigureTypeNames.Parse(figure.Type), figure.X, figure.Y, figure.Geometry);
 }

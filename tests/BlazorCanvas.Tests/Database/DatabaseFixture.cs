@@ -90,14 +90,16 @@ public class DatabaseFixture : IAsyncLifetime
 
         var userId = await CreateTestUserAsync(context);
 
+        var encoded = EncodeForRawInsert(typeLiteral, new Box(x1, y1, x2, y2));
+
         context.Figures.Add(new Figure
         {
             UserId = userId,
             Type = typeLiteral,
-            X1 = x1,
-            Y1 = y1,
-            X2 = x2,
-            Y2 = y2,
+            X = encoded.X,
+            Y = encoded.Y,
+            Geometry = encoded.Geometry,
+            Z = 1m,
         });
 
         try
@@ -116,6 +118,18 @@ public class DatabaseFixture : IAsyncLifetime
     /// <summary>Convenience overload for the FigureType/Box pairing used by GuardMirrorsChecksTests.</summary>
     public Task<InsertAttempt> TryInsertFigureAsync(FigureType type, Box box) =>
         TryInsertRawFigureAsync(FigureTypeNames.ToDbValue(type), box.X1, box.Y1, box.X2, box.Y2);
+
+    private static FigureGeometry EncodeForRawInsert(string typeLiteral, Box box)
+    {
+        return typeLiteral switch
+        {
+            "line" => GeometryCodec.Encode(FigureType.Line, box),
+            "rectangle" => GeometryCodec.Encode(FigureType.Rectangle, box),
+            "circle" => GeometryCodec.Encode(FigureType.Circle, box),
+            "triangle" => GeometryCodec.Encode(FigureType.Triangle, box),
+            _ => new FigureGeometry(box.X1, box.Y1, """{"w":1,"h":1}"""),
+        };
+    }
 }
 
 /// <summary>The outcome of one INSERT attempt against the live database.</summary>
