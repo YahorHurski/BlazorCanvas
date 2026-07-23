@@ -27,6 +27,30 @@ The project is done when the user can do this, in one sitting:
 This deliberately makes the hardest feature — live cross-tab sync with real-time drag glide
 (D-11, D-47, D-53, D-54) — part of the definition of success, so **no phase can quietly defer it**.
 
+## Current Milestone: v1.11 — Storage model rewrite (anchor + geometry JSON)
+
+**Opened:** 2026-07-23 (branch `v1.11`). **Adds no new user-facing feature** — a database model
+change plus the downstream code churn it forces.
+
+**Goal:** Replace the four-integer bounding-box storage (`x1,y1,x2,y2`) with an extensible **anchor
+(`x,y`) + `geometry jsonb`** model, so future figure types need no schema change. Existing figures are
+**preserved via a data migration**. The canvas-edge clamp is dropped.
+
+**Target changes:**
+- New `figures` schema: **`uuid`** id · anchor **`x,y`** · **`geometry jsonb`** · **`numeric z`**
+  (fractional layer order) · `type text` + whitelist CHECK · index `(user_id, z)`. `users` unchanged.
+  (D-59)
+- **Data migration** preserving every existing figure (`x1,y1,x2,y2 → x,y,geometry` per type), tested
+  against an immutable v1.1 fixture.
+- Downstream code: `Figure` entity, `CanvasDbContext`, persistence layer, `FigureShape.razor` render,
+  draw/drag handlers (edge-clamp removed; normalisation re-expressed), and the D-53 sync payload.
+- Tests reworked: schema-shape assertions, migration round-trip, TEST-01's three silent-failure tests
+  re-evaluated (circle round-trip becomes a `{r}` assertion).
+
+**Decisions:** amended in `docs/DECISIONS.md` — new **D-59** (authoritative storage model); D-22/D-39
+superseded, D-24/D-29/D-36 dropped, D-53/D-46/D-23 amended, D-41 re-expressed, D-20/D-12/D-03 upheld.
+Backlog: `.planning/backlog/v1.11-storage-rewrite.md`.
+
 ## Requirements
 
 ### Validated
@@ -50,15 +74,18 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 
 ### Active
 
-**None — no milestone is currently open.** v1.1 shipped 2026-07-21 and its `REQUIREMENTS.md` is
-archived at `.planning/milestones/v1.1-REQUIREMENTS.md`. A fresh `REQUIREMENTS.md` is created when
-the next milestone is opened.
+**Milestone v1.11 — Storage model rewrite (anchor + geometry JSON) — OPEN (2026-07-23).**
+Requirements are being defined (a fresh `REQUIREMENTS.md` is created next). See the **Current
+Milestone** section above for goal and target changes; decision amendments are locked in
+`docs/DECISIONS.md` (**D-59** + `⚠️ v1.11` banners). *(v1.1's `REQUIREMENTS.md` is archived at
+`.planning/milestones/v1.1-REQUIREMENTS.md`.)*
 
-**Next milestone (v1.2) is scoped but not started:** new figure types (ellipse, 5-point star,
-hexagon, pentagon, right-angle triangle L/R, four arrows) + a dynamic split-button toolbar. Full
-plan: `.planning/backlog/v1.2-figures-and-toolbar.md`. Its decision amendments happen when v1.2 is
-kicked off via `/gsd-new-milestone`. Anything not named in `docs/DECISIONS.md` is still out until
-added there **by name**.
+**Next milestone (v1.2) is scoped but not started** and is now sequenced **after v1.11**: new figure
+types (ellipse, 5-point star, hexagon, pentagon, right-angle triangle L/R, four arrows) + a dynamic
+split-button toolbar. Full plan: `.planning/backlog/v1.2-figures-and-toolbar.md`. **Its 4-int-bbox
+premise no longer holds** — after v1.11, new shapes store as `geometry jsonb`; the backlog must be
+revised before v1.2 opens. Anything not named in `docs/DECISIONS.md` is still out until added there
+**by name**.
 
 ### Out of Scope
 
@@ -316,10 +343,10 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
-**Next up: nothing is in flight.** **v1.2 is scoped** (new figures + dynamic toolbar) in
-`.planning/backlog/v1.2-figures-and-toolbar.md` and starts with `/gsd-new-milestone` when the user
-decides to open it. The "terminal MinVP" framing no longer applies — the project has resumed and is
-now between milestones.
+**Next up: milestone v1.11 is OPEN (2026-07-23)** — storage model rewrite (anchor + geometry JSON;
+see the Current Milestone section above and D-59). **v1.2 is scoped** (new figures + dynamic toolbar)
+in `.planning/backlog/v1.2-figures-and-toolbar.md` and is sequenced **after v1.11** (its 4-int-bbox
+premise no longer holds and must be revised first).
 
 ## Evolution
 
@@ -339,7 +366,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-21 after v1.1 milestone — 3 phases, 4 plans, 4/4 requirements validated;
-ARCH-01, CANV-03, SEL-01 and SEL-02 moved to Validated and the Active section closed out. No
-milestone is open; v1.2 remains scoped in the backlog.
-(Prev: 2026-07-21, Phase BC-08 validated ARCH-01.)*
+*Last updated: 2026-07-23 — opened milestone v1.11 (storage model rewrite). Amended the locked
+decisions for the anchor+geometry model (new D-59; D-22/D-39 superseded, D-24/D-29/D-36 dropped,
+D-53/D-46/D-23 amended, D-41 re-expressed, D-20/D-12/D-03 upheld); added the Current Milestone
+section and reopened Active. Requirements next.
+(Prev: 2026-07-21 after v1.1 milestone — ARCH-01/CANV-03/SEL-01/SEL-02 validated.)*

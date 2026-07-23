@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Canvas resize · selection UX · no-JS removal
-status: Awaiting next milestone
-stopped_at: Completed BC-08-01-PLAN.md
-last_updated: "2026-07-21T13:43:55.013Z"
-last_activity: 2026-07-21
-last_activity_desc: Milestone v1.1 completed and archived
+milestone: v1.11
+milestone_name: Storage model rewrite (anchor + geometry JSON)
+status: planning
+last_updated: "2026-07-23T16:13:36.753Z"
+last_activity: 2026-07-23
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 4
-  completed_plans: 4
-  percent: 100
-current_phase: 08
-current_phase_name: Architecture Constraint Cleanup
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -39,10 +35,10 @@ removed** (motivations corrected on D-06/18/33/37/57). Archived under
 
 ## Current Position
 
-Phase: Milestone v1.1 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-21 — Milestone v1.1 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-23 — Milestone v1.11 started
 
 ## Performance Metrics
 
