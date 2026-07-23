@@ -2,36 +2,38 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: Five-pointed star
-current_phase: 17
-current_phase_name: Regression Verification
-status: completed
+status: Awaiting next milestone
 stopped_at: Completed BC-17-regression-verification-01-PLAN.md
-last_updated: "2026-07-23T00:41:30.147Z"
+last_updated: "2026-07-23T00:58:04.050Z"
 last_activity: 2026-07-23
-last_activity_desc: Phase BC-17 complete
+last_activity_desc: Milestone v1.12 completed and archived
 progress:
   total_phases: 5
   completed_phases: 5
   total_plans: 13
   completed_plans: 13
   percent: 100
+current_phase: 17
+current_phase_name: Regression Verification
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-23 after Phase 15)
+See: .planning/PROJECT.md (updated 2026-07-23 after v1.12 closeout)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** Phase 17 — Regression Verification complete
-REG-02 human acceptance approved the running application's star arm, live preview, edge clamp,
-refresh persistence, selection trace, edge-clamped drag, delete, and second-window live glide.
+**Current focus:** Awaiting next milestone.
+v1.12 is shipped and archived; REG-02 human acceptance approved the running application's star arm,
+live preview, edge clamp, refresh persistence, selection trace, edge-clamped drag, delete, and
+second-window live glide.
 
-**Roadmap created 2026-07-22** — Phases 13–17, continuing numbering from v1.11's Phase 12. All 15
-v1.12 requirements mapped, 100% coverage, no orphans. See `.planning/ROADMAP.md` → "Phase Details".
+**v1.12 archived 2026-07-23** — Phases 13–17, continuing numbering from v1.11's Phase 12. All 15
+v1.12 requirements validated. Full detail lives under `.planning/milestones/v1.12-*` and
+`.planning/milestones/v1.12-phases/`.
 
 v1.11 shipped and archived 2026-07-22 as `override_closeout` — 21/22 requirements satisfied, build
 clean, 500/500 tests passing.
@@ -49,16 +51,16 @@ test output but has no C# consumer. Accepted because the migration path is perma
 regression guard instead of reintroducing client-owned formulas. The unreferenced
 `V11DataMigration.RunAsync(NpgsqlDataSource, …)` overload also stays.
 
-**v1.0, v1.1 and v1.11 are all archived** under `.planning/milestones/`. **v1.2** (the remaining
+**v1.0, v1.1, v1.11 and v1.12 are all archived** under `.planning/milestones/`. **v1.2** (the remaining
 **nine** figures + dynamic toolbar — v1.12 delivers the 5-point star) is scoped in
 `.planning/backlog/v1.2-figures-and-toolbar.md` and follows v1.12.
 
 ## Current Position
 
-Phase: 17 — Regression Verification
-Plan: 17-01 complete
-Status: Ready for milestone closeout
-Last activity: 2026-07-23 — REG-02 human UAT approved and Phase 17 completed
+Phase: Milestone v1.12 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-23 — Milestone v1.12 completed and archived
 
 ## Performance Metrics
 
@@ -339,4 +341,4 @@ Resume file: None
 
 ## Operator Next Steps
 
-- Run `/gsd-complete-milestone` to close v1.12, or `/gsd-verify-work` if you want an additional audit pass first.
+- Start the next milestone with /gsd-new-milestone

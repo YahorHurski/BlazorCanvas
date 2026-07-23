@@ -5,8 +5,8 @@
 - ✅ **v1.0 MinVP** — Phases 1–5 (shipped 2026-07-17)
 - ✅ **v1.1 Canvas resize · selection UX · no-JS removal** — Phases 6–8 (shipped 2026-07-21)
 - ✅ **v1.11 Storage Model Rewrite** — Phases 9–12 (shipped 2026-07-22)
-- 🚧 **v1.12 Five-pointed star** — Phases 13–17 (in progress)
-- 📋 **v1.2 Figures & dynamic toolbar** — scoped, waits behind v1.12
+- ✅ **v1.12 Five-pointed star** — Phases 13–17 (shipped 2026-07-23)
+- 📋 **v1.2 Figures & dynamic toolbar** — scoped, follows v1.12
 
 v1.0 detail: [`milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.md) ·
 [`milestones/v1.0-REQUIREMENTS.md`](milestones/v1.0-REQUIREMENTS.md) ·
@@ -22,8 +22,11 @@ v1.11 detail: [`milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md) ·
 phase artifacts archived under [`milestones/v1.11-phases/`](milestones/v1.11-phases/) ·
 design: `docs/DATA-MODEL-v1.11-DRAFT.md` · decisions: `docs/DECISIONS.md` → D-59…D-69
 
-v1.12 requirements: [`REQUIREMENTS.md`](REQUIREMENTS.md) · decisions land from `docs/DECISIONS.md`
-→ D-70 onward
+v1.12 detail: [`milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md) ·
+[`milestones/v1.12-REQUIREMENTS.md`](milestones/v1.12-REQUIREMENTS.md) ·
+[`milestones/v1.12-MILESTONE-AUDIT.md`](milestones/v1.12-MILESTONE-AUDIT.md) ·
+phase artifacts archived under [`milestones/v1.12-phases/`](milestones/v1.12-phases/) ·
+decisions: `docs/DECISIONS.md` → D-70…D-73
 
 ## Phases
 
@@ -119,262 +122,32 @@ requirement text was deliberately not rewritten to fit what was built. Reasoning
 
 </details>
 
-### 🚧 v1.12 Five-pointed star (Phases 13–17) — In Progress
+<details>
+<summary>✅ v1.12 Five-pointed star (Phases 13–17) — SHIPPED 2026-07-23</summary>
 
 **Milestone goal:** Add `star5` as the fifth figure type end-to-end — drawn, previewed, persisted,
-synced, selected, dragged and deleted exactly like the four that came before it. Stretchable (fills
-the dragged box, not aspect-locked); point-up (first vertex top-centre, sweep starts at −π/2);
-corner-to-corner gesture like triangle/rectangle; inner-radius ratio 0.382 (1/φ²). Stored geometry
-`{"points": [[x,y] × 10], "innerRatio": 0.382}` — points authoritative for render and `bbox_*`;
-`innerRatio` descriptive but required by `TryParseGeometry`. A seventh toolbar button, between
-`triangle` and `delete`. Full design lives in `docs/DECISIONS.md` from D-70 onward.
+synced, selected, dragged and deleted exactly like the four that came before it.
 
-**Sequencing rationale (why this order):** `Star5Shape`'s geometry (`FromGesture`,
-`TryParseGeometry`/`ToJson`, `BoundsOf`) is pure C# with zero database dependency, so it comes first
-and keeps the existing app and all 500 tests untouched and green — the same "additive first" pattern
-v1.11 used. Phase 13 deliberately stops short of *registering* the shape: `V11CutoverTests` asserts
-`count(*) FROM public.figure_types == 4` twice against scratch databases in the two states that do
-run `SeedFigureTypesAsync`, so registration is not additive and belongs with the seed in Phase 14.
-The `figure_types` catalog seed fix (MODEL-08) is a hard prerequisite for writing any
-star row at all: `V11Cutover.EnsureAsync` returns early at `CatalogState.Completed` on the existing
-database, so `SeedFigureTypesAsync` never runs again and the foreign key on `figures.type` would
-reject every star insert. It lands in Phase 14 together with the toolbar button that arms the tool
-and the decision-doc amendments the new button requires — before Phase 15 attempts to draw and
-persist a star for the first time. Phase 16 proves the star matches the four existing shapes for
-interaction and sync, and folds in this milestone's test guards once the code they guard exists.
-Phase 17 — human regression verification — is deliberately last and stands alone, mirroring v1.11's
-Phase 12: it is the milestone's real acceptance gate and must not be short-circuited by any earlier
-phase's automated tests.
+- [x] **Phase 13: Star Shape Core** (1/1 plan) — completed 2026-07-22
+- [x] **Phase 14: Catalog Seed, Toolbar & Decisions** (3/3 plans) — completed 2026-07-22
+- [x] **Phase 15: Draw, Preview, Render & Persist a Star** (4/4 plans) — completed 2026-07-23
+- [x] **Phase 16: Interaction, Sync & Test Guards** (4/4 plans) — completed 2026-07-23
+- [x] **Phase 17: Regression Verification** (1/1 plan) — completed 2026-07-23
 
-Phase numbering continues from v1.11's Phase 12 (directories will be `BC-13-…` … `BC-17-…`, matching
-the established `BC-01-…`…`BC-12-…` pattern).
+**Outcome:** 15/15 requirements validated. All 5 phases verified `passed`; milestone audit closed as
+`tech_debt` with no critical gaps. REG-02 human two-window browser UAT passed.
 
-- [x] **Phase 13: Star Shape Core** - `Star5Shape`/`Star5Geometry` implement `IShapeDefinition` in
-      isolation — gesture, parse/serialize round-trip, and points-derived bounds — zero database
-      dependency, all 500 existing tests stay green.
-
-- [x] **Phase 14: Catalog Seed, Toolbar & Decisions** - `Star5Shape` joins the registry, the
-      `figure_types` seed runs idempotently on every startup, a seventh toolbar button arms the star
-      tool, and the locked decisions are amended for seven buttons.
-
-- [x] **Phase 15: Draw, Preview, Render & Persist a Star** - A user draws a star end-to-end — live (completed 2026-07-23)
-      preview, edge clamp, correct render on commit and reload, immediate persistence.
-
-- [x] **Phase 16: Interaction, Sync & Test Guards** - Select, drag, and delete a star like the four (completed 2026-07-23)
-      existing shapes; live cross-tab glide; preview-ownership, bbox-agreement, and degenerate-rejection
-      tests.
-
-- [x] **Phase 17: Regression Verification** - Human acceptance on the running application confirms
-      the milestone's definition of done.
+</details>
 
 ### 📋 v1.2 Figures & dynamic toolbar (Planned)
 
-Scoped, not started, waits behind v1.12. New figure types (ellipse, hexagon, pentagon, right-angle
+Scoped, not started, follows v1.12. New figure types (ellipse, hexagon, pentagon, right-angle
 triangle L/R, four arrows — nine, not ten: v1.12 delivers the 5-point star) plus a dynamic
 split-button toolbar. Full plan: [`backlog/v1.2-figures-and-toolbar.md`](backlog/v1.2-figures-and-toolbar.md).
 Materially cheaper now that v1.11 has landed — the 4-integer workarounds are gone, and a new type
 costs one C# class plus one `figure_types` row. v1.12 also pays down two of its costs in advance: the
 `figure_types` seed becomes automatic, and the toolbar's six-button decisions are already amended to
 seven. Its remaining decision amendments happen when v1.2 is kicked off.
-
-## Phase Details
-
-### Phase 13: Star Shape Core
-
-**Goal**: A `Star5Shape`/`Star5Geometry` pair fully implements the `IShapeDefinition` contract —
-deriving a point-up, ten-point star from a corner-to-corner drag, round-tripping through
-`TryParseGeometry`/`ToJson`, and deriving its `bbox_*` purely from the point list — proven correct in
-isolation with zero database involvement, leaving the existing app and all 500 tests untouched and
-green.
-**Depends on**: Nothing (continues from Phase 12; first phase of v1.12)
-**Requirements**: SHAPE-04, SHAPE-05, SHAPE-06
-**Success Criteria** (what must be TRUE):
-
-  1. `Star5Shape.FromGesture` derives a point-up, ten-point star (five outer, five inner at 0.382 of
-     the outer radius) that stretches to fill any dragged box, sweeping from −π/2, the same
-     corner-to-corner contract triangle and rectangle already use — proven against the same pattern
-     `PentagonShape` (test-only) already demonstrates.
-
-  2. `Star5Shape.BoundsOf` computes the bbox from the ten-point list alone — a test proves a stored
-     `innerRatio` that disagrees with the points changes nothing about the derived bounds or a
-     re-render.
-
-  3. `Star5Shape.ToJson` / `TryParseGeometry` round-trip a star byte-identically, and a geometry
-     payload missing `innerRatio` fails to parse rather than rendering a partially-populated figure.
-
-  4. All 500 existing tests remain green and no existing file changes behaviour — `Star5Shape` is
-     **not yet registered** in `DefaultShapes.CreateRegistry()`, so this phase is genuinely additive.
-     Its tests instantiate the class directly, exactly as `PentagonShape`'s do today. Registration is
-     deliberately deferred to Phase 14: `V11CutoverTests` asserts
-     `count(*) FROM public.figure_types == 4` twice (lines 58 and 73), against scratch databases in
-     `Additive` and `FreshUsersOnly` state — the two states that *do* run `SeedFigureTypesAsync` — so
-     registering here would turn both assertions red and falsify this criterion.
-
-**Plans:** 1/1 plans executed
-
-Plans:
-
-- [x] 13-01-PLAN.md — Add unregistered Star5Geometry/Star5Shape core and direct contract tests.
-
----
-
-### Phase 14: Catalog Seed, Toolbar & Decisions
-
-**Goal**: The application is ready to accept a drawn star — `Star5Shape` joins the registry, the
-`figure_types` catalog seeds `star5` idempotently on every startup even against the existing
-`CatalogState.Completed` database, a seventh toolbar button arms the tool, and the locked decisions
-are amended to match.
-**Depends on**: Phase 13 (registers, seeds and arms the shape Phase 13 built)
-**Requirements**: MODEL-08, CANV-04, ARCH-02
-**Success Criteria** (what must be TRUE):
-
-  1. `Star5Shape` is registered in `DefaultShapes.CreateRegistry()`, and the two `V11CutoverTests`
-     assertions that hard-code the catalog size (`count(*) FROM public.figure_types == 4`, lines 58
-     and 73) are updated to 5 — the suite is green again with the fifth shape present. This is the
-     phase that owns the registration's blast radius.
-
-  2. Starting the app against the existing database inserts a `star5` row into `figure_types` with no
-     manual SQL and no migration, closing the gap where `V11Cutover.EnsureAsync` returns early at
-     `CatalogState.Completed`.
-
-  3. Running the seed across two consecutive startups leaves exactly one `star5` row — the seed is
-     idempotent on every startup, not merely additive once.
-
-  4. The toolbar shows seven buttons — `[pointer] [line] [rectangle] [circle] [triangle] [star]
-     [delete]` — the star button sits between `triangle` and `delete`, and arms/un-arms exclusively
-     like every other tool; the 48px strip and right-aligned logout are unchanged.
-
-  5. `docs/DECISIONS.md`, `PROJECT.md` and `.planning/intel/` record the seven-button toolbar as an
-     amendment to D-16/D-33/D-58 and to CANV-02's old toolbar-count text, with the star's own
-     decisions added by name starting at D-70.
-
-**Plans:** 3/3 plans executed
-
-Plans:
-
-- [x] 14-01-PLAN.md — Register Star5Shape and make registry-driven figure_types seeding converge on completed public catalogs.
-- [x] 14-02-PLAN.md — Add the armable star toolbar button and star5 tool mapping while preserving toolbar/logout semantics.
-- [x] 14-03-PLAN.md — Amend decisions, PROJECT.md, and active intel mirrors for seven buttons and D-70+ star decisions.
-
-**UI hint**: yes
-
----
-
-### Phase 15: Draw, Preview, Render & Persist a Star
-
-**Goal**: A user can draw a star end-to-end exactly like the four existing shapes — armed from the
-toolbar, previewed live under the cursor, clamped at the canvas edge, rendered correctly on commit,
-and persisted immediately with no Save button.
-**Depends on**: Phase 14 (needs the seeded catalog row and the armable toolbar button)
-**Requirements**: FIG-05, FIG-06, FIG-07, RENDER-02, DATA-05
-**Success Criteria** (what must be TRUE):
-
-  1. User can arm the star tool and draw a star by dragging corner-to-corner, exactly as they draw a
-     rectangle or triangle.
-
-  2. A live star preview follows the cursor during the drag, showing the same shape the committed
-     figure will have — not a triangle fallback, and not a second formula that can drift from
-     `Star5Shape`.
-
-  3. A star dragged toward a canvas edge stops at the edge under the same clamp as every other shape;
-     a drag with zero width or zero height is silently rejected, while a thin sliver with positive
-     width and height is accepted and committed.
-
-  4. The committed star renders from its local geometry under the v1.11 `translate(x,y) rotate(…)`
-     transform, both immediately after the drop and after a page reload — it does not silently
-     disappear from the renderer's type switch.
-
-  5. The star persists immediately with no Save button and reappears unchanged after a refresh.
-
-**Plans:** 4/4 plans executed
-
-Plans:
-
-- [x] 15-04-PLAN.md
-
-**Wave 1**
-
-- [x] 15-01-PLAN.md — Prove star draw, clamp, degenerate rejection, sliver acceptance, and immediate persistence/reload.
-- [x] 15-02-PLAN.md — Pin committed star rendering from local Star5Geometry points under the translate/rotate transform.
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 15-03-PLAN.md — Render live star previews through the C# registry placement and remove the JS triangle fallback path.
-
-**UI hint**: yes
-
----
-
-### Phase 16: Interaction, Sync & Test Guards
-
-**Goal**: A persisted star behaves exactly like the four existing shapes for selection, drag, and
-delete, glides live across a user's open tabs under the unchanged D-53 contract, and this milestone's
-silent failure modes are pinned by tests.
-**Depends on**: Phase 15 (needs a persisted, rendered star to select, drag, delete and sync)
-**Requirements**: FIG-08, SYNC-04, TEST-04
-**Success Criteria** (what must be TRUE):
-
-  1. User can select a star — the blue-and-white dashed trace appears on the star's own outline —
-     drag it with edge clamping, and delete it, exactly as they can the four existing shapes.
-
-  2. A star appears live in the user's other open tabs on draw, glides in real time during a drag,
-     and disappears on delete — under the unchanged D-53 message contract.
-
-  3. A test fails if visible preview geometry drifts back into `Home.razor.js` instead of the
-     registry-backed Razor/FigureShape path, and a test proves `bbox_*` agreement for star rows
-     against a fresh geometry recompute.
-
-  4. Tests prove degenerate (zero width or height) and malformed (missing `innerRatio`, wrong point
-     count) star geometry is rejected at both the unit and gateway boundary.
-
-**Plans:** 4/4 plans executed
-and selection-trace paths are already type-blind and handle `star5`, so this phase proves star parity
-and folds in the milestone's test guards)
-
-Plans:
-
-**Wave 1** *(fully parallel — disjoint test files)*
-
-- [x] 16-01-PLAN.md — Prove star5 select, click-vs-drag, edge-clamped drag, delete, D-40 update-only,
-      D-54 discard-all, and echo filter at the coordinator boundary (FIG-08, SYNC-04).
-
-- [x] 16-02-PLAN.md — Prove two-circuit final-public star draw/glide/delete relay, the D-40
-      resurrection guard, and a persisted select/drag-clamp/delete round-trip (SYNC-04, FIG-08).
-
-- [x] 16-03-PLAN.md — Extend the JS↔C# drift guard, fold a star5 row into the whole-table bbox
-      agreement scan, and reject degenerate/malformed star geometry at the gateway and unit boundary
-      (TEST-04).
-
-- [x] 16-04-PLAN.md — Add a bUnit render-level preview smoke test that renders the active star
-      preview through FigureShape and asserts a polygon is emitted at pointermove before commit, with
-      a negative control that fails under the G-15-1 unbound-literal binding (TEST-04).
-
-**UI hint**: yes
-
----
-
-### Phase 17: Regression Verification
-
-**Goal**: A human confirms, on the running application, that the star behaves exactly like the four
-existing shapes end-to-end — the milestone's definition of done.
-**Depends on**: Phase 16 (nothing left to verify against until interaction and sync are complete)
-**Requirements**: REG-02
-**Success Criteria** (what must be TRUE):
-
-  1. A human arms the star tool, draws with a live preview, watches it clamp at a canvas edge,
-     refreshes the page, and confirms it persists unchanged.
-
-  2. A human selects, drags with edge clamping, and deletes a star, confirming it matches the four
-     existing shapes exactly.
-
-  3. A human opens a second browser window on the same account and watches a star glide live in real
-     time during a drag from the first — the milestone's acceptance gate.
-
-**Plans:** 1/1 plans executed
-
-Plans:
-
-- [x] 17-01-PLAN.md — Run the acceptance-only REG-02 human UAT gate with preflight smoke checks, one app process, two same-profile browser windows, evidence capture, and fail-fast handling.
 
 ## Progress
 
@@ -435,17 +208,21 @@ v1.12: 15/15 requirements mapped. No orphans. No duplicates.**
 
 ## What's Next
 
-**v1.12 Phase 15 complete 2026-07-23.** Suggested next step: `/gsd-plan-phase 16` to plan star
-interaction, sync, and test guards.
+**v1.12 is shipped and archived.** Full detail lives in
+[`milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md), requirements in
+[`milestones/v1.12-REQUIREMENTS.md`](milestones/v1.12-REQUIREMENTS.md), audit in
+[`milestones/v1.12-MILESTONE-AUDIT.md`](milestones/v1.12-MILESTONE-AUDIT.md), and phase artifacts
+under [`milestones/v1.12-phases/`](milestones/v1.12-phases/). The milestone closed as `tech_debt`
+with no critical gaps.
 
 **v1.11 is shipped and archived.** MIGR-03 carries forward as an accepted gap, not a completed
 requirement. Closing it later means restoring `V11MigrationReplayTests.cs` against the committed
 `v1.1-pre-rewrite.sql` fixture — see the audit's "Outstanding Work" section.
 
 **Tech debt carried forward:** `ShapeRegistry` read-only views expose their backing lists
-(09-REVIEW WR-03, explicitly out of v1.12 scope). Phase 15 removed the `Home.razor.js` preview
-geometry duplication; Phase 16 should keep that as a regression guard while adding bbox and
-malformed-geometry guards. The unreferenced
+(09-REVIEW WR-03, explicitly out of v1.12 scope). v1.12 removed the `Home.razor.js` preview
+geometry duplication and added regression guards for preview ownership, bbox agreement, and
+malformed geometry. The unreferenced
 `V11DataMigration.RunAsync(NpgsqlDataSource, …)` overload also stays. Known v1.0 tech debt
 (~11 low-severity items) remains recorded in
 [`milestones/v1.0-MILESTONE-AUDIT.md`](milestones/v1.0-MILESTONE-AUDIT.md). None blocks a requirement.
@@ -461,6 +238,7 @@ malformed-geometry guards. The unreferenced
 `milestones/v1.11-ROADMAP.md`, requirements in `milestones/v1.11-REQUIREMENTS.md`, audit in
 `milestones/v1.11-MILESTONE-AUDIT.md`. Closed as `override_closeout` with MIGR-03 accepted as a
 documented gap.*
-*v1.12 roadmap added: 2026-07-22 — phases 13–17 continue numbering from Phase 12; all 15 requirements
-mapped, 100% coverage, no orphans. Phase 17 REG-02 human acceptance completed 2026-07-23 after the
-preflight smoke checks and two-window UAT gate passed.*
+*v1.12 archived: 2026-07-23 — phases 13–17 collapsed above; full detail in
+`milestones/v1.12-ROADMAP.md`, requirements in `milestones/v1.12-REQUIREMENTS.md`, audit in
+`milestones/v1.12-MILESTONE-AUDIT.md`, and phase artifacts under `milestones/v1.12-phases/`.
+Closed as `tech_debt` with no critical gaps.*

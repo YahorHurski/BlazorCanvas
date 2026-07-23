@@ -1,8 +1,8 @@
 ---
-status: diagnosed
+status: resolved
 trigger: "Diagnose root cause only for UAT gap G-15-1. Preview missing for any figure; Star button and commit work. Do not edit source files and do not apply fixes."
 created: 2026-07-23T00:00:12.9954059+02:00
-updated: 2026-07-23T00:03:14.5894824+02:00
+updated: 2026-07-23T00:49:23.320Z
 ---
 
 ## Current Focus
@@ -11,7 +11,7 @@ updated: 2026-07-23T00:03:14.5894824+02:00
 hypothesis: Preview is invisible because Home.razor passes the string parameter PreviewType as the literal "preview.Type", so FigureShape refuses to render preview geometry even though DrawingPreviewSession placement is valid.
 test: Compare Home.razor parameter syntax with FigureShape.OnParametersSet registry check; run focused preview/source tests with --no-build.
 expecting: Existing focused tests pass because they assert the incorrect literal source string, while code inspection shows Registry.Contains("preview.Type") is false for every figure.
-next_action: Return ROOT CAUSE FOUND to caller with suggested fix direction; do not edit source files.
+next_action: Closed during milestone pre-close cleanup; fix and REG-02 acceptance are recorded in Phase 15-17 artifacts.
 
 ## Symptoms
 <!-- Written during gathering, then IMMUTABLE -->
@@ -60,7 +60,11 @@ started: Discovered during browser UAT after automated Phase 15 tests passed.
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
-root_cause: Home.razor passes the preview type string parameter as a literal (`PreviewType="preview.Type"`) instead of binding the `preview.Type` value, causing FigureShape's registry guard to reject every preview as an unknown shape type and render nothing.
-fix: Not applied; diagnose-only mode. Suggested direction: bind PreviewType to the session value (for example with Razor expression syntax) and update source/render tests so they fail on literal string binding.
-verification: Diagnose-only. Focused no-build tests passed 9/9, confirming the existing automated tests miss the root cause; no source fix applied.
-files_changed: []
+root_cause: Home.razor passed the preview type string parameter as a literal (`PreviewType="preview.Type"`) instead of binding the `preview.Type` value, causing FigureShape's registry guard to reject every preview as an unknown shape type and render nothing.
+fix: Applied later in the milestone: `Home.razor` now binds `PreviewType="@preview.Type"`, and source/render tests reject the literal binding regression.
+verification: Phase 17 REG-02 human acceptance passed on 2026-07-23. Current code inspection confirms `PreviewType="@preview.Type"` in `Home.razor`; tests include `HomePreviewSourceTests`, `CanvasInteractionCoordinatorTests`, and `PreviewRenderSmokeTests` guards for the fixed binding and negative control.
+files_changed:
+  - src/BlazorCanvas/Components/Pages/Home.razor
+  - tests/BlazorCanvas.Tests/Components/HomePreviewSourceTests.cs
+  - tests/BlazorCanvas.Tests/Components/CanvasInteractionCoordinatorTests.cs
+  - tests/BlazorCanvas.Tests/Components/PreviewRenderSmokeTests.cs
