@@ -71,14 +71,17 @@ Backlog: `.planning/backlog/v1.11-storage-rewrite.md`.
 
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
 **All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
+- [x] **STOR-01 / MIG-01 / MIG-02** — Anchor+geometry schema, data-preserving EF migration, and
+  immutable-fixture round-trip proof — Validated in Phase BC-09: Schema, Entity & Data-Preserving
+  Migration (2026-07-23)
 
 ### Active
 
 **Milestone v1.11 — Storage model rewrite (anchor + geometry JSON) — OPEN (2026-07-23).**
-Requirements are being defined (a fresh `REQUIREMENTS.md` is created next). See the **Current
-Milestone** section above for goal and target changes; decision amendments are locked in
-`docs/DECISIONS.md` (**D-59** + `⚠️ v1.11` banners). *(v1.1's `REQUIREMENTS.md` is archived at
-`.planning/milestones/v1.1-REQUIREMENTS.md`.)*
+Phase BC-09 is complete: the schema/entity rewrite and data-preserving migration are validated.
+Phase BC-10 is next: geometry draw/drag/sync rework, no edge clamp, and regression. Decision
+amendments are locked in `docs/DECISIONS.md` (**D-59** + `⚠️ v1.11` banners). *(v1.1's
+`REQUIREMENTS.md` is archived at `.planning/milestones/v1.1-REQUIREMENTS.md`.)*
 
 **Next milestone (v1.2) is scoped but not started** and is now sequenced **after v1.11**: new figure
 types (ellipse, 5-point star, hexagon, pentagon, right-angle triangle L/R, four arrows) + a dynamic
@@ -343,8 +346,8 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
-**Next up: milestone v1.11 is OPEN (2026-07-23)** — storage model rewrite (anchor + geometry JSON;
-see the Current Milestone section above and D-59). **v1.2 is scoped** (new figures + dynamic toolbar)
+**Next up: Phase BC-10 of milestone v1.11** — geometry, draw, drag, and sync rework on the
+anchor+geometry model, with the canvas-edge clamp removed and the full suite kept green. **v1.2 is scoped** (new figures + dynamic toolbar)
 in `.planning/backlog/v1.2-figures-and-toolbar.md` and is sequenced **after v1.11** (its 4-int-bbox
 premise no longer holds and must be revised first).
 
@@ -366,8 +369,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-23 — opened milestone v1.11 (storage model rewrite). Amended the locked
-decisions for the anchor+geometry model (new D-59; D-22/D-39 superseded, D-24/D-29/D-36 dropped,
-D-53/D-46/D-23 amended, D-41 re-expressed, D-20/D-12/D-03 upheld); added the Current Milestone
-section and reopened Active. Requirements next.
+*Last updated: 2026-07-23 — Phase BC-09 validated STOR-01/MIG-01/MIG-02: anchor+geometry schema,
+data-preserving migration, and immutable-fixture round-trip proof. Current focus moved to Phase
+BC-10 for draw/drag/sync rework and no edge clamp.
 (Prev: 2026-07-21 after v1.1 milestone — ARCH-01/CANV-03/SEL-01/SEL-02 validated.)*

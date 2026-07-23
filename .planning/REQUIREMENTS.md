@@ -21,7 +21,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (Traceab
 
 ### Storage model (STOR)
 
-- [ ] **STOR-01**: `figures` uses the new schema — `uuid` id (`gen_random_uuid()`), anchor `x,y`
+- [x] **STOR-01**: `figures` uses the new schema — `uuid` id (`gen_random_uuid()`), anchor `x,y`
   (integer), `geometry jsonb`, `numeric z` (fractional layer order, **no UNIQUE**), `type text` +
   whitelist CHECK, index `(user_id, z)`, **no `created_at`**, **no DB CHECK on `geometry`**. `users`
   is unchanged. Load query is `SELECT * FROM figures WHERE user_id = @id ORDER BY z, id`.
@@ -52,12 +52,12 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (Traceab
 
 ### Migration (MIG)
 
-- [ ] **MIG-01**: All existing figures are **preserved via a data migration** — the row transform
+- [x] **MIG-01**: All existing figures are **preserved via a data migration** — the row transform
   `x1,y1,x2,y2 → x,y,geometry` per type runs as part of the EF migration, so every pre-existing figure
   keeps its position and on-screen appearance after the upgrade. No figure is lost or visually altered.
   *(D-59.)*
 
-- [ ] **MIG-02**: The migration/backfill is verified by an **automated round-trip test** against the
+- [x] **MIG-02**: The migration/backfill is verified by an **automated round-trip test** against the
   immutable v1.1 fixture (`tests/.../Fixtures/v1.1-pre-rewrite.sql` + its `…-MANIFEST.md` expected
   values) — the transformed rows match the manifest's expected anchor+geometry for every type.
   *(D-59, D-49.)*
@@ -121,13 +121,13 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STOR-01 | Phase 9 | Pending |
+| STOR-01 | Phase 9 | Complete |
 | STOR-02 | Phase 10 | Pending |
 | STOR-03 | Phase 10 | Pending |
 | STOR-04 | Phase 10 | Pending |
 | STOR-05 | Phase 10 | Pending |
-| MIG-01 | Phase 9 | Pending |
-| MIG-02 | Phase 9 | Pending |
+| MIG-01 | Phase 9 | Complete |
+| MIG-02 | Phase 9 | Complete |
 | SYNC-02 | Phase 10 | Pending |
 | TEST-02 | Phase 10 | Pending |
 

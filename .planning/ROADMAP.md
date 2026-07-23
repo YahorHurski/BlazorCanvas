@@ -80,7 +80,7 @@ change. Every existing figure is **preserved via a data migration** tested again
 v1.1 fixture. The canvas-edge clamp is **removed**. Adds **no new user-facing feature** — a database
 model change plus the downstream code churn it forces.
 
-- [ ] **Phase 9: Schema, Entity & Data-Preserving Migration** - The new anchor+geometry `figures`
+- [x] **Phase 9: Schema, Entity & Data-Preserving Migration** - The new anchor+geometry `figures` (completed 2026-07-23)
       schema and Figure entity, plus a hand-written backfill of every existing figure verified by a
       round-trip test against the immutable v1.1 fixture.
 
@@ -184,7 +184,7 @@ suite is reworked to the new model and green on a clean build.
 | 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
-| 9. Schema, Entity & Data-Preserving Migration | v1.11 | 6/6 | In Progress|  |
+| 9. Schema, Entity & Data-Preserving Migration | v1.11 | 6/6 | Complete    | 2026-07-23 |
 | 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 0/TBD | Not started | - |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**

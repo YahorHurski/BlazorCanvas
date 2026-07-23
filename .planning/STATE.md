@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: Storage model rewrite (anchor + geometry JSON)
-current_phase: 9
-current_phase_name: Schema, Entity & Data-Preserving Migration
+current_phase: 10
+current_phase_name: Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression
 status: planning
 stopped_at: Completed 09-06-PLAN.md
-last_updated: "2026-07-23T18:11:58.905Z"
+last_updated: "2026-07-23T18:12:34.789Z"
 last_activity: 2026-07-23
-last_activity_desc: ROADMAP.md written and revised to 2 phases (9–10) per user; the 9 v1.11
+last_activity_desc: Phase BC-09 complete, transitioned to Phase 10
 progress:
   total_phases: 2
   completed_phases: 1
@@ -38,17 +38,17 @@ no longer holds once v1.11 ships and the backlog must be revised before it opens
 
 ## Current Position
 
-Phase: 9 of 10 (Schema, Entity & Data-Preserving Migration)
-Plan: — (not yet planned)
-Status: Roadmap complete — ready to plan
-Last activity: 2026-07-23 — ROADMAP.md written and revised to 2 phases (9–10) per user; the 9 v1.11
+Phase: 10 of 10 (Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-07-23 — Phase BC-09 complete, transitioned to Phase 10
 requirements are mapped with 100% coverage, REQUIREMENTS.md traceability filled in.
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 21
+- Total plans completed: 27
 - Average duration: —
 - Total execution time: —
 
@@ -63,6 +63,7 @@ requirements are mapped with 100% coverage, REQUIREMENTS.md traceability filled 
 | BC-06 | 1 | - | - |
 | BC-07 | 2 | - | - |
 | BC-08 | 1 | - | - |
+| BC-09 | 6 | - | - |
 
 **Recent Trend:**
 
