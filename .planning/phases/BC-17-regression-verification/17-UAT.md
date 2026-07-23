@@ -3,7 +3,7 @@ status: complete
 phase: BC-17-regression-verification
 source: [17-01-PLAN.md]
 started: 2026-07-23T00:23:22Z
-updated: 2026-07-23T00:31:00Z
+updated: 2026-07-23T00:31:53Z
 ---
 
 ## Current Test
@@ -24,6 +24,7 @@ log_root: C:\Users\EGOR\AppData\Local\Temp\BlazorCanvas-BC17-6ad5a2f6-28e3-4767-
 stdout_log: C:\Users\EGOR\AppData\Local\Temp\BlazorCanvas-BC17-6ad5a2f6-28e3-4767-abdd-1f70626015a5\app.stdout.log
 stderr_log: C:\Users\EGOR\AppData\Local\Temp\BlazorCanvas-BC17-6ad5a2f6-28e3-4767-abdd-1f70626015a5\app.stderr.log
 host_ready: pass - `http://localhost:5054/login` returned HTTP 200
+host_stopped: pass - retained PID 34208 and listener PID 16840 stopped after evidence capture; port 5054 free
 notes: Build/test emitted existing NU1902 warning for transitive AngleSharp 1.4.0; no package changes made.
 
 ## Disposable Account
