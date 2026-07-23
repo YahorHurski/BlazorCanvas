@@ -4,9 +4,9 @@ milestone: v1.12
 milestone_name: Five-pointed star
 current_phase: 17
 current_phase_name: Regression Verification
-status: planning
+status: executing
 stopped_at: Completed BC-16-interaction-sync-test-guards-03-PLAN.md
-last_updated: "2026-07-22T23:51:17.713Z"
+last_updated: "2026-07-23T00:18:00.725Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase BC-16 complete, transitioned to Phase 17
 progress:
@@ -58,7 +58,7 @@ regression guard instead of reintroducing client-owned formulas. The unreference
 
 Phase: 17 — Regression Verification
 Plan: Not started
-Status: Ready to plan
+Status: Ready to execute
 Last activity: 2026-07-23 — Phase BC-16 complete, transitioned to Phase 17
 
 ## Performance Metrics
