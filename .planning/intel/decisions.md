@@ -1,6 +1,6 @@
 # Decisions (LOCKED)
 
-Synthesized from a single ADR set: `docs/DECISIONS.md` (58 decisions, D-01…D-58).
+Synthesized from a single ADR set: `docs/DECISIONS.md` (73 decisions, D-01…D-73).
 Classification: ADR / locked: true / precedence 0 (manifest-declared).
 
 **Every decision below is CURRENT.** Superseded/reversed text has been excluded — see
@@ -15,6 +15,11 @@ Classification: ADR / locked: true / precedence 0 (manifest-declared).
 > one figure selected at a time, deselect on canvas-outside-figure / arm-tool / toolbar-except-Delete).
 > **D-06/D-18/D-33/D-37/D-57** — the **"no JavaScript" rule is REMOVED**; its motivations were
 > corrected to MVP simplicity. Next: **v1.2** (new figures + dynamic toolbar) in `.planning/backlog/`.
+>
+> ⭐ **v1.12 AMENDMENTS (2026-07-22)** — D-70…D-73 add `star5` as the fifth figure type, define its
+> point-up stretchable ten-point geometry with required `innerRatio: 0.382`, seed `figure_types`
+> from the registry on every startup, and amend the toolbar to seven controls:
+> `[pointer] [line] [rectangle] [circle] [triangle] [star] [delete]`.
 
 **The three authoritative artifacts** (per the source document's own "READ THIS FIRST"):
 `THE SCHEMA` (canonical DDL), `D-22` (geometry storage), `D-53` (broadcast message contract).
@@ -149,10 +154,10 @@ is the only way to verify one-canvas-per-user (D-03) actually isolates users.
 ### D-56 — Logout sits right-aligned in the toolbar strip
 source: docs/DECISIONS.md (D-56) · Locked
 Logout lives in the same 48px toolbar strip (D-43), right-aligned, visually separated from the
-six tool buttons. It is a small HTML form posting to `POST /logout` — not an interactive button
-(clearing a cookie requires an HTTP round-trip). **Toolbar height stays 48px**, so D-43's
-coordinate constant is unchanged. The "six buttons" rule stays intact — logout is an account
-action, not a drawing tool.
+seven toolbar controls. It is a small HTML form posting to `POST /logout` — not an interactive
+button (clearing a cookie requires an HTTP round-trip). **Toolbar height stays 48px**, so D-43's
+coordinate constant is unchanged. The seven-control toolbar rule stays intact — logout is an
+account action, not a drawing tool.
 
 ---
 
@@ -288,13 +293,35 @@ No canvas-bounds CHECK constraints in the database — D-24/D-29 already guarant
 
 ## Interaction: toolbar, selection, drawing, dragging, deleting
 
-### D-16 + D-30 + D-33 — The toolbar (six buttons, authoritative)
-source: docs/DECISIONS.md (D-16 superseded; D-30, D-33 current) · Locked
+### D-16 + D-30 + D-33 + D-73 — The toolbar (seven controls, authoritative)
+source: docs/DECISIONS.md (D-16 superseded; D-30, D-33, D-73 current) · Locked
 ```
-[ pointer ] [ line ] [ rectangle ] [ circle ] [ triangle ] [ delete ]
+[ pointer ] [ line ] [ rectangle ] [ circle ] [ triangle ] [ star ] [ delete ]
 ```
-**Six buttons.** Click one to arm it; the armed button stays visibly active. Logout sits
-right-aligned in the same strip, separate from the six (D-56).
+**Seven controls.** Click a tool to arm it; the armed button stays visibly active. Star is an
+armable drawing tool between triangle and delete. Delete remains an action button. Logout sits
+right-aligned in the same strip, separate from the seven (D-56).
+
+### D-70 — Five-pointed star geometry
+source: docs/DECISIONS.md (D-70) · Locked
+`star5` is the fifth figure type: a stretchable, point-up, five-point star drawn corner-to-corner
+with the first outer vertex at top-centre and fixed inner radius ratio `0.382`.
+
+### D-71 — Star storage format
+source: docs/DECISIONS.md (D-71) · Locked
+Star geometry is `{"points": [[x,y] x 10], "innerRatio": 0.382}`. The ordered points are
+authoritative for render and `bbox_*`; `innerRatio` is required by parsing.
+
+### D-72 — Registry-owned catalog exposure
+source: docs/DECISIONS.md (D-72) · Locked
+`star5` is registered immediately after `triangle`, and registry-owned `figure_types` rows are
+seeded idempotently on every startup, including completed public catalogs.
+
+### D-73 — Seven-button toolbar with Star
+source: docs/DECISIONS.md (D-73) · Locked
+The active toolbar order is `[pointer] [line] [rectangle] [circle] [triangle] [star] [delete]`.
+Star is armable, Delete is still an action, and Logout remains a POST `/logout` form outside the
+seven controls.
 
 ### D-30 — Selection: a pointer tool
 source: docs/DECISIONS.md (D-30) · Locked

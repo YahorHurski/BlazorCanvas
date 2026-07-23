@@ -36,6 +36,12 @@
         </svg>
     </button>
 
+    <button type="button" class="@ToolButtonClass(Tool.Star)" aria-pressed="@(Armed == Tool.Star)" aria-label="Draw star" @onclick="() => ArmedChanged.InvokeAsync(Tool.Star)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="10,3 12,7.5 16.8,7.7 13.1,10.8 14.3,15.5 10,13 5.7,15.5 6.9,10.8 3.2,7.7 8,7.5" stroke-linejoin="round" />
+        </svg>
+    </button>
+
     <button type="button" class="tool-button delete-button" disabled="@(!DeleteEnabled)" aria-label="Delete selected figure" @onclick="() => OnDelete.InvokeAsync()" @onclick:stopPropagation="true">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
             <path d="M4 6h12M8 6V4h4v2M6 6l1 10a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1l1-10" stroke-linecap="round" stroke-linejoin="round" />

@@ -8,17 +8,19 @@ public class DefaultShapesTests
     [Fact]
     public void CreateRegistry_RegistersCanonicalNamesInSeedOrder()
     {
-        Assert.Equal(new[] { "line", "rectangle", "circle", "triangle" }, DefaultShapes.CreateRegistry().Names);
+        Assert.Equal(new[] { "line", "rectangle", "circle", "triangle", "star5" }, DefaultShapes.CreateRegistry().Names);
     }
 
     [Fact]
-    public void CreateRegistry_DefinitionsHaveUniqueLowercaseAsciiNames()
+    public void CreateRegistry_DefinitionsHaveUniqueLowercaseAsciiIdentifierNames()
     {
         var definitions = DefaultShapes.CreateRegistry().All;
         Assert.All(definitions, definition =>
         {
             Assert.False(string.IsNullOrWhiteSpace(definition.Name));
-            Assert.All(definition.Name, character => Assert.InRange(character, 'a', 'z'));
+            Assert.All(definition.Name, character => Assert.True(
+                character is >= 'a' and <= 'z' or >= '0' and <= '9',
+                $"'{definition.Name}' contains unsupported character '{character}'."));
         });
         Assert.Equal(definitions.Count, definitions.Select(definition => definition.Name).Distinct(StringComparer.Ordinal).Count());
     }
@@ -53,7 +55,8 @@ public class DefaultShapesTests
             ["line"] = (new CanvasPoint(10, 20), new CanvasPoint(110, 60)),
             ["rectangle"] = (new CanvasPoint(10, 20), new CanvasPoint(110, 60)),
             ["circle"] = (new CanvasPoint(300, 300), new CanvasPoint(350, 300)),
-            ["triangle"] = (new CanvasPoint(10, 20), new CanvasPoint(110, 60))
+            ["triangle"] = (new CanvasPoint(10, 20), new CanvasPoint(110, 60)),
+            ["star5"] = (new CanvasPoint(10, 20), new CanvasPoint(110, 60))
         };
 
         foreach (var name in registry.Names)

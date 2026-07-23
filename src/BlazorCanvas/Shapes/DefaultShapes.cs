@@ -16,6 +16,7 @@ public static class DefaultShapes
         registry.Register(new RectangleShape());
         registry.Register(new CircleShape());
         registry.Register(new TriangleShape());
+        registry.Register(new Star5Shape());
         return registry;
     }
 }

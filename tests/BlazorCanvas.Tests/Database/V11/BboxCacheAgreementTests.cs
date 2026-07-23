@@ -32,6 +32,8 @@ public class BboxCacheAgreementTests
         Assert.Equal(0d, seeded.Vertical.BboxW);
         Assert.Empty(await FindMismatchesAsync(seeded.Horizontal.Id));
         Assert.Empty(await FindMismatchesAsync(seeded.Vertical.Id));
+        Assert.Empty(await FindMismatchesAsync(seeded.Star.Id));
+        AssertStarBboxMatchesFreshBoundsOf(seeded.Star);
 
         // Equal geometry is not identity: each draw remains an independent stored row.
         var duplicateOne = await CreateRepository().InsertAsync(seeded.CanvasId, CreateInput("rectangle", "{\"w\":20,\"h\":10}"), 30m, 40m);
@@ -66,6 +68,24 @@ public class BboxCacheAgreementTests
         Assert.NotEmpty(mismatches);
         Assert.Contains(mismatches, mismatch => mismatch.Contains(seeded.FarFromOrigin.Id.ToString(), StringComparison.Ordinal)
             && mismatch.Contains(column, StringComparison.Ordinal));
+        // Disposing the uncommitted transaction rolls this corruption back.
+    }
+
+    [Fact]
+    public async Task AgreementGuardDetectsDeliberatelyCorruptedStarCache()
+    {
+        var seeded = await SeedRepresentativePopulationAsync();
+        await using var connection = await _fixture.OpenV11ConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
+        await using var command = new NpgsqlCommand("UPDATE public.figures SET bbox_h = bbox_h + 1 WHERE id = @id", connection, transaction);
+        command.Parameters.AddWithValue("id", seeded.Star.Id);
+        Assert.Equal(1, await command.ExecuteNonQueryAsync());
+
+        // TEST-04 / D-70 / D-71: star rows are covered by the same whole-table bbox cache guard.
+        var mismatches = await FindMismatchesAsync(seeded.Star.Id, connection, transaction);
+        Assert.NotEmpty(mismatches);
+        Assert.Contains(mismatches, mismatch => mismatch.Contains(seeded.Star.Id.ToString(), StringComparison.Ordinal)
+            && mismatch.Contains("bbox_h", StringComparison.Ordinal));
         // Disposing the uncommitted transaction rolls this corruption back.
     }
 
@@ -113,9 +133,10 @@ public class BboxCacheAgreementTests
             await repository.InsertAsync(canvasId, CreateInput("rectangle", "{\"w\":1,\"h\":1}"), 0m, 0m),
             await repository.InsertAsync(canvasId, CreateInput("circle", "{\"r\":12.5}"), -250.5m, 400.25m),
             await repository.InsertAsync(canvasId, CreateInput("triangle", "{\"points\":[[50.5,0],[0,80],[101,80]]}"), 42m, 42m),
+            await repository.InsertAsync(canvasId, CreateInput("star5", StarGeometryJson()), 120m, 160m),
         };
 
-        return new SeededPopulation(canvasId, all, all[0], all[1], all[4]);
+        return new SeededPopulation(canvasId, all, all[0], all[1], all[4], all[6]);
     }
 
     private async Task<List<string>> FindMismatchesAsync(Guid? onlyId = null, NpgsqlConnection? suppliedConnection = null, NpgsqlTransaction? transaction = null) =>
@@ -211,7 +232,27 @@ public class BboxCacheAgreementTests
         return input!;
     }
 
-    private sealed record SeededPopulation(Guid CanvasId, List<FigureRow> All, FigureRow Horizontal, FigureRow Vertical, FigureRow FarFromOrigin);
+    private static string StarGeometryJson()
+    {
+        var definition = new Star5Shape();
+        var placement = definition.FromGesture(new CanvasPoint(0, 0), new CanvasPoint(120, 90));
+        return definition.ToJson(placement.Geometry);
+    }
+
+    private static void AssertStarBboxMatchesFreshBoundsOf(FigureRow star)
+    {
+        using var document = JsonDocument.Parse(star.GeometryJson);
+        var definition = new Star5Shape();
+        Assert.True(definition.TryParseGeometry(document.RootElement, out var geometry));
+
+        var bounds = definition.BoundsOf(geometry!);
+        Assert.Equal(bounds.X, star.BboxX);
+        Assert.Equal(bounds.Y, star.BboxY);
+        Assert.Equal(bounds.W, star.BboxW);
+        Assert.Equal(bounds.H, star.BboxH);
+    }
+
+    private sealed record SeededPopulation(Guid CanvasId, List<FigureRow> All, FigureRow Horizontal, FigureRow Vertical, FigureRow FarFromOrigin, FigureRow Star);
 
     private sealed record TableInspection(List<string> Mismatches, int VisitedRows);
 }

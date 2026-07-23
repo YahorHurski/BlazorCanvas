@@ -1,19 +1,19 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.11
-milestone_name: Storage Model Rewrite
+milestone: v1.12
+milestone_name: Five-pointed star
 status: Awaiting next milestone
-stopped_at: v1.11 shipped and archived 2026-07-22 (override_closeout; MIGR-03 accepted gap). Awaiting /gsd-new-milestone for v1.2.
-last_updated: "2026-07-22T17:25:39.718Z"
-last_activity: 2026-07-22
-last_activity_desc: Milestone v1.11 completed and archived
+stopped_at: Completed BC-17-regression-verification-01-PLAN.md
+last_updated: "2026-07-23T00:58:04.050Z"
+last_activity: 2026-07-23
+last_activity_desc: Milestone v1.12 completed and archived
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 19
-  completed_plans: 19
+  total_phases: 5
+  completed_phases: 5
+  total_plans: 13
+  completed_plans: 13
   percent: 100
-current_phase: 12
+current_phase: 17
 current_phase_name: Regression Verification
 ---
 
@@ -21,14 +21,22 @@ current_phase_name: Regression Verification
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-22 after v1.11 milestone)
+See: .planning/PROJECT.md (updated 2026-07-23 after v1.12 closeout)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** Planning the next milestone.
+**Current focus:** Awaiting next milestone.
+v1.12 is shipped and archived; REG-02 human acceptance approved the running application's star arm,
+live preview, edge clamp, refresh persistence, selection trace, edge-clamped drag, delete, and
+second-window live glide.
+
+**v1.12 archived 2026-07-23** — Phases 13–17, continuing numbering from v1.11's Phase 12. All 15
+v1.12 requirements validated. Full detail lives under `.planning/milestones/v1.12-*` and
+`.planning/milestones/v1.12-phases/`.
+
 v1.11 shipped and archived 2026-07-22 as `override_closeout` — 21/22 requirements satisfied, build
-clean, 500/500 tests passing. Next workflow step: `/gsd-new-milestone` to open v1.2.
+clean, 500/500 tests passing.
 
 **Carried forward — MIGR-03 (accepted gap, not complete).** The fixture-backed migration replay
 proof was written in Phase 10, passed 27/27, and was deleted in Phase 11's cutover-cleanup commit
@@ -38,24 +46,27 @@ test output but has no C# consumer. Accepted because the migration path is perma
 `.planning/milestones/v1.11-MILESTONE-AUDIT.md` → "Outstanding Work".
 
 **Carried forward — tech debt.** `ShapeRegistry.All`/`.Names` return live `List` instances behind
-`IReadOnlyList` (09-REVIEW WR-03). `Home.razor.js` reimplements shape preview geometry outside the
-registry with no drift guard — worth closing before v1.2 adds figure types.
+`IReadOnlyList` (09-REVIEW WR-03) — **explicitly out of v1.12 scope**. Phase 15 removed the
+`Home.razor.js` shape-preview geometry duplication; Phase 16 should preserve that boundary with a
+regression guard instead of reintroducing client-owned formulas. The unreferenced
+`V11DataMigration.RunAsync(NpgsqlDataSource, …)` overload also stays.
 
-**v1.0, v1.1 and v1.11 are all archived** under `.planning/milestones/`. **v1.2** (new figures +
-dynamic toolbar) is scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
+**v1.0, v1.1, v1.11 and v1.12 are all archived** under `.planning/milestones/`. **v1.2** (the remaining
+**nine** figures + dynamic toolbar — v1.12 delivers the 5-point star) is scoped in
+`.planning/backlog/v1.2-figures-and-toolbar.md` and follows v1.12.
 
 ## Current Position
 
-Phase: Milestone v1.11 complete
+Phase: Milestone v1.12 complete
 Plan: —
 Status: Awaiting next milestone
-Last activity: 2026-07-22 — Milestone v1.11 completed and archived
+Last activity: 2026-07-23 — Milestone v1.12 completed and archived
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 40
+- Total plans completed: 53
 - Average duration: —
 - Total execution time: —
 
@@ -77,6 +88,11 @@ Last activity: 2026-07-22 — Milestone v1.11 completed and archived
 | BC-12 | - | - | - |
 | 11 | 5 | - | - |
 | 12 | 2 | - | - |
+| BC-13 | 1 | - | - |
+| 14 | 3 | - | - |
+| 15 | 4 | - | - |
+| BC-16 | 4 | - | - |
+| BC-17 | 1 | - | - |
 
 **Recent Trend:**
 
@@ -122,44 +138,76 @@ Last activity: 2026-07-22 — Milestone v1.11 completed and archived
 | Phase BC-10 P04 | 5min | 3 tasks | 5 files |
 | Phase BC-10 P05 | 30min | 2 tasks | 2 files |
 | Phase BC-10 P06 | 3min | 2 tasks | 3 files |
+| Phase BC-13 P01 | 5min | 2 tasks | 3 files |
+| Phase BC-14 P01 | 4min | 2 tasks | 7 files |
+| Phase BC-14 P02 | 3min | 2 tasks | 4 files |
+| Phase BC-14 P03 | 3min | 2 tasks | 5 files |
+| Phase 15 P01 | 25min | 2 tasks | 4 files |
+| Phase BC-15 P02 | 2min | 2 tasks | 1 files |
+| Phase BC-15 P03 | 4min | 2 tasks | 5 files |
+| Phase BC-15 P04 | 3min | 1 tasks | 3 files |
+| Phase BC-16 P04 | 4 min | 2 tasks | 2 files |
+| Phase BC-16 P02 | 15min | 2 tasks | 1 files |
+| Phase BC-16 P01 | 5min | 2 tasks | 1 files |
+| Phase BC-16-interaction-sync-test-guards P03 | 8min | 3 tasks | 4 files |
+| Phase BC-17-regression-verification P01 | 9min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
 ### Decisions
 
+**v1.12 roadmap sequencing (fixed at roadmap creation, 2026-07-22):** Phase 13 (Star Shape Core) is
+pure C#, zero database dependency, purely additive — `Star5Shape`/`Star5Geometry` implement
+`IShapeDefinition` in isolation and all 500 existing tests stay green. **Phase 13 deliberately does
+not register the shape** (user decision at roadmap approval, 2026-07-22): `V11CutoverTests` lines 58
+and 73 assert `count(*) FROM public.figure_types == 4` against scratch databases in `Additive` and
+`FreshUsersOnly` state — the two states that *do* run `SeedFigureTypesAsync` — so registration turns
+them red and is not additive. Registration moves to Phase 14 with the seed, which also updates those
+two assertions 4→5; Phase 13's tests instantiate `Star5Shape` directly, as `PentagonShape`'s do.
+Phase 14 (Catalog Seed, Toolbar & Decisions) lands the hard prerequisite for writing any star row — the idempotent
+`figure_types` seed fix (MODEL-08), since `V11Cutover.EnsureAsync` returns early at
+`CatalogState.Completed` on the existing database and would otherwise leave `star5`'s foreign key
+unsatisfiable forever — together with the seventh toolbar button and the decision-doc amendments that
+button requires. Phase 15 (Draw, Preview, Render & Persist a Star) is the first phase that actually
+writes and renders a star, depending on both prior phases. Phase 16 (Interaction, Sync & Test Guards)
+proves selection/drag/delete and live cross-tab sync match the four existing shapes, and folds in
+this milestone's test guards (no JS preview formula regression, bbox agreement, degenerate/malformed
+rejection) once all the code they guard exists. Phase 17 (Regression Verification, REG-02) is deliberately last and
+stands alone — the milestone's human acceptance gate, mirroring v1.11's Phase 12 — and must not be
+folded into any earlier phase's automated tests.
+
 **All 69 ADR decisions (D-01…D-69) are LOCKED.** They are in PROJECT.md `<decisions>`; full text in
 `.planning/intel/decisions.md` and `docs/DECISIONS.md`. They are **not open questions** — do not
-re-litigate, re-ask, or "improve" them.
+re-litigate, re-ask, or "improve" them. v1.12's own decisions land by name from **D-70** onward as
+Phase 14's ARCH-02 work.
 
 > ⚠️ **v1.11 supersedes part of the locked set.** D-59…D-69 replace the storage model. **The
-> documents describe the new model; the code still implements the old one.** When reading code, expect
-> the four-integer model; when writing code this milestone, build the new one. Superseded and
-> therefore **NOT to be preserved**: **D-12** (two tables), **D-20** (integer coords), **D-22** (four
-> coordinates = bounding box), **D-39** (`id` is the z-order), **D-41** (line normalisation),
-> **D-46** (`type` text + CHECK, no `created_at`), **D-50** (per-type guard mirroring CHECKs).
+> documents describe the new model; the code implements it.** Superseded and therefore **NOT to be
+> preserved**: **D-12** (two tables), **D-20** (integer coords), **D-22** (four coordinates =
+> bounding box), **D-39** (`id` is the z-order), **D-41** (line normalisation), **D-46** (`type` text
+> + CHECK, no `created_at`), **D-50** (per-type guard mirroring CHECKs).
 
 The rules most likely to be violated by accident:
 
 - **D-40:** a `move` broadcast is **UPDATE-ONLY, never insert.** D-11's original "idempotent upsert"
-  was a **bug** — it resurrects deleted figures. **Unchanged by v1.11.**
+  was a **bug** — it resurrects deleted figures. **Unchanged by v1.11 or v1.12.**
 
 - **D-54:** mid-drag, a tab discards **ALL** incoming broadcasts, not just those about the dragged
-  figure. **Unchanged by v1.11.**
+  figure. **Unchanged by v1.11 or v1.12.**
 
-- **D-53:** the sync contract's *payload* changes in v1.11 (uuid ids, position deltas); its **rules
-  hold** — kinds, echo filter, no `drop` kind, previews never broadcast.
+- **D-53:** the sync contract's *payload* changed in v1.11 (uuid ids, position deltas); its **rules
+  hold** for the star too — kinds, echo filter, no `drop` kind, previews never broadcast.
 
 - **D-08:** plaintext passwords are **deliberate and locked**. Do not "fix" this.
-- **D-24/D-36:** the clamp survives, but it now reads **`bbox_*`**, not coordinate columns. Still
-  clamp the *delta*, then translate; still `clamp → render → broadcast`.
+- **D-24/D-36:** the clamp survives, reads **`bbox_*`**, not coordinate columns. Still clamp the
+  *delta*, then translate; still `clamp → render → broadcast`. Star5's `IsDrawable` uses the same
+  width>0 AND height>0 rule rectangle already uses.
 
-- **v1.11's own new landmines:** never trust `geometry`/`style` off the wire (parse → validate →
-  re-serialise from the record); `bbox_*` is a cache recomputed in **exactly one place**; `z` is
-  unique per canvas and **needs a retry** on concurrent insert or a figure silently never appears.
+- **v1.11's landmines, still live in v1.12:** never trust `geometry`/`style` off the wire (parse →
+  validate → re-serialise from the record); `bbox_*` is a cache recomputed in **exactly one place**;
+  `z` is unique per canvas and **needs a retry** on concurrent insert.
 
-- ~~**No JavaScript anywhere**~~ — **REMOVED in v1.1.** Hand-authored JS/interop is now permitted;
-  the rule was never load-bearing (MVP simplicity was the real motivation; D-06/18/33/37/57 re-worded
-  in `docs/DECISIONS.md`). It changed no code and is simply not *needed* for anything built so far.
+- ~~**No JavaScript anywhere**~~ — **REMOVED in v1.1.** Hand-authored JS/interop is now permitted.
 
 **v1.11 amendments (user-approved, 2026-07-21)** — recorded in `docs/DECISIONS.md` as D-59…D-69;
 rationale and migration plan in `docs/DATA-MODEL-v1.11-DRAFT.md`; mirrored in PROJECT.md + intel.
@@ -235,6 +283,29 @@ into an earlier phase's automated tests.
 - [Phase ?]: The bbox agreement guard scans all v11.figures rows, so every future writer must preserve the local cache invariant.
 - [Phase ?]: Stored style JSONB is checked as a key set because PostgreSQL does not preserve object insertion order.
 - [Phase ?]: The D-60 geometry-CHECK gap remains explicit: the gateway is the last validation boundary and raw probes roll back.
+- [Phase ?]: Star5Shape remains unregistered in DefaultShapes during Phase 13; Phase 14 owns registry/catalog exposure.
+- [Phase ?]: Star5Geometry.InnerRatio is required and preserved, but bounds remain a pure function of Points.
+- [Phase BC-14]: Star5Shape now participates in the default registry and figure_types seed order immediately after triangle. — MODEL-08 requires newly registered shapes to become writable through registry-driven startup seeding.
+- [Phase BC-14]: Completed public catalogs seed missing registry-owned figure_types rows idempotently instead of remaining exact no-ops. — Existing completed databases must gain star5 without migration or manual SQL while preserving transaction/advisory-lock boundaries.
+- [Phase BC-14]: Star is represented as an armable Tool enum value and maps to star5; Delete and logout remain action/form controls outside Tool.
+- [Phase BC-14]: D-70 locks star5 as the fifth stretchable, point-up, corner-to-corner five-pointed star. — ARCH-02 requires named star decisions from D-70 onward.
+- [Phase BC-14]: D-71 locks star geometry as ten ordered points plus required innerRatio, with points authoritative for render and bbox. — Future render and persistence phases need a stable storage contract.
+- [Phase BC-14]: D-72 locks registry-owned figure_types startup seed convergence for completed public catalogs. — Existing completed databases must gain star5 without manual SQL or migration.
+- [Phase BC-14]: D-73 locks the seven-control toolbar order with Star between Triangle and Delete, while Logout remains outside the count as a POST form. — CANV-04 and ARCH-02 require active docs to match the shipped toolbar.
+- [Phase ?]: Star5 gesture output is normalized so BoundsOf exactly matches the clamped drag box; this preserves the D-70 stretch-to-fill contract and keeps bbox_* authoritative.
+- [Phase ?]: No star-specific coordinator or repository branch was introduced; DrawAsync still uses FigureInputGateway and FigureRepository.InsertAsync.
+- [Phase ?]: FigureShape already rendered Star5Geometry from star.Points under the v1.11 local transform, so Task 2 required no production code change.
+- [Phase ?]: The renderer contract now pins star style and pointer parity against TriangleGeometry rather than only checking that a Star5Geometry branch exists.
+- [Phase ?]: Visible drawing preview geometry now belongs to DrawingPreviewSession plus FigureShape; Home.razor.js is lifecycle-only.
+- [Phase ?]: The preview remains circuit-local and is never published through CanvasSyncNotifier.
+- [Phase BC-15]: PreviewType for active drawing previews is explicitly bound as a Razor expression so FigureShape receives the runtime session type. — String component parameters use static markup text unless prefixed with @; this closes G-15-1 by passing the runtime DrawingPreviewSession.Type value.
+- [Phase BC-16]: Star5 cross-circuit sync remains type-blind; no coordinator, repository, notifier, schema, migration, or package change was needed. — Final-public star draw/glide/delete and stale-row tests passed through existing FigureRepository and CanvasSyncNotifier paths.
+- [Phase BC-16]: D-40/D-53 star evidence is pinned in the final-public integration harness rather than by adding a star-specific persistence or sync branch. — The plan required test evidence only and the unchanged type-blind implementation satisfied it.
+- [Phase BC-16]: Used bUnit 2.7.2 current BunitContext.Render API for component smoke tests. — RenderComponent is error-level obsolete in bUnit 2.x; the current API keeps the test compatible with the pinned package.
+- [Phase BC-16]: Kept the preview smoke test at FigureShape instead of mounting Home. — FigureShape owns the Registry.Contains(PreviewType) gate that caused G-15-1, while Home requires auth and PostgreSQL scaffolding unrelated to this render guard.
+- [Phase BC-16]: Kept Phase 16 Plan 01 test-only: no production coordinator, notifier, or SyncMessage changes were needed for star5 parity. — The existing type-blind coordinator path already satisfied the planned star5 interaction and sync contracts under focused tests.
+- [Phase BC-16-interaction-sync-test-guards]: TEST-04 guard coverage was implemented entirely in tests; no production shape, gateway, repository, JavaScript, schema, or dependency change was needed. — Plan 16-03 only required drift, bbox, gateway, and unit guard coverage around existing star5 production behavior.
+- [Phase BC-16-interaction-sync-test-guards]: The star bbox agreement proof reuses the existing registry-driven whole-table scan instead of introducing a star-specific scanner. — D-67/TEST-04 need every stored row checked by the same invariant, so a seeded star row and corruption probe prove coverage without forking the scanner.
 
 ### Pending Todos
 
@@ -264,9 +335,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-22T16:23:50.225Z
-Stopped at: Phase BC-12 complete; v1.11 ready for milestone archiving.
-Phase BC-12 verified passed, UAT completed 3/3, security threats_open: 0, and all 22 v1.11 requirements are validated.
+Last session: 2026-07-23T00:34:44.430Z
+Stopped at: Completed BC-17-regression-verification-01-PLAN.md
 Resume file: None
 
 ## Operator Next Steps

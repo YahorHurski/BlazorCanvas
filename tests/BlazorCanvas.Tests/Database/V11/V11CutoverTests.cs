@@ -55,7 +55,7 @@ public class V11CutoverTests
         await AssertFinalPublicCatalogAsync(scratch.DataSource);
         await using var connection = await scratch.DataSource.OpenConnectionAsync();
         Assert.Equal(1L, await ScalarAsync<long>(connection, "SELECT count(*) FROM public.canvases"));
-        Assert.Equal(4L, await ScalarAsync<long>(connection, "SELECT count(*) FROM public.figure_types"));
+        Assert.Equal(5L, await ScalarAsync<long>(connection, "SELECT count(*) FROM public.figure_types"));
         Assert.Equal(2L, await ScalarAsync<long>(connection, "SELECT count(*) FROM public.figures"));
     }
 
@@ -70,20 +70,27 @@ public class V11CutoverTests
         await AssertFinalPublicCatalogAsync(scratch.DataSource);
         await using var connection = await scratch.DataSource.OpenConnectionAsync();
         Assert.Equal(0L, await ScalarAsync<long>(connection, "SELECT count(*) FROM public.canvases"));
-        Assert.Equal(4L, await ScalarAsync<long>(connection, "SELECT count(*) FROM public.figure_types"));
+        Assert.Equal(5L, await ScalarAsync<long>(connection, "SELECT count(*) FROM public.figure_types"));
         Assert.Equal(0L, await ScalarAsync<long>(connection, "SELECT count(*) FROM public.figures"));
     }
 
     [Fact]
-    public async Task CompletedPublicCatalog_NormalEnsureIsAnExactNoOp()
+    public async Task CompletedPublicCatalog_MissingRegistryTypeConvergesIdempotently()
     {
         await using var scratch = await V11CutoverScratchDatabase.CreateAsync(fixture.ConnectionString);
         await scratch.SetupCompletedPublicAsync();
-        var before = await scratch.SnapshotAsync();
+        await using var connection = await scratch.DataSource.OpenConnectionAsync();
+        await ExecuteAsync(connection, "DELETE FROM public.figure_types WHERE name = 'star5'");
+
+        Assert.Equal(0L, await ScalarAsync<long>(connection, "SELECT count(*) FROM public.figure_types WHERE name = 'star5'"));
 
         await V11Cutover.EnsureAsync(scratch.DataSource, DefaultShapes.CreateRegistry());
 
-        Assert.Equal(before, await scratch.SnapshotAsync());
+        Assert.Equal(1L, await ScalarAsync<long>(connection, "SELECT count(*) FROM public.figure_types WHERE name = 'star5'"));
+
+        await V11Cutover.EnsureAsync(scratch.DataSource, DefaultShapes.CreateRegistry());
+
+        Assert.Equal(1L, await ScalarAsync<long>(connection, "SELECT count(*) FROM public.figure_types WHERE name = 'star5'"));
         await AssertFinalPublicCatalogAsync(scratch.DataSource);
     }
 
@@ -155,6 +162,12 @@ public class V11CutoverTests
     {
         await using var command = new NpgsqlCommand(sql, connection);
         return (T)(await command.ExecuteScalarAsync())!;
+    }
+
+    private static async Task ExecuteAsync(NpgsqlConnection connection, string sql)
+    {
+        await using var command = new NpgsqlCommand(sql, connection);
+        await command.ExecuteNonQueryAsync();
     }
 
     private static string Find(params string[] segments)

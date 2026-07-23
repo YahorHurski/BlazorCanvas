@@ -5,7 +5,8 @@
 - ✅ **v1.0 MinVP** — Phases 1–5 (shipped 2026-07-17)
 - ✅ **v1.1 Canvas resize · selection UX · no-JS removal** — Phases 6–8 (shipped 2026-07-21)
 - ✅ **v1.11 Storage Model Rewrite** — Phases 9–12 (shipped 2026-07-22)
-- 📋 **v1.2 Figures & dynamic toolbar** — scoped, next up
+- ✅ **v1.12 Five-pointed star** — Phases 13–17 (shipped 2026-07-23)
+- 📋 **v1.2 Figures & dynamic toolbar** — scoped, follows v1.12
 
 v1.0 detail: [`milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.md) ·
 [`milestones/v1.0-REQUIREMENTS.md`](milestones/v1.0-REQUIREMENTS.md) ·
@@ -20,6 +21,12 @@ v1.11 detail: [`milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md) ·
 [`milestones/v1.11-MILESTONE-AUDIT.md`](milestones/v1.11-MILESTONE-AUDIT.md) ·
 phase artifacts archived under [`milestones/v1.11-phases/`](milestones/v1.11-phases/) ·
 design: `docs/DATA-MODEL-v1.11-DRAFT.md` · decisions: `docs/DECISIONS.md` → D-59…D-69
+
+v1.12 detail: [`milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md) ·
+[`milestones/v1.12-REQUIREMENTS.md`](milestones/v1.12-REQUIREMENTS.md) ·
+[`milestones/v1.12-MILESTONE-AUDIT.md`](milestones/v1.12-MILESTONE-AUDIT.md) ·
+phase artifacts archived under [`milestones/v1.12-phases/`](milestones/v1.12-phases/) ·
+decisions: `docs/DECISIONS.md` → D-70…D-73
 
 ## Phases
 
@@ -115,18 +122,38 @@ requirement text was deliberately not rewritten to fit what was built. Reasoning
 
 </details>
 
+<details>
+<summary>✅ v1.12 Five-pointed star (Phases 13–17) — SHIPPED 2026-07-23</summary>
+
+**Milestone goal:** Add `star5` as the fifth figure type end-to-end — drawn, previewed, persisted,
+synced, selected, dragged and deleted exactly like the four that came before it.
+
+- [x] **Phase 13: Star Shape Core** (1/1 plan) — completed 2026-07-22
+- [x] **Phase 14: Catalog Seed, Toolbar & Decisions** (3/3 plans) — completed 2026-07-22
+- [x] **Phase 15: Draw, Preview, Render & Persist a Star** (4/4 plans) — completed 2026-07-23
+- [x] **Phase 16: Interaction, Sync & Test Guards** (4/4 plans) — completed 2026-07-23
+- [x] **Phase 17: Regression Verification** (1/1 plan) — completed 2026-07-23
+
+**Outcome:** 15/15 requirements validated. All 5 phases verified `passed`; milestone audit closed as
+`tech_debt` with no critical gaps. REG-02 human two-window browser UAT passed.
+
+</details>
+
 ### 📋 v1.2 Figures & dynamic toolbar (Planned)
 
-Scoped, not started. New figure types (ellipse, 5-point star, hexagon, pentagon, right-angle
-triangle L/R, four arrows) plus a dynamic split-button toolbar. Full plan:
-[`backlog/v1.2-figures-and-toolbar.md`](backlog/v1.2-figures-and-toolbar.md). Materially cheaper now
-that v1.11 has landed — the 4-integer workarounds are gone, and a new type costs one C# class plus
-one `figure_types` row. Its decision amendments happen when v1.2 is kicked off.
+Scoped, not started, follows v1.12. New figure types (ellipse, hexagon, pentagon, right-angle
+triangle L/R, four arrows — nine, not ten: v1.12 delivers the 5-point star) plus a dynamic
+split-button toolbar. Full plan: [`backlog/v1.2-figures-and-toolbar.md`](backlog/v1.2-figures-and-toolbar.md).
+Materially cheaper now that v1.11 has landed — the 4-integer workarounds are gone, and a new type
+costs one C# class plus one `figure_types` row. v1.12 also pays down two of its costs in advance: the
+`figure_types` seed becomes automatic, and the toolbar's six-button decisions are already amended to
+seven. Its remaining decision amendments happen when v1.2 is kicked off.
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 →
+16 → 17
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -142,11 +169,17 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 10. Storage Schema, Migration & Persistence Layer | v1.11 | 6/6 | Complete    | 2026-07-22 |
 | 11. Renderer, Sync & Cutover | v1.11 | 5/5 | Complete    | 2026-07-22 |
 | 12. Regression Verification | v1.11 | 2/2 | Complete    | 2026-07-22 |
+| 13. Star Shape Core | v1.12 | 1/1 | Complete | 2026-07-22 |
+| 14. Catalog Seed, Toolbar & Decisions | v1.12 | 3/3 | Complete | 2026-07-22 |
+| 15. Draw, Preview, Render & Persist a Star | v1.12 | 4/4 | Complete | 2026-07-23 |
+| 16. Interaction, Sync & Test Guards | v1.12 | 4/4 | Complete | 2026-07-23 |
+| 17. Regression Verification | v1.12 | 1/1 | Complete | 2026-07-23 |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 3/3 phases, 4/4 plans, 4/4 requirements — all phases verified `passed`.**
 **v1.11: 4/4 phases, 19/19 plans, 21/22 requirements satisfied — shipped 2026-07-22 as
 `override_closeout`; MIGR-03 accepted as a documented gap.**
+**v1.12: 5/5 phases, 15/15 requirements — Phase 17 REG-02 human acceptance complete 2026-07-23.**
 
 ## Requirement Coverage
 
@@ -164,24 +197,38 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 10 | v1.11 | MODEL-01, MODEL-02, MODEL-03, MODEL-04, MODEL-05, MODEL-06, MODEL-07, MIGR-01, MIGR-02, MIGR-03, TEST-03 |
 | 11 | v1.11 | RENDER-01, SYNC-02, SYNC-03, TEST-02 |
 | 12 | v1.11 | REG-01 |
+| 13 | v1.12 | SHAPE-04, SHAPE-05, SHAPE-06 |
+| 14 | v1.12 | MODEL-08, CANV-04, ARCH-02 |
+| 15 | v1.12 | FIG-05, FIG-06, FIG-07, RENDER-02, DATA-05 |
+| 16 | v1.12 | FIG-08, SYNC-04, TEST-04 |
+| 17 | v1.12 | REG-02 |
 
 **v1.0: 15/15 requirements mapped. v1.1: 4/4 requirements mapped. v1.11: 22/22 requirements mapped.
-No orphans. No duplicates.**
+v1.12: 15/15 requirements mapped. No orphans. No duplicates.**
 
 ## What's Next
 
-**v1.11 is shipped and archived.** Suggested next step: `/gsd-new-milestone` to open v1.2
-(questioning → research → requirements → roadmap).
+**v1.12 is shipped and archived.** Full detail lives in
+[`milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md), requirements in
+[`milestones/v1.12-REQUIREMENTS.md`](milestones/v1.12-REQUIREMENTS.md), audit in
+[`milestones/v1.12-MILESTONE-AUDIT.md`](milestones/v1.12-MILESTONE-AUDIT.md), and phase artifacts
+under [`milestones/v1.12-phases/`](milestones/v1.12-phases/). The milestone closed as `tech_debt`
+with no critical gaps.
 
-**One item carries forward from v1.11:** MIGR-03 is an accepted gap, not a completed requirement.
-Closing it later means restoring `V11MigrationReplayTests.cs` against the committed
+**v1.11 is shipped and archived.** MIGR-03 carries forward as an accepted gap, not a completed
+requirement. Closing it later means restoring `V11MigrationReplayTests.cs` against the committed
 `v1.1-pre-rewrite.sql` fixture — see the audit's "Outstanding Work" section.
 
 **Tech debt carried forward:** `ShapeRegistry` read-only views expose their backing lists
-(09-REVIEW WR-03); `Home.razor.js` duplicates shape preview geometry outside the registry with no
-drift guard — worth closing before v1.2 adds figure types. Known v1.0 tech debt (~11 low-severity
-items) remains recorded in
+(09-REVIEW WR-03, explicitly out of v1.12 scope). v1.12 removed the `Home.razor.js` preview
+geometry duplication and added regression guards for preview ownership, bbox agreement, and
+malformed geometry. The unreferenced
+`V11DataMigration.RunAsync(NpgsqlDataSource, …)` overload also stays. Known v1.0 tech debt
+(~11 low-severity items) remains recorded in
 [`milestones/v1.0-MILESTONE-AUDIT.md`](milestones/v1.0-MILESTONE-AUDIT.md). None blocks a requirement.
+
+**After v1.12: v1.2** — the remaining nine figure types plus a dynamic split-button toolbar, scoped in
+`.planning/backlog/v1.2-figures-and-toolbar.md`.
 
 ---
 *Roadmap created: 2026-07-14 from `docs/DECISIONS.md` (58 locked decisions) via `.planning/intel/`*
@@ -191,3 +238,7 @@ items) remains recorded in
 `milestones/v1.11-ROADMAP.md`, requirements in `milestones/v1.11-REQUIREMENTS.md`, audit in
 `milestones/v1.11-MILESTONE-AUDIT.md`. Closed as `override_closeout` with MIGR-03 accepted as a
 documented gap.*
+*v1.12 archived: 2026-07-23 — phases 13–17 collapsed above; full detail in
+`milestones/v1.12-ROADMAP.md`, requirements in `milestones/v1.12-REQUIREMENTS.md`, audit in
+`milestones/v1.12-MILESTONE-AUDIT.md`, and phase artifacts under `milestones/v1.12-phases/`.
+Closed as `tech_debt` with no critical gaps.*

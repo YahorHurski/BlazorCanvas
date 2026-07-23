@@ -258,6 +258,64 @@ visible — which was the milestone's governing invariant.
 
 ---
 
+## Milestone: v1.12 — Five-pointed star
+
+**Shipped:** 2026-07-23
+**Phases:** 5 | **Plans:** 13 | **Tasks:** 24
+
+### What Was Built
+
+The five-pointed star shipped as the fifth figure type end-to-end. The work added `Star5Shape` and
+`Star5Geometry`, registered and seeded `star5` into `figure_types`, exposed an armable Star toolbar
+button, rendered live previews and committed stars through the registry-backed `FigureShape` path,
+and proved select/drag/delete plus live cross-tab glide parity with the four existing shapes.
+
+### What Worked
+
+- **The additive-first sequence held.** Phase 13 built pure shape geometry without database or UI
+  blast radius. Phase 14 then made the catalog and toolbar ready, and only Phase 15 wrote real star
+  rows.
+- **The v1.11 model paid off immediately.** Adding a new figure type was one shape class, one
+  registry/catalog exposure, and a toolbar mapping rather than a schema change.
+- **Human UAT stayed decisive.** Automated tests missed the first live-preview failure; the browser
+  checkpoint caught it, the debug record found the literal Razor binding, and REG-02 later confirmed
+  the running app.
+
+### What Was Inefficient
+
+- **The first preview UAT failed after green tests.** Existing source tests pinned
+  `PreviewType="preview.Type"`, which was the bug. The fix required 15-04 and new render/source
+  guards.
+- **Evidence richness stayed thin.** REG-02 approval was explicit, but no external screenshot/video
+  or browser-console paths were supplied. That is enough for the milestone contract, but weaker as
+  independent audit evidence.
+- **Minor dependency debt entered via test tooling.** bUnit solved the render-level preview guard,
+  but brought a transitive NU1902 AngleSharp advisory warning in the test project.
+
+### Patterns Established
+
+- **Preview geometry belongs to the C# registry path.** `Home.razor.js` is lifecycle-only; visible
+  shape preview output flows through `DrawingPreviewSession` and `FigureShape`.
+- **Completed public catalogs can converge registry-owned figure types.** Startup may idempotently
+  insert missing `figure_types` rows even when the v1.11 catalog state is already complete.
+- **Negative controls earn their keep.** The bUnit preview test proves the G-15-1 literal binding
+  fails, not merely that the happy path renders today.
+
+### Key Lessons
+
+1. **A source-contract test can preserve a bug if it asserts syntax rather than behaviour.**
+2. **The first new shape after a registry rewrite is the real proof of the abstraction.**
+3. **Human acceptance should keep a richer evidence trail when the contract is visual.**
+
+### Cost Observations
+
+- Model mix: executor/verifier agents resolved to `sonnet`; orchestration ran on Opus.
+- Sessions: not tracked.
+- Notable: Phase 16 used parallel disjoint test plans effectively; no production code was needed for
+  several guards because the type-blind paths already held.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -267,6 +325,7 @@ visible — which was the milestone's governing invariant.
 | v1.0 | 5 | 23 | Baseline — ADR-first planning from 58 locked decisions; gap-closure plans introduced after BC-01 verification |
 | v1.1 | 3 | 4 | Documentation-only phase given a full verification gate; human verification split into its own plan; milestone audit skipped |
 | v1.11 | 4 | 19 | Milestone audit run and *disagreed with every phase gate below it*; requirement archived unsatisfied rather than rewritten; first close to restore deleted evidence before shipping |
+| v1.12 | 5 | 13 | First post-registry feature validates the v1.11 shape abstraction; milestone audit passed requirements/integration with only non-blocking debt |
 
 ### Cumulative Quality
 
@@ -275,6 +334,7 @@ visible — which was the milestone's governing invariant.
 | v1.0 | 405 | ~2,500 | ~2,000 | 15/15 validated |
 | v1.1 | 405 | ~2,500 | ~2,000 | 4/4 validated (19/19 cumulative) |
 | v1.11 | 500 | ~2,900 | ~3,400 | 21/22 validated (40/41 cumulative); MIGR-03 accepted gap |
+| v1.12 | 583 | ~3,000 | ~4,000 | 15/15 validated (55/56 cumulative); MIGR-03 remains accepted gap |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -288,4 +348,5 @@ visible — which was the milestone's governing invariant.
    duly happened.
 3. **Investment in pure, framework-free primitives compounds.** — *v1.0 built the geometry core; v1.1
    resized the entire canvas by changing constants.* No logic changed because there was no logic
-   outside `Geometry/` to change.
+   outside `Geometry/` to change. v1.12 re-confirmed this at a higher abstraction level: the v1.11
+   registry let a new figure ship without a schema change.

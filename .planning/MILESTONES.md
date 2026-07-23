@@ -1,5 +1,27 @@
 # Milestones
 
+## v1.12 Five-pointed star (Shipped: 2026-07-23)
+
+**Phases completed:** 5 phases, 13 plans, 24 tasks
+
+**Key accomplishments:**
+
+- Unregistered Star5 shape core with authoritative ten-point geometry, required innerRatio metadata, and direct contract tests
+- Star5 registry exposure with idempotent startup seeding for completed public PostgreSQL catalogs
+- Armable star toolbar control wired through Tool.Star to the seeded star5 registry name
+- Authoritative star5 and seven-control toolbar decisions mirrored into active planning intel
+- Registry-driven star draw and final-public persistence proof, with gesture bounds corrected to fill the dragged box
+- Persisted star rendering is pinned to the local Star5Geometry point list under the storage-model transform
+- Live star previews now render from the same registry placement and FigureShape renderer as committed stars
+- G-15-1 closed by binding live preview type from DrawingPreviewSession into FigureShape
+- Star5 coordinator tests now pin selection, click-vs-drag, edge-clamped move, delete idempotency, and D-40/D-53/D-54 sync parity through the shared type-blind path.
+- Final-public star5 synchronization, no-resurrection, and persisted interaction parity proven through the real repository
+- TEST-04 star guards now pin preview ownership, bbox cache agreement, and malformed/degenerate geometry rejection
+- bUnit render guard for live star previews through FigureShape, with a G-15-1 literal-binding negative control.
+- REG-02 accepted by human two-window browser UAT after Docker, build, focused star smoke checks, and one retained local Blazor Server host passed.
+
+---
+
 ## v1.11 Storage Model Rewrite (Shipped: 2026-07-22)
 
 **Phases completed:** 4 phases, 19 plans, 35 tasks
@@ -64,8 +86,10 @@ route to closing it later: `milestones/v1.11-MILESTONE-AUDIT.md`.
 - `ShapeRegistry.All`/`.Names` return live `List` instances behind `IReadOnlyList` (09-REVIEW WR-03).
 - `Home.razor.js` reimplements shape preview geometry outside the registry, with no drift guard —
   worth closing before v1.2 adds figure types.
+
 - `V11SchemaShapeTests.cs` not restored; overlap with `V11CutoverTests.AssertFinalPublicCatalogAsync`
   is partial.
+
 - `V11DataMigration.RunAsync(NpgsqlDataSource, …)` is now unreferenced in production.
 
 ---

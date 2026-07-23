@@ -119,6 +119,19 @@ public class FigureInputGatewayTests
         Assert.Equal(expectedWidth, result.Bounds.W);
     }
 
+    [Fact]
+    public void TryValidate_Star5PinsZeroExtentThresholdAndAcceptsOneUnitSliver()
+    {
+        // TEST-04 / D-70 / D-71: star5 rejects exact zero extents but accepts the first positive sliver.
+        Assert.False(CreateGateway().TryValidate("star5", StarGeometryJson(0, 80), null, out _));
+        Assert.False(CreateGateway().TryValidate("star5", StarGeometryJson(100, 0), null, out _));
+
+        Assert.True(CreateGateway().TryValidate("star5", StarGeometryJson(1, 80), null, out var sliver));
+        Assert.NotNull(sliver);
+        Assert.Equal(1, sliver.Bounds.W);
+        Assert.Equal(80, sliver.Bounds.H);
+    }
+
     // Compatibility floor: these are the four documented v1.1 box-to-geometry conversions.
     [Theory]
     [MemberData(nameof(V11LegalConversionCases))]
@@ -185,6 +198,20 @@ public class FigureInputGatewayTests
             yield return new object?[] { "line", json };
         foreach (var json in new[] { "{\"points\":[[0,0],[0,0],[0,0]]}", "{\"points\":[[0,0],[1,1],[0,0]]}", "{\"points\":[[0,0],[50,40],[100,80]]}", "{\"points\":[[0,0],[1,1]]}", "{\"points\":[[0,0],[1,1],[2,2],[3,3]]}" })
             yield return new object?[] { "triangle", json };
+        foreach (var json in new[]
+        {
+            "{\"points\":[[50,0],[58,31],[100,50],[58,69],[50,100],[42,69],[0,50],[42,31],[50,1],[51,31]]}",
+            "{\"points\":[[0,0],[1,1],[2,2],[3,3],[4,4],[5,5],[6,6],[7,7],[8,8]],\"innerRatio\":0.382}",
+            "{\"points\":[[0,0],[1,1],[2,2],[3,3],[4,4],[5,5],[6,6],[7,7],[8,8],[9,9],[10,10]],\"innerRatio\":0.382}",
+            "{\"points\":\"nope\",\"innerRatio\":0.382}",
+            "{\"points\":[[1e400,0],[1,1],[2,2],[3,3],[4,4],[5,5],[6,6],[7,7],[8,8],[9,9]],\"innerRatio\":0.382}",
+            "{\"points\":[[50,0],[58,31],[100,50],[58,69],[50,100],[42,69],[0,50],[42,31],[50,1],[51,31]],\"innerRatio\":0}",
+            "{\"points\":[[50,0],[58,31],[100,50],[58,69],[50,100],[42,69],[0,50],[42,31],[50,1],[51,31]],\"innerRatio\":-0.382}",
+            "{\"points\":[[50,0],[58,31],[100,50],[58,69],[50,100],[42,69],[0,50],[42,31],[50,1],[51,31]],\"innerRatio\":1e400}",
+            StarGeometryJson(0, 80),
+            StarGeometryJson(100, 0),
+        })
+            yield return new object?[] { "star5", json };
         foreach (var json in new[] { "[1,2,3]", "\"text\"", "42", "null", "", "   ", "{", "{\"w\":1,}", "{/*c*/\"w\":1,\"h\":1}", NestedObject(40) })
             yield return new object?[] { "circle", json };
         foreach (var name in new string?[] { "hexagon", "Circle", "", "   ", null })
@@ -239,6 +266,7 @@ public class FigureInputGatewayTests
         yield return new object[] { "rectangle", "{\"w\":1,\"h\":1}" };
         yield return new object[] { "circle", "{\"r\":1}" };
         yield return new object[] { "triangle", "{\"points\":[[0.5,0],[0,1],[1,1]]}" };
+        yield return new object[] { "star5", StarGeometryJson(120, 90) };
     }
 
     public static IEnumerable<object[]> GestureCases()
@@ -247,11 +275,19 @@ public class FigureInputGatewayTests
         yield return new object[] { "rectangle", new CanvasPoint(100, 50), new CanvasPoint(300, 250), "{\"opacity\":0.5}" };
         yield return new object[] { "circle", new CanvasPoint(400, 350), new CanvasPoint(500, 350), "{\"fill\":\"#FFEEDD\"}" };
         yield return new object[] { "triangle", new CanvasPoint(300, 200), new CanvasPoint(500, 450), "{\"stroke_width\":7.5}" };
+        yield return new object[] { "star5", new CanvasPoint(40, 50), new CanvasPoint(220, 180), "{\"stroke\":\"#123456\"}" };
     }
 
     private static FigureInputGateway CreateGateway() => new(DefaultShapes.CreateRegistry());
 
     private static object[] StyleCase(string json, string hostileValue, FigureStyle expected) => [json, hostileValue, expected];
+
+    private static string StarGeometryJson(double width, double height)
+    {
+        var definition = new Star5Shape();
+        var placement = definition.FromGesture(new CanvasPoint(0, 0), new CanvasPoint(width, height));
+        return definition.ToJson(placement.Geometry);
+    }
 
     private static string NestedObject(int depth)
     {

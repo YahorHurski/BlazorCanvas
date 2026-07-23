@@ -72,14 +72,15 @@ Acceptance:
 - A circle never renders as an oval on any screen size.
 
 ## REQ-toolbar
-source: docs/DECISIONS.md (D-16 superseded, D-30, D-33, D-31, D-58)
-A six-button toolbar: `[pointer] [line] [rectangle] [circle] [triangle] [delete]`.
+source: docs/DECISIONS.md (D-16 superseded, D-30, D-33, D-31, D-58, D-73)
+A seven-control toolbar: `[pointer] [line] [rectangle] [circle] [triangle] [star] [delete]`.
 
 Acceptance:
-- Exactly six buttons. The armed button stays visibly active.
+- Exactly seven controls. The armed button stays visibly active.
+- Star sits between triangle and delete, and arms like every other drawing tool.
 - The **pointer tool is armed on page load**.
 - The **Delete button is greyed out and unclickable when nothing is selected**.
-- Logout is present in the strip but is not one of the six.
+- Logout is present in the strip but is not one of the seven.
 
 ## REQ-draw-figure
 source: docs/DECISIONS.md (D-04, D-05, D-13, D-21, D-35, D-29, D-36, D-41, D-50, D-09, D-39)

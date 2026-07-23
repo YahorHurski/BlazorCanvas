@@ -3,7 +3,7 @@
 ## What This Is
 
 A Blazor Server web app (.NET 10) where a user logs in and draws simple geometric figures — line,
-rectangle, circle, triangle — on a fixed 1472 × 828 SVG canvas. Each user has exactly one canvas.
+rectangle, circle, triangle, and a five-pointed star — on a fixed 1472 × 828 SVG canvas. Each user has exactly one canvas.
 Figures can be **drawn, dragged and deleted**, nothing else. Every operation persists to PostgreSQL
 immediately, and the user's other open tabs mirror the canvas live — a drag *glides* on the second
 monitor in real time.
@@ -34,9 +34,53 @@ The project is done when the user can do this, in one sitting:
 This deliberately makes the hardest feature — live cross-tab sync with real-time drag glide
 (D-11, D-47, D-53, D-54) — part of the definition of success, so **no phase can quietly defer it**.
 
-## Last Shipped Milestone: v1.11 Storage Model Rewrite
+## Last Shipped Milestone: v1.12 Five-pointed star
 
-**Shipped 2026-07-22.** No milestone is currently in progress; v1.2 is scoped and next.
+**Shipped 2026-07-23.** Opened 2026-07-22 on branch `Milestone-v1.12`. Phases 13-17 delivered the pure C#
+`Star5Shape` / `Star5Geometry` core is built, registered, seeded, exposed through the toolbar,
+drawable end-to-end with live Razor/FigureShape preview, edge clamp, immediate persistence, reload
+proof, interaction parity, cross-tab sync, automated guard coverage, and human REG-02 acceptance.
+
+**Goal:** Add `star5` as the fifth figure type end-to-end — drawn, previewed, persisted, synced,
+selected, dragged and deleted exactly like the four that came before it.
+
+**Target features:**
+
+- **`Star5Shape` / `Star5Geometry`** — stretchable (fills the dragged box, not aspect-locked),
+  **point-up** (first vertex at top-centre, sweep starts at −π/2), **corner-to-corner** gesture like
+  triangle and rectangle, inner-radius ratio **0.382** (1/φ², the true pentagram). Stored geometry is
+  `{"points": [[x,y] × 10], "innerRatio": 0.382}` — **points are authoritative** for render and
+  `bbox_*`; `innerRatio` is descriptive but **required** by `TryParseGeometry` so the round-trip stays
+  symmetric. Drawable when width > 0 **and** height > 0, the rule rectangle already uses.
+- **A seventh toolbar button**, between `triangle` and `delete`.
+- **Idempotent `figure_types` seed on every startup** — the registry becomes the catalog's source of
+  truth. Without it the star cannot be written at all: `V11Cutover.EnsureAsync` returns early at
+  `CatalogState.Completed`, so `SeedFigureTypesAsync` never runs again on the existing database and
+  `figures.type`'s foreign key to `figure_types(name)` rejects every star. Fixing it once makes every
+  future figure type free.
+- **Registry-backed Razor preview rendering** — live drawing previews render through
+  `DrawingPreviewSession` and `FigureShape`, while `Home.razor.js` is lifecycle-only pointer-capture
+  cleanup. This removes the old hard-coded triangle fallback and avoids a second star formula.
+- **Decision amendments** — D-16/D-33/D-56/D-58 now describe seven toolbar controls, with logout
+  outside the count; CANV-02's old toolbar count remains historical; the star's own decisions land
+  from **D-70**.
+
+**Scope boundary — one figure, nothing else.** Carried tech debt stays carried and is explicitly out:
+`ShapeRegistry.All`/`.Names` returning live `List` instances (09-REVIEW WR-03), the MIGR-03 accepted
+gap, and the unreferenced `V11DataMigration.RunAsync(NpgsqlDataSource, …)` overload.
+
+**Definition of done:**
+
+> "I can arm a star tool in the toolbar, drag a box on the canvas, and watch a five-pointed star
+> preview follow my cursor and commit — persisting across a refresh, appearing live in a second tab,
+> and dragging, selecting, and deleting exactly like the four shapes that came before it."
+
+The milestone ended with a **human acceptance gate**, as v1.11's Phase 12 did. The audit closed as
+`tech_debt` with no critical gaps; details are archived in `.planning/milestones/v1.12-*`.
+
+## Previous Shipped Milestone: v1.11 Storage Model Rewrite
+
+**Shipped 2026-07-22.** Superseded by v1.12 (above).
 
 **Goal (met):** Replace the four-integer bounding-box storage model with the position/shape split
 (D-59…D-69), migrating every existing figure intact — so the schema never has to change again for a
@@ -76,7 +120,7 @@ same positions, same look, same live cross-tab glide.
 ### Validated
 
 - [x] **AUTH-01/02/03** — Login (unknown username self-registers), session cookie, logout — Validated in Phase BC-02: Login, Session & Logout (2026-07-15)
-- [x] **CANV-01/02** — The SVG canvas at (0, 48); the six-button toolbar — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16). *(Canvas was 1280 × 720 at v1.0; enlarged to 1472 × 828 in v1.1 — see CANV-03.)*
+- [x] **CANV-01/02** — The SVG canvas at (0, 48); the original toolbar shipped in Phase BC-03: The Canvas & Drawing (2026-07-16). *(Canvas was 1280 × 720 at v1.0; enlarged to 1472 × 828 in v1.1 — see CANV-03. The active toolbar is amended by CANV-04/D-73 to seven controls with Star.)*
 - [x] **DATA-01** — One canvas per user; load `WHERE user_id ORDER BY id`; cross-user isolation — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16)
 - [x] **FIG-01** — Draw all four shapes: live preview, edge clamp, silent degenerate rejection, immediate insert — Validated in Phase BC-03: The Canvas & Drawing (2026-07-16)
 - [x] **FIG-02/03/04** — Select, drag with edge clamping, and delete — Validated in Phase BC-04: Select, Drag & Delete (2026-07-16)
@@ -97,10 +141,16 @@ same positions, same look, same live cross-tab glide.
 - [x] **SYNC-02/03** — Final-public two-circuit synchronization, stale-row removal, and rollback/reload convergence preserve the v1.1 sync contract — Validated in Phase BC-11: Renderer, Sync & Cutover (2026-07-22)
 - [x] **TEST-02** — Obsolete figure-model production code and tests are retired; cutover and final-public persistence evidence are rebased — Validated in Phase BC-11: Renderer, Sync & Cutover (2026-07-22)
 - [x] **REG-01** — Human regression verification confirms the v1.11 storage rewrite is invisible: drawing, clamping, dragging, deletion, selection, refresh persistence, local-only preview, commit-only remote creation, and two-window live glide all match v1.1 — Validated in Phase BC-12: Regression Verification (2026-07-22)
+- [x] **SHAPE-04/05/06** — `Star5Shape` derives the point-up ten-point star from a corner-to-corner drag, preserves ordered point-list geometry plus required `innerRatio`, derives bounds from points alone, and round-trips canonical JSON while rejecting malformed/missing-ratio payloads — Validated in Phase BC-13: Star Shape Core (2026-07-22)
+- [x] **MODEL-08, CANV-04, ARCH-02** — `star5` participates in registry-owned startup catalog seeding, the toolbar exposes seven controls with Star between Triangle and Delete, and D-70…D-73 plus active intel record the shipped star decisions — Validated in Phase BC-14: Catalog Seed, Toolbar & Decisions (2026-07-22)
+- [x] **FIG-05/06/07, RENDER-02, DATA-05** — The user can arm Star, draw with a live registry-backed preview, edge-clamp, commit, render under the v1.11 transform, persist immediately, and reload unchanged — Validated in Phase BC-15: Draw, Preview, Render & Persist a Star (2026-07-23)
+- [x] **FIG-08, SYNC-04, TEST-04** — A persisted star selects, drags, deletes, syncs live across tabs, and is guarded against preview drift, bbox cache drift, and degenerate/malformed geometry — Validated in Phase BC-16: Interaction, Sync & Test Guards (2026-07-23)
+- [x] **REG-02** — Human acceptance confirmed arm, live preview, edge clamp, refresh persistence, selection trace, edge-clamped drag, delete, and second-window live glide for a star — Validated in Phase BC-17: Regression Verification (2026-07-23)
 
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
 **All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
 **21 of 22 v1.11 requirements validated — shipped in v1.11 (2026-07-22).**
+**All 15 v1.12 requirements validated — Phase 17 complete (2026-07-23).**
 
 ### Accepted Gaps
 
@@ -116,14 +166,15 @@ same positions, same look, same live cross-tab glide.
 
 ### Active
 
-**No milestone in progress.** v1.11 shipped and archived 2026-07-22; v1.2 is scoped but not started.
-Requirements for v1.0, v1.1, and v1.11 are archived under `.planning/milestones/`.
+No active milestone. v1.12 is shipped and archived under `.planning/milestones/`.
 
-**After v1.11: v1.2** — new figure types (ellipse, 5-point star, hexagon, pentagon, right-angle
-triangle L/R, four arrows) + a dynamic split-button toolbar. Scoped in
-`.planning/backlog/v1.2-figures-and-toolbar.md`, **and materially cheaper once v1.11 lands** — its
-4-integer workarounds (orientation smuggled into type names, fixed ratios, per-shape CHECK
-avoidance) become unnecessary. Its decision amendments happen when v1.2 is kicked off. Anything not
+**After v1.12: v1.2** — the remaining new figure types (ellipse, hexagon, pentagon, right-angle
+triangle L/R, four arrows — **nine, not ten: v1.12 delivers the 5-point star**) plus a dynamic
+split-button toolbar. Scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`, **and materially
+cheaper now that v1.11 has landed** — its 4-integer workarounds (orientation smuggled into type
+names, fixed ratios, per-shape CHECK avoidance) are unnecessary. v1.12 also pays down two of its
+costs in advance: the `figure_types` seed becomes automatic, and the toolbar-count decisions are
+already amended for seven controls. Its remaining decision amendments happen when v1.2 is kicked off. Anything not
 named in `docs/DECISIONS.md` is still out until added there **by name**.
 
 ### Out of Scope
@@ -277,7 +328,7 @@ re-ask, or "improve" them. Full text: `.planning/intel/decisions.md`; original: 
 | ID | Decision |
 |----|----------|
 | D-15 | **Click to select** (visible highlight). Selection is **local UI state only** — never persisted, never broadcast. *(Its Delete-key half is superseded by D-33.)* |
-| D-16 + D-30 + D-33 | **The toolbar is SIX buttons:** `[pointer] [line] [rectangle] [circle] [triangle] [delete]`. Click to arm; the armed button stays visibly active. Logout sits right-aligned in the same strip but is not one of the six (D-56). |
+| D-16 + D-30 + D-33 + D-73 | **The toolbar is seven controls:** `[pointer] [line] [rectangle] [circle] [triangle] [star] [delete]`. Click a tool to arm it; the armed button stays visibly active. Delete remains an action button, and logout sits right-aligned in the same strip but is not one of the seven (D-56). |
 | D-30 | **Selection is a pointer tool.** Pointer armed → click selects, drag moves. Shape armed → dragging always draws **even on top of existing figures**. Accepted cost: the app has modes. This is what makes it possible to draw a small circle *inside* a big rectangle. |
 | D-31 | **Selection appearance/behaviour** *(v1.1 amended)*. Indicator: a thin **blue + white dashed trace on the figure's own outline**, topmost, `pointer-events:none` (was a red outline). **Lifecycle:** tool **stays armed** after a draw; the drawn figure is **selected**; **at most one selected at a time**; deselect on canvas-outside-figure, arming a tool, or a toolbar press **except Delete**. **Pointer armed on page load.** Overlapping figures: a click hits the topmost = drawn last (free from the DOM). Selection is local-only, never broadcast. |
 | D-32 | **Two usability costs, accepted deliberately.** (1) The min-size guard was not raised to ~5px, so a stray 1–2px drag creates a tiny figure. Annoying, not dangerous. (2) **Lines have no widened hit area** — selecting one means clicking within ~a pixel of it (mitigated only by the 2px stroke). Additive; can be added any time. |
@@ -341,6 +392,23 @@ filter was never built.
 
 ## Current State
 
+**v1.12 shipped 2026-07-23** (opened 2026-07-22 — a two-day milestone, branch `Milestone-v1.12`).
+The five-pointed star landed as the fifth figure type end-to-end: pure shape geometry, registry and
+catalog exposure, toolbar control, draw/preview/render/persist path, interaction parity, live
+cross-tab sync, automated guard coverage, and human REG-02 acceptance.
+
+- **Delivered:** 5 phases, 13 plans, 24 tasks; all 15 requirements validated.
+- **Gates:** milestone audit closed as `tech_debt` with no critical gaps; 15/15 requirements wired
+  and 6/6 E2E flows complete.
+- **Human verification:** REG-02 passed 3/3 on the running application — arm Star, live preview,
+  edge clamp, refresh persistence, selection trace, edge-clamped drag/delete, and second-window
+  live glide.
+- **Archived:** `.planning/milestones/v1.12-ROADMAP.md`, `v1.12-REQUIREMENTS.md`,
+  `v1.12-MILESTONE-AUDIT.md`, and phase artifacts under `v1.12-phases/`.
+- **New tech debt:** pointercancel/lostpointercapture cleanup is robustness debt; the test-only
+  bUnit dependency carries a transitive NU1902 AngleSharp warning; REG-02 UAT has human approval but
+  no external screenshot/video paths.
+
 **v1.11 shipped 2026-07-22** (opened 2026-07-21 — a two-day milestone, branch `Milestone-v1.11`).
 The storage model rewrite landed invisibly: the position/shape split, four tables, the
 `IShapeDefinition` registry, one validation gateway, and a transactional cutover — with no
@@ -359,8 +427,8 @@ user-observable change, which was the milestone's governing invariant.
   promoted `public.*` schema (commit `2f58086`), returning 197 tests and taking the suite 303 → 500.
 - **Archived:** `.planning/milestones/v1.11-ROADMAP.md`, `v1.11-REQUIREMENTS.md`,
   `v1.11-MILESTONE-AUDIT.md`, and phase artifacts under `v1.11-phases/`.
-- **New tech debt:** `ShapeRegistry` read-only views expose their backing lists (09-REVIEW WR-03);
-  `Home.razor.js` duplicates shape preview geometry outside the registry with no drift guard.
+- **New tech debt:** `ShapeRegistry` read-only views expose their backing lists (09-REVIEW WR-03).
+  The former `Home.razor.js` shape-preview duplication was removed in v1.12 Phase 15.
 
 **v1.1 shipped 2026-07-21** (opened 2026-07-20 — a four-day milestone). Phases BC-06 and BC-07
 delivered the 1472 × 828 canvas and the local selection lifecycle with its topmost blue-and-white
@@ -393,10 +461,9 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
-**v1.2** (new figures + dynamic toolbar) is scoped in
-`.planning/backlog/v1.2-figures-and-toolbar.md` and is next. It is materially cheaper now that
-v1.11 has landed: a new figure type costs one C# class plus one `figure_types` row, with no schema
-change. Its decision amendments happen when v1.2 is kicked off.
+**v1.2** (the remaining nine figures + dynamic toolbar) is scoped in
+`.planning/backlog/v1.2-figures-and-toolbar.md` and follows v1.12. Its remaining decision amendments
+happen when v1.2 is kicked off.
 
 ## Evolution
 
@@ -416,5 +483,6 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-22 after v1.11 milestone — shipped and archived, 21/22 requirements
-satisfied, MIGR-03 recorded as an accepted gap.*
+*Last updated: 2026-07-23 after v1.12 milestone closeout — v1.12 star delivery and REG-02 human
+acceptance are archived; next milestone planning is pending.
+Previous update: 2026-07-22 during Phase BC-14 Plan 03.*

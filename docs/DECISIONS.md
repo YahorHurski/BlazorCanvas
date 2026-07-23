@@ -40,13 +40,13 @@ superseded, or reversed.** Every amended entry carries a ⚠️ banner naming it
 | D-13 | Circle drawn centre-out | Locked (storage changed by D-60: `{"r": …}`) |
 | **D-14** | One fixed style | 🛑 **SUPERSEDED by D-66** — style is per-figure, in a validated `style jsonb` |
 | **D-15** | Delete | ⚠️ **Delete *key* superseded by D-33** (toolbar button) |
-| **D-16** | Toolbar | ⚠️ **Superseded** — six buttons, not four (D-30, D-33) |
+| **D-16** | Toolbar | ⚠️ **Superseded** — seven buttons, not four (D-30, D-33, D-73) |
 | D-17…D-21 | Login · canvas 1:1 · **1472×828** · integers · triangle | ⚠️ D-18/D-19 amended in v1.1; 🛑 **D-20 (integers) superseded by D-61** (`numeric`); 🛑 **D-21 (triangle from a box) superseded by D-60** (three stored points) |
 | **D-22** | **Geometry storage** | 🛑 **SUPERSEDED BY D-59/D-60.** Four integers are no longer the model. Read it only for *why* — the reversal reasoning still teaches |
 | **D-23** | Guards | ⚠️ Its "one shared guard" claim is **retracted by D-50** |
 | D-24 | Figures stop at the edge | Locked (formula in **D-36**) |
 | D-25…D-29 | Logout · session cookie · Docker · .NET 10 · draw clamps | Locked |
-| **D-30** | Pointer tool | ⚠️ Says "five buttons" — **it is six** (D-33) |
+| **D-30** | Pointer tool | ⚠️ Says "five buttons" — **it is seven** (D-33, D-73) |
 | D-31, D-32 | Selection behaviour · accepted usability costs | Locked (⚠️ **D-31 amended in v1.1**: blue dashed trace + selection lifecycle) |
 | D-33…D-35 | Delete button · SSR login · draw preview | Locked (⚠️ **D-33 motivation corrected in v1.1**) |
 | **D-36** | **The clamp formula + inclusive bounds** | Locked — *appears late in the file* (⚠️ v1.1: W×H now 1472×828) |
@@ -54,6 +54,7 @@ superseded, or reversed.** Every amended entry carries a ⚠️ banner naming it
 | D-38…D-49 | Fill · z-order · resurrection fix · normalisation · migrations · layout · usernames · errors · columns · throttle · click-vs-drag · project structure | Locked, **except:** 🛑 **D-39 (`id` IS the z-order) superseded by D-62/D-63**; 🛑 **D-41 (normalisation, the line landmine) superseded by D-60**; 🛑 **D-46 (`type` CHECK, no `created_at`) superseded by D-65/D-68** |
 | D-50…D-58 | Per-type guard · identity & routes · save-failure policy · **message contract** · mid-drag rule · background · logout · draw abort · constants | Locked (⚠️ v1.1: **D-57 motivation corrected**, **D-58 selection style + canvas size amended**); 🛑 **D-50 superseded by D-60** — geometry validation is C#-only now |
 | **D-59…D-69** | **THE CURRENT STORAGE MODEL** (v1.11) | **Locked — implement from here** |
+| **D-70…D-73** | **v1.12 five-pointed star** | **Locked — star5 geometry, catalog exposure, startup seed convergence, seven-button toolbar** |
 
 > ⚠️ **v1.1 milestone note (see `.planning/PROJECT.md` for the full summary):** the
 > **"no hand-authored JavaScript" rule is REMOVED.** It was never the real motivation (MVP
@@ -475,16 +476,16 @@ line needs an invisible wider hit area or it will be frustrating to click.
 
 ## D-16 — Shape selection: a toolbar
 
-**Status:** ⚠️ **SUPERSEDED — see D-30 and D-33.** The toolbar is **six** buttons, not four.
+**Status:** ⚠️ **SUPERSEDED — see D-30, D-33 and D-73.** The toolbar is **seven** buttons, not four.
 This entry is kept for its rationale only. **Do not implement from this entry.**
 
 ~~A toolbar with four buttons~~ — **line / rectangle / circle / triangle**. Click one to arm
 it; the armed button stays visibly active. Then drag on the canvas to draw that shape.
 
 > **The current toolbar (authoritative):**
-> `[ pointer ] [ line ] [ rectangle ] [ circle ] [ triangle ] [ delete ]`
+> `[ pointer ] [ line ] [ rectangle ] [ circle ] [ triangle ] [ star ] [ delete ]`
 > — the **pointer** was added by D-30 (to distinguish selecting from drawing) and the
-> **delete** button by D-33 (replacing the Delete key).
+> **delete** button by D-33 (replacing the Delete key). The **star** button was added by D-73.
 
 **Rejected:** a dropdown (hides the armed shape behind a click, no at-a-glance state).
 **Rejected:** keyboard shortcuts only (fast once learned, but completely undiscoverable —
@@ -1024,11 +1025,11 @@ it would be odd to be able to *create* a figure out of bounds but not *move* one
 
 **Status:** Locked — *this closes a genuine hole in D-15, found by the user.*
 
-> ⚠️ **AMENDED BY D-33 — the toolbar has SIX buttons, not five.** This entry says "five"
+> ⚠️ **AMENDED BY D-33 AND D-73 — the toolbar has seven buttons, not five.** This entry says "five"
 > throughout because it predates D-33, which added the **Delete** button (replacing the Delete
-> key). **The authoritative toolbar is:**
+> key), and D-73, which added the **Star** button. **The authoritative toolbar is:**
 >
-> `[ pointer ] [ line ] [ rectangle ] [ circle ] [ triangle ] [ delete ]`
+> `[ pointer ] [ line ] [ rectangle ] [ circle ] [ triangle ] [ star ] [ delete ]`
 >
 > Everything else in this entry — the pointer tool, the modes, the rationale — stands.
 
@@ -1159,10 +1160,10 @@ none of that.
 > JavaScript* (a document-level key listener). That rule is now lifted, so a **Delete-key
 > shortcut could be added later** as its own decision — the toolbar button stays regardless.
 
-The toolbar is therefore **six buttons**:
+The toolbar is therefore **seven buttons**:
 
 ```
-[ pointer ] [ line ] [ rectangle ] [ circle ] [ triangle ] [ delete ]
+[ pointer ] [ line ] [ rectangle ] [ circle ] [ triangle ] [ star ] [ delete ]
 ```
 
 **Accepted cost:** reaching for the mouse instead of the key that every drawing tool has
@@ -1718,9 +1719,9 @@ background is **white** — leaving it unspecified would make the canvas edge **
 **Status:** Locked
 
 The Logout control lives in the **same 48px toolbar strip (D-43), right-aligned**, visually
-separated from the six tool buttons (D-33).
+separated from the seven tool/action buttons (D-33, D-73).
 
-- The **"six buttons" rule stays intact** — logout is an *account action*, not a drawing tool,
+- The **seven-button toolbar rule stays intact** — logout is an *account action*, not a drawing tool,
   and it reads that way.
 - It is a small **HTML form posting to `POST /logout`** (D-51), not an interactive button —
   because clearing a cookie requires an HTTP round-trip (D-34).
@@ -2391,6 +2392,63 @@ Stated because it is easy to assume otherwise:
 - **D-24, D-36** — figures still stop at the edge, same formula. The clamp now reads `bbox_*`.
 - **D-13, D-19, D-31** — circle drawn centre-out, canvas 1472×828, selection behaviour.
 - **The user sees no difference on day one.** Same figures, same positions, same style.
+
+---
+
+## D-70 — Five-pointed star geometry
+
+**Status:** Locked
+
+`star5` is the fifth figure type. It is a five-point star, stretchable to fill the dragged box
+rather than aspect-locked, and drawn corner-to-corner like rectangle and triangle.
+
+The first outer vertex is top-centre and the sweep starts at `-pi/2`, so the star points up.
+The inner radius ratio is fixed at **0.382** (`1/phi^2`).
+
+---
+
+## D-71 — Star storage format
+
+**Status:** Locked
+
+The star geometry is stored as:
+
+```json
+{"points": [[x,y] x 10], "innerRatio": 0.382}
+```
+
+The ten ordered points are authoritative for rendering and `bbox_*`. `innerRatio` is descriptive
+but required by parsing, so a missing-ratio payload is rejected rather than rendered partially.
+
+---
+
+## D-72 — Registry-owned catalog exposure
+
+**Status:** Locked
+
+`star5` participates in the default shape registry immediately after `triangle`. The
+`figure_types` catalog is seeded from the registry on every startup, including an existing database
+already in `CatalogState.Completed`, using idempotent inserts so repeated starts leave one row.
+
+This amends D-65's "seeded at application start" rule from migration/fresh-install only to every
+startup for registry-owned figure types.
+
+---
+
+## D-73 — Seven-button toolbar with Star
+
+**Status:** Locked — amends D-16, D-30, D-33, D-56 and D-58
+
+The current toolbar is:
+
+```
+[ pointer ] [ line ] [ rectangle ] [ circle ] [ triangle ] [ star ] [ delete ]
+```
+
+Star is an armable drawing tool between triangle and delete. Delete remains an action button, not
+an armable drawing mode. Logout remains right-aligned in the same 48px strip, outside the seven
+tool/action buttons, and remains a real HTML form posting to `POST /logout` with the existing
+antiforgery semantics.
 
 ---
 

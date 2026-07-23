@@ -324,7 +324,7 @@ source: docs/DECISIONS.md (D-58, D-38, D-55, D-19, D-43)
 | Selected figure indicator | **~1px blue+white dashed trace on the figure's own outline, topmost, `pointer-events:none`** *(v1.1; was red 2px)* |
 | Page background | **light grey** (the only thing that makes the borderless canvas edge visible) |
 | Canvas | white, **1472 × 828** *(v1.1; was 1280 × 720)*, **no border** |
-| Toolbar | **48px** tall, six buttons: `[pointer] [line] [rectangle] [circle] [triangle] [delete]`, logout right-aligned |
+| Toolbar | **48px** tall, seven controls: `[pointer] [line] [rectangle] [circle] [triangle] [star] [delete]`, logout right-aligned outside the count |
 
 - 2px (not 1px) is deliberate: the stroke is the only click target a line has (D-32 declined a
   widened hit-area).
