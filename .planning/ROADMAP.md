@@ -170,7 +170,37 @@ suite is reworked to the new model and green on a clean build.
 
   6. `dotnet build BlazorCanvas.sln` is clean (0 warnings, 0 errors) and the full `dotnet test` suite
      passes.
-**Plans**: TBD
+**Plans**: 6 plans
+
+**Wave 1**
+
+- [ ] 10-01-PLAN.md — Remove the canvas-edge clamp from the geometry core; re-express MinSizeGuard on
+      the geometry primitives (STOR-03, STOR-04, TEST-02) [wave 1]
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 10-02-PLAN.md — Anchor-only persistence: MoveAsync writes only x,y; drag translates the anchor;
+      the move clamp is deleted (STOR-02, STOR-04, STOR-05) [wave 2]
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 10-03-PLAN.md — D-53 anchor+geometry broadcast payload + a unit-testable SyncReceiver
+      (SYNC-02, STOR-05) [wave 3]
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 10-04-PLAN.md — Render from anchor + geometry via a shared ShapeRender helper, with
+      appearance-preservation tests (STOR-02, STOR-05) [wave 4]
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 10-05-PLAN.md — Test-suite rework to the anchor+geometry model; the D-41 landmine asserted
+      through to stored JSON (TEST-02, STOR-02, STOR-03) [wave 5]
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 10-06-PLAN.md — Clean build, full green suite, and live two-tab verification (STOR-04, STOR-05,
+      SYNC-02, TEST-02) [wave 6]
 
 ## Progress
 
@@ -185,7 +215,7 @@ suite is reworked to the new model and green on a clean build.
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Schema, Entity & Data-Preserving Migration | v1.11 | 6/6 | Complete    | 2026-07-23 |
-| 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 0/TBD | Not started | - |
+| 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 0/6 | Planned | - |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 3/3 phases, 4/4 plans, 4/4 requirements — all phases verified `passed`.**
@@ -211,9 +241,11 @@ No orphans. No duplicates.**
 
 ## What's Next
 
-**v1.11 is open and Phase 9 is complete.** Next step: `/gsd-plan-phase 10` (Geometry, Draw, Drag &
-Sync Rework (No Edge Clamp) + Regression) — move the running draw/drag/sync behavior fully onto the
-anchor+geometry model and remove the canvas-edge clamp.
+**v1.11 is open, Phase 9 is complete, and Phase 10 is planned (6 plans, 6 waves).** Next step:
+`/gsd-execute-phase 10` — move the running draw/drag/sync behavior fully onto the anchor+geometry
+model and remove the canvas-edge clamp. Every wave needs Compose Postgres up
+(`docker compose up -d --wait`, host 5433) and `BLAZORCANVAS_TEST_CONNECTION` pointed at
+`canvas_phase09`; 10-06 is a blocking human-verification checkpoint on two real screens.
 
 **v1.2 is scoped, sequenced after v1.11:** new figure types (ellipse, 5-point star, hexagon,
 pentagon, right-angle triangle L/R, four arrows) + a dynamic split-button toolbar. Full plan:
