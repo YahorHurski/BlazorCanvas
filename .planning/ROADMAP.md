@@ -189,7 +189,7 @@ suite is reworked to the new model and green on a clean build.
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 3/3 phases, 4/4 plans, 4/4 requirements — all phases verified `passed`.**
-**v1.11: 0/2 phases, 0/9 requirements — roadmap created 2026-07-23, not yet planned.**
+**v1.11: 1/2 phases complete, 3/9 requirements validated — Phase 9 verified `passed`; Phase 10 remains.**
 
 ## Requirement Coverage
 
@@ -211,9 +211,9 @@ No orphans. No duplicates.**
 
 ## What's Next
 
-**v1.11 is open and roadmapped, not yet planned.** Next step: `/gsd-plan-phase 9` (Schema, Entity &
-Data-Preserving Migration) — the schema/entity rewrite and the data-preserving migration are the
-milestone's headline risk and the prerequisite for every later phase.
+**v1.11 is open and Phase 9 is complete.** Next step: `/gsd-plan-phase 10` (Geometry, Draw, Drag &
+Sync Rework (No Edge Clamp) + Regression) — move the running draw/drag/sync behavior fully onto the
+anchor+geometry model and remove the canvas-edge clamp.
 
 **v1.2 is scoped, sequenced after v1.11:** new figure types (ellipse, 5-point star, hexagon,
 pentagon, right-angle triangle L/R, four arrows) + a dynamic split-button toolbar. Full plan:
