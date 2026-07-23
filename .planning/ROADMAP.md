@@ -112,7 +112,7 @@ preserved.
 
   4. An automated round-trip test compares the migrated rows to `v1.1-pre-rewrite-MANIFEST.md`'s
      expected anchor+geometry values for every one of the four shape types, and passes.
-**Plans**: 5/6 plans executed
+**Plans**: 6/6 plans executed
 **Wave 1**
 
 - [x] 09-01-PLAN.md — GeometryCodec: Box ↔ anchor+geometry per type (TDD foundation) [wave 1]
@@ -132,7 +132,7 @@ preserved.
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 09-06-PLAN.md — Round-trip migration test against the immutable fixture (MIG-02 proof) [wave 5]
+- [x] 09-06-PLAN.md — Round-trip migration test against the immutable fixture (MIG-02 proof) [wave 5]
 
 ### Phase 10: Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression
 
@@ -184,7 +184,7 @@ suite is reworked to the new model and green on a clean build.
 | 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
-| 9. Schema, Entity & Data-Preserving Migration | v1.11 | 5/6 | In Progress|  |
+| 9. Schema, Entity & Data-Preserving Migration | v1.11 | 6/6 | In Progress|  |
 | 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 0/TBD | Not started | - |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
