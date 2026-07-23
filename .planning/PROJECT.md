@@ -36,10 +36,10 @@ This deliberately makes the hardest feature — live cross-tab sync with real-ti
 
 ## Current Milestone: v1.12 Five-pointed star
 
-**Opened 2026-07-22.** Branch `Milestone-v1.12`. Phases 13-15 are complete: the pure C#
-`Star5Shape` / `Star5Geometry` core is built, registered, seeded, exposed through the toolbar, and
-now drawable end-to-end with live Razor/FigureShape preview, edge clamp, immediate persistence, and
-reload proof.
+**Opened 2026-07-22.** Branch `Milestone-v1.12`. Phases 13-17 are complete: the pure C#
+`Star5Shape` / `Star5Geometry` core is built, registered, seeded, exposed through the toolbar,
+drawable end-to-end with live Razor/FigureShape preview, edge clamp, immediate persistence, reload
+proof, interaction parity, cross-tab sync, automated guard coverage, and human REG-02 acceptance.
 
 **Goal:** Add `star5` as the fifth figure type end-to-end — drawn, previewed, persisted, synced,
 selected, dragged and deleted exactly like the four that came before it.
@@ -145,7 +145,7 @@ same positions, same look, same live cross-tab glide.
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
 **All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
 **21 of 22 v1.11 requirements validated — shipped in v1.11 (2026-07-22).**
-**14 of 15 v1.12 requirements validated — Phase 16 complete (2026-07-23).**
+**All 15 v1.12 requirements validated — Phase 17 complete (2026-07-23).**
 
 ### Accepted Gaps
 
@@ -161,9 +161,9 @@ same positions, same look, same live cross-tab glide.
 
 ### Active
 
-**v1.12 Five-pointed star** — opened 2026-07-22. Phases 13-16 are complete; active work moves to
-Phase 17: Regression Verification. Requirements for v1.0, v1.1, and v1.11 are archived
-under `.planning/milestones/`.
+**v1.12 Five-pointed star** — opened 2026-07-22. Phases 13-17 are complete; REG-02 human
+acceptance passed on 2026-07-23. Requirements for v1.0, v1.1, and v1.11 are archived under
+`.planning/milestones/`.
 
 **After v1.12: v1.2** — the remaining new figure types (ellipse, hexagon, pentagon, right-angle
 triangle L/R, four arrows — **nine, not ten: v1.12 delivers the 5-point star**) plus a dynamic
@@ -441,11 +441,10 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
-**v1.12** (the five-pointed star) opened 2026-07-22 on branch `Milestone-v1.12` and is the active
-milestone — see *Current Milestone* above. Phases 13-16 completed the shape core, registry/catalog
-exposure, toolbar, draw/preview/render/persist path, UAT-confirmed visible preview, selection,
-drag/delete, live cross-tab sync, and this milestone's remaining automated test guards. Phase 17 is
-the final human regression verification gate.
+**v1.12** (the five-pointed star) opened 2026-07-22 on branch `Milestone-v1.12` and completed all
+five phases on 2026-07-23. Phases 13-17 delivered the shape core, registry/catalog exposure,
+toolbar, draw/preview/render/persist path, UAT-confirmed visible preview, selection, drag/delete,
+live cross-tab sync, automated guard coverage, and REG-02 human regression acceptance.
 
 **v1.2** (the remaining nine figures + dynamic toolbar) is scoped in
 `.planning/backlog/v1.2-figures-and-toolbar.md` and follows v1.12. Its remaining decision amendments
@@ -469,6 +468,6 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-23 after Phase 16 — star interaction, cross-tab sync, and automated guards are
-validated; active work moves to Phase 17 regression verification.
+*Last updated: 2026-07-23 after Phase 17 — v1.12 star delivery and REG-02 human acceptance are
+validated; milestone closeout is next.
 Previous update: 2026-07-22 during Phase BC-14 Plan 03.*

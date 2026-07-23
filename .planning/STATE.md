@@ -4,11 +4,11 @@ milestone: v1.12
 milestone_name: Five-pointed star
 current_phase: 17
 current_phase_name: Regression Verification
-status: executing
+status: completed
 stopped_at: Completed BC-17-regression-verification-01-PLAN.md
-last_updated: "2026-07-23T00:34:44.591Z"
+last_updated: "2026-07-23T00:41:30.147Z"
 last_activity: 2026-07-23
-last_activity_desc: Phase BC-16 complete, transitioned to Phase 17
+last_activity_desc: Phase BC-17 complete
 progress:
   total_phases: 5
   completed_phases: 5
@@ -64,7 +64,7 @@ Last activity: 2026-07-23 — REG-02 human UAT approved and Phase 17 completed
 
 **Velocity:**
 
-- Total plans completed: 52
+- Total plans completed: 53
 - Average duration: —
 - Total execution time: —
 
@@ -90,6 +90,7 @@ Last activity: 2026-07-23 — REG-02 human UAT approved and Phase 17 completed
 | 14 | 3 | - | - |
 | 15 | 4 | - | - |
 | BC-16 | 4 | - | - |
+| BC-17 | 1 | - | - |
 
 **Recent Trend:**
 
