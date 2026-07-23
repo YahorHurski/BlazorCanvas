@@ -4,8 +4,7 @@ namespace BlazorCanvas.Tests.Database;
 
 /// <summary>
 /// Asserts the LIVE schema — queried from PostgreSQL's own information_schema and pg_catalog,
-/// never from the EF model — is exactly the shape CONSTRAINT-schema specifies (D-12, D-46,
-/// D-39, D-42). The EF model is the thing under test here; asserting against it would prove
+/// never from the EF model — is exactly the D-59 shape (D-12, D-46, D-42). The EF model is the thing under test here; asserting against it would prove
 /// nothing about what plan 01-03's migration actually did to the live database.
 /// </summary>
 [Collection("Database")]
@@ -57,9 +56,12 @@ public class SchemaShapeTests
         var columns = await QueryStringsAsync(
             conn,
             "SELECT column_name FROM information_schema.columns " +
-            "WHERE table_schema='public' AND table_name='figures' ORDER BY ordinal_position");
+            "WHERE table_schema='public' AND table_name='figures'");
 
-        Assert.Equal(new[] { "id", "user_id", "type", "x1", "y1", "x2", "y2" }, columns);
+        Assert.Equal(
+            new[] { "id", "user_id", "type", "x", "y", "geometry", "z" }.OrderBy(x => x, StringComparer.Ordinal),
+            columns.OrderBy(x => x, StringComparer.Ordinal));
+        Assert.DoesNotContain("created_at", columns);
     }
 
     [Fact]
@@ -95,7 +97,7 @@ public class SchemaShapeTests
     }
 
     [Fact]
-    public async Task FiguresId_AndUsersId_AreIdentityColumns()
+    public async Task FiguresId_IsUuidWithDefault_AndUsersId_IsIdentityColumn()
     {
         await using var conn = await OpenConnectionAsync();
 
@@ -108,12 +110,41 @@ public class SchemaShapeTests
             return (string?)await cmd.ExecuteScalarAsync();
         }
 
-        Assert.Equal("YES", await IsIdentityAsync("figures"));
         Assert.Equal("YES", await IsIdentityAsync("users"));
+
+        await using var typeCmd = new NpgsqlCommand(
+            "SELECT data_type FROM information_schema.columns WHERE table_schema='public' AND table_name='figures' AND column_name='id'",
+            conn);
+        Assert.Equal("uuid", (string?)await typeCmd.ExecuteScalarAsync());
+
+        await using var defaultCmd = new NpgsqlCommand(
+            "SELECT column_default FROM information_schema.columns WHERE table_schema='public' AND table_name='figures' AND column_name='id'",
+            conn);
+        Assert.Contains("gen_random_uuid()", (string?)await defaultCmd.ExecuteScalarAsync());
     }
 
     [Fact]
-    public async Task Figures_HasExactlyFourNamedCheckConstraints()
+    public async Task FiguresAnchorGeometryColumns_HaveExpectedTypes()
+    {
+        await using var conn = await OpenConnectionAsync();
+        var types = await QueryStringsAsync(
+            conn,
+            """
+            SELECT column_name || ':' || data_type
+            FROM information_schema.columns
+            WHERE table_schema='public'
+              AND table_name='figures'
+              AND column_name IN ('x','y','geometry','z')
+            ORDER BY column_name
+            """);
+
+        Assert.Equal(
+            new[] { "geometry:jsonb", "x:integer", "y:integer", "z:numeric" },
+            types);
+    }
+
+    [Fact]
+    public async Task Figures_HasOnlyTypeWhitelistCheckConstraint()
     {
         await using var conn = await OpenConnectionAsync();
         var names = await QueryStringsAsync(
@@ -121,33 +152,41 @@ public class SchemaShapeTests
             "SELECT conname FROM pg_constraint WHERE conrelid = 'figures'::regclass " +
             "AND contype = 'c' ORDER BY conname");
 
-        Assert.Equal(4, names.Count);
-        Assert.Contains("circle_is_a_circle", names);
-        Assert.Contains("box_is_a_box", names);
-        Assert.Contains("line_is_a_line", names);
-        Assert.Contains("figures_type_is_known", names);
+        Assert.Equal(new[] { "figures_type_is_known" }, names);
     }
 
     [Fact]
-    public async Task IndexOnFiguresUserId_Exists()
+    public async Task IndexOnFiguresUserIdZ_Exists()
     {
         await using var conn = await OpenConnectionAsync();
         await using var cmd = new NpgsqlCommand(
-            "SELECT indexname FROM pg_indexes WHERE tablename = 'figures' AND indexname = 'ix_figures_user_id'",
+            "SELECT indexname FROM pg_indexes WHERE tablename = 'figures' AND indexname = 'ix_figures_user_id_z'",
             conn);
         var indexName = (string?)await cmd.ExecuteScalarAsync();
-        Assert.Equal("ix_figures_user_id", indexName);
+        Assert.Equal("ix_figures_user_id_z", indexName);
     }
 
     [Fact]
-    public async Task FiguresTable_HasCommentDocumentingTheCircleConvention()
+    public async Task FiguresTable_HasCommentDocumentingAnchorGeometry()
     {
         await using var conn = await OpenConnectionAsync();
         await using var cmd = new NpgsqlCommand("SELECT obj_description('figures'::regclass)", conn);
         var comment = (string?)await cmd.ExecuteScalarAsync();
 
         Assert.NotNull(comment);
-        Assert.Contains("inscribed in", comment);
+        Assert.Contains("anchor x,y plus geometry jsonb", comment);
+        Assert.DoesNotContain("inscribed in", comment);
+    }
+
+    [Fact]
+    public async Task Figures_HasNoGeometryCheckConstraint()
+    {
+        await using var conn = await OpenConnectionAsync();
+        await using var cmd = new NpgsqlCommand(
+            "SELECT count(*) FROM pg_constraint WHERE conrelid = 'figures'::regclass AND contype = 'c' AND pg_get_constraintdef(oid) ILIKE '%geometry%'",
+            conn);
+
+        Assert.Equal(0L, (long)(await cmd.ExecuteScalarAsync())!);
     }
 
     [Fact]

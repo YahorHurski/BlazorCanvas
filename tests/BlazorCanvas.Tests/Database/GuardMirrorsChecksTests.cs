@@ -56,29 +56,8 @@ public class GuardMirrorsChecksTests
         }
     }
 
-    [Theory]
-    [MemberData(nameof(Matrix))]
-    public async Task GuardVerdict_MatchesDatabaseVerdict(FigureType type, Box box, string label)
-    {
-        var guardSaysDrawable = MinSizeGuard.IsDrawable(type, box);
-        var attempt = await _fixture.TryInsertFigureAsync(type, box);
-
-        Assert.True(
-            guardSaysDrawable == attempt.Succeeded,
-            $"D-50 disagreement: type={type}, box={box} ({label}). " +
-            $"MinSizeGuard.IsDrawable => {guardSaysDrawable}; database INSERT => " +
-            $"{(attempt.Succeeded ? "succeeded" : $"rejected ({attempt.Error?.ConstraintName})")}. " +
-            "Resolve in favour of CONSTRAINT-schema — the DDL is authoritative over both.");
-    }
-
-    [Fact]
-    public void HorizontalLine_AndZeroHeightRectangle_SameBoxOppositeVerdicts()
-    {
-        // The decisive pair (D-50 vs D-23, retracted): a SHARED guard cannot accept the line
-        // while also rejecting the rectangle for the exact same box.
-        Assert.True(MinSizeGuard.IsDrawable(FigureType.Line, ZeroHeight));
-        Assert.False(MinSizeGuard.IsDrawable(FigureType.Rectangle, ZeroHeight));
-    }
+    // D-59 removes the geometry CHECKs this matrix mirrored. Phase 10/STOR-03 re-expresses the
+    // per-type guard proof code-side, where geometry JSON is constructed.
 
     [Theory]
     [InlineData(FigureType.Line)]
@@ -110,16 +89,16 @@ public class GuardMirrorsChecksTests
     {
         var repoRoot = FindRepoRoot();
         int userId;
-        var insertedIds = new List<int>();
+        var insertedIds = new List<Guid>();
 
         await using (var context = _fixture.CreateContext())
         {
             userId = await DatabaseFixture.CreateTestUserAsync(context);
             var figures = new[]
             {
-                new Figure { UserId = userId, Type = "rectangle", X1 = 10, Y1 = 10, X2 = 20, Y2 = 20 },
-                new Figure { UserId = userId, Type = "rectangle", X1 = 30, Y1 = 30, X2 = 40, Y2 = 40 },
-                new Figure { UserId = userId, Type = "rectangle", X1 = 50, Y1 = 50, X2 = 60, Y2 = 60 },
+                CreateFigure(userId, new Box(10, 10, 20, 20), 1m),
+                CreateFigure(userId, new Box(30, 30, 40, 40), 2m),
+                CreateFigure(userId, new Box(50, 50, 60, 60), 3m),
             };
             context.Figures.AddRange(figures);
             await context.SaveChangesAsync();
@@ -127,9 +106,7 @@ public class GuardMirrorsChecksTests
         }
 
         Assert.Equal(3, insertedIds.Count);
-        Assert.True(
-            insertedIds[0] < insertedIds[1] && insertedIds[1] < insertedIds[2],
-            "Expected ids to be assigned in insertion order (D-39 — the sequential id is the z-order).");
+        Assert.All(insertedIds, id => Assert.NotEqual(Guid.Empty, id));
 
         // The shell action: tear the container down WITHOUT -v (the named volume surviving is
         // exactly the property under test — CONSTRAINT-env, T-BC01-13), then bring it back up.
@@ -141,7 +118,8 @@ public class GuardMirrorsChecksTests
         await using var verifyContext = _fixture.CreateContext();
         var survivingIds = await verifyContext.Figures
             .Where(f => f.UserId == userId)
-            .OrderBy(f => f.Id)
+            .OrderBy(f => f.Z)
+            .ThenBy(f => f.Id)
             .Select(f => f.Id)
             .ToListAsync();
 
@@ -155,6 +133,20 @@ public class GuardMirrorsChecksTests
             verifyContext.Users.Remove(user);
             await verifyContext.SaveChangesAsync();
         }
+    }
+
+    private static Figure CreateFigure(int userId, Box box, decimal z)
+    {
+        var encoded = GeometryCodec.Encode(FigureType.Rectangle, box);
+        return new Figure
+        {
+            UserId = userId,
+            Type = "rectangle",
+            X = encoded.X,
+            Y = encoded.Y,
+            Geometry = encoded.Geometry,
+            Z = z,
+        };
     }
 
     private static string FindRepoRoot()

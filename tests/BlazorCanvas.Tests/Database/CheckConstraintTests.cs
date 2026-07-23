@@ -7,8 +7,8 @@ namespace BlazorCanvas.Tests.Database;
 /// constructs a Figure with literal coordinates (via
 /// <see cref="DatabaseFixture.TryInsertRawFigureAsync"/>) and calls SaveChanges directly —
 /// never routing through MinSizeGuard or Normalisation. The rejection under test belongs to
-/// PostgreSQL, not to the C# guard: routing through the guard first would prove only that the
-/// guard agrees with itself, not that the database enforces anything.
+/// PostgreSQL, not to the C# guard. D-59 removed geometry CHECKs, so this file now covers the
+/// retained type whitelist and known-good inserts only.
 /// </summary>
 [Collection("Database")]
 public class CheckConstraintTests
@@ -19,27 +19,7 @@ public class CheckConstraintTests
 
     public static IEnumerable<object[]> RejectedCases()
     {
-        // circle_is_a_circle (D-22): rejects a non-square or odd-sided circle
-        yield return new object[] { "circle", 0, 0, 10, 8, "circle_is_a_circle", "non-square circle (would render as an oval)" };
-        yield return new object[] { "circle", 0, 0, 9, 9, "circle_is_a_circle", "odd-sided square circle" };
-        yield return new object[] { "circle", 10, 10, 10, 10, "circle_is_a_circle", "zero-radius circle" };
-        yield return new object[] { "circle", 10, 10, 0, 0, "circle_is_a_circle", "un-normalised / negative-side circle" };
-
-        // box_is_a_box (D-23/D-41): rejects a zero-area rectangle
-        yield return new object[] { "rectangle", 10, 10, 90, 10, "box_is_a_box", "zero-height rectangle" };
-        yield return new object[] { "rectangle", 10, 10, 10, 90, "box_is_a_box", "zero-width rectangle" };
-        yield return new object[] { "rectangle", 10, 10, 10, 10, "box_is_a_box", "zero-area rectangle" };
-
-        // box_is_a_box (D-21): a triangle is derived from the same box as a rectangle
-        yield return new object[] { "triangle", 10, 10, 90, 10, "box_is_a_box", "zero-height triangle" };
-        yield return new object[] { "triangle", 10, 10, 10, 90, "box_is_a_box", "zero-width triangle" };
-        yield return new object[] { "triangle", 10, 10, 10, 10, "box_is_a_box", "zero-area triangle" };
-
-        // line_is_a_line: rejects a zero-length line, and an un-normalised one
-        yield return new object[] { "line", 10, 10, 10, 10, "line_is_a_line", "zero-length line" };
-        yield return new object[] { "line", 90, 10, 10, 10, "line_is_a_line", "un-normalised line (x2 < x1)" };
-
-        // figures_type_is_known (D-46)
+        // D-59 removes geometry CHECKs; Phase 10/STOR-03 re-expresses geometry guards in code.
         yield return new object[] { "oval", 0, 0, 10, 10, "figures_type_is_known", "unknown type literal" };
         yield return new object[] { "Circle", 0, 0, 10, 10, "figures_type_is_known", "PascalCase type literal (accidental Enum.ToString())" };
     }
