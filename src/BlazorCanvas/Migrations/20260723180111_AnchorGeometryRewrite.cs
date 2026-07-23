@@ -11,9 +11,8 @@ namespace BlazorCanvas.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "ix_figures_user_id",
-                table: "figures");
+            migrationBuilder.Sql("""DROP INDEX IF EXISTS ix_figures_user_id;""");
+            migrationBuilder.Sql("""DROP INDEX IF EXISTS "IX_figures_user_id";""");
 
             migrationBuilder.AddColumn<Guid>(
                 name: "id_new",
@@ -108,17 +107,9 @@ namespace BlazorCanvas.Migrations
                 oldType: "numeric",
                 oldNullable: true);
 
-            migrationBuilder.DropCheckConstraint(
-                name: "box_is_a_box",
-                table: "figures");
-
-            migrationBuilder.DropCheckConstraint(
-                name: "circle_is_a_circle",
-                table: "figures");
-
-            migrationBuilder.DropCheckConstraint(
-                name: "line_is_a_line",
-                table: "figures");
+            migrationBuilder.Sql("""ALTER TABLE figures DROP CONSTRAINT IF EXISTS box_is_a_box;""");
+            migrationBuilder.Sql("""ALTER TABLE figures DROP CONSTRAINT IF EXISTS circle_is_a_circle;""");
+            migrationBuilder.Sql("""ALTER TABLE figures DROP CONSTRAINT IF EXISTS line_is_a_line;""");
 
             migrationBuilder.DropColumn(
                 name: "x1",
