@@ -121,22 +121,23 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STOR-01 | Phase [N] | Pending |
-| STOR-02 | Phase [N] | Pending |
-| STOR-03 | Phase [N] | Pending |
-| STOR-04 | Phase [N] | Pending |
-| STOR-05 | Phase [N] | Pending |
-| MIG-01 | Phase [N] | Pending |
-| MIG-02 | Phase [N] | Pending |
-| SYNC-02 | Phase [N] | Pending |
-| TEST-02 | Phase [N] | Pending |
+| STOR-01 | Phase 9 | Pending |
+| STOR-02 | Phase 10 | Pending |
+| STOR-03 | Phase 10 | Pending |
+| STOR-04 | Phase 10 | Pending |
+| STOR-05 | Phase 10 | Pending |
+| MIG-01 | Phase 9 | Pending |
+| MIG-02 | Phase 9 | Pending |
+| SYNC-02 | Phase 10 | Pending |
+| TEST-02 | Phase 10 | Pending |
 
 **Coverage:**
 
 - v1.11 requirements: 9 total
-- Mapped to phases: 0 (filled by roadmap)
-- Unmapped: 9 ⚠️ (until roadmap runs)
+- Mapped to phases: 9 (Phase 9: STOR-01, MIG-01, MIG-02 · Phase 10: STOR-02, STOR-03, STOR-04, STOR-05, SYNC-02, TEST-02)
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-23*
-*Last updated: 2026-07-23 after initial definition (`/gsd-new-milestone`).*
+*Last updated: 2026-07-23 after roadmap creation + revision (`/gsd-new-milestone` → roadmapper, then
+folded to 2 phases per user) — Phases 9–10 assigned, 9/9 requirements mapped, 0 unmapped.*
