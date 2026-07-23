@@ -370,7 +370,11 @@ existing shapes end-to-end — the milestone's definition of done.
   3. A human opens a second browser window on the same account and watches a star glide live in real
      time during a drag from the first — the milestone's acceptance gate.
 
-**Plans**: TBD
+**Plans:** 1 plan
+
+Plans:
+
+- [ ] 17-01-PLAN.md — Run the acceptance-only REG-02 human UAT gate with preflight smoke checks, one app process, two same-profile browser windows, evidence capture, and fail-fast handling.
 
 ## Progress
 
