@@ -273,17 +273,15 @@ Source: REG-02 success criteria and prior Phase 12 UAT pattern. [VERIFIED: `.pla
 | A2 | Use a fresh disposable UAT user or explicitly clean up old figures to avoid ambiguous evidence. | Common Pitfalls | Medium; old data could obscure which star satisfied REG-02. |
 | A3 | Drag slowly for 2-3 seconds to make live glide visually judgeable. | Common Pitfalls / Code Examples | Low; exact duration is operator guidance, not a product requirement. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Which browser/profile will the human use for UAT?**
    - What we know: The app requires two same-account browser windows for the glide gate. [VERIFIED: REG-02]
-   - What's unclear: The exact browser and screen layout are operator choices. [ASSUMED]
-   - Recommendation: Use the same normal browser profile for both windows, avoid incognito/private mode, and keep both windows visible during the glide step. [ASSUMED]
+   - RESOLVED: The UAT rule is to use the same normal browser profile for both windows, avoid incognito/private mode, and keep both windows visible during the glide step. The exact browser product and screen layout remain operator choices as long as they satisfy that rule. [ASSUMED]
 
 2. **Should the UAT evidence file be `17-UAT.md` or embedded in `17-VERIFICATION.md`?**
    - What we know: Prior Phase 12 used a dedicated UAT record consumed by verification. [VERIFIED: `.planning/milestones/v1.11-phases/BC-12-regression-verification/12-VERIFICATION.md`]
-   - What's unclear: The current planner may prefer a single plan task plus verifier output. [ASSUMED]
-   - Recommendation: Create `17-UAT.md` as the human checklist/evidence record, then let `17-VERIFICATION.md` cite it. [ASSUMED]
+   - RESOLVED: Create `17-UAT.md` as the human checklist/evidence record for REG-02, then let `17-VERIFICATION.md` cite that file after execution. [ASSUMED]
 
 ## Environment Availability
 
