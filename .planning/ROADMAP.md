@@ -107,7 +107,13 @@ preserved.
      or visually altered.
   4. An automated round-trip test compares the migrated rows to `v1.1-pre-rewrite-MANIFEST.md`'s
      expected anchor+geometry values for every one of the four shape types, and passes.
-**Plans**: TBD
+**Plans**: 6 plans (5 waves)
+- [ ] 09-01-PLAN.md — GeometryCodec: Box ↔ anchor+geometry per type (TDD foundation) [wave 1]
+- [ ] 09-02-PLAN.md — Port immutable v1.1 fixture + re-derive expected-values MANIFEST [wave 1]
+- [ ] 09-03-PLAN.md — Storage-model swap (Figure entity + DbContext + FigureStore + SyncMessage + Home.razor), build-green production [wave 2]
+- [ ] 09-04-PLAN.md — EF AnchorGeometryRewrite migration + hand-written backfill + apply-to-live + live-schema assertion [wave 3]
+- [ ] 09-05-PLAN.md — Test-suite build-continuity adaptation → full solution green on the new model [wave 4]
+- [ ] 09-06-PLAN.md — Round-trip migration test against the immutable fixture (MIG-02 proof) [wave 5]
 
 ### Phase 10: Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression
 **Goal**: All four shapes draw, drag, delete, and sync live on the anchor+geometry model, with the
@@ -152,7 +158,7 @@ suite is reworked to the new model and green on a clean build.
 | 6. Canvas Resize to 1472×828 | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
-| 9. Schema, Entity & Data-Preserving Migration | v1.11 | 0/TBD | Not started | - |
+| 9. Schema, Entity & Data-Preserving Migration | v1.11 | 0/6 | Planned | - |
 | 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 0/TBD | Not started | - |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
