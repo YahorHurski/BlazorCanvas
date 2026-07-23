@@ -4,6 +4,13 @@ Non-normative background from `docs/DECISIONS.md`: rationale, rejected alternati
 costs, and the failure modes the log explicitly warns about. Normative content lives in
 `decisions.md` / `constraints.md` / `requirements.md`.
 
+> 🛑 **v1.11 AMENDMENTS (2026-07-23) — STORAGE MODEL REWRITE (authority: `docs/DECISIONS.md` D-59).**
+> Storage becomes **anchor (`x,y`) + `geometry jsonb`** (circle `{r}`), `id` → **`uuid`**, order by
+> **`numeric z`**. The **canvas-edge clamp is DROPPED** (D-24/D-29/D-36 — figures may leave the
+> canvas), so **landmine 1 below ("never clamp individually") is now moot**; landmines 2 (line
+> swap-pair) and 3 (`PageX/PageY`) still apply. The "four integers / inscribed square" descriptions
+> below are **historical** — see D-59. Read on for history, not for the live model.
+
 > ⚠️ **v1.1 AMENDMENTS (2026-07-20).** Superseded here (authority: `docs/DECISIONS.md`): **canvas
 > is 1472×828** (was 1280×720); **the "no JavaScript" constraint below is REMOVED** — it was never
 > the real motivation (MVP simplicity was), and D-06/18/33/37/57 are re-worded. Selection is now a
@@ -32,8 +39,9 @@ source: docs/DECISIONS.md ("The three landmines", D-23, D-36, D-41, D-18, D-43)
 
 1. **Never clamp coordinates individually.** Clamp the *movement delta*, then translate all four
    uniformly. Clamping `x2` alone resizes the figure instead of moving it.
-   *(Since the D-22 reversal this now fails LOUDLY for circles — a non-square box violates the CHECK
-   immediately. It still fails silently for rectangles.)*
+   *(Since the D-22 reversal this failed LOUDLY for circles — a non-square box violated the CHECK.
+   **v1.11: MOOT — the canvas-edge clamp is dropped entirely (D-59); there is no clamp, and drag
+   translates the anchor only.**)*
 2. **Never normalise a line by sorting its axes.** (0,100)→(100,0) would become (0,0)→(100,100) —
    the opposite diagonal. Swap the whole point pair instead. (Sorting axes *is* correct for
    rectangle / triangle / circle.)

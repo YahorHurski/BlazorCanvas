@@ -93,15 +93,16 @@ there by name.
   and **silent geometric bugs**. That is exactly where the three mandated tests point (D-49).
 - **The three landmines** (each fails *silently* if missed):
   1. **Never clamp coordinates individually.** Clamp the movement *delta*, then translate all four
-     uniformly. Clamping `x2` alone resizes the figure instead of moving it.
+     uniformly. Clamping `x2` alone resizes the figure instead of moving it. *(v1.11: moot — the
+     edge-clamp is dropped (D-59); drag translates the anchor only. Landmines 2 and 3 still apply.)*
   2. **Never normalise a line by sorting its axes.** (0,100)→(100,0) would become (0,0)→(100,100) —
      the opposite diagonal. Swap the whole point pair. (Sorting axes *is* correct for
      rectangle/triangle/circle.)
   3. **Never use `OffsetX`/`OffsetY`.** Use `PageX`/`PageY`. `OffsetX` is relative to the *event
      target* — and every drag and every selection begins *on a figure*.
 - **Interaction and storage are different things.** A circle is *drawn* centre-out (press = centre,
-  drag = radius) but *stored* as the square it is inscribed in. Every figure is four integers that
-  are always its bounding box.
+  drag = radius) but *stored*, from **v1.11 (D-59)**, as an anchor `x,y` + `geometry` `{r}`. *(Was:
+  the square it is inscribed in; every figure was four integers = its bounding box, pre-v1.11.)*
 - **Environment:** Windows dev machine. .NET SDKs 8.0.418 / 9.0.311 / 10.0.301 and Docker 29.1.3
   verified present.
 
@@ -133,14 +134,17 @@ there by name.
   > rather than guessing a connection string, so `dotnet ef` cannot silently hit the wrong server.
 - **Two tables only** — `users` and `figures`. "The canvas" is not an entity in the database; it is
   simply the set of figures belonging to a user. Canonical DDL in
-  `.planning/intel/constraints.md` → `CONSTRAINT-schema`. (D-12, D-46)
+  `.planning/intel/constraints.md` → `CONSTRAINT-schema`. (D-12, D-46) *(v1.11: the two-table
+  principle stands, but every `figures` column is replaced by the anchor + `geometry jsonb` model —
+  `uuid` id, `numeric z` — see D-59. `users` is unchanged.)*
 - **The coordinate constant**: page margin 0, toolbar exactly **48px**, canvas immediately below at
   document position (0, 48), **no CSS border on the SVG**. `canvasX = PageX`, `canvasY = PageY − 48`.
   Every coordinate in the app flows through this. (D-43, D-18)
-- **1472 × 828, inclusive bounds** — `0..1472 × 0..828` *(v1.1; was 1280 × 720)*. **The size may
-  GROW but must never SHRINK** — enlarging keeps every stored figure valid (v1.1 did exactly this),
-  shrinking would orphan figures off the surface; stored
-  coordinates are only meaningful relative to it. (D-19, D-36)
+- **1472 × 828 canvas** — *(v1.1; was 1280 × 720)*. **The size may GROW but must never SHRINK** —
+  enlarging keeps every stored figure valid (v1.1 did exactly this), shrinking would orphan figures
+  off the surface; stored coordinates are only meaningful relative to it. (D-19) *(v1.11: the
+  **edge-clamp is REMOVED** — D-24/D-29/D-36 dropped, D-59 — so figures may now be dragged off the
+  canvas. The 1472×828 size itself is retained.)*
 - **Security: none, deliberately.** Passwords are stored and compared in **plaintext**. Acceptable
   ONLY because this is a throwaway learning project. Never real credentials; never deployed to the
   public internet as-is. **Do not "fix" this without an explicit new decision — it is locked.** (D-08)
@@ -151,7 +155,17 @@ there by name.
 conversation and survived two hostile audits. They are **not open questions**. Do not re-litigate,
 re-ask, or "improve" them. Full text: `.planning/intel/decisions.md`; original: `docs/DECISIONS.md`.
 
-<decisions status="locked" source="docs/DECISIONS.md" count="58">
+> 🛑 **v1.11 amendment (2026-07-23) — STORAGE MODEL REWRITE, user-approved.** The four-integer
+> bounding-box storage is replaced by an **anchor (`x,y`) + `geometry jsonb`** model (new **D-59**,
+> the authoritative storage entry). Consequences: **D-22 superseded** (circle → `{r}`); **D-39
+> superseded** (`id` `integer` → `uuid`; order carried by `numeric z`); **D-24 / D-29 / D-36
+> DROPPED** (no canvas-edge clamp — figures may leave the canvas); **D-53 amended** (payload →
+> anchor + geometry); **D-46 amended** (`created_at` stays dropped, `type text` + CHECK whitelist
+> kept); **D-23 amended** (degenerate guard kept code-side, "never clamp" moot); **D-41
+> re-expressed**. **D-20 / D-12 / D-03 upheld.** Full text in `docs/DECISIONS.md` (D-59 + inline
+> `⚠️ v1.11` banners).
+
+<decisions status="locked" source="docs/DECISIONS.md" count="59">
 
 ### Product scope
 | ID | Decision |
@@ -192,10 +206,10 @@ re-ask, or "improve" them. Full text: `.planning/intel/decisions.md`; original: 
 | D-19 | **Canvas is 1472 × 828** *(v1.1; was 1280 × 720)*. The size **may grow but must never shrink** — enlarging keeps every stored figure valid (v1.1 did this, no migration); shrinking orphans figures. Coordinates are only meaningful relative to it. |
 | D-20 | **Coordinates are integers.** Beyond tidiness: integers can be compared for exact equality in a database CHECK — so geometric invariants are *enforced by the schema*, not trusted in code. |
 | D-21 | **Triangle: derived from a drag, 2 points.** Apex top-centre, base along the bottom. Accepted cost: every triangle is isosceles and points upward. |
-| D-22 | **Geometry storage: four integers, always — and they ARE the bounding box. A circle is stored as its INSCRIBED SQUARE.** `r = (x2−x1)/2`, `cx = x1+r`, `cy = y1+r`. Drawing is unchanged (centre-out); **only storage is a square**. A move is a uniform translation, so `d` cancels **algebraically** — a circle dragged ten thousand times has a bit-identical radius. Enforced by `CHECK (type <> 'circle' OR (x2-x1 = y2-y1 AND x2 > x1 AND (x2-x1) % 2 = 0))`. **Why: generic clamping reads the raw columns — there is genuinely no type dispatch left in the move or the clamp.** *(REVISED — the original centre+rim encoding is REVERSED and dead)* |
-| D-24 | **Figures stop at the canvas edge** and **slide along it** rather than sticking. Clamp applied live on every pointer-move; the clamped position is what persists. **This decision is what forced the reversal of D-22.** |
+| D-22 | 🛑 **v1.11: SUPERSEDED by D-59** (anchor + `geometry jsonb`; circle = `{r}`). *(Historical below.)* **Geometry storage: four integers, always — and they ARE the bounding box. A circle is stored as its INSCRIBED SQUARE.** `r = (x2−x1)/2`, `cx = x1+r`, `cy = y1+r`. Drawing is unchanged (centre-out); **only storage is a square**. A move is a uniform translation, so `d` cancels **algebraically** — a circle dragged ten thousand times has a bit-identical radius. Enforced by `CHECK (type <> 'circle' OR (x2-x1 = y2-y1 AND x2 > x1 AND (x2-x1) % 2 = 0))`. **Why: generic clamping reads the raw columns — there is genuinely no type dispatch left in the move or the clamp.** *(REVISED — the original centre+rim encoding is REVERSED and dead)* |
+| D-24 | 🛑 **v1.11: DROPPED** (no edge clamp; figures may leave the canvas — D-59). **Figures stop at the canvas edge** and **slide along it** rather than sticking. Clamp applied live on every pointer-move; the clamped position is what persists. **This decision is what forced the reversal of D-22.** |
 | D-29 | **Drawing also stops at the canvas edge.** One rule for the whole app: figures live entirely inside the canvas, always. |
-| D-36 | **The clamp — exact formula, INCLUSIVE bounds (`0..1472 × 0..828`** *(v1.1; was `0..1280 × 0..720`)*`).** Clamp the *delta*, then translate all four uniformly. **Per-axis independence is the point** — `dx'` never reads `y`, so a figure pinned to the right edge still slides up and down. **Ordering: clamp → render → broadcast.** The one genuinely type-specific rule: the circle draw-clamp `r = min(round(distance), cx, cy, W−cx, H−cy)` — known consequence: **pressing near an edge forces a tiny circle**. No canvas-bounds CHECKs in the DB. |
+| D-36 | 🛑 **v1.11: DROPPED** with D-24/D-29 (no clamp — D-59; canvas keeps its 1472×828 size). **The clamp — exact formula, INCLUSIVE bounds (`0..1472 × 0..828`** *(v1.1; was `0..1280 × 0..720`)*`).** Clamp the *delta*, then translate all four uniformly. **Per-axis independence is the point** — `dx'` never reads `y`, so a figure pinned to the right edge still slides up and down. **Ordering: clamp → render → broadcast.** The one genuinely type-specific rule: the circle draw-clamp `r = min(round(distance), cx, cy, W−cx, H−cy)` — known consequence: **pressing near an edge forces a tiny circle**. No canvas-bounds CHECKs in the DB. |
 | D-41 | **Normalise on write — but NOT the same way for every shape.** Rectangle/triangle/circle → sort the axes independently. **LANDMINE — Line → swap the WHOLE POINT PAIR, never sort axes independently** ((0,100)→(100,0) would become the opposite diagonal). Consequence: `x1 ≤ x2` for every shape, but `y1 ≤ y2` **only** for rectangle/triangle/circle — which is why the clamp keeps its min/max bounding-box computation. |
 
 ### Interaction
@@ -219,19 +233,20 @@ re-ask, or "improve" them. Full text: `.planning/intel/decisions.md`; original: 
 | D-09 | **Persistence is immediate and per-operation. NO Save button.** Draw → `INSERT`; drag (on drop) → `UPDATE`; delete → `DELETE`. Load-bearing: each figure is its own row, so two tabs writing different figures cannot touch each other. The database is always the merged truth. |
 | D-10 | **Mandatory: handle the zero-row UPDATE/DELETE (staleness guard).** Use `ExecuteUpdateAsync`/`ExecuteDeleteAsync` and check the affected-row count. Zero rows on UPDATE ⇒ the figure is gone ⇒ **silently remove it from that tab's view.** Not an error — expected staleness. Needed even with live sync (a reconnected tab resumes its *in-memory* state and never re-reads the DB). **Manual fallback: F5.** |
 | D-11 | **Multi-tab: live sync with real-time drag glide.** Dragging in tab A makes the figure **glide** in tab B — not jump on release. **The one-mouse premise** deletes all locking/conflict/CRDT thinking. Mechanism: a **DI singleton notifier keyed by `user_id`**, delta payloads (D-53), pushed over Blazor's existing per-tab SignalR channel. **Broadcasting ≠ persisting: Postgres sees exactly ONE UPDATE per drag, on drop.** Irreducible core (all mandatory): unsubscribe in `Dispose()` · `InvokeAsync(StateHasChanged)` · echo filter · **mid-drag discard ALL incoming** (D-54) · **`move` is UPDATE-ONLY** (D-40) · 50ms throttle with guaranteed trailing edge (D-47) · key by `user_id` · clamp→render→broadcast · a zero-row UPDATE broadcasts a delete. *(as amended by D-40/D-47/D-53/D-54)* |
-| D-39 | **`figures.id` is a sequential integer, and it IS the z-order.** Load `ORDER BY id`. Within a session "topmost = drawn last" comes free from the DOM — **after F5 it does not**, so creation order must be reconstructed. Accepted cost: the id does not exist until the INSERT completes, so drawing is strictly **insert → get id → broadcast**. |
+| D-39 | 🛑 **v1.11: SUPERSEDED by D-59** (`id` `integer` → `uuid`; order carried by `numeric z`). **`figures.id` is a sequential integer, and it IS the z-order.** Load `ORDER BY id`. Within a session "topmost = drawn last" comes free from the DOM — **after F5 it does not**, so creation order must be reconstructed. Accepted cost: the id does not exist until the INSERT completes, so drawing is strictly **insert → get id → broadcast**. |
 | D-40 | **Killing the resurrection hole.** (1) **A `move` broadcast may only UPDATE — never INSERT.** Unknown figure → ignore the message entirely. (2) **A zero-row UPDATE broadcasts a delete.** Corrected rule: apply is idempotent, and move is update-only. |
 | D-45 | **Database errors: a friendly message, and the app stays alive.** "Could not save — is the database running?" The circuit does not crash. Honest consequence: the picture no longer matches the database — handled by D-52. |
-| D-46 | **`type` is `text` + CHECK. No `created_at`.** Not a free choice: D-22's and D-41's CHECKs are written as `type <> 'circle'` — a PG enum or int-mapped C# enum would **silently invalidate them**. `created_at` is dropped; the sequential `id` is the z-order. |
+| D-46 | ⚠️ **v1.11: AMENDED** (`created_at` stays dropped; `type text` + CHECK whitelist kept — Variant 1; D-59). **`type` is `text` + CHECK. No `created_at`.** Not a free choice: D-22's and D-41's CHECKs are written as `type <> 'circle'` — a PG enum or int-mapped C# enum would **silently invalidate them**. `created_at` is dropped; the sequential `id` is the z-order. |
 | D-47 | **Drag broadcast throttle: 50 ms, trailing edge GUARANTEED.** The final position is always sent before the drop — otherwise the glide stops short and the other monitor twitches at the end of every drag. A **throttle**, not a debounce. |
 | D-52 | **Save-failure policy: retry transient, then roll back everywhere.** Retry ≤ 2 more times **only if transient**. **Never retry** validation errors, CHECK violations, a missing figure, or a zero-row UPDATE. On final failure: **broadcast `rollback`** with the original coordinates → restore locally → modal ("The change could not be saved. The canvas will be reloaded from the database.") → reload from Postgres on OK. **The original coordinates are retained for the entire drag** precisely so this is possible. Forced because the glide broadcasts already went out — without rollback, **every open screen is lying**. |
-| D-53 | **The broadcast message contract (canonical).** Kinds: `draw` (insert-or-update; the only kind that may create a figure; sent *after* the INSERT), `move` (**UPDATE ONLY — never insert**; unknown figure → ignore entirely; **carries no `type`**), `delete` (idempotent), `rollback` (update-only, like `move`). **There is no `drop` kind** — a drag's final position is the last `move`. `sender` is a **per-circuit GUID** for the echo filter. **Draw previews are NOT broadcast.** |
+| D-53 | ⚠️ **v1.11: AMENDED** payload → anchor + geometry, `id` is `uuid` (semantics unchanged; D-59). **The broadcast message contract (canonical).** Kinds: `draw` (insert-or-update; the only kind that may create a figure; sent *after* the INSERT), `move` (**UPDATE ONLY — never insert**; unknown figure → ignore entirely; **carries no `type`**), `delete` (idempotent), `rollback` (update-only, like `move`). **There is no `drop` kind** — a drag's final position is the last `move`. `sender` is a **per-circuit GUID** for the echo filter. **Draw previews are NOT broadcast.** |
 | D-54 | **Mid-drag, a tab ignores ALL incoming broadcasts** — `if (_dragging) return;` — not merely those about the figure being dragged. Safe because of the one-mouse premise. Explicitly **rejected**: the narrow "ignore only messages about the dragged figure". Accepted cost, stated honestly: a message from a second device mid-drag is lost permanently until F5. |
 
 ### Schema and data
 | ID | Decision |
 |----|----------|
-| D-12 | **Two tables. No `canvases` table.** `users` and `figures`. "The canvas" is not an entity in the database — it is the set of figures belonging to a user. No canvas row, no canvas id, no join. *(Only the two-table principle is normative; D-12's DDL sketch is stale — the authoritative DDL is `CONSTRAINT-schema` in `.planning/intel/constraints.md`.)* |
+| D-12 | **Two tables. No `canvases` table.** `users` and `figures`. "The canvas" is not an entity in the database — it is the set of figures belonging to a user. No canvas row, no canvas id, no join. *(Only the two-table principle is normative; D-12's DDL sketch is stale — the authoritative DDL is `CONSTRAINT-schema` in `.planning/intel/constraints.md`.)* *(v1.11: two-table principle UPHELD; every `figures` column is replaced — see D-59.)* |
+| **D-59** | ⚠️ **v1.11 — AUTHORITATIVE storage model (supersedes D-22).** A figure = an **anchor** (`x, y` integers) + **`geometry jsonb`** (form relative to the anchor: circle `{r}`, rectangle `{w,h}`, …). **Drag updates only `x, y`** for every shape. `id` is a **`uuid`**; layer order is a **`numeric z`** (no UNIQUE, fractional) loaded `ORDER BY z, id`; index `(user_id, z)`. **No canvas-edge clamp** (D-24/D-29/D-36 dropped) — figures may leave the canvas (accepted risk). **No DB CHECK on `geometry`** — the server is the sole writer (D-09), an explicit trust boundary; `type text` + whitelist CHECK kept (D-46). Degenerate-draw guard kept **code-side** (D-23 #1). Existing figures **preserved via a hand-written backfill** tested against an immutable v1.1 fixture. Left for plan time: per-type JSON shape (esp. line), `z` formula, uuid v4-vs-v7, `Type`-as-enum, backfill mechanism. |
 
 ### Appearance
 | ID | Decision |
@@ -249,6 +264,10 @@ dropped `created_at`) · D-15 (the Delete key) · D-16 ("four" buttons) · **D-2
 REVERSED)** · D-23 ("one shared guard") · D-30 ("five" buttons) · D-32's shared-guard framing ·
 D-45's undecided "and/or".
 Full history: `.planning/intel/decisions.md` § "Superseded history".
+
+*(v1.11 supersessions are different in kind: the inscribed-square D-22 and the integer-id D-39 were
+**correct** for v1.0/v1.1 — they are superseded by D-59's storage-model change, not "dead/wrong".
+Do not confuse them with the dead rim-point encoding above.)*
 
 </decisions>
 

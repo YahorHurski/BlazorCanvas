@@ -7,6 +7,15 @@ an acceptance criterion, none is asserted.
 
 Because there is only one source document, there are **no competing acceptance variants**.
 
+> 🛑 **v1.11 AMENDMENTS (2026-07-23) — STORAGE MODEL REWRITE (authority: `docs/DECISIONS.md` D-59).**
+> Several acceptance criteria below describe the v1.0/v1.1 **four-integer bbox + edge-clamp** model
+> and are **superseded going forward**: storage is now **anchor (`x,y`) + `geometry jsonb`** (circle
+> `{r}`); load is `ORDER BY z, id` (not `ORDER BY id`); the **canvas-edge clamp is DROPPED** (figures
+> may leave the canvas), so criteria about "stops/slides at the edge" and the circle draw-clamp no
+> longer hold; the circle round-trip becomes a `{r}` assertion; `id` is a `uuid`. These lines remain
+> accurate **as the record of what v1.0/v1.1 delivered** — the v1.11 milestone defines fresh
+> requirements in a new `REQUIREMENTS.md`. Existing figures are preserved by a data migration.
+
 > ⚠️ **v1.1 AMENDMENTS (2026-07-20)** — these v1.0-derived requirements are partly superseded.
 > Authority: `docs/DECISIONS.md` + `.planning/PROJECT.md` (Requirements → Active). Changed:
 > **canvas 1472×828** (was 1280×720); **selection = blue+white dashed trace on the figure's own
