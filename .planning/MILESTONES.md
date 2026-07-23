@@ -1,5 +1,75 @@
 # Milestones
 
+## v1.11 Storage Model Rewrite (Shipped: 2026-07-22)
+
+**Phases completed:** 4 phases, 19 plans, 35 tasks
+
+**Key accomplishments:**
+
+- Typed local geometry, an ordinal shape registry, and finite culture-invariant JSON primitives establish the pure-C# foundation for the v1.11 shape model.
+- A typed style boundary now converts hostile browser JSON into bounded, allowlisted values and emits only a four-key canonical payload.
+- An approved, restore-proven, redacted v1.1 PostgreSQL snapshot now preserves the exact migration subject Phase 10 needs, including ordered edge-case figures and their expected converted geometry.
+- Four isolated shape definitions now preserve local geometry precisely, reject hostile or degenerate input, and reproduce the v1.1 drawing behaviour.
+- The shape registry is now mechanically proven equivalent to v1.1 gestures, extensible by one test-only shape class, and resistant to bounding-box-derived point-list regressions.
+- A single registry-backed gateway now rejects unsafe figure geometry, sanitises all style input, and returns only canonical JSON re-serialised from typed records.
+- An additive, idempotent v11 PostgreSQL schema now holds canvases, data-driven figure types, and JSON-backed figures while the public legacy model remains intact.
+- Lossless v1.1 figure conversion and stable version-8 UUID mapping are proven independently of PostgreSQL.
+- A gateway-fed v11 repository now writes type-blind positions, exact numeric layers, and local bounding-box caches while preserving canvas ownership and deterministic z-collision recovery.
+- A guarded scratch-database replay now proves the v1.1 fixture migrates all 708 users and 795 figures losslessly into v11, with deterministic canvases, preserved layers, fixed style, and cached bounds.
+- The v11 storage model now proves every cached local bbox agrees with fresh geometry and proves hostile client input either creates no row or lands only as sanitised JSONB.
+- The v11 migration now rolls back its schema, seeded registry, canvases, and figures as one PostgreSQL transaction when legacy conversion rejects a row.
+- The application now prepares the additive v1.11 store before any interactive circuit, and each authenticated owner can lazily and idempotently resolve only their deterministic 1472×828 canvas.
+- A browser-local SVG drawing preview restores initiating-tab feedback during a gesture while keeping figure creation commit-only across tabs.
+- REG-01 human acceptance passed 3/3 on the running application: four shapes with edge clamping, selection and deletion across two windows, and a visibly gliding committed drag.
+
+> The two preceding bullets replace auto-extracted one-liners from `12-01-SUMMARY.md` and
+> `12-02-SUMMARY.md`, which recorded the *first*, failed acceptance run. That gap was closed in
+> Phase 12 and re-verified — `12-VERIFICATION.md` reads `passed`, 6/6.
+
+**Closeout type:** `override_closeout` — 21/22 requirements satisfied.
+
+**Final state:** `dotnet build` clean (0 warnings, 0 errors); 500/500 tests passing.
+
+### Evidence restoration at close
+
+The milestone audit found that Phase 11's cutover-cleanup commit `1aaf45b` deleted 20 test files
+(4,239 lines). Eleven (1,904 lines) were correct TEST-02 retirement — their subjects are genuinely
+gone. The other nine removed the only executable proof for requirements still in force, and the same
+commit rewrote `LegacyFigureConversion.cs` while deleting its unit tests.
+
+Six of those nine were restored and rebased onto the promoted `public.*` schema before close (commit
+`2f58086`), returning 197 tests and taking the suite from 303 to 500. This closed TEST-03, MODEL-01,
+MODEL-05, MODEL-07, MIGR-01, and MIGR-02, which the audit had scored unsatisfied or partial.
+
+### Known Gaps
+
+| Requirement | Status | Detail |
+|---|---|---|
+| **MIGR-03** | Accepted gap | *"A test loads a v1.1-era database dump, runs the migration, and verifies every figure's rendered vertices and stacking order against expected values — the migration is proven lossless, not assumed."* No test loads the committed fixture; `V11MigrationReplayTests.cs` and `V11MigrationReplayFixture.cs` remain deleted. `v1.1-pre-rewrite.sql` is still committed and copied to test output, but has no C# consumer. |
+
+**Why accepted:** the migration path is permanently unreachable. The sole database is in
+`CatalogState.Completed`, so `V11Cutover.EnsureAsync` returns before touching it; a fresh volume
+takes the `FreshUsersOnly` path, which never calls `LegacyFigureConversion`; and D-08 locks the
+project against deployment. Forward risk is zero. The restored `LegacyFigureConversionTests` covers
+all 8 curated manifest rows with values transcribed from the manifest. What remains unproven is the
+795-row database round-trip — jsonb storage, `z` backfill from the old id, canvas attachment,
+cross-user stacking, and second-run idempotency. The residual risk is retrospective rather than
+forward-looking.
+
+**The requirement text was deliberately not rewritten to fit what was built.** Full reasoning and the
+route to closing it later: `milestones/v1.11-MILESTONE-AUDIT.md`.
+
+### Carried Tech Debt
+
+- `ShapeRegistry.All`/`.Names` return live `List` instances behind `IReadOnlyList` (09-REVIEW WR-03).
+- `Home.razor.js` reimplements shape preview geometry outside the registry, with no drift guard —
+  worth closing before v1.2 adds figure types.
+- `V11SchemaShapeTests.cs` not restored; overlap with `V11CutoverTests.AssertFinalPublicCatalogAsync`
+  is partial.
+- `V11DataMigration.RunAsync(NpgsqlDataSource, …)` is now unreferenced in production.
+
+---
+
 ## v1.1 Canvas resize · selection UX · no-JS removal (Shipped: 2026-07-21)
 
 **Phases completed:** 3 phases, 4 plans, 9 tasks

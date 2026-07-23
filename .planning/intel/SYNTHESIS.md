@@ -55,16 +55,31 @@ Requirement IDs: `REQ-login`, `REQ-session`, `REQ-logout`, `REQ-one-canvas-per-u
 
 ## The three authoritative artifacts
 
-The source document's own "READ THIS FIRST" index names three things to trust over everything else.
-All three are extracted verbatim into `constraints.md`:
+> # 🛑 v1.11 (2026-07-21): items 1 and 2 below are DEAD
+>
+> **The storage model was replaced.** Authority is now `docs/DECISIONS.md` → **D-59…D-69**, with
+> the full rationale and migration plan in `docs/DATA-MODEL-v1.11-DRAFT.md`. The rewritten
+> `CONSTRAINT-schema` and `CONSTRAINT-geometry` in `constraints.md` are the extraction.
+>
+> A figure is **no longer four integers**. Position (`x, y, rotation`) and shape
+> (`geometry jsonb`, in local coordinates) are stored separately; ids are `uuid`; draw order is a
+> `z` column; there are four tables (`users`, `canvases`, `figures`, `figure_types`); the geometry
+> CHECK constraints are gone and validation lives in C#.
+>
+> Item 3 (D-53) survives **in its rules** — update-only, ignore-unknown-id, echo filter — but its
+> **payload changed**: `move` carries `(id, x, y)`, `draw` carries geometry, style and `z`.
 
-1. **`THE SCHEMA`** — the canonical DDL. Two tables (`users`, `figures`), four integer coordinates,
-   three per-type CHECK constraints, one index, one `COMMENT ON TABLE`. Supersedes D-12's sketch.
-2. **`D-22` (revised)** — geometry storage. Every figure is four integers that are **always its
-   bounding box**; a **circle is stored as its inscribed square**. The earlier "centre + rim point"
-   encoding was REVERSED and is dead.
+*(Historical — the v1.0/v1.1 position.)* The source document's own "READ THIS FIRST" index named
+three things to trust over everything else:
+
+1. ~~**`THE SCHEMA`**~~ — the canonical DDL. Two tables (`users`, `figures`), four integer
+   coordinates, three per-type CHECK constraints. **🛑 Superseded by D-64/D-59/D-60.**
+2. ~~**`D-22` (revised)**~~ — every figure is four integers that are **always its bounding box**;
+   a circle stored as its inscribed square. **🛑 Superseded by D-59/D-60.** Worth reading only for
+   *why* it was reversed — that reasoning still holds and D-59 preserves its central insight (a
+   type-blind move) while dropping the four-integer ceiling.
 3. **`D-53`** — the canonical broadcast message contract. Kinds: `draw`, `move`, `delete`,
-   `rollback`. `move` is UPDATE-ONLY. No `drop` kind.
+   `rollback`. `move` is UPDATE-ONLY. No `drop` kind. **Rules stand; payload amended in v1.11.**
 
 ---
 
@@ -76,8 +91,15 @@ content was **excluded** from the extracted decisions and is preserved only as l
 
 D-05 (amended by D-13) · D-07 (retracted by D-34) · D-11 (amended by D-40/D-47/D-53/D-54 — its
 "idempotent upsert" is a **bug**) · D-12 (DDL sketch stale) · D-15 (Delete key → D-33) · D-16
-("four" buttons → six) · **D-22 (REVERSED — inscribed square, not centre+rim)** · D-23 ("one shared
-guard" → per-type, D-50) · D-30 ("five" buttons → six).
+("four" buttons → six) · **D-22 (REVERSED — inscribed square, not centre+rim; 🛑 then SUPERSEDED
+ENTIRELY in v1.11 by D-59/D-60)** · D-23 ("one shared guard" → per-type, D-50) · D-30 ("five"
+buttons → six).
+
+🛑 **v1.11 adds nine more superseded entries:** `THE SCHEMA` · D-12 (two tables → four) ·
+D-14 (fixed style → `style jsonb`) · D-20 (integers → `numeric`) · D-22 (bounding-box storage →
+position/geometry split) · D-39 (`id` IS the z-order → `uuid` + `z` column) · D-41 (line
+normalisation → dissolved) · D-46 (`type` CHECK → `figure_types` FK; `created_at` returns) ·
+D-50 (guard mirrors CHECKs → C#-only). Each is flagged in-source in `docs/DECISIONS.md`.
 
 Plus one stale claim the source's own index does NOT flag: **D-32 §1** restates D-23's shared-guard
 framing (see INFO in the conflicts report).

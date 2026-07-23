@@ -4,6 +4,24 @@ Extracted from the single ADR set `docs/DECISIONS.md`. These are the executable/
 artifacts: schema, contracts, formulas, and fixed constants. Where a constraint has a canonical
 form in the source, it is reproduced verbatim.
 
+> # 🛑 v1.11 AMENDMENTS (2026-07-21) — THE STORAGE MODEL WAS REPLACED
+>
+> **Authority: `docs/DECISIONS.md` → D-59…D-69.** Full reasoning and the migration plan:
+> `docs/DATA-MODEL-v1.11-DRAFT.md`.
+>
+> The following constraints below are **REWRITTEN** for v1.11: `CONSTRAINT-schema`,
+> `CONSTRAINT-geometry`, `CONSTRAINT-normalisation`, `CONSTRAINT-min-size-guard`,
+> `CONSTRAINT-messages`, `CONSTRAINT-visual`. Each carries its own 🛑 note.
+>
+> One-line summary: a figure is no longer four integers. **Position (`x, y, rotation`) and shape
+> (`geometry jsonb`, in local coordinates) are stored separately.** Ids are `uuid`, draw order is
+> a `z` column, there are four tables, and geometry is validated in C# rather than by CHECK
+> constraints.
+>
+> Unchanged: the clamp formula, the write policy (one UPDATE per drag on drop), the sync *rules*
+> (no-resurrection, 50 ms throttle, mid-drag isolation, echo filter), layout constants, and
+> interaction thresholds.
+
 > ⚠️ **v1.1 AMENDMENTS (2026-07-20).** Superseding facts (authority: `docs/DECISIONS.md`): canvas
 > **W=1472, H=828** and valid domain **`0..1472 × 0..828`** (was 1280×720 / `0..1280 × 0..720`) —
 > the formula is unchanged, only the constants; **selected-figure indicator = ~1px blue+white dashed
@@ -15,112 +33,157 @@ form in the source, it is reproduced verbatim.
 
 ## CONSTRAINT-schema — The canonical DDL
 type: schema
-source: docs/DECISIONS.md → section "THE SCHEMA (canonical — assembled from D-12, D-22, D-39, D-41, D-46, D-44, D-50)"
-status: **AUTHORITATIVE.** Supersedes D-12's illustrative sketch (which still shows the dropped
-`created_at` column). Implement from this, never from D-12.
+source: docs/DECISIONS.md → D-59…D-69 (v1.11). Full rationale: docs/DATA-MODEL-v1.11-DRAFT.md
+status: **AUTHORITATIVE.** 🛑 Replaces the v1.0/v1.1 DDL entirely. `THE SCHEMA` in
+`docs/DECISIONS.md` is dead and marked as such; never implement from it or from D-12/D-22.
 
 ```sql
-CREATE TABLE users (
+CREATE TABLE users (                       -- UNCHANGED
     id       integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     username text NOT NULL UNIQUE,   -- stored LOWERCASED (D-44), trimmed, never empty
     password text NOT NULL           -- PLAINTEXT. Throwaway project only. (D-08)
 );
 
-CREATE TABLE figures (
-    id      integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,  -- also the z-order (D-39)
-    user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    type    text    NOT NULL CHECK (type IN ('line','rectangle','circle','triangle')),
-    x1 integer NOT NULL,
-    y1 integer NOT NULL,
-    x2 integer NOT NULL,
-    y2 integer NOT NULL,
-
-    -- circle: stored as the square it is inscribed in (D-22)
-    CONSTRAINT circle_is_a_circle CHECK (
-        type <> 'circle' OR (x2 - x1 = y2 - y1 AND x2 > x1 AND (x2 - x1) % 2 = 0)),
-
-    -- rectangle / triangle: a real box, normalised, no zero width or height (D-23, D-41)
-    CONSTRAINT box_is_a_box CHECK (
-        type NOT IN ('rectangle','triangle') OR (x2 > x1 AND y2 > y1)),
-
-    -- line: normalised left-to-right; may run either way vertically; never zero-length
-    CONSTRAINT line_is_a_line CHECK (
-        type <> 'line' OR (x2 >= x1 AND (x2 > x1 OR y2 <> y1)))
+-- D-64. One row per user in v1.11; NO UI for creating more.
+CREATE TABLE canvases (
+    id         uuid        PRIMARY KEY,
+    owner_id   integer     NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name       text        NOT NULL DEFAULT 'Canvas',
+    width      integer     NOT NULL DEFAULT 1472,      -- was CanvasBounds, now data
+    height     integer     NOT NULL DEFAULT 828,
+    background text        NOT NULL DEFAULT '#FFFFFF',
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX ix_figures_user_id ON figures(user_id);   -- every page load filters on this
+CREATE INDEX ix_canvases_owner ON canvases(owner_id);
 
-COMMENT ON TABLE figures IS
-  'x1,y1,x2,y2 are ALWAYS the figure''s bounding box. A CIRCLE is stored as the square it is '
-  'inscribed in: r = (x2-x1)/2, cx = x1+r, cy = y1+r. It is DRAWN centre-out (press centre, '
-  'drag for radius) but STORED as a square — interaction and storage are different things. '
-  'A LINE is the segment between the two points and may run diagonally in either vertical '
-  'direction; it is normalised by swapping the whole point pair, never by sorting axes.';
+-- D-65. Adding a figure type is an INSERT here, never an ALTER TABLE.
+CREATE TABLE figure_types (
+    name text PRIMARY KEY
+);
+-- seeded at application start: 'line', 'rectangle', 'circle', 'triangle'
+
+CREATE TABLE figures (
+    id        uuid PRIMARY KEY,                                        -- D-62
+    canvas_id uuid NOT NULL REFERENCES canvases(id)    ON DELETE CASCADE,
+    type      text NOT NULL REFERENCES figure_types(name),             -- D-65
+
+    -- POSITION (D-59). A move touches ONLY these.
+    x        numeric(12,3) NOT NULL,                                   -- D-61
+    y        numeric(12,3) NOT NULL,
+    rotation numeric(7,3)  NOT NULL DEFAULT 0,
+
+    -- SHAPE (D-60), in LOCAL coordinates from (0,0). Source of truth.
+    geometry jsonb NOT NULL,
+
+    -- STYLE (D-66). Written only through the C# validator.
+    style jsonb NOT NULL DEFAULT '{}',
+
+    z numeric NOT NULL,                                                -- D-63
+
+    -- BBOX CACHE (D-67). Pure function of geometry. EXCLUDES the stroke.
+    bbox_x double precision NOT NULL,
+    bbox_y double precision NOT NULL,
+    bbox_w double precision NOT NULL,
+    bbox_h double precision NOT NULL,
+
+    created_at timestamptz NOT NULL DEFAULT now(),                     -- D-68
+    updated_at timestamptz NOT NULL DEFAULT now(),
+
+    CONSTRAINT z_unique_per_canvas unique (canvas_id, z),              -- D-63
+    CONSTRAINT style_is_object     CHECK (jsonb_typeof(style)    = 'object'),
+    CONSTRAINT geometry_is_object  CHECK (jsonb_typeof(geometry) = 'object'),
+    CONSTRAINT bbox_is_positive    CHECK (bbox_w >= 0 AND bbox_h >= 0)
+);
+
+CREATE INDEX ix_figures_canvas_z ON figures(canvas_id, z);
 ```
 
-- **Two tables only. No `canvases` table** — "the canvas" is just the set of figures belonging to
-  a user (D-12).
-- **No `created_at`** (D-46) — the sequential `id` is the z-order (D-39).
-- **`type` must be `text`** (D-46) — the CHECKs are written as `type <> 'circle'`; a PG enum or an
-  int-mapped C# enum would silently invalidate them.
-- **No canvas-bounds CHECK constraints** (D-36) — D-24/D-29 already guarantee figures live inside
-  the canvas.
-- **Load query:** `SELECT * FROM figures WHERE user_id = @id ORDER BY id` — the `ORDER BY` is what
-  reconstructs z-order after F5 (D-39).
-- **EF Core must be told about all of this explicitly** (D-42): CHECK constraints via
-  `HasCheckConstraint` in `OnModelCreating`, plus the `COMMENT ON TABLE`. EF will not emit them on
-  its own, and every geometric guarantee rests on them.
+- **Four tables** (D-64). `canvases` exists; `figures.user_id` is gone, replaced by `canvas_id`.
+- **NO geometry CHECK constraints** (D-60). `circle_is_a_circle`, `box_is_a_box` and
+  `line_is_a_line` are deleted. The database cannot validate shape any more — **all geometric
+  correctness lives in C#, at one choke point.** This is an accepted cost, not an oversight.
+- **Load query:** `SELECT * FROM figures WHERE canvas_id = @id ORDER BY z` (D-63).
+- **`z` is unique per canvas.** A new figure takes `z = max(z) + 1`; **a retry on unique violation
+  is REQUIRED** (two tabs drawing simultaneously compute the same value). Without it a figure
+  silently fails to appear.
+- **`bbox_*` is maintained by the app, NOT a generated column** (D-67) — a generated column would
+  need shape logic duplicated in PL/pgSQL, which would make every new figure type a migration.
+- **DEFERRED, do not add** (D-69): `version`, `parent_id`, a GiST index on the bbox, a history
+  table, soft delete. Each is an instant additive change later.
+- **EF Core must be told about all of this explicitly** (D-42): the check constraints, the unique
+  constraint, and the jsonb column mappings. EF will not infer them.
 
 ---
 
 ## CONSTRAINT-geometry — Storage encoding
 type: schema / invariant
-source: docs/DECISIONS.md (D-22 revised, D-20, D-13)
+source: docs/DECISIONS.md (D-59, D-60, D-61)
+status: 🛑 **REWRITTEN in v1.11.** The old "four integers ARE the bounding box" encoding is dead.
 
-**Every figure is exactly four integers `x1, y1, x2, y2`, all non-null, and for every shape those
-four numbers ARE its bounding box.**
+**Position and shape are separate. `geometry` holds the shape in LOCAL coordinates from (0,0);
+`x, y, rotation` place it on the canvas.**
 
-| Shape | (x1, y1) | (x2, y2) |
-|---|---|---|
-| Line | one endpoint | the other endpoint |
-| Rectangle | one corner | the opposite corner |
-| Triangle | one corner of its box | the opposite corner |
-| Circle | top-left of the inscribed square `(cx − r, cy − r)` | bottom-right `(cx + r, cy + r)` |
+| Shape | `geometry` |
+|---|---|
+| Line | `{"points": [[0,0],[100,40]]}` |
+| Rectangle | `{"w": 200, "h": 100}` |
+| Circle | `{"r": 50}` |
+| Triangle | `{"points": [[50,0],[0,80],[100,80]]}` |
 
-Circle recovery on read: `r = (x2 − x1) / 2`, `cx = x1 + r`, `cy = y1 + r`.
-Invariant: a move is a uniform translation; `d` cancels algebraically, so the radius is exactly
-preserved across any number of drags (integers ⇒ no float drift).
-Machine-checked by `circle_is_a_circle`: square · positive · even side.
+Future types need **no schema change**: `{"rx","ry"}` (ellipse), `{"n","rx","ry"}` (regular
+n-gon), `{"points":[…]}` of any length, `{"segments":[…]}` (bezier).
+
+**Format rule (D-60):** store a shape in the most general representation *that same type* will
+ever need. Triangle and line are point lists because vertex editing is planned; circle is a single
+`r` because a circle never becomes an ellipse — the ellipse is a separate type.
+
+**The invariant that survives:** a move is still type-blind — it changes `x, y` and nothing else,
+at any shape complexity, including a 1000-vertex path. `geometry` is neither read nor written by
+a move.
+
+**Accepted cost:** jsonb removes *schema* migrations, not *format* migrations. Changing a stored
+type's format still rewrites every row of it. Hence: settle a type's format before its first
+write, and read defensively (a missing key takes a default, never throws).
 
 ---
 
 ## CONSTRAINT-normalisation — Canonical order on write
 type: invariant
-source: docs/DECISIONS.md (D-41)
+source: docs/DECISIONS.md (D-60, superseding D-41)
+status: 🛑 **LARGELY DISSOLVED in v1.11 — and the line landmine is DEFUSED.**
 
-Applied **once, before the INSERT**, in **exactly one place** in the app.
+The line's special normalisation arm existed only because the line was the one figure whose four
+columns were its endpoints rather than a bounding box. **A line is now stored as its two points,
+so there is no axis-sorting step to get wrong.**
 
-- **Rectangle / triangle / circle** → sort the axes independently (`x1 = min(x1,x2)`, etc.).
-- **Line** → **swap the WHOLE POINT PAIR** (if `x1 > x2`, or if `x1 == x2` and `y1 > y2`).
-  **NEVER sort a line's axes independently** — (0,100)→(100,0) would become (0,0)→(100,100), the
-  opposite diagonal.
+What remains: a draw gesture must resolve to an origin (`x, y`) plus a local shape. For box-shaped
+gestures the origin is the minimum corner. Applied **once, before the INSERT, in exactly one
+place**, as before.
 
-Post-condition: `x1 ≤ x2` for every shape; `y1 ≤ y2` for rectangle/triangle/circle but **not** for
-a line. This is exactly why the clamp keeps its min/max bounding-box computation.
+*Keep the historical landmine in mind as a class of bug: a figure that still renders after being
+corrupted reports nothing.*
 
 ---
 
 ## CONSTRAINT-min-size-guard — Per-type draw rejection
 type: invariant
-source: docs/DECISIONS.md (D-50, retracting D-23's shared guard)
+source: docs/DECISIONS.md (D-60, superseding D-50)
+status: 🛑 **AMENDED in v1.11 — still per-type, but no longer a mirror.**
 
 | Shape | Rejected when |
 |---|---|
 | Line | both endpoints identical (zero length). **Horizontal and vertical lines are legal.** |
 | Rectangle / triangle / circle | width **or** height is zero (circle: radius zero) |
 
-Mirrors the CHECK constraints exactly, so **the app can never write a row the database would
-refuse.** A rejected draw fails **silently** — no message, no error.
+**The rules are unchanged; their authority is not.** There are no geometry CHECK constraints left,
+so this guard has no SQL counterpart to agree with, and the 32-case matrix test proving agreement
+is obsolete. It is now the **only** thing standing between a malformed shape and the database.
+A rejected draw still fails **silently** — no message, no error.
+
+Validation belongs in **one place** alongside the shape's other per-type logic
+(`IShapeDefinition`), never copied into each write path.
 
 ---
 
@@ -164,16 +227,23 @@ status: **AUTHORITATIVE.** Supersedes the partial/inconsistent descriptions in D
 `sender` is a **per-circuit GUID**, generated once when a tab's canvas component initialises. It
 exists solely for the echo filter: a tab ignores any message whose `sender` equals its own.
 
+🛑 **v1.11: the RULES below are unchanged; the PAYLOAD changes.** `x1, y1, x2, y2` no longer exist
+on a figure, and `id` is a `uuid` (D-62). Receiver semantics — update-only, ignore-unknown-id,
+echo filter — survive verbatim.
+
 | Kind | Payload | Receiver's action |
 |---|---|---|
-| `draw` | `{ kind, sender, id, type, x1, y1, x2, y2 }` | Insert or update by `id`. **The only kind that may create a figure.** Sent *after* the INSERT (the `id` does not exist until then — D-39). |
-| `move` | `{ kind, sender, id, x1, y1, x2, y2 }` | **UPDATE ONLY — never insert.** Unknown figure → **ignore the message entirely.** (Kills the resurrection bug — D-40.) |
+| `draw` | `{ kind, sender, id, type, x, y, rotation, geometry, style, z }` | Insert or update by `id`. **The only kind that may create a figure.** Still sent *after* the INSERT (D-35/D-39: drawing is not broadcast live). |
+| `move` | `{ kind, sender, id, x, y }` | **UPDATE ONLY — never insert.** Unknown figure → **ignore the message entirely.** (Kills the resurrection bug — D-40.) |
 | `delete` | `{ kind, sender, id }` | Remove by `id`. Idempotent — deleting an unknown figure is a silent no-op. |
-| `rollback` | `{ kind, sender, id, x1, y1, x2, y2 }` | Restore the figure to the given coordinates. Sent when a save fails after all retries (D-52). Applied **update-only**, like `move`. |
+| `rollback` | `{ kind, sender, id, x, y }` | Restore the figure to the given position. Sent when a save fails after all retries (D-52). Applied **update-only**, like `move`. |
 
 - **No `drop` kind.** A drag's final position is simply the last `move` (guaranteed sent by D-47's
   trailing edge), followed by silence.
-- **`move` carries no `type`** — a figure's type never changes and the receiver already knows it.
+- **`move` shrank from four numbers to two** — a move is now a translation of the origin and
+  nothing else, so each drag frame costs less traffic than in v1.1.
+- **`move` carries no `type` and no `geometry`** — neither changes during a drag, and the receiver
+  already has them.
 - **Draw previews are NOT broadcast** (D-35). Live glide applies to *dragging an existing figure*,
   never to *drawing a new one*.
 - Notifier events are keyed by **`user_id`** (D-11 core rule 7), matching the DB and the cookie claim.
@@ -204,9 +274,9 @@ source: docs/DECISIONS.md (D-09, D-10, D-52)
 
 | User action | Database effect |
 |---|---|
-| Draw a figure | `INSERT` one row into `figures` |
-| Drag a figure (on drop only) | `UPDATE` that row's coordinates |
-| Delete a figure | `DELETE` that row |
+| Draw a figure | `INSERT` one row into `figures` *(v1.11: with a retry if `z` collides — see CONSTRAINT-schema)* |
+| Drag a figure (on drop only) | `UPDATE` that row's **`x, y`** *(v1.11: two columns, not four)* |
+| Delete a figure | `DELETE` that row — **hard delete stays** (D-69 declined soft delete) |
 
 - **No Save button anywhere.** No "unsaved changes" state.
 - **Postgres sees exactly ONE UPDATE per drag** — intermediate glide positions travel through
@@ -217,7 +287,11 @@ source: docs/DECISIONS.md (D-09, D-10, D-52)
 - Save failure: retry ≤ 2 more times **only if transient**. Never retry validation errors, CHECK
   violations, missing figures, or zero-row UPDATEs. On final failure: broadcast `rollback` →
   restore locally → modal → reload the canvas from Postgres on OK.
-- The figure's **original coordinates must be retained for the entire drag** to make rollback possible.
+- 🛑 **v1.11 adds ONE retryable non-transient case:** a unique violation on `(canvas_id, z)` during
+  INSERT. It is retried **with a recomputed `z`**, not with the same value. This is the sole
+  exception to "never retry constraint violations" and exists because two tabs drawing at the same
+  instant legitimately compute the same `z` (D-63).
+- The figure's **original position must be retained for the entire drag** to make rollback possible.
 
 ---
 
@@ -255,7 +329,13 @@ source: docs/DECISIONS.md (D-58, D-38, D-55, D-19, D-43)
 - 2px (not 1px) is deliberate: the stroke is the only click target a line has (D-32 declined a
   widened hit-area).
 - **Delete button is greyed out and unclickable when nothing is selected** (D-58).
-- No style columns in the database; no colour picker (D-14).
+- 🛑 **v1.11: "no style columns in the database" is obsolete** (D-66). Style is now per-figure in a
+  validated `style jsonb`. **The values above are unchanged and still what every figure gets** —
+  they become the column defaults, and v1.11 ships **no styling UI**. Nothing changes on screen.
+  Validator bounds: colours must match `^#[0-9A-Fa-f]{6}$`, `stroke_width` clamps to **0.5 – 64**,
+  `opacity` clamps to 0 – 1.
+- 🛑 **v1.11: canvas size is no longer a compile-time constant.** 1472 × 828 becomes the default in
+  `canvases.width/height` (D-64). `CanvasBounds` stops being the authority.
 
 ---
 

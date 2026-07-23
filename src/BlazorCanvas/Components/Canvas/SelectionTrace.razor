@@ -1,36 +1,65 @@
-@using BlazorCanvas.Geometry
+@using System.Globalization
+@using BlazorCanvas.Data.V11
+@using BlazorCanvas.Shapes
 
-<g fill="none" pointer-events="none">
-    @switch (Type)
-    {
-        case FigureType.Line:
-            <line x1="@Box.X1" y1="@Box.Y1" x2="@Box.X2" y2="@Box.Y2" stroke="#FFFFFF" stroke-width="2" />
-            <line x1="@Box.X1" y1="@Box.Y1" x2="@Box.X2" y2="@Box.Y2" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
-            break;
-        case FigureType.Rectangle:
-            <rect x="@Box.X1" y="@Box.Y1" width="@Box.Width" height="@Box.Height" stroke="#FFFFFF" stroke-width="2" />
-            <rect x="@Box.X1" y="@Box.Y1" width="@Box.Width" height="@Box.Height" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
-            break;
-        case FigureType.Circle:
-            <circle cx="@CircleCentreRadius.Cx" cy="@CircleCentreRadius.Cy" r="@CircleCentreRadius.R" stroke="#FFFFFF" stroke-width="2" />
-            <circle cx="@CircleCentreRadius.Cx" cy="@CircleCentreRadius.Cy" r="@CircleCentreRadius.R" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
-            break;
-        case FigureType.Triangle:
-            <polygon points="@TrianglePoints" stroke="#FFFFFF" stroke-width="2" />
-            <polygon points="@TrianglePoints" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
-            break;
-    }
-</g>
+@if (Geometry is not null)
+{
+    <g fill="none" pointer-events="none" transform="@Transform">
+        @switch (Geometry)
+        {
+            case LineGeometry line:
+                <line x1="@Number(line.Points[0].X)" y1="@Number(line.Points[0].Y)" x2="@Number(line.Points[1].X)" y2="@Number(line.Points[1].Y)" stroke="#FFFFFF" stroke-width="2" />
+                <line x1="@Number(line.Points[0].X)" y1="@Number(line.Points[0].Y)" x2="@Number(line.Points[1].X)" y2="@Number(line.Points[1].Y)" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
+                break;
+            case RectangleGeometry rectangle:
+                <rect x="0" y="0" width="@Number(rectangle.W)" height="@Number(rectangle.H)" stroke="#FFFFFF" stroke-width="2" />
+                <rect x="0" y="0" width="@Number(rectangle.W)" height="@Number(rectangle.H)" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
+                break;
+            case CircleGeometry circle:
+                <circle cx="@Number(circle.R)" cy="@Number(circle.R)" r="@Number(circle.R)" stroke="#FFFFFF" stroke-width="2" />
+                <circle cx="@Number(circle.R)" cy="@Number(circle.R)" r="@Number(circle.R)" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
+                break;
+            case TriangleGeometry triangle:
+                <polygon points="@Points(triangle.Points)" stroke="#FFFFFF" stroke-width="2" />
+                <polygon points="@Points(triangle.Points)" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
+                break;
+        }
+    </g>
+}
 
 @code {
-    [Parameter, EditorRequired]
-    public FigureType Type { get; set; }
+    private static readonly ShapeRegistry Registry = DefaultShapes.CreateRegistry();
 
-    [Parameter, EditorRequired]
-    public Box Box { get; set; }
+    [Parameter, EditorRequired] public FigureRow Figure { get; set; } = null!;
 
-    private (int Cx, int Cy, int R) CircleCentreRadius => CircleEncoding.ToCentreRadius(Box);
+    private IFigureGeometry? Geometry { get; set; }
+    private string Transform { get; set; } = string.Empty;
 
-    private string TrianglePoints => FormattableString.Invariant(
-        $"{(Box.X1 + Box.X2) / 2.0},{Box.Y1} {Box.X1},{Box.Y2} {Box.X2},{Box.Y2}");
+    protected override void OnParametersSet()
+    {
+        Geometry = null;
+        Transform = string.Empty;
+        if (!Registry.TryGet(Figure.Type, out var definition))
+        {
+            return;
+        }
+
+        try
+        {
+            using var document = System.Text.Json.JsonDocument.Parse(Figure.GeometryJson);
+            if (definition.TryParseGeometry(document.RootElement, out var geometry))
+            {
+                Geometry = geometry;
+                Transform = $"translate({Number(Figure.X)}, {Number(Figure.Y)}) rotate({Number(Figure.Rotation)})";
+            }
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            // See FigureShape: rendering must be fail-closed for corrupt persisted JSON.
+        }
+    }
+
+    private static string Number(double value) => value.ToString("0.################", CultureInfo.InvariantCulture);
+    private static string Number(decimal value) => value.ToString("0.############################", CultureInfo.InvariantCulture);
+    private static string Points(IReadOnlyList<LocalPoint> points) => string.Join(" ", points.Select(point => $"{Number(point.X)},{Number(point.Y)}"));
 }

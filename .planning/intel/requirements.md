@@ -54,8 +54,10 @@ source: docs/DECISIONS.md (D-03, D-12, D-39)
 Each user has exactly one canvas: the set of figures with their `user_id`.
 
 Acceptance:
-- No canvas list, no "new canvas", no naming, no switching.
-- Load query is `SELECT * FROM figures WHERE user_id = @id ORDER BY id`.
+- No canvas list, no "new canvas", no naming, no switching. *(Still true in v1.11 — the `canvases`
+  table exists, but exactly one row per user is created and there is no UI to make more.)*
+- 🛑 *(v1.11)* Load query is `SELECT * FROM figures WHERE canvas_id = @id ORDER BY z`
+  *(was `WHERE user_id = @id ORDER BY id`)*.
 - User A cannot see user B's figures.
 
 ## REQ-canvas-surface
@@ -146,8 +148,10 @@ Acceptance:
 - Draw → INSERT; drag (on drop) → UPDATE; delete → DELETE.
 - Schema is created by EF Core migrations applied automatically at startup, including the CHECK
   constraints and the `COMMENT ON TABLE` (they must be configured explicitly).
-- Two tables only (`users`, `figures`); no `canvases` table, no `created_at`.
-- After F5, figures reload in creation order (`ORDER BY id`), preserving z-order.
+- 🛑 *(v1.11)* **Four tables** (`users`, `canvases`, `figures`, `figure_types`); `created_at`
+  returns (D-68) *(was: two tables, no `canvases`, no `created_at`)*.
+- 🛑 *(v1.11)* After F5, figures reload by `ORDER BY z`, preserving z-order *(was `ORDER BY id`)*.
+  The observable requirement is unchanged — only its mechanism.
 
 ## REQ-live-sync
 source: docs/DECISIONS.md (D-11, D-40, D-47, D-53, D-54, D-36, D-51)

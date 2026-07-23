@@ -196,7 +196,13 @@ Accepted cost: every triangle is isosceles and points upward. Right-angled and d
 triangles are not possible.
 
 ### D-22 — Geometry storage: four coordinates, always. Circle = its inscribed square. (REVISED)
-source: docs/DECISIONS.md (D-22, revised) · Locked — **AUTHORITATIVE**
+source: docs/DECISIONS.md (D-22, revised) · 🛑 **SUPERSEDED by D-59/D-60 (v1.11) — HISTORICAL ONLY**
+
+> 🛑 **This is no longer how figures are stored.** Position (`x, y, rotation`) and shape
+> (`geometry jsonb`, local coordinates) are separate columns; a circle is `{"r": …}`. See
+> `constraints.md` → `CONSTRAINT-schema` / `CONSTRAINT-geometry`, and `docs/DECISIONS.md` D-59…D-69.
+> Kept because the migration reads *from* this encoding, and because the reasoning below for
+> reversing the earlier centre+rim design still teaches.
 **Every figure is exactly four integers — `x1, y1, x2, y2`, all non-null. For every shape these
 four numbers ARE its bounding box.**
 - Line: `(x1,y1)` one endpoint, `(x2,y2)` the other
@@ -481,7 +487,13 @@ Accepted cost, stated honestly: this **breaks the free multi-device degradation*
 multi-device was never a requirement.
 
 ### D-39 — `figures.id` is a sequential integer, and it IS the z-order
-source: docs/DECISIONS.md (D-39) · Locked
+source: docs/DECISIONS.md (D-39) · 🛑 **SUPERSEDED by D-62/D-63 (v1.11) — HISTORICAL ONLY**
+
+> 🛑 **The id is now a `uuid` and draw order lives in its own `z numeric` column, unique per
+> canvas.** Load is `ORDER BY z`. The problem stated below — creation order must be reconstructible
+> from the database after F5 — is unchanged and still solved, with `z` backfilled from the old `id`
+> so existing stacking survives the migration exactly.
+
 Database-generated sequential integer. Figures load with `ORDER BY id`.
 Load-bearing: within a session "topmost = drawn last" comes free from the DOM — **after F5 it does
 not**, so creation order must be reconstructed from the database. The sequential id recovers it
@@ -520,8 +532,13 @@ broadcast, **every open screen is lying**.
 ## Schema and data
 
 ### D-12 — Two tables. No `canvases` table.
-source: docs/DECISIONS.md (D-12) · Locked — **only the two-table principle is normative; its DDL
-sketch is stale. The authoritative DDL is `THE SCHEMA` (see constraints.md).**
+source: docs/DECISIONS.md (D-12) · 🛑 **SUPERSEDED by D-64 (v1.11) — HISTORICAL ONLY**
+
+> 🛑 **There are four tables now:** `users`, `canvases`, `figures`, `figure_types`. The objection
+> below (a canvas row would hold nothing meaningful) no longer applies — it holds `width`,
+> `height`, `background`, `name`. **Its second rejection still stands, though:** v1.11 does *not*
+> store the canvas as one JSONB document. Each figure remains its own row; only that figure's
+> *shape* is jsonb, which is exactly what D-09's per-operation writes require.
 `users` and `figures`. **"The canvas" is not an entity in the database** — it is simply the set of
 figures belonging to a user. No canvas row, no canvas id, no join.
 (Rejected: a three-table users/canvases/figures schema; and storing the canvas as one JSONB

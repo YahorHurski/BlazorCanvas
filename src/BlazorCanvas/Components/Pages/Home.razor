@@ -3,45 +3,44 @@
 @attribute [Authorize]
 @using BlazorCanvas.Tools
 @using BlazorCanvas.Components.Canvas
-@using BlazorCanvas.Data
+@using BlazorCanvas.Data.V11
 @using BlazorCanvas.Geometry
+@using BlazorCanvas.Shapes
 @using BlazorCanvas.Sync
-@inject FigureStore Figures
+@inject CanvasRepository Canvases
+@inject FigureRepository FigureRepository
+@inject FigureInputGateway FigureGateway
+@inject ShapeRegistry ShapeRegistry
 @inject CanvasSyncNotifier Notifier
-@implements IDisposable
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <PageTitle>BlazorCanvas</PageTitle>
 
 <div class="app-shell" @onpointermove="OnWrapperPointerMove" @onpointerup="OnWrapperPointerUp" @onpointerleave="OnWrapperPointerLeave">
-    <Toolbar @bind-Armed="armedTool" DeleteEnabled="selectedId.HasValue" OnDelete="HandleDeleteAsync" OnDeselect="() => selectedId = null" />
-
+    <Toolbar @bind-Armed="armedTool" DeleteEnabled="@(coordinator?.SelectedId is not null)" OnDelete="HandleDeleteAsync" OnDeselect="Deselect" />
     <div class="canvas-area">
-        <svg class="@CanvasSurfaceClass" width="@CanvasBounds.Width" height="@CanvasBounds.Height" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
-            @foreach (var f in figures)
+        <svg @ref="canvasSurface" class="@CanvasSurfaceClass" width="@CanvasBounds.Width" height="@CanvasBounds.Height" data-preview-tool="@ToolMap.ToShapeName(armedTool)" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
+            @if (coordinator is not null)
             {
-                var box = dragging && f.Id == dragFigureId ? dragCurrentBox : new Box(f.X1, f.Y1, f.X2, f.Y2);
-                <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" Box="box" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
-            }
-            @if (drawing)
-            {
-                <FigureShape Type="previewType" Box="previewBox" Preview="true" />
-            }
-            @if (selectedId is int selectedFigureId)
-            {
-                var selected = figures.FirstOrDefault(f => f.Id == selectedFigureId);
-                if (selected is not null)
+                @foreach (var figure in coordinator.Figures)
                 {
-                    var selectedBox = dragging && selected.Id == dragFigureId
-                        ? dragCurrentBox
-                        : new Box(selected.X1, selected.Y1, selected.X2, selected.Y2);
-                    <SelectionTrace Type="FigureTypeNames.Parse(selected.Type)" Box="selectedBox" />
+                    <FigureShape @key="figure.Id" Figure="figure" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(figure.Id, e)" />
+                }
+                @if (coordinator.SelectedId is { } selectedId)
+                {
+                    var selected = coordinator.Figures.FirstOrDefault(figure => figure.Id == selectedId);
+                    if (selected is not null)
+                    {
+                        <SelectionTrace Figure="selected" />
+                    }
                 }
             }
         </svg>
     </div>
 </div>
 
-@if (showSaveFailedModal)
+@if (coordinator?.ShowSaveFailedModal == true)
 {
     <div class="save-failed-backdrop"></div>
     <dialog open class="save-failed-modal" role="alertdialog" aria-modal="true">
@@ -53,468 +52,125 @@
 @code {
     [CascadingParameter] private Task<AuthenticationState>? AuthStateTask { get; set; }
 
-    // Read once from the signed authentication cookie's claim (D-51) - the sole source of userId.
-    // No database lookup happens here; the figures query below is the page's one and only read.
-    private int userId;
-
-    // Explicit default, even though Tool.Pointer is also default(Tool): D-31 makes "the pointer
-    // tool is armed on page load" a locked behavioural rule and this should read as such.
+    private CanvasInteractionCoordinator? coordinator;
+    private IDisposable? subscription;
     private Tool armedTool = Tool.Pointer;
+    private DrawingPreviewSession? preview;
+    private ElementReference canvasSurface;
+    private IJSObjectReference? previewModule;
 
-    private List<Figure> figures = new();
-    private bool drawing;
-    private int? selectedId;
-    private bool showSaveFailedModal;
-    private bool dragging;
-    private int? dragFigureId;
-    private readonly Guid _sender = Guid.NewGuid();
-    private IDisposable? _subscription;
-    private long _lastBroadcastTicks;
-
-    // The figure's box at press time. It is assigned exactly once per drag and retained until the
-    // drag commits, so Phase 5 can use it as D-52's rollback source if a save later fails.
-    private Box dragOriginalBox;
-    private Box dragCurrentBox;
-    private int dragPressX;
-    private int dragPressY;
-    private bool dragMoved;
-    private FigureType previewType;
-    private int pressX;
-    private int pressY;
-    private Box previewBox;
-
-    // The shape-armed class drives the crosshair cursor rule in Home.razor.css. Dragging adds a
-    // second state class for the grab/grabbing affordance without changing shape-tool behaviour.
-    private string CanvasSurfaceClass
-    {
-        get
-        {
-            var classes = "canvas-surface";
-            if (armedTool != Tool.Pointer)
-            {
-                classes += " shape-armed";
-            }
-
-            if (dragging)
-            {
-                classes += " is-dragging";
-            }
-
-            return classes;
-        }
-    }
+    private string CanvasSurfaceClass => "canvas-surface"
+        + (armedTool != Tool.Pointer ? " shape-armed" : string.Empty)
+        + (coordinator?.IsDragging == true ? " is-dragging" : string.Empty);
 
     protected override async Task OnInitializedAsync()
     {
+        preview = new DrawingPreviewSession(ShapeRegistry);
         var state = await AuthStateTask!;
-        userId = int.Parse(state.User.FindFirst("user_id")!.Value);
-        figures = await Figures.LoadAsync(userId);
-        _subscription = Notifier.Subscribe(userId, HandleRemoteMessage);
+        var ownerId = int.Parse(state.User.FindFirst("user_id")!.Value);
+        var canvas = await Canvases.EnsureForOwnerAsync(ownerId);
+        coordinator = new CanvasInteractionCoordinator(
+            FigureGateway,
+            Notifier,
+            ownerId,
+            canvas.Id,
+            ct => FigureRepository.LoadAsync(canvas.Id, ct),
+            (input, x, y, ct) => FigureRepository.InsertAsync(canvas.Id, input, x, y, ct: ct),
+            (id, x, y, ct) => FigureRepository.MoveAsync(canvas.Id, id, x, y, ct),
+            (id, ct) => FigureRepository.DeleteAsync(canvas.Id, id, ct));
+        await coordinator.LoadAsync();
+        subscription = Notifier.Subscribe(ownerId, HandleRemoteMessage);
     }
 
-    /// <summary>
-    /// D-11 rule 1: closed tabs must unsubscribe so later publishes cannot keep invoking a
-    /// torn-down circuit. The null conditional covers an async initialization that ended before
-    /// the subscribe line.
-    /// </summary>
-    public void Dispose() => _subscription?.Dispose();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        previewModule = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/Home.razor.js");
+        await previewModule.InvokeVoidAsync("attach", canvasSurface);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        subscription?.Dispose();
+        if (previewModule is null) return;
+
+        try
+        {
+            await previewModule.InvokeVoidAsync("detach", canvasSurface);
+            await previewModule.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+            // The browser can close before circuit disposal; no local preview remains to clean up.
+        }
+    }
 
     private void OnPointerDown(PointerEventArgs e)
     {
-        if (e.Button != 0)
-        {
-            return;
-        }
-
-        selectedId = null;
-
-        var type = ToolMap.ToFigureType(armedTool);
-        if (type is null)
-        {
-            return;
-        }
-
-        var point = CanvasCoordinates.FromPage(e.PageX, e.PageY);
-        pressX = point.X;
-        pressY = point.Y;
-        previewType = type.Value;
-        previewBox = DrawGesture.Build(previewType, pressX, pressY, pressX, pressY);
-        drawing = true;
+        if (e.Button != 0 || coordinator is null) return;
+        Deselect();
+        var type = ToolMap.ToShapeName(armedTool);
+        if (type is null) return;
+        preview ??= new DrawingPreviewSession(ShapeRegistry);
+        preview.Begin(type, ToCanvasPoint(e));
     }
 
-    private void HandleFigurePointerDown(int figureId, PointerEventArgs e)
+    private void HandleFigurePointerDown(Guid id, PointerEventArgs e)
     {
-        if (e.Button != 0)
-        {
-            return;
-        }
-
-        selectedId = figureId;
-
-        var figure = figures.FirstOrDefault(f => f.Id == figureId);
-        if (figure is null)
-        {
-            return;
-        }
-
-        dragFigureId = figureId;
-        dragOriginalBox = new Box(figure.X1, figure.Y1, figure.X2, figure.Y2);
-        dragCurrentBox = dragOriginalBox;
-
-        var point = CanvasCoordinates.FromPage(e.PageX, e.PageY);
-        dragPressX = point.X;
-        dragPressY = point.Y;
-        dragging = true;
-        dragMoved = false;
-        _lastBroadcastTicks = 0;
+        if (e.Button != 0 || coordinator is null) return;
+        coordinator.BeginDrag(id, ToCanvasPoint(e));
     }
 
-    private async Task OnWrapperPointerMove(PointerEventArgs e)
-    {
-        await ContinueDragAsync(e);
-    }
+    private Task OnWrapperPointerMove(PointerEventArgs e) => ContinueDragAsync(e);
 
     private async Task ContinueDragAsync(PointerEventArgs e)
     {
-        if (!dragging)
-        {
-            return;
-        }
-
-        if ((e.Buttons & 1) == 0)
-        {
-            await CommitDragAsync();
-            return;
-        }
-
-        var point = CanvasCoordinates.FromPage(e.PageX, e.PageY);
-        var dx = point.X - dragPressX;
-        var dy = point.Y - dragPressY;
-
-        if (!dragMoved)
-        {
-            dragMoved = Math.Sqrt((double)(dx * dx + dy * dy)) >= 3;
-        }
-
-        dragCurrentBox = Movement.ClampMove(dragOriginalBox, dx, dy);
-
-        var now = Environment.TickCount64;
-        if (dragMoved && (_lastBroadcastTicks == 0 || now - _lastBroadcastTicks >= 50))
-        {
-            _lastBroadcastTicks = now;
-            Notifier.Publish(userId, SyncMessage.Move(dragFigureId!.Value, dragCurrentBox, _sender));
-        }
+        if (coordinator?.IsDragging != true) return;
+        if ((e.Buttons & 1) == 0) await coordinator.CommitDragAsync();
+        else coordinator.ContinueDrag(ToCanvasPoint(e));
     }
 
-    private async Task OnWrapperPointerUp(PointerEventArgs e)
-    {
-        if (dragging)
-        {
-            await CommitDragAsync();
-        }
-    }
-
-    private async Task OnWrapperPointerLeave(PointerEventArgs e)
-    {
-        if (dragging)
-        {
-            await CommitDragAsync();
-        }
-    }
+    private async Task OnWrapperPointerUp(PointerEventArgs _) { if (coordinator?.IsDragging == true) await coordinator.CommitDragAsync(); }
+    private async Task OnWrapperPointerLeave(PointerEventArgs _) { if (coordinator?.IsDragging == true) await coordinator.CommitDragAsync(); }
 
     private async Task OnPointerMove(PointerEventArgs e)
     {
-        if (dragging)
-        {
-            await ContinueDragAsync(e);
-            return;
-        }
-
-        if (!drawing)
-        {
-            return;
-        }
-
-        if ((e.Buttons & 1) == 0)
-        {
-            await CommitAsync();
-            return;
-        }
-
-        var point = CanvasCoordinates.FromPage(e.PageX, e.PageY);
-        previewBox = DrawGesture.Build(previewType, pressX, pressY, point.X, point.Y);
+        if (coordinator?.IsDragging == true) { await ContinueDragAsync(e); return; }
+        if (preview?.IsActive != true) return;
+        if ((e.Buttons & 1) == 0) { await CommitDrawAsync(); return; }
+        preview.Update(ToCanvasPoint(e));
     }
 
-    private async Task OnPointerUp(PointerEventArgs e)
-    {
-        if (dragging)
-        {
-            await CommitDragAsync();
-            return;
-        }
+    private async Task OnPointerUp(PointerEventArgs _) { if (coordinator?.IsDragging == true) await coordinator.CommitDragAsync(); else if (preview?.IsActive == true) await CommitDrawAsync(); }
+    private async Task OnPointerLeave(PointerEventArgs _) { if (coordinator?.IsDragging == true) await coordinator.CommitDragAsync(); else if (preview?.IsActive == true) await CommitDrawAsync(); }
 
-        if (drawing)
-        {
-            await CommitAsync();
-        }
+    private async Task CommitDrawAsync()
+    {
+        var completed = preview?.Complete();
+        if (coordinator is not null && completed is not null)
+            await coordinator.DrawAsync(completed.Type, completed.Press, completed.Cursor);
     }
 
-    private async Task OnPointerLeave(PointerEventArgs e)
+    private Task HandleDeleteAsync() => coordinator?.DeleteAsync() ?? Task.CompletedTask;
+    private Task ReloadFromDatabaseAsync() => coordinator?.ReloadAsync() ?? Task.CompletedTask;
+    private void Deselect() => coordinator?.Deselect();
+
+    private void HandleRemoteMessage(SyncMessage message)
     {
-        if (dragging)
-        {
-            await CommitDragAsync();
-            return;
-        }
+        var delivery = coordinator?.TryAuthorizeRemoteDelivery(message);
+        if (delivery is null) return;
 
-        if (drawing)
-        {
-            await CommitAsync();
-        }
-    }
-
-    /// <summary>
-    /// Commits a finished draw. D-39 forces insert -> get id -> broadcast: the id does not exist
-    /// until the INSERT completes, so no draw message can be optimistic. D-35 keeps the live preview
-    /// local-only; rejected draws return silently before any insert or broadcast (D-50). A final
-    /// write failure surfaces the same forced reload modal as drag/delete, but needs no rollback
-    /// broadcast because no draw message is announced until the INSERT succeeds (D-39, D-52).
-    /// </summary>
-    private async Task CommitAsync()
-    {
-        drawing = false;
-        var type = previewType;
-        var box = previewBox;
-
-        if (!MinSizeGuard.IsDrawable(type, box))
-        {
-            return;
-        }
-
-        try
-        {
-            var figure = await Figures.InsertAsync(userId, type, box);
-            figures.Add(figure);
-            selectedId = figure.Id;
-            Notifier.Publish(userId, SyncMessage.Draw(figure, _sender));
-        }
-        catch (Exception)
-        {
-            // The provider has already applied D-52's bounded retry policy. At this narrow write
-            // call site, any escaping exception means the write ultimately failed and the circuit
-            // must stay alive rather than surfacing a Blazor error bar (D-45).
-            showSaveFailedModal = true;
-        }
-    }
-
-    /// <summary>
-    /// Commits a completed drag. The final move broadcast stays optimistic and unconditional so
-    /// D-47's trailing edge always reaches other tabs before the single database UPDATE. If that
-    /// UPDATE ultimately fails after provider retries, D-52 requires a forced rollback because glide
-    /// broadcasts already went out; the payload is the retained pre-drag box, never the failed box.
-    /// The zero-row branch remains outside the failure path: it is expected staleness, not a retry or
-    /// modal condition (D-10).
-    /// </summary>
-    private async Task CommitDragAsync()
-    {
-        dragging = false;
-        var figureId = dragFigureId;
-        var moved = dragMoved;
-        var box = dragCurrentBox;
-
-        if (!figureId.HasValue || !moved)
-        {
-            return;
-        }
-
-        var figure = figures.FirstOrDefault(f => f.Id == figureId.Value);
-        if (figure is not null)
-        {
-            figure.X1 = box.X1;
-            figure.Y1 = box.Y1;
-            figure.X2 = box.X2;
-            figure.Y2 = box.Y2;
-        }
-
-        Notifier.Publish(userId, SyncMessage.Move(figureId.Value, box, _sender));
-
-        try
-        {
-            var affected = await Figures.UpdateAsync(userId, figureId.Value, box);
-            if (affected == 0)
-            {
-                figures.RemoveAll(f => f.Id == figureId.Value);
-                if (selectedId == figureId.Value)
-                {
-                    selectedId = null;
-                }
-
-                Notifier.Publish(userId, SyncMessage.Delete(figureId.Value, _sender));
-            }
-        }
-        catch (Exception)
-        {
-            // The provider has already applied D-52's bounded retry policy. This scoped catch is not
-            // classifying failures; it only answers whether the write ultimately failed and keeps the
-            // circuit alive (D-45) while restoring every screen to the database's original position.
-            if (figure is not null)
-            {
-                figure.X1 = dragOriginalBox.X1;
-                figure.Y1 = dragOriginalBox.Y1;
-                figure.X2 = dragOriginalBox.X2;
-                figure.Y2 = dragOriginalBox.Y2;
-            }
-
-            Notifier.Publish(userId, SyncMessage.Rollback(figureId.Value, dragOriginalBox, _sender));
-            showSaveFailedModal = true;
-        }
-    }
-
-    /// <summary>
-    /// Deletes after the database confirms the write, then broadcasts. This extends D-39's
-    /// non-optimistic discipline to delete while preserving D-10: DELETE-of-a-ghost is naturally
-    /// idempotent and already the requested end state, so the affected-row count is not a branch.
-    /// A final write failure shows the modal but broadcasts no rollback because nothing was removed
-    /// or announced before the database confirmed the DELETE (D-39, D-52).
-    /// </summary>
-    private async Task HandleDeleteAsync()
-    {
-        if (!selectedId.HasValue)
-        {
-            return;
-        }
-
-        var figureId = selectedId.Value;
-
-        try
-        {
-            // D-10: DELETE-of-a-ghost is already the requested end state, so the returned count is
-            // not a branch point here. Only UPDATE needs the explicit zero-row local cleanup guard.
-            await Figures.DeleteAsync(userId, figureId);
-            selectedId = null;
-            figures.RemoveAll(f => f.Id == figureId);
-            Notifier.Publish(userId, SyncMessage.Delete(figureId, _sender));
-        }
-        catch (Exception)
-        {
-            // The provider has already applied D-52's bounded retry policy. At this narrow write
-            // call site, any escaping exception means the write ultimately failed and the circuit
-            // must stay alive rather than surfacing a Blazor error bar (D-45).
-            showSaveFailedModal = true;
-        }
-    }
-
-    /// <summary>
-    /// D-52 step 4 reloads from the same claim-scoped database read path as page load and clears
-    /// local selection because the reloaded list has no meaningful prior selected element.
-    /// </summary>
-    private async Task ReloadFromDatabaseAsync()
-    {
-        var beforeReloadIds = figures.Select(f => f.Id).ToHashSet();
-        figures = await Figures.LoadAsync(userId);
-        BroadcastReloadedSnapshot(beforeReloadIds);
-        selectedId = null;
-        showSaveFailedModal = false;
-    }
-
-    /// <summary>
-    /// D-52 reloads the acting tab from PostgreSQL. Publishing that canonical snapshot makes every
-    /// other tab converge too, including tabs that missed the earlier rollback while showing an
-    /// optimistic final drag position.
-    /// </summary>
-    private void BroadcastReloadedSnapshot(HashSet<int> beforeReloadIds)
-    {
-        var afterReloadIds = figures.Select(f => f.Id).ToHashSet();
-
-        foreach (var removedId in beforeReloadIds.Except(afterReloadIds))
-        {
-            Notifier.Publish(userId, SyncMessage.Delete(removedId, _sender));
-        }
-
-        foreach (var figure in figures)
-        {
-            Notifier.Publish(userId, SyncMessage.Draw(figure, _sender));
-            Notifier.Publish(userId, SyncMessage.Move(figure.Id, new Box(figure.X1, figure.Y1, figure.X2, figure.Y2), _sender));
-        }
-    }
-
-    /// <summary>
-    /// Notifier callbacks run on the publisher's circuit. D-11 requires marshalling back through
-    /// InvokeAsync, then filtering echoes by the per-circuit sender and discarding every incoming
-    /// message while this tab is dragging (D-54's blanket rule).
-    /// </summary>
-    private void HandleRemoteMessage(SyncMessage msg)
-    {
         _ = InvokeAsync(() =>
         {
-            try
-            {
-                if (msg.Sender == _sender)
-                {
-                    return;
-                }
-
-                if (dragging)
-                {
-                    return;
-                }
-
-                ApplyMessage(msg);
-                StateHasChanged();
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            try { coordinator?.ApplyAuthorizedRemoteDelivery(delivery); StateHasChanged(); }
+            catch (ObjectDisposedException) { }
         });
     }
 
-    /// <summary>
-    /// Applies D-53's four message kinds. Only draw may create a figure; move and rollback are
-    /// update-only by D-40, so an unknown id is ignored instead of resurrected.
-    /// </summary>
-    private void ApplyMessage(SyncMessage msg)
+    private static CanvasPoint ToCanvasPoint(PointerEventArgs e)
     {
-        switch (msg.Kind)
-        {
-            case "draw":
-                if (!figures.Any(f => f.Id == msg.Id))
-                {
-                    figures.Add(new Figure
-                    {
-                        Id = msg.Id,
-                        UserId = userId,
-                        Type = msg.Type!,
-                        X1 = msg.X1!.Value,
-                        Y1 = msg.Y1!.Value,
-                        X2 = msg.X2!.Value,
-                        Y2 = msg.Y2!.Value,
-                    });
-                }
-
-                break;
-            case "move":
-            case "rollback":
-                var existing = figures.FirstOrDefault(f => f.Id == msg.Id);
-                if (existing is null)
-                {
-                    return;
-                }
-
-                existing.X1 = msg.X1!.Value;
-                existing.Y1 = msg.Y1!.Value;
-                existing.X2 = msg.X2!.Value;
-                existing.Y2 = msg.Y2!.Value;
-                break;
-            case "delete":
-                figures.RemoveAll(f => f.Id == msg.Id);
-                if (selectedId == msg.Id)
-                {
-                    selectedId = null;
-                }
-
-                break;
-        }
+        var point = CanvasCoordinates.FromPage(e.PageX, e.PageY);
+        return new CanvasPoint(point.X, point.Y);
     }
 }
-
-

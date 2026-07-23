@@ -1,54 +1,61 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Canvas resize · selection UX · no-JS removal
+milestone: v1.11
+milestone_name: Storage Model Rewrite
 status: Awaiting next milestone
-stopped_at: Completed BC-08-01-PLAN.md
-last_updated: "2026-07-21T13:43:55.013Z"
-last_activity: 2026-07-21
-last_activity_desc: Milestone v1.1 completed and archived
+stopped_at: v1.11 shipped and archived 2026-07-22 (override_closeout; MIGR-03 accepted gap). Awaiting /gsd-new-milestone for v1.2.
+last_updated: "2026-07-22T17:25:39.718Z"
+last_activity: 2026-07-22
+last_activity_desc: Milestone v1.11 completed and archived
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 4
-  completed_plans: 4
+  total_phases: 4
+  completed_phases: 4
+  total_plans: 19
+  completed_plans: 19
   percent: 100
-current_phase: 08
-current_phase_name: Architecture Constraint Cleanup
+current_phase: 12
+current_phase_name: Regression Verification
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-21 — after the v1.1 milestone)
+See: .planning/PROJECT.md (updated 2026-07-22 after v1.11 milestone)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** None — **between milestones.** v1.1 shipped 2026-07-21, delivering all four
-approved changes: (1) canvas enlarged to **1472 × 828** (no migration); (2) **selection lifecycle**
-fix (tool stays armed, one selection at a time, toolbar-press deselects except Delete);
-(3) **selection restyle** to a blue+white dashed trace on the figure's own shape; (4) **no-JS rule
-removed** (motivations corrected on D-06/18/33/37/57). Archived under
-`.planning/milestones/v1.1-*`.
+**Current focus:** Planning the next milestone.
+v1.11 shipped and archived 2026-07-22 as `override_closeout` — 21/22 requirements satisfied, build
+clean, 500/500 tests passing. Next workflow step: `/gsd-new-milestone` to open v1.2.
 
-**Next milestone v1.2** (new figures + dynamic toolbar) is scoped in
-`.planning/backlog/v1.2-figures-and-toolbar.md` but **not started** — it opens with
-`/gsd-new-milestone` when the user decides to begin.
+**Carried forward — MIGR-03 (accepted gap, not complete).** The fixture-backed migration replay
+proof was written in Phase 10, passed 27/27, and was deleted in Phase 11's cutover-cleanup commit
+`1aaf45b`. `tests/BlazorCanvas.Tests/Fixtures/v1.1-pre-rewrite.sql` is still committed and copied to
+test output but has no C# consumer. Accepted because the migration path is permanently unreachable
+(forward risk zero); the residual risk is retrospective. Route to closing it:
+`.planning/milestones/v1.11-MILESTONE-AUDIT.md` → "Outstanding Work".
+
+**Carried forward — tech debt.** `ShapeRegistry.All`/`.Names` return live `List` instances behind
+`IReadOnlyList` (09-REVIEW WR-03). `Home.razor.js` reimplements shape preview geometry outside the
+registry with no drift guard — worth closing before v1.2 adds figure types.
+
+**v1.0, v1.1 and v1.11 are all archived** under `.planning/milestones/`. **v1.2** (new figures +
+dynamic toolbar) is scoped in `.planning/backlog/v1.2-figures-and-toolbar.md`.
 
 ## Current Position
 
-Phase: Milestone v1.1 complete
+Phase: Milestone v1.11 complete
 Plan: —
 Status: Awaiting next milestone
-Last activity: 2026-07-21 — Milestone v1.1 completed and archived
+Last activity: 2026-07-22 — Milestone v1.11 completed and archived
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 21
+- Total plans completed: 40
 - Average duration: —
 - Total execution time: —
 
@@ -63,6 +70,13 @@ Last activity: 2026-07-21 — Milestone v1.1 completed and archived
 | BC-06 | 1 | - | - |
 | BC-07 | 2 | - | - |
 | BC-08 | 1 | - | - |
+| BC-09 | 6 | - | - |
+| BC-09 | - | - | - |
+| BC-10 | 6 | - | - |
+| BC-11 | - | - | - |
+| BC-12 | - | - | - |
+| 11 | 5 | - | - |
+| 12 | 2 | - | - |
 
 **Recent Trend:**
 
@@ -96,31 +110,62 @@ Last activity: 2026-07-21 — Milestone v1.1 completed and archived
 | Phase BC-07 P01 | 15 min | 3 tasks | 4 files |
 | Phase BC-07 P02 | 1min | 1 tasks | 1 files |
 | Phase BC-08 P01 | 15min | 2 tasks | 3 files |
+| Phase BC-09 P01 | 6min | 3 tasks | 14 files |
+| Phase BC-09 P02 | 4min | 2 tasks | 3 files |
+| Phase BC-09 P03 | 53min | 3 tasks | 3 files |
+| Phase BC-09 P04 | 25min | 3 tasks | 10 files |
+| Phase BC-09 P05 | 25min | 3 tasks | 4 files |
+| Phase BC-09 P06 | 15min | 2 tasks | 3 files |
+| Phase BC-10 P01 | 28min | 3 tasks | 5 files |
+| Phase BC-10 P02 | 4min | 3 tasks | 6 files |
+| Phase BC-10 P03 | 7min | 3 tasks | 4 files |
+| Phase BC-10 P04 | 5min | 3 tasks | 5 files |
+| Phase BC-10 P05 | 30min | 2 tasks | 2 files |
+| Phase BC-10 P06 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
 ### Decisions
 
-**All 58 ADR decisions (D-01…D-58) are LOCKED.** They are in PROJECT.md `<decisions>`; full text in
+**All 69 ADR decisions (D-01…D-69) are LOCKED.** They are in PROJECT.md `<decisions>`; full text in
 `.planning/intel/decisions.md` and `docs/DECISIONS.md`. They are **not open questions** — do not
 re-litigate, re-ask, or "improve" them.
 
-The ones most likely to be violated by accident:
+> ⚠️ **v1.11 supersedes part of the locked set.** D-59…D-69 replace the storage model. **The
+> documents describe the new model; the code still implements the old one.** When reading code, expect
+> the four-integer model; when writing code this milestone, build the new one. Superseded and
+> therefore **NOT to be preserved**: **D-12** (two tables), **D-20** (integer coords), **D-22** (four
+> coordinates = bounding box), **D-39** (`id` is the z-order), **D-41** (line normalisation),
+> **D-46** (`type` text + CHECK, no `created_at`), **D-50** (per-type guard mirroring CHECKs).
 
-- **D-22 (REVISED):** a circle is stored as its **inscribed square**, not centre + rim point. The
-  original encoding is REVERSED and dead.
+The rules most likely to be violated by accident:
 
 - **D-40:** a `move` broadcast is **UPDATE-ONLY, never insert.** D-11's original "idempotent upsert"
-  was a **bug** — it resurrects deleted figures.
+  was a **bug** — it resurrects deleted figures. **Unchanged by v1.11.**
 
-- **D-54:** mid-drag, a tab discards **ALL** incoming broadcasts, not just those about the dragged figure.
-- **D-50:** the minimum-size guard is **per-type** — a zero-height *line* is legal (it is a horizontal
-  line); a zero-height rectangle is not.
+- **D-54:** mid-drag, a tab discards **ALL** incoming broadcasts, not just those about the dragged
+  figure. **Unchanged by v1.11.**
+
+- **D-53:** the sync contract's *payload* changes in v1.11 (uuid ids, position deltas); its **rules
+  hold** — kinds, echo filter, no `drop` kind, previews never broadcast.
 
 - **D-08:** plaintext passwords are **deliberate and locked**. Do not "fix" this.
+- **D-24/D-36:** the clamp survives, but it now reads **`bbox_*`**, not coordinate columns. Still
+  clamp the *delta*, then translate; still `clamp → render → broadcast`.
+
+- **v1.11's own new landmines:** never trust `geometry`/`style` off the wire (parse → validate →
+  re-serialise from the record); `bbox_*` is a cache recomputed in **exactly one place**; `z` is
+  unique per canvas and **needs a retry** on concurrent insert or a figure silently never appears.
+
 - ~~**No JavaScript anywhere**~~ — **REMOVED in v1.1.** Hand-authored JS/interop is now permitted;
   the rule was never load-bearing (MVP simplicity was the real motivation; D-06/18/33/37/57 re-worded
   in `docs/DECISIONS.md`). It changed no code and is simply not *needed* for anything built so far.
+
+**v1.11 amendments (user-approved, 2026-07-21)** — recorded in `docs/DECISIONS.md` as D-59…D-69;
+rationale and migration plan in `docs/DATA-MODEL-v1.11-DRAFT.md`; mirrored in PROJECT.md + intel.
+Position/shape split · `geometry jsonb` per type · `numeric` coordinates · `uuid` ids · `z` unique
+per canvas · four tables · validated `style jsonb` · `bbox_*` cache · geometry validated in C#, not
+by CHECK constraints. **Goal: the last migration that touches data already written.**
 
 **v1.1 amendments to the locked set (user-approved, 2026-07-20)** — recorded in `docs/DECISIONS.md`
 with inline `⚠️ v1.1` notes, mirrored in PROJECT.md + intel:
@@ -142,15 +187,54 @@ Constraints. Intent untouched.
 phase's `*-SUMMARY.md` under `key-decisions`, preserved in
 `.planning/milestones/v1.0-ROADMAP.md` and in git history.
 
-**Roadmap decisions (v1.1, this session):** CANV-03 is Phase 6 (independent — `CanvasBounds.cs` +
-`Home.razor` SVG + geometry/clamp tests). SEL-01 + SEL-02 are combined into Phase 7 (both touch the
-selection overlay in `Home.razor`; sequenced after Phase 6 to avoid overlapping edits to the same
-file). ARCH-01 is its own tiny Phase 8 (doc/constraint verification only — no code) since its work
-is unrelated in kind to the other two; likely a `/gsd-quick` candidate.
+**Per-phase implementation decisions (v1.1):** cleared at milestone close; preserved in each phase's
+`*-SUMMARY.md` under `key-decisions` in `.planning/milestones/v1.1-phases/` and in git history. The
+one with lasting force: **BC-06** bound the `Home.razor` SVG dimensions to `CanvasBounds` rather than
+repeating numeric literals, keeping rendered size and clamp size from drifting — v1.11's renderer
+rewrite must not reintroduce those literals.
 
-- [Phase BC-06]: Bound the Home.razor SVG dimensions to CanvasBounds instead of repeating numeric literals, keeping rendered size and clamp size from drifting. — This preserves D-18/D-19/D-36 as one source of truth after the canvas resize.
-- [Phase BC-08]: Retired the application-authored JavaScript prohibition; future JavaScript or interop requires a separate affirmative decision.
-- [Phase BC-08]: Reconciled CONSTRAINT-env and the D-11 rejection rationale with the ADR while preserving MVP and behavioural decisions.
+**v1.11 scope decisions (user-approved at milestone open, 2026-07-21):**
+
+- **Existing figures are migrated, not dropped** — the draft's exact conversion formulas, with a
+  v1.1-dump replay test checking rendered vertices and layer order.
+
+- **Zero user-visible change** is a hard invariant, not an aspiration. Newly-unlocked capabilities
+  (rotation, vertex editing, z-order control, per-figure style) ship *possible* and *unused*.
+
+- **The `IShapeDefinition` registry is in scope** — the eight scattered type-specific sites collapse
+  now, rather than being paid for by v1.2 while it also adds nine shapes.
+
+- **Tests are rebased, not ported** — retire those whose subject no longer exists (inscribed-square
+  round-trip, line-normalisation landmine, the 32-case CHECK-mirror matrix); write new guards for
+  bbox-vs-geometry agreement, the validation gateway, and z-collision retry.
+
+**v1.11 roadmap sequencing (fixed at roadmap creation, 2026-07-21):** Phase 9 (Shape Registry &
+Validation Gateway) is pure C#, zero database dependency, purely additive — the existing app and all
+405 tests stay untouched and green. Phase 10 (Storage Schema, Migration & Persistence Layer) is also
+additive: new tables, new persistence layer, and the migration/dump-replay proof, built and tested in
+isolation while `Home.razor`/`FigureShape.razor`/the old table remain untouched and green. Phase 11
+(Renderer, Sync & Cutover) is the one phase where the app is briefly between models — contained
+entirely within its own plan sequence, ending with the old table, old code paths, and dead tests
+removed and the full rebased suite green again. Phase 12 (Regression Verification, REG-01) is
+deliberately last — the milestone's real human acceptance gate, and it must not be skipped or folded
+into an earlier phase's automated tests.
+
+- [Phase BC-09]: Geometry and style must be parsed, validated, and re-serialised only through `FigureInputGateway`; Phase 10 persistence and Phase 11 sync must use it for every write.
+- [Phase BC-09]: Line and triangle retain ordered local vertices; circle geometry uses the bounding square's top-left origin, with centre `(R, R)`.
+- [Phase BC-09]: The redacted, checksum-sealed fixture and rows 3860–3867 are the fixed Phase 10 migration proof input; do not recapture it.
+- [Phase BC-10]: New storage tables remain in v11, preserving public.figures until Phase 11 cutover.
+- [Phase BC-10]: bbox_* stores local geometry extent so moves write only x and y.
+- [Phase BC-10]: Registry seeding uses parameterised ON CONFLICT handling for concurrent callers.
+- [Phase ?]: D-60 conversion preserves legacy line point order; it never canonicalises a diagonal.
+- [Phase ?]: D-62 legacy IDs map deterministically into frozen, namespace-separated version-8 UUID layouts.
+- [Phase ?]: FigureRepository retries at most five times and only for z_unique_per_canvas unique violations.
+- [Phase ?]: Phase 11 substitutes FigureRepository for FigureStore; Phase 10 keeps the running application untouched.
+- [Phase ?]: V11 migration applies schema and seed, canvases, then figures in one transaction; dropping old tables remains Phase 11 work.
+- [Phase ?]: Replay uses deterministic legacy-id mappings and a guarded GUID scratch database with checksum verification.
+- [Phase ?]: Migrated created_at is the migration timestamp (D-68); Phase 11 invokes migration before cutover.
+- [Phase ?]: The bbox agreement guard scans all v11.figures rows, so every future writer must preserve the local cache invariant.
+- [Phase ?]: Stored style JSONB is checked as a key set because PostgreSQL does not preserve object insertion order.
+- [Phase ?]: The D-60 geometry-CHECK gap remains explicit: the gateway is the last validation boundary and raw probes roll back.
 
 ### Pending Todos
 
@@ -180,8 +264,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-21T13:10:39.477Z
-Stopped at: Completed BC-08-01-PLAN.md
+Last session: 2026-07-22T16:23:50.225Z
+Stopped at: Phase BC-12 complete; v1.11 ready for milestone archiving.
+Phase BC-12 verified passed, UAT completed 3/3, security threats_open: 0, and all 22 v1.11 requirements are validated.
 Resume file: None
 
 ## Operator Next Steps

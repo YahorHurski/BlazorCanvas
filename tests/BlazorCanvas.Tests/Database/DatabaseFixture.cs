@@ -1,5 +1,6 @@
 using BlazorCanvas.Data;
-using BlazorCanvas.Geometry;
+using BlazorCanvas.Data.V11;
+using BlazorCanvas.Shapes;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -30,17 +31,24 @@ public class DatabaseFixture : IAsyncLifetime
         Environment.GetEnvironmentVariable("BLAZORCANVAS_TEST_CONNECTION")
         ?? "Host=localhost;Port=5433;Database=canvas;Username=postgres;Password=postgres";
 
+    /// <summary>
+    /// Shared data source for v11's parameterised Npgsql tests and repository tests.
+    /// </summary>
+    public NpgsqlDataSource DataSource { get; private set; } = null!;
+
     public async Task InitializeAsync()
     {
         try
         {
             await using var context = CreateContext();
             await context.Database.MigrateAsync();
+            DataSource = NpgsqlDataSource.Create(ConnectionString);
+            await V11Cutover.EnsureAsync(DataSource, DefaultShapes.CreateRegistry());
         }
         catch (Exception ex)
         {
             throw new InvalidOperationException(
-                "The BlazorCanvas.Tests.Database suite could not reach PostgreSQL. " +
+                "The BlazorCanvas.Tests.Database suite could not migrate or apply the v11 schema. " +
                 "Run 'docker compose up -d' from the repository root and retry. " +
                 $"Connection string used: \"{ConnectionString}\". " +
                 $"Underlying error: {ex.GetType().Name}: {ex.Message}",
@@ -48,7 +56,13 @@ public class DatabaseFixture : IAsyncLifetime
         }
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public async Task DisposeAsync()
+    {
+        if (DataSource is not null)
+        {
+            await DataSource.DisposeAsync();
+        }
+    }
 
     public CanvasDbContext CreateContext()
     {
@@ -56,6 +70,26 @@ public class DatabaseFixture : IAsyncLifetime
             .UseNpgsql(ConnectionString)
             .Options;
         return new CanvasDbContext(options);
+    }
+
+    /// <summary>
+    /// Opens a v11 connection from the shared data source.
+    /// </summary>
+    public async Task<NpgsqlConnection> OpenV11ConnectionAsync() =>
+        await DataSource.OpenConnectionAsync();
+
+    /// <summary>
+    /// Creates a v11 canvas with schema defaults for the supplied existing owner.
+    /// </summary>
+    public static async Task<Guid> CreateTestCanvasAsync(NpgsqlConnection connection, int ownerId)
+    {
+        var canvasId = Guid.NewGuid();
+        await using var command = new NpgsqlCommand(
+            "INSERT INTO public.canvases (id, owner_id) VALUES (@id, @ownerId)", connection);
+        command.Parameters.AddWithValue("id", canvasId);
+        command.Parameters.AddWithValue("ownerId", ownerId);
+        await command.ExecuteNonQueryAsync();
+        return canvasId;
     }
 
     /// <summary>
@@ -74,66 +108,6 @@ public class DatabaseFixture : IAsyncLifetime
         return user.Id;
     }
 
-    /// <summary>
-    /// Attempts to INSERT one figure with the given RAW type literal and coordinates, through a
-    /// brand-new DbContext inside its own transaction that is always rolled back — so the
-    /// suite never accumulates rows regardless of whether the INSERT succeeds. This bypasses
-    /// <see cref="MinSizeGuard"/> and <see cref="Normalisation"/> entirely: the type literal
-    /// and coordinates are passed exactly as given, so the rejection under test (if any) is
-    /// PostgreSQL's, not the app's.
-    /// </summary>
-    public async Task<InsertAttempt> TryInsertRawFigureAsync(
-        string typeLiteral, int x1, int y1, int x2, int y2)
-    {
-        await using var context = CreateContext();
-        await using var transaction = await context.Database.BeginTransactionAsync();
-
-        var userId = await CreateTestUserAsync(context);
-
-        context.Figures.Add(new Figure
-        {
-            UserId = userId,
-            Type = typeLiteral,
-            X1 = x1,
-            Y1 = y1,
-            X2 = x2,
-            Y2 = y2,
-        });
-
-        try
-        {
-            await context.SaveChangesAsync();
-            return InsertAttempt.Success();
-        }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException pg
-            && pg.SqlState == PostgresErrorCodes.CheckViolation)
-        {
-            return InsertAttempt.Rejected(pg);
-        }
-        // The transaction is never committed above, so disposing it here rolls back either way.
-    }
-
-    /// <summary>Convenience overload for the FigureType/Box pairing used by GuardMirrorsChecksTests.</summary>
-    public Task<InsertAttempt> TryInsertFigureAsync(FigureType type, Box box) =>
-        TryInsertRawFigureAsync(FigureTypeNames.ToDbValue(type), box.X1, box.Y1, box.X2, box.Y2);
-}
-
-/// <summary>The outcome of one INSERT attempt against the live database.</summary>
-public sealed class InsertAttempt
-{
-    public bool Succeeded { get; }
-
-    public PostgresException? Error { get; }
-
-    private InsertAttempt(bool succeeded, PostgresException? error)
-    {
-        Succeeded = succeeded;
-        Error = error;
-    }
-
-    public static InsertAttempt Success() => new(true, null);
-
-    public static InsertAttempt Rejected(PostgresException error) => new(false, error);
 }
 
 /// <summary>
