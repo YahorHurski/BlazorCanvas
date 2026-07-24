@@ -170,11 +170,11 @@ suite is reworked to the new model and green on a clean build.
 
   6. `dotnet build BlazorCanvas.sln` is clean (0 warnings, 0 errors) and the full `dotnet test` suite
      passes.
-**Plans**: 6 plans
+**Plans**: 1/6 plans executed
 
 **Wave 1**
 
-- [ ] 10-01-PLAN.md — Remove the canvas-edge clamp from the geometry core; re-express MinSizeGuard on
+- [x] 10-01-PLAN.md — Remove the canvas-edge clamp from the geometry core; re-express MinSizeGuard on
       the geometry primitives (STOR-03, STOR-04, TEST-02) [wave 1]
 
 **Wave 2** *(blocked on Wave 1)*
@@ -215,7 +215,7 @@ suite is reworked to the new model and green on a clean build.
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Schema, Entity & Data-Preserving Migration | v1.11 | 6/6 | Complete    | 2026-07-23 |
-| 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 0/6 | Planned | - |
+| 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 1/6 | In Progress|  |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 3/3 phases, 4/4 plans, 4/4 requirements — all phases verified `passed`.**

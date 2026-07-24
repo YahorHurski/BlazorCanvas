@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: Storage model rewrite (anchor + geometry JSON)
 current_phase: 10
-current_phase_name: Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression
+current_phase_name: geometry-draw-drag-sync-rework-no-edge-clamp-regression
 status: executing
-stopped_at: Completed 09-06-PLAN.md
-last_updated: "2026-07-23T22:45:00.868Z"
-last_activity: 2026-07-23
-last_activity_desc: Phase BC-09 complete, transitioned to Phase 10
+stopped_at: Completed 10-01-PLAN.md
+last_updated: "2026-07-24T03:21:00.138Z"
+last_activity: 2026-07-24
+last_activity_desc: Phase BC-10 execution started
 progress:
   total_phases: 2
   completed_phases: 1
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 12
+  completed_plans: 7
   percent: 50
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-07-23 — v1.11 opened)
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** Milestone v1.11 — storage model rewrite. Roadmap is now written (Phases 9–10,
+**Current focus:** Phase BC-10 — geometry-draw-drag-sync-rework-no-edge-clamp-regression
 9/9 requirements mapped). No new user-facing feature; a database model change (anchor `x,y` +
 `geometry jsonb`, D-59) plus the downstream code churn it forces, with every existing figure
 preserved via a tested data migration and the canvas-edge clamp removed. Phase 9 = schema + entity +
@@ -38,10 +38,10 @@ no longer holds once v1.11 ships and the backlog must be revised before it opens
 
 ## Current Position
 
-Phase: 10 of 10 (Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression)
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-23 — Phase BC-09 complete, transitioned to Phase 10
+Phase: BC-10 (geometry-draw-drag-sync-rework-no-edge-clamp-regression) — EXECUTING
+Plan: 2 of 6
+Status: Executing Phase BC-10
+Last activity: 2026-07-24 — Phase BC-10 execution started
 requirements are mapped with 100% coverage, REQUIREMENTS.md traceability filled in.
 
 ## Performance Metrics
@@ -97,6 +97,7 @@ requirements are mapped with 100% coverage, REQUIREMENTS.md traceability filled 
 | Phase BC-07 P01 | 15 min | 3 tasks | 4 files |
 | Phase BC-07 P02 | 1min | 1 tasks | 1 files |
 | Phase BC-08 P01 | 15min | 2 tasks | 3 files |
+| Phase 10 P01 | 8min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -170,6 +171,7 @@ closing success criterion, not a separate phase.
 - [Phase BC-06]: Bound the Home.razor SVG dimensions to CanvasBounds instead of repeating numeric literals, keeping rendered size and clamp size from drifting. — This preserves D-18/D-19/D-36 as one source of truth after the canvas resize.
 - [Phase BC-08]: Retired the application-authored JavaScript prohibition; future JavaScript or interop requires a separate affirmative decision.
 - [Phase BC-08]: Reconciled CONSTRAINT-env and the D-11 rejection rationale with the ADR while preserving MVP and behavioural decisions.
+- [Phase BC-10 P01]: MinSizeGuard's line/rectangle/triangle arms rewritten to read Box.Width/Height directly (the {dx,dy}/{w,h} pairs GeometryCodec serialises) instead of raw X1/X2/Y1/Y2 comparisons
 
 ### Pending Todos
 
@@ -203,8 +205,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-23T18:11:58.893Z
-Stopped at: Completed 09-06-PLAN.md
+Last session: 2026-07-24T03:21:00.127Z
+Stopped at: Completed 10-01-PLAN.md
 captured D-59's five plan-time decisions. Committed db63895 + 0a3878f on branch v1.11.
 Resume file: None
 

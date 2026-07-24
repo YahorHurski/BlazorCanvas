@@ -31,15 +31,16 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (Traceab
   `{r}`, rectangle/triangle `{w,h}`, line `{dx,dy}` of either sign — exact per-type JSON shapes pinned
   at plan/spec time). A drag (move) updates **only `x,y`**, for every shape; the geometry never changes
   on a move. Normalisation is re-expressed per type (rectangle → positive `{w,h}`; line → one endpoint
+
   + `{dx,dy}`, **swap the whole point pair, never sort axes** — the D-41 landmine carries over).
   *(D-59, D-41.)*
 
-- [ ] **STOR-03**: Geometry well-formedness is guaranteed by **server-side code, not the database**
+- [x] **STOR-03**: Geometry well-formedness is guaranteed by **server-side code, not the database**
   (explicit trust boundary — the server is the sole writer, D-09). A strictly-zero-size draw is
   rejected **code-side** (`MinSizeGuard`, on C# primitives before serialisation), producing no figure
   and no error. *(D-59, D-23 #1, D-32.)*
 
-- [ ] **STOR-04**: The **canvas-edge clamp is removed** — a figure may be drawn or dragged past the
+- [x] **STOR-04**: The **canvas-edge clamp is removed** — a figure may be drawn or dragged past the
   canvas edge. An off-canvas figure is an **accepted, currently-unrecoverable** state (no pan/undo),
   taken deliberately because the roadmap intends to remove canvas bounds entirely later. Drag
   translates the anchor only, with no bounds arithmetic; the circle draw-clamp is gone.
@@ -73,7 +74,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (Traceab
 
 ### Tests (TEST)
 
-- [ ] **TEST-02**: The test suite is reworked to the new model — schema-shape assertions updated to
+- [x] **TEST-02**: The test suite is reworked to the new model — schema-shape assertions updated to
   the anchor+geometry schema, the edge-clamp tests removed or repurposed, the migration round-trip test
   (MIG-02) added, and TEST-01's three silent-failure tests re-evaluated (the circle inscribed-square
   round-trip becomes a `geometry {r}` assertion; the line swap-pair landmine test carries over). The
@@ -89,6 +90,7 @@ Tracked but **not** in this milestone's roadmap.
   (left/right variants), four arrows. *(Now sequenced **after** v1.11; the v1.2 backlog
   `.planning/backlog/v1.2-figures-and-toolbar.md` must be **revised** first — its 4-int-bbox premise
   no longer holds. New shapes will store as `geometry jsonb`, which is exactly what v1.11 enables.)*
+
 - **TOOL-01**: A dynamic split-button toolbar to accommodate the expanded figure set. *(v1.2.)*
 
 ### Storage follow-ons (deferred)
@@ -96,6 +98,7 @@ Tracked but **not** in this milestone's roadmap.
 - **STOR-F1**: Off-canvas figure recovery (pan, or a "bring back on-canvas" affordance) — deferred;
   the roadmap intends to remove canvas bounds entirely later, at which point recovery is designed
   properly. *(Accepted risk for v1.11 — STOR-04.)*
+
 - **STOR-F2**: Multi-canvas per user (a `canvases` table + `figures.canvas_id` + backfill + per-canvas
   load/sync scope). A cheap additive migration when wanted; not now (D-12/D-03 upheld).
 
@@ -123,13 +126,13 @@ Which phases cover which requirements. Populated during roadmap creation.
 |-------------|-------|--------|
 | STOR-01 | Phase 9 | Complete |
 | STOR-02 | Phase 10 | Pending |
-| STOR-03 | Phase 10 | Pending |
-| STOR-04 | Phase 10 | Pending |
+| STOR-03 | Phase 10 | Complete |
+| STOR-04 | Phase 10 | Complete |
 | STOR-05 | Phase 10 | Pending |
 | MIG-01 | Phase 9 | Complete |
 | MIG-02 | Phase 9 | Complete |
 | SYNC-02 | Phase 10 | Pending |
-| TEST-02 | Phase 10 | Pending |
+| TEST-02 | Phase 10 | Complete |
 
 **Coverage:**
 
