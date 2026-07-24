@@ -5,15 +5,15 @@ milestone_name: Storage model rewrite (anchor + geometry JSON)
 current_phase: 10
 current_phase_name: geometry-draw-drag-sync-rework-no-edge-clamp-regression
 status: executing
-stopped_at: Completed 10-03-PLAN.md
-last_updated: "2026-07-24T08:25:38.090Z"
+stopped_at: Completed 10-04-PLAN.md
+last_updated: "2026-07-24T08:35:09.724Z"
 last_activity: 2026-07-24
 last_activity_desc: Phase BC-10 execution started
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 12
-  completed_plans: 9
+  completed_plans: 10
   percent: 50
 ---
 
@@ -39,7 +39,7 @@ no longer holds once v1.11 ships and the backlog must be revised before it opens
 ## Current Position
 
 Phase: BC-10 (geometry-draw-drag-sync-rework-no-edge-clamp-regression) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Executing Phase BC-10
 Last activity: 2026-07-24 — Phase BC-10 execution started
 requirements are mapped with 100% coverage, REQUIREMENTS.md traceability filled in.
@@ -100,6 +100,7 @@ requirements are mapped with 100% coverage, REQUIREMENTS.md traceability filled 
 | Phase 10 P01 | 8min | 3 tasks | 10 files |
 | Phase 10 P02 | 20min | 3 tasks | 3 files |
 | Phase 10 P03 | 15min | 3 tasks | 5 files |
+| Phase 10 P04 | 20min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -180,6 +181,8 @@ closing success criterion, not a separate phase.
 - [Phase BC-10 P03]: SyncMessage reshaped to (Kind, Sender, Id, Type, X, Y, Geometry); draw carries type+anchor+geometry, move/rollback carry only the anchor, delete carries only the id (D-53 amended by D-59)
 - [Phase BC-10 P03]: Extracted SyncReceiver (static, UI-free) owning the D-40 receiver rules — draw-creates-only, move/rollback-update-only, idempotent delete — now unit-tested without a component-test harness
 - [Phase BC-10 P03]: Home.razor's receive path had to be updated inline in Task 1 (ahead of the plan's Task 3 boundary) to keep the build clean after SyncMessage's shape changed; Task 3 then cleanly replaced it with delegation to SyncReceiver as planned
+- [Phase BC-10 P04]: GeometryCodec's BoxGeometry/CircleGeometry/LineGeometry widened from private to internal so ShapeRender reads the w/h/r/dx/dy JSON member names off the codec directly, never re-deriving them
+- [Phase BC-10 P04]: FigureShape and SelectionTrace share ShapeRender for triangle points and circle centre/radius; the 10-02 interim bridge (dragCurrentBox, dragFigure, FigureBox) is deleted from Home.razor — the renderer now takes anchor+geometry directly
 
 ### Pending Todos
 
@@ -213,8 +216,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-24T08:25:38.079Z
-Stopped at: Completed 10-03-PLAN.md
+Last session: 2026-07-24T08:35:09.708Z
+Stopped at: Completed 10-04-PLAN.md
 captured D-59's five plan-time decisions. Committed db63895 + 0a3878f on branch v1.11.
 Resume file: None
 
