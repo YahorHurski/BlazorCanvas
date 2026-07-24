@@ -60,13 +60,16 @@ public static class GeometryCodec
         return CircleEncoding.FromCentreRadius(x, y, circle.R);
     }
 
-    private readonly record struct BoxGeometry(
+    // Internal, not private: ShapeRender deserialises geometry JSON through these same wire-format
+    // records rather than re-deriving the "w"/"h"/"r"/"dx"/"dy" member names, so a rename here
+    // cannot silently diverge from the renderer (T-10-14).
+    internal readonly record struct BoxGeometry(
         [property: JsonPropertyName("w")] int W,
         [property: JsonPropertyName("h")] int H);
 
-    private readonly record struct CircleGeometry([property: JsonPropertyName("r")] int R);
+    internal readonly record struct CircleGeometry([property: JsonPropertyName("r")] int R);
 
-    private readonly record struct LineGeometry(
+    internal readonly record struct LineGeometry(
         [property: JsonPropertyName("dx")] int Dx,
         [property: JsonPropertyName("dy")] int Dy);
 }
