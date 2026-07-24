@@ -71,9 +71,22 @@
     private IDisposable? _subscription;
     private long _lastBroadcastTicks;
 
-    // The figure's box at press time. It is assigned exactly once per drag and retained until the
-    // drag commits, so Phase 5 can use it as D-52's rollback source if a save later fails.
-    private Box dragOriginalBox;
+    // The figure being dragged (PA-8). Its Type and Geometry are read-only for the whole gesture —
+    // a move never touches Geometry — and are what let the interim box below be derived without a
+    // list lookup on every pointer-move.
+    private Figure? dragFigure;
+
+    // The figure's own anchor at press time. Assigned exactly once per drag and retained until the
+    // drag commits, so it is D-52's rollback source if a save later fails.
+    private int dragAnchorX;
+    private int dragAnchorY;
+    private int dragCurrentAnchorX;
+    private int dragCurrentAnchorY;
+
+    // Interim bridge only: the renderer and the broadcast payload are still box-shaped in this
+    // plan, so this is DERIVED from the current anchor plus dragFigure's untouched Geometry via
+    // GeometryCodec.DecodeToBox. 10-04 removes this once FigureShape takes the anchor and geometry
+    // directly.
     private Box dragCurrentBox;
     private int dragPressX;
     private int dragPressY;
@@ -158,8 +171,12 @@
         }
 
         dragFigureId = figureId;
-        dragOriginalBox = FigureBox(figure);
-        dragCurrentBox = dragOriginalBox;
+        dragFigure = figure;
+        dragAnchorX = figure.X;
+        dragAnchorY = figure.Y;
+        dragCurrentAnchorX = dragAnchorX;
+        dragCurrentAnchorY = dragAnchorY;
+        dragCurrentBox = FigureBox(figure);
 
         var point = CanvasCoordinates.FromPage(e.PageX, e.PageY);
         dragPressX = point.X;
@@ -196,7 +213,15 @@
             dragMoved = Math.Sqrt((double)(dx * dx + dy * dy)) >= 3;
         }
 
-        dragCurrentBox = Movement.ClampMove(dragOriginalBox, dx, dy);
+        // No bounds arithmetic of any kind (STOR-04, D-24/D-29/D-36 dropped): the anchor is the
+        // press-time anchor plus the raw pointer delta.
+        dragCurrentAnchorX = dragAnchorX + dx;
+        dragCurrentAnchorY = dragAnchorY + dy;
+
+        // Interim bridge (10-04 removes this): derive the still-box-shaped render/broadcast value
+        // from the new anchor and dragFigure's untouched geometry.
+        dragCurrentBox = GeometryCodec.DecodeToBox(
+            FigureTypeNames.Parse(dragFigure!.Type), dragCurrentAnchorX, dragCurrentAnchorY, dragFigure.Geometry);
 
         var now = Environment.TickCount64;
         if (dragMoved && (_lastBroadcastTicks == 0 || now - _lastBroadcastTicks >= 50))
@@ -293,7 +318,8 @@
 
         try
         {
-            var figure = await Figures.InsertAsync(userId, type, box);
+            var geometry = GeometryCodec.Encode(type, box);
+            var figure = await Figures.InsertAsync(userId, type, geometry);
             figures.Add(figure);
             selectedId = figure.Id;
             Notifier.Publish(userId, SyncMessage.Draw(figure, _sender));
@@ -320,6 +346,8 @@
         dragging = false;
         var figureId = dragFigureId;
         var moved = dragMoved;
+        var anchorX = dragCurrentAnchorX;
+        var anchorY = dragCurrentAnchorY;
         var box = dragCurrentBox;
 
         if (!figureId.HasValue || !moved)
@@ -330,14 +358,17 @@
         var figure = figures.FirstOrDefault(f => f.Id == figureId.Value);
         if (figure is not null)
         {
-            ApplyBox(figure, box);
+            // Assign the anchor only — never touch Geometry, or a drag would drift a figure's
+            // shape (STOR-02, D-59).
+            figure.X = anchorX;
+            figure.Y = anchorY;
         }
 
         Notifier.Publish(userId, SyncMessage.Move(figureId.Value, box, _sender));
 
         try
         {
-            var affected = await Figures.UpdateAsync(userId, figureId.Value, box);
+            var affected = await Figures.MoveAsync(userId, figureId.Value, anchorX, anchorY);
             if (affected == 0)
             {
                 figures.RemoveAll(f => f.Id == figureId.Value);
@@ -356,10 +387,13 @@
             // circuit alive (D-45) while restoring every screen to the database's original position.
             if (figure is not null)
             {
-                ApplyBox(figure, dragOriginalBox);
+                figure.X = dragAnchorX;
+                figure.Y = dragAnchorY;
             }
 
-            Notifier.Publish(userId, SyncMessage.Rollback(figureId.Value, dragOriginalBox, _sender));
+            var rollbackBox = GeometryCodec.DecodeToBox(
+                FigureTypeNames.Parse(dragFigure!.Type), dragAnchorX, dragAnchorY, dragFigure.Geometry);
+            Notifier.Publish(userId, SyncMessage.Rollback(figureId.Value, rollbackBox, _sender));
             showSaveFailedModal = true;
         }
     }
