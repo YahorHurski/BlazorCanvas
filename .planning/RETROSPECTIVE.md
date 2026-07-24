@@ -189,6 +189,103 @@
 
 ---
 
+## Milestone: v1.11 — Storage model rewrite (anchor + geometry JSON)
+
+**Shipped:** 2026-07-24
+**Phases:** 2 | **Plans:** 12 | **Tasks:** 29 | **Commits:** 51 since the v1.11 decisions amend | **Elapsed:** ~2 days (2026-07-23 → 2026-07-24)
+
+### What Was Built
+
+- **A new storage model (D-59)** — a figure is now an anchor (`x,y`) + `geometry jsonb` (circle `{r}`,
+  rectangle/triangle `{w,h}`, line `{dx,dy}`), with a `uuid` id and a `numeric z` layer order,
+  replacing the four-integer bounding box. The `type text` whitelist CHECK stays; there is deliberately
+  **no DB CHECK on `geometry`** — the server is the sole writer.
+- **A data-preserving EF migration** that backfills every existing figure (`x1,y1,x2,y2 → x,y,geometry`
+  per type, `z = old id`) as part of the schema change — proven by a round-trip test that seeds the
+  immutable v1.1 SQL fixture, runs the real migration, and compares all 795 rows to a hand-derived
+  manifest of expected anchor+geometry values.
+- **The canvas-edge clamp removed** across draw and drag; a drag now writes only the anchor via
+  `FigureStore.MoveAsync(userId, id, x, y)` — a signature with no geometry parameter to carry — so
+  geometry is byte-identical across any number of moves for every shape.
+- **The sync layer reshaped** — `SyncMessage` carries anchor+geometry (D-53 amended); the D-40 receiver
+  rules (draw-creates-only, move/rollback update-only, idempotent delete) extracted into a **UI-free,
+  unit-tested `SyncReceiver`**, tested in isolation for the first time.
+- **The renderer moved onto the model** via a shared `ShapeRender` helper feeding both `FigureShape`
+  and `SelectionTrace`, producing coordinates identical to the retired bounding-box renderer.
+- **The suite reworked to the new model** — edge-clamp tests removed, the D-41 line landmine pinned
+  end-to-end into stored geometry; 416/416 green on a clean build.
+
+### What Worked
+
+- **Making illegal states unrepresentable in the signature.** `MoveAsync(userId, id, int x, int y)`
+  has no parameter that could carry geometry, so "a drag accidentally rewrites the shape" is not a bug
+  that can be written — the strongest possible form of the v1.0 "structural fixes beat documented
+  hazards" pattern.
+- **An immutable fixture as a migration oracle.** The headline risk was data loss during the backfill.
+  Freezing the pre-rewrite data as a checked-in SQL fixture plus a manifest of expected post-migration
+  values turned "the migration preserves figures" into an automated assertion over all 795 rows against
+  the *real* EF migration — not a trusted claim.
+- **Running the milestone audit this time.** v1.1's retrospective flagged that skipping the audit was
+  "a gate skipped, not a gate passed". v1.11 ran `/gsd-audit-milestone`, which confirmed the single
+  cross-phase seam (Phase 9 store → Phase 10 consumers) wired end-to-end in source.
+- **Distributing the test rework instead of trailing it.** Tests were reworked plan-by-plan alongside
+  the code they covered (TDD-first), so the suite was never red for long and the clean-build + full-green
+  gate was the phase's closing criterion rather than a separate catch-up phase.
+
+### What Was Inefficient
+
+- **A destructive verification step erased the baseline it needed.** During the 10-06 live checkpoint
+  the DB volume was reset to clear a cross-branch schema conflict — destroying all pre-rewrite figures.
+  That made success criterion SC1 (pre-rewrite pixel comparison) **permanently unverifiable**: the
+  coordinate-level half survives via `ShapeRenderTests`, but the against-real-old-data half has no data
+  left to check. The pre-rewrite state should have been snapshotted before the reset.
+- **A real runtime defect passed the entire green suite.** `Home.razor` bound `Geometry="f.Geometry"`
+  as a literal string instead of `@f.Geometry` as an expression — 416/416 tests stayed green because
+  none exercised the Razor attribute binding; only live human verification caught it. This is v1.0's
+  lesson #4 again (invariants only hold where tests reach), now in the framework-seam class.
+- **Two of the phase's must-have truths closed as accepted caveats, not verifications.** Both the SC1
+  comparison and the D-54 mid-drag blanket discard were environmentally unverifiable (destroyed data;
+  single-pointer environment). They were honestly recorded rather than claimed — but a milestone that
+  ends with two behavior-unverified items is one whose verification environment under-served its own
+  success criteria.
+
+### Patterns Established
+
+- **Make the illegal write unrepresentable, not merely guarded.** When a mutation must touch only some
+  fields, give it a signature that *cannot* touch the others. `MoveAsync`'s four scalar parameters are
+  the guarantee; no test or reviewer has to enforce "don't also write geometry".
+- **Freeze a migration's oracle as a fixture + manifest.** For any data-preserving migration, check in
+  the pre-change data and a hand-derived table of expected post-change values, then assert the real
+  migration against it. The proof travels with the repo and re-runs forever.
+- **Preserve the verification baseline before any destructive environment action.** A checkpoint that
+  resets state must snapshot whatever a success criterion compares against, or that criterion becomes
+  unfalsifiable.
+
+### Key Lessons
+
+1. **A green suite is not a running app.** The literal-vs-expression binding defect passed every one of
+   416 tests and broke on first render. For framework-seam behaviour (Razor bindings, cookies, pointer
+   events), live verification is not optional polish — it is the only check that reaches the seam.
+2. **Don't destroy the baseline you still need to compare against.** A verification step that resets
+   state erased the pre-rewrite data SC1 depended on. Verification must preserve its own oracle, or the
+   criterion silently converts from "verified" to "unverifiable".
+3. **The safest guard is the one that can't be called wrong.** `MoveAsync`'s geometry-free signature is
+   the third confirmation (after v1.0's throwing factory and machine-enforced CHECKs) that this project's
+   most durable safety comes from making the bad state structurally impossible, not from documenting it.
+4. **A skipped gate is a debt the next milestone pays.** v1.1 skipped its audit; v1.11 ran it and closed
+   that habit — the audit was cheap and confirmed the one integration seam. Run the gate; record why if
+   you don't.
+
+### Cost Observations
+
+- Model mix: executor and verifier agents resolved to `sonnet`; orchestration, planning, and the
+  milestone audit ran on Opus.
+- Sessions: not tracked.
+- Notable: parallelism again unexercised — the 12 plans ran as single-plan waves under
+  `branching_strategy: none`. The wave machinery continues to cost nothing and buy nothing at this size.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -197,6 +294,7 @@
 |-----------|--------|-------|------------|
 | v1.0 | 5 | 23 | Baseline — ADR-first planning from 58 locked decisions; gap-closure plans introduced after BC-01 verification |
 | v1.1 | 3 | 4 | Documentation-only phase given a full verification gate; human verification split into its own plan; milestone audit skipped |
+| v1.11 | 2 | 12 | First data-migration milestone; immutable fixture + manifest as migration oracle; milestone audit run (closing v1.1's skipped-gate habit); a live-only runtime defect caught past a fully green suite |
 
 ### Cumulative Quality
 
@@ -204,15 +302,21 @@
 |-----------|-------|---------|----------|--------------|
 | v1.0 | 405 | ~2,500 | ~2,000 | 15/15 validated |
 | v1.1 | 405 | ~2,500 | ~2,000 | 4/4 validated (19/19 cumulative) |
+| v1.11 | 416 | ~2,500 | ~2,800 | 9/9 validated (28/28 cumulative) |
 
 ### Top Lessons (Verified Across Milestones)
 
 1. **Records drift silently; code drifts loudly.** — *Confirmed in v1.0 and v1.1.* Found at both closes,
    in different files each time, caught by no test either time. This is now the project's most
    reproducible failure mode. v1.0 called it a lesson; v1.1 proves it needs a mechanism, not a reminder.
-2. **Writing the hardest thing into the definition of done prevents its deferral.** — *v1.0 (live sync);
-   partially re-confirmed in v1.1*, where human verification was made a plan rather than a hope, and
-   duly happened.
-3. **Investment in pure, framework-free primitives compounds.** — *v1.0 built the geometry core; v1.1
-   resized the entire canvas by changing constants.* No logic changed because there was no logic
-   outside `Geometry/` to change.
+2. **Structural impossibility beats documented hazard.** — *v1.0 (throwing `CanvasDbContextFactory`,
+   machine-enforced CHECKs); v1.11 (`MoveAsync`'s geometry-free signature).* The project's most durable
+   safety consistently comes from making the bad state unrepresentable, not from guarding against it.
+3. **Green suites miss framework seams; live verification catches them.** — *v1.0 lesson #4 (tests only
+   hold where they reach); v1.11 confirmed it* when a Razor literal-vs-expression binding defect passed
+   all 416 tests and failed on first render, caught only by human verification.
+4. **Writing the hardest thing into the definition of done prevents its deferral.** — *v1.0 (live sync);
+   re-confirmed in v1.1*, where human verification was made a plan rather than a hope, and duly happened.
+5. **Investment in pure, framework-free primitives compounds.** — *v1.0 built the geometry core; v1.1
+   resized the canvas by changing constants; v1.11 re-expressed draw/guard/normalise on new primitives*
+   without the surrounding app logic fighting back.

@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.11
 milestone_name: Storage model rewrite (anchor + geometry JSON)
-current_phase: 10
-status: completed
+status: Awaiting next milestone
 stopped_at: Completed 10-05-PLAN.md
-last_updated: "2026-07-24T09:57:48.073Z"
+last_updated: "2026-07-24T10:17:06.402Z"
 last_activity: 2026-07-24
-last_activity_desc: Phase BC-10 complete
+last_activity_desc: Milestone v1.11 completed and archived
 progress:
   total_phases: 2
   completed_phases: 2
   total_plans: 12
   completed_plans: 12
   percent: 100
+current_phase: 10
 current_phase_name: geometry-draw-drag-sync-rework-no-edge-clamp-regression
 ---
 
@@ -21,28 +21,27 @@ current_phase_name: geometry-draw-drag-sync-rework-no-edge-clamp-regression
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-23 — v1.11 opened)
+See: .planning/PROJECT.md (updated 2026-07-24 — v1.11 shipped)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** Phase BC-10 — geometry-draw-drag-sync-rework-no-edge-clamp-regression
-9/9 requirements mapped). No new user-facing feature; a database model change (anchor `x,y` +
-`geometry jsonb`, D-59) plus the downstream code churn it forces, with every existing figure
-preserved via a tested data migration and the canvas-edge clamp removed. Phase 9 = schema + entity +
-data-preserving migration; Phase 10 = geometry/draw/drag/sync rework (no clamp) + full test regression.
+**Current focus:** No milestone open. **v1.11 shipped 2026-07-24** — the storage model is now anchor
+(`x,y`) + `geometry jsonb` (D-59), every existing figure preserved via a tested migration, and the
+canvas-edge clamp removed. All 9 requirements validated; both phases verified `passed`; milestone
+audit passed. Next step: plan the next milestone with `/gsd-new-milestone`.
 
 **Next milestone v1.2** (new figures + dynamic toolbar) is scoped in
 `.planning/backlog/v1.2-figures-and-toolbar.md`, sequenced **after** v1.11 — its 4-int-bbox premise
-no longer holds once v1.11 ships and the backlog must be revised before it opens.
+no longer holds now that v1.11 has shipped, so the backlog must be revised as the first step when v1.2
+opens.
 
 ## Current Position
 
-Phase: BC-10
-Plan: Not started
-Status: All phases complete
-Last activity: 2026-07-24 — Phase BC-10 complete
-requirements are mapped with 100% coverage, REQUIREMENTS.md traceability filled in.
+Phase: Milestone v1.11 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-24 — Milestone v1.11 completed and archived
 
 ## Performance Metrics
 
@@ -227,7 +226,4 @@ Resume file: None
 
 ## Operator Next Steps
 
-- Execute Phase 9 (Schema, Entity & Data-Preserving Migration) with `/gsd-execute-phase 9` — 6 plans
-  in 5 waves, verified. Waves 3–5 need Compose Postgres up (`docker compose up -d --wait`, host 5433).
-
-- Then plan Phase 10 (geometry/draw/drag/sync rework + regression) with `/gsd-plan-phase 10`.
+- Start the next milestone with /gsd-new-milestone

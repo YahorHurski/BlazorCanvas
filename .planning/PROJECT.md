@@ -27,16 +27,18 @@ The project is done when the user can do this, in one sitting:
 This deliberately makes the hardest feature — live cross-tab sync with real-time drag glide
 (D-11, D-47, D-53, D-54) — part of the definition of success, so **no phase can quietly defer it**.
 
-## Current Milestone: v1.11 — Storage model rewrite (anchor + geometry JSON)
+## Last Milestone: v1.11 — Storage model rewrite (anchor + geometry JSON) — ✅ SHIPPED 2026-07-24
 
-**Opened:** 2026-07-23 (branch `v1.11`). **Adds no new user-facing feature** — a database model
-change plus the downstream code churn it forces.
+**Shipped:** 2026-07-24 (branch `v1.11`; opened 2026-07-23). **Added no new user-facing feature** — a
+database model change plus the downstream code churn it forced. 2 phases, 12 plans, 9/9 requirements
+validated; both phases verified `passed`; milestone audit passed. Full record:
+`.planning/milestones/v1.11-ROADMAP.md`.
 
-**Goal:** Replace the four-integer bounding-box storage (`x1,y1,x2,y2`) with an extensible **anchor
-(`x,y`) + `geometry jsonb`** model, so future figure types need no schema change. Existing figures are
-**preserved via a data migration**. The canvas-edge clamp is dropped.
+**Goal (achieved):** Replaced the four-integer bounding-box storage (`x1,y1,x2,y2`) with the extensible
+**anchor (`x,y`) + `geometry jsonb`** model, so future figure types need no schema change. Existing
+figures were **preserved via a tested data migration**. The canvas-edge clamp was dropped.
 
-**Target changes:**
+**Delivered changes:**
 - New `figures` schema: **`uuid`** id · anchor **`x,y`** · **`geometry jsonb`** · **`numeric z`**
   (fractional layer order) · `type text` + whitelist CHECK · index `(user_id, z)`. `users` unchanged.
   (D-59)
@@ -69,21 +71,31 @@ Backlog: `.planning/backlog/v1.11-storage-rewrite.md`.
 - [x] **SEL-02** — Selection indicator is a topmost blue-and-white dashed trace on the figure's own outline, replacing the red outline — Validated in Phase BC-07: Selection Lifecycle & Restyle (2026-07-21)
 - [x] **ARCH-01** — The former "no hand-authored JavaScript" constraint is removed and the motivations of D-06/D-18/D-33/D-37/D-57 are correctly recorded as MVP simplicity or their independent behavioural rationale — Validated in Phase BC-08: Architecture Constraint Cleanup (2026-07-21); permissive/doc-only, no code change
 
-**All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
-**All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
 - [x] **STOR-01 / MIG-01 / MIG-02** — Anchor+geometry schema, data-preserving EF migration, and
   immutable-fixture round-trip proof — Validated in Phase BC-09: Schema, Entity & Data-Preserving
   Migration (2026-07-23)
+- [x] **STOR-02 / STOR-03 / STOR-04 / STOR-05** — Geometry stored relative to the anchor; anchor-only
+  drag (geometry byte-identical across moves); code-side well-formedness guard; canvas-edge clamp
+  removed; all four shapes still draw/drag/delete and persist per-operation — Validated in Phase
+  BC-10: Geometry, Draw, Drag & Sync Rework (2026-07-24)
+- [x] **SYNC-02** — D-53 broadcast payload carries anchor+geometry with `uuid` ids; semantics
+  unchanged (draw-creates-only, move update-only, mid-drag discard, 50 ms trailing edge); a UI-free,
+  unit-tested `SyncReceiver` owns the receiver rules — Validated in Phase BC-10 (2026-07-24)
+- [x] **TEST-02** — Test suite reworked to the anchor+geometry model; edge-clamp tests removed;
+  migration round-trip added; the D-41 line landmine pinned end-to-end into stored geometry; clean
+  build, 416/416 green — Validated in Phase BC-10 (2026-07-24)
+
+**All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
+**All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
+**All 9 v1.11 requirements validated — shipped in v1.11 (2026-07-24).**
 
 ### Active
 
-**Milestone v1.11 — Storage model rewrite (anchor + geometry JSON) — OPEN (2026-07-23).**
-Phase BC-09 is complete: the schema/entity rewrite and data-preserving migration are validated.
-Phase BC-10 is next: geometry draw/drag/sync rework, no edge clamp, and regression. Decision
-amendments are locked in `docs/DECISIONS.md` (**D-59** + `⚠️ v1.11` banners). *(v1.1's
-`REQUIREMENTS.md` is archived at `.planning/milestones/v1.1-REQUIREMENTS.md`.)*
+**No milestone open.** v1.11 (storage-model rewrite) shipped 2026-07-24; its `REQUIREMENTS.md` is
+archived at `.planning/milestones/v1.11-REQUIREMENTS.md`. All 59 decisions (through **D-59**) remain
+locked in `docs/DECISIONS.md`. The next milestone is defined by `/gsd-new-milestone`.
 
-**Next milestone (v1.2) is scoped but not started** and is now sequenced **after v1.11**: new figure
+**Next milestone (v1.2) is scoped but not started**, now sequenced **after v1.11**: new figure
 types (ellipse, 5-point star, hexagon, pentagon, right-angle triangle L/R, four arrows) + a dynamic
 split-button toolbar. Full plan: `.planning/backlog/v1.2-figures-and-toolbar.md`. **Its 4-int-bbox
 premise no longer holds** — after v1.11, new shapes store as `geometry jsonb`; the backlog must be
@@ -112,8 +124,9 @@ there by name.
 
 ## Context
 
-- **Source of truth:** `docs/DECISIONS.md` — a consolidated ADR set of **58 locked decisions**
-  (D-01…D-58), which survived two hostile audits. Synthesized into `.planning/intel/`
+- **Source of truth:** `docs/DECISIONS.md` — a consolidated ADR set of **59 locked decisions**
+  (D-01…D-59; D-59 is v1.11's authoritative anchor+geometry storage model), which survived two hostile
+  audits. Synthesized into `.planning/intel/`
   (`SYNTHESIS.md` is the entry point; `decisions.md`, `requirements.md`, `constraints.md`,
   `context.md`).
 - **Where the risk actually is.** The ADR audit found the log *airtight wherever the human was in the
@@ -315,6 +328,25 @@ filter was never built.
 
 ## Current State
 
+**v1.11 shipped 2026-07-24** (opened 2026-07-23 — a two-day milestone). The storage model is now an
+anchor (`x,y`) + `geometry jsonb` (D-59) — `uuid` id, `numeric z` order — replacing the four-integer
+bounding box. Every existing figure was preserved via a hand-written EF backfill proven against the
+immutable v1.1 fixture (795 rows). The canvas-edge clamp is gone (figures may now leave the canvas);
+a drag writes only the anchor for every shape; the D-53 sync payload and the renderer moved onto the
+new model via a UI-free `SyncReceiver` and a shared `ShapeRender` helper.
+
+- **Delivered:** 2 phases (BC-09, BC-10), 12 plans, 29 tasks; all 9 requirements (STOR-01…05,
+  MIG-01/02, SYNC-02, TEST-02) validated, both phases verified `passed`, milestone audit passed.
+- **Footprint:** 40 source/test files changed (+4,654/−817) across 51 commits.
+- **Gates:** `dotnet build BlazorCanvas.sln` clean (0 warnings, 0 errors); 416/416 tests passing.
+- **Accepted caveats (non-blocking):** the pre-rewrite pixel comparison is permanently unverifiable
+  (pre-rewrite data was destroyed by a deliberate DB reset; coordinate-level equivalence is covered by
+  `ShapeRenderTests`), and the D-54 mid-drag blanket discard is code-present but not live-exercised
+  (needs two simultaneous pointers). Off-canvas figures are an accepted, currently-unrecoverable state.
+- **Archived:** `.planning/milestones/v1.11-ROADMAP.md`, `v1.11-REQUIREMENTS.md`,
+  `v1.11-MILESTONE-AUDIT.md`, and phase artifacts under `v1.11-phases/`.
+- **New tech debt:** none.
+
 **v1.1 shipped 2026-07-21** (opened 2026-07-20 — a four-day milestone). Phases BC-06 and BC-07
 delivered the 1472 × 828 canvas and the local selection lifecycle with its topmost blue-and-white
 dashed trace. Phase BC-08 then reconciled the permissive JavaScript policy across the active
@@ -346,10 +378,10 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
-**Next up: Phase BC-10 of milestone v1.11** — geometry, draw, drag, and sync rework on the
-anchor+geometry model, with the canvas-edge clamp removed and the full suite kept green. **v1.2 is scoped** (new figures + dynamic toolbar)
-in `.planning/backlog/v1.2-figures-and-toolbar.md` and is sequenced **after v1.11** (its 4-int-bbox
-premise no longer holds and must be revised first).
+**Next up: milestone v1.2** (new figure types + dynamic split-button toolbar), scoped in
+`.planning/backlog/v1.2-figures-and-toolbar.md` and sequenced after v1.11. Its 4-int-bbox premise no
+longer holds now that v1.11 has shipped — new shapes store as `geometry jsonb`, exactly what v1.11
+enables — so the backlog must be revised as the first step when v1.2 opens (`/gsd-new-milestone`).
 
 ## Evolution
 
@@ -369,7 +401,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-23 — Phase BC-09 validated STOR-01/MIG-01/MIG-02: anchor+geometry schema,
-data-preserving migration, and immutable-fixture round-trip proof. Current focus moved to Phase
-BC-10 for draw/drag/sync rework and no edge clamp.
-(Prev: 2026-07-21 after v1.1 milestone — ARCH-01/CANV-03/SEL-01/SEL-02 validated.)*
+*Last updated: 2026-07-24 after v1.11 milestone — all 9 requirements (STOR-01…05, MIG-01/02,
+SYNC-02, TEST-02) validated; storage model is now anchor + `geometry jsonb` (D-59), canvas-edge clamp
+removed, existing figures preserved via a tested migration. No milestone open; v1.2 is next.
+(Prev: 2026-07-23 — Phase BC-09 validated STOR-01/MIG-01/MIG-02.)*
