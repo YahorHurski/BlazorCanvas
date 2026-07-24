@@ -19,22 +19,23 @@
         <svg class="@CanvasSurfaceClass" width="@CanvasBounds.Width" height="@CanvasBounds.Height" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
             @foreach (var f in figures)
             {
-                var box = dragging && f.Id == dragFigureId ? dragCurrentBox : FigureBox(f);
-                <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" Box="box" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
+                var x = dragging && f.Id == dragFigureId ? dragCurrentAnchorX : f.X;
+                var y = dragging && f.Id == dragFigureId ? dragCurrentAnchorY : f.Y;
+                <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" X="x" Y="y" Geometry="f.Geometry" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
             }
             @if (drawing)
             {
-                <FigureShape Type="previewType" Box="previewBox" Preview="true" />
+                var previewGeometry = GeometryCodec.Encode(previewType, previewExtent);
+                <FigureShape Type="previewType" X="previewGeometry.X" Y="previewGeometry.Y" Geometry="previewGeometry.Geometry" Preview="true" />
             }
             @if (selectedId is Guid selectedFigureId)
             {
                 var selected = figures.FirstOrDefault(f => f.Id == selectedFigureId);
                 if (selected is not null)
                 {
-                    var selectedBox = dragging && selected.Id == dragFigureId
-                        ? dragCurrentBox
-                        : FigureBox(selected);
-                    <SelectionTrace Type="FigureTypeNames.Parse(selected.Type)" Box="selectedBox" />
+                    var selectedX = dragging && selected.Id == dragFigureId ? dragCurrentAnchorX : selected.X;
+                    var selectedY = dragging && selected.Id == dragFigureId ? dragCurrentAnchorY : selected.Y;
+                    <SelectionTrace Type="FigureTypeNames.Parse(selected.Type)" X="selectedX" Y="selectedY" Geometry="selected.Geometry" />
                 }
             }
         </svg>
@@ -71,30 +72,25 @@
     private IDisposable? _subscription;
     private long _lastBroadcastTicks;
 
-    // The figure being dragged (PA-8). Its Type and Geometry are read-only for the whole gesture —
-    // a move never touches Geometry — and are what let the interim box below be derived without a
-    // list lookup on every pointer-move.
-    private Figure? dragFigure;
-
     // The figure's own anchor at press time. Assigned exactly once per drag and retained until the
-    // drag commits, so it is D-52's rollback source if a save later fails.
+    // drag commits, so it is D-52's rollback source if a save later fails. A drag now touches only
+    // this anchor pair — the renderer reads the dragged figure's own untouched Geometry directly
+    // out of the figures loop, never re-derived (STOR-02, D-59).
     private int dragAnchorX;
     private int dragAnchorY;
     private int dragCurrentAnchorX;
     private int dragCurrentAnchorY;
-
-    // Interim bridge only: the renderer and the broadcast payload are still box-shaped in this
-    // plan, so this is DERIVED from the current anchor plus dragFigure's untouched Geometry via
-    // GeometryCodec.DecodeToBox. 10-04 removes this once FigureShape takes the anchor and geometry
-    // directly.
-    private Box dragCurrentBox;
     private int dragPressX;
     private int dragPressY;
     private bool dragMoved;
     private FigureType previewType;
     private int pressX;
     private int pressY;
-    private Box previewBox;
+
+    // The live draw gesture's extent, read by MinSizeGuard before CommitAsync encodes it (STOR-03
+    // guard-before-serialisation order). Named "extent", not "box": Box is a transient shape a
+    // gesture or render produces, never the storage model since D-59.
+    private Box previewExtent;
 
     // The shape-armed class drives the crosshair cursor rule in Home.razor.css. Dragging adds a
     // second state class for the grab/grabbing affordance without changing shape-tool behaviour.
@@ -151,7 +147,7 @@
         pressX = point.X;
         pressY = point.Y;
         previewType = type.Value;
-        previewBox = DrawGesture.Build(previewType, pressX, pressY, pressX, pressY);
+        previewExtent = DrawGesture.Build(previewType, pressX, pressY, pressX, pressY);
         drawing = true;
     }
 
@@ -171,12 +167,10 @@
         }
 
         dragFigureId = figureId;
-        dragFigure = figure;
         dragAnchorX = figure.X;
         dragAnchorY = figure.Y;
         dragCurrentAnchorX = dragAnchorX;
         dragCurrentAnchorY = dragAnchorY;
-        dragCurrentBox = FigureBox(figure);
 
         var point = CanvasCoordinates.FromPage(e.PageX, e.PageY);
         dragPressX = point.X;
@@ -214,14 +208,10 @@
         }
 
         // No bounds arithmetic of any kind (STOR-04, D-24/D-29/D-36 dropped): the anchor is the
-        // press-time anchor plus the raw pointer delta.
+        // press-time anchor plus the raw pointer delta. Geometry never changes on a move, so the
+        // renderer keeps reading the figure's own stored Geometry directly — nothing to derive here.
         dragCurrentAnchorX = dragAnchorX + dx;
         dragCurrentAnchorY = dragAnchorY + dy;
-
-        // Interim bridge (10-04 removes this): derive the still-box-shaped render/broadcast value
-        // from the new anchor and dragFigure's untouched geometry.
-        dragCurrentBox = GeometryCodec.DecodeToBox(
-            FigureTypeNames.Parse(dragFigure!.Type), dragCurrentAnchorX, dragCurrentAnchorY, dragFigure.Geometry);
 
         var now = Environment.TickCount64;
         if (dragMoved && (_lastBroadcastTicks == 0 || now - _lastBroadcastTicks >= 50))
@@ -267,7 +257,7 @@
         }
 
         var point = CanvasCoordinates.FromPage(e.PageX, e.PageY);
-        previewBox = DrawGesture.Build(previewType, pressX, pressY, point.X, point.Y);
+        previewExtent = DrawGesture.Build(previewType, pressX, pressY, point.X, point.Y);
     }
 
     private async Task OnPointerUp(PointerEventArgs e)
@@ -309,16 +299,16 @@
     {
         drawing = false;
         var type = previewType;
-        var box = previewBox;
+        var extent = previewExtent;
 
-        if (!MinSizeGuard.IsDrawable(type, box))
+        if (!MinSizeGuard.IsDrawable(type, extent))
         {
             return;
         }
 
         try
         {
-            var geometry = GeometryCodec.Encode(type, box);
+            var geometry = GeometryCodec.Encode(type, extent);
             var figure = await Figures.InsertAsync(userId, type, geometry);
             figures.Add(figure);
             selectedId = figure.Id;
@@ -506,9 +496,6 @@
             selectedId = null;
         }
     }
-
-    private static Box FigureBox(Figure figure) =>
-        GeometryCodec.DecodeToBox(FigureTypeNames.Parse(figure.Type), figure.X, figure.Y, figure.Geometry);
 }
 
 
