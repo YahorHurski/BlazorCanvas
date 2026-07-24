@@ -170,7 +170,7 @@ suite is reworked to the new model and green on a clean build.
 
   6. `dotnet build BlazorCanvas.sln` is clean (0 warnings, 0 errors) and the full `dotnet test` suite
      passes.
-**Plans**: 4/6 plans executed
+**Plans**: 5/6 plans executed
 
 **Wave 1**
 
@@ -194,7 +194,7 @@ suite is reworked to the new model and green on a clean build.
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 10-05-PLAN.md — Test-suite rework to the anchor+geometry model; the D-41 landmine asserted
+- [x] 10-05-PLAN.md — Test-suite rework to the anchor+geometry model; the D-41 landmine asserted
       through to stored JSON (TEST-02, STOR-02, STOR-03) [wave 5]
 
 **Wave 6** *(blocked on Wave 5)*
@@ -215,7 +215,7 @@ suite is reworked to the new model and green on a clean build.
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Schema, Entity & Data-Preserving Migration | v1.11 | 6/6 | Complete    | 2026-07-23 |
-| 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 4/6 | In Progress|  |
+| 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 5/6 | In Progress|  |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 3/3 phases, 4/4 plans, 4/4 requirements — all phases verified `passed`.**

@@ -5,15 +5,15 @@ milestone_name: Storage model rewrite (anchor + geometry JSON)
 current_phase: 10
 current_phase_name: geometry-draw-drag-sync-rework-no-edge-clamp-regression
 status: executing
-stopped_at: Completed 10-04-PLAN.md
-last_updated: "2026-07-24T08:35:09.724Z"
+stopped_at: Completed 10-05-PLAN.md
+last_updated: "2026-07-24T08:44:36.699Z"
 last_activity: 2026-07-24
 last_activity_desc: Phase BC-10 execution started
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 12
-  completed_plans: 10
+  completed_plans: 11
   percent: 50
 ---
 
@@ -39,7 +39,7 @@ no longer holds once v1.11 ships and the backlog must be revised before it opens
 ## Current Position
 
 Phase: BC-10 (geometry-draw-drag-sync-rework-no-edge-clamp-regression) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Executing Phase BC-10
 Last activity: 2026-07-24 — Phase BC-10 execution started
 requirements are mapped with 100% coverage, REQUIREMENTS.md traceability filled in.
@@ -101,6 +101,7 @@ requirements are mapped with 100% coverage, REQUIREMENTS.md traceability filled 
 | Phase 10 P02 | 20min | 3 tasks | 3 files |
 | Phase 10 P03 | 15min | 3 tasks | 5 files |
 | Phase 10 P04 | 20min | 2 tasks | 6 files |
+| Phase 10 P05 | 25min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -183,6 +184,8 @@ closing success criterion, not a separate phase.
 - [Phase BC-10 P03]: Home.razor's receive path had to be updated inline in Task 1 (ahead of the plan's Task 3 boundary) to keep the build clean after SyncMessage's shape changed; Task 3 then cleanly replaced it with delegation to SyncReceiver as planned
 - [Phase BC-10 P04]: GeometryCodec's BoxGeometry/CircleGeometry/LineGeometry widened from private to internal so ShapeRender reads the w/h/r/dx/dy JSON member names off the codec directly, never re-deriving them
 - [Phase BC-10 P04]: FigureShape and SelectionTrace share ShapeRender for triangle points and circle centre/radius; the 10-02 interim bridge (dragCurrentBox, dragFigure, FigureBox) is deleted from Home.razor — the renderer now takes anchor+geometry directly
+- [Phase BC-10 P05]: GuardMirrorsChecksTests.cs's TryInsertFigureAsync call site fixed inline in Task 2 (Rule 3) to keep the build green ahead of Task 3's rename to TypeWhitelistAndPersistenceTests
+- [Phase BC-10 P05]: TryInsertFigureAsync(FigureType, string geometry) fixes the anchor at (0,0) rather than parameterising it — D-59 left no CHECK on geometry content, so only the type literal matters to its one caller
 
 ### Pending Todos
 
@@ -216,8 +219,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-24T08:35:09.708Z
-Stopped at: Completed 10-04-PLAN.md
+Last session: 2026-07-24T08:44:36.688Z
+Stopped at: Completed 10-05-PLAN.md
 captured D-59's five plan-time decisions. Committed db63895 + 0a3878f on branch v1.11.
 Resume file: None
 
