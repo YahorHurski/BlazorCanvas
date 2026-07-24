@@ -84,7 +84,7 @@ model change plus the downstream code churn it forces.
       schema and Figure entity, plus a hand-written backfill of every existing figure verified by a
       round-trip test against the immutable v1.1 fixture.
 
-- [ ] **Phase 10: Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression** - All four shapes
+- [x] **Phase 10: Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression** - All four shapes (completed 2026-07-24)
       draw, drag, delete, and sync live on the new model; the canvas-edge clamp is removed; the
       degenerate-draw guard and per-type normalisation are re-expressed in code; the D-53 broadcast
       payload carries anchor+geometry; and the full test suite is reworked and green.
@@ -215,7 +215,7 @@ suite is reworked to the new model and green on a clean build.
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Schema, Entity & Data-Preserving Migration | v1.11 | 6/6 | Complete    | 2026-07-23 |
-| 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 6/6 | In Progress|  |
+| 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 6/6 | Complete    | 2026-07-24 |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 3/3 phases, 4/4 plans, 4/4 requirements — all phases verified `passed`.**
