@@ -27,17 +27,21 @@ public class CircleEncodingTests
     }
 
     [Fact]
-    public void Radius_SurvivesTenSuccessiveTranslations_IncludingTwoEdgeClipped()
+    public void Radius_SurvivesTenSuccessiveTranslations_IncludingTwoFarOffCanvas()
     {
-        var box = CircleEncoding.FromCentreRadius(200, 200, 50);
+        // Translates the centre directly through FromCentreRadius — no clamp exists any more to
+        // route this through. Two of the ten deltas send the centre far off-canvas; the radius
+        // must still come back bit-identical (D-59 item 6).
+        var (cx, cy) = (200, 200);
+        const int radius = 50;
 
         var deltas = new (int dx, int dy)[]
         {
             (10, 10),
             (-5, 20),
             (30, -15),
-            (-100_000, 0), // edge-clipped: clamps against the left edge
-            (0, -100_000), // edge-clipped: clamps against the top edge
+            (-100_000, 0), // sends the centre far off-canvas to the left
+            (0, -100_000), // sends the centre far off-canvas above
             (5, 5),
             (-20, -20),
             (15, 0),
@@ -47,9 +51,13 @@ public class CircleEncodingTests
 
         foreach (var (dx, dy) in deltas)
         {
-            box = Movement.ClampMove(box, dx, dy);
+            cx += dx;
+            cy += dy;
+
+            var box = CircleEncoding.FromCentreRadius(cx, cy, radius);
             var (_, _, r) = CircleEncoding.ToCentreRadius(box);
-            Assert.Equal(50, r);
+
+            Assert.Equal(radius, r);
         }
     }
 
@@ -71,74 +79,19 @@ public class CircleEncodingTests
     }
 
     [Fact]
-    public void ClampDrawRadius_NearLeftEdge_ForcesATinyCircle()
+    public void CentreOutGesture_EncodesAsAnchorPlusRadiusLiteral_AndDecodesToTheIdenticalBox()
     {
-        // Known and accepted consequence of D-13 x D-29 — assert it, do not "fix" it.
-        Assert.Equal(10, CircleEncoding.ClampDrawRadius(cx: 10, cy: 360, distance: 200));
-    }
+        // TEST-02's re-expression of the D-49 silent-failure test 2: the circle round-trip is
+        // now a geometry {r} assertion, not an inscribed-square assertion.
+        var box = DrawGesture.Build(FigureType.Circle, 640, 360, 740, 360);
 
-    [Fact]
-    public void ClampDrawRadius_FarFromAnyEdge_PassesThrough()
-    {
-        Assert.Equal(100, CircleEncoding.ClampDrawRadius(cx: 640, cy: 360, distance: 100));
-    }
+        var encoded = GeometryCodec.Encode(FigureType.Circle, box);
 
-    [Fact]
-    public void ClampDrawRadius_CappedByVerticalExtent()
-    {
-        Assert.Equal(360, CircleEncoding.ClampDrawRadius(cx: 640, cy: 360, distance: 1000));
-    }
+        Assert.Equal(640, encoded.X);
+        Assert.Equal(360, encoded.Y);
+        Assert.Equal("{\"r\":100}", encoded.Geometry);
 
-    [Fact]
-    public void ClampDrawRadius_CappedByRightEdge()
-    {
-        Assert.Equal(5, CircleEncoding.ClampDrawRadius(cx: 1467, cy: 360, distance: 50));
-    }
-
-    [Fact]
-    public void ClampDrawRadius_CappedByTopEdge()
-    {
-        Assert.Equal(5, CircleEncoding.ClampDrawRadius(cx: 640, cy: 5, distance: 50));
-    }
-
-    [Fact]
-    public void ClampDrawRadius_RoundsTheDistanceBeforeCapping()
-    {
-        Assert.Equal(11, CircleEncoding.ClampDrawRadius(cx: 100, cy: 100, distance: 10.5));
-    }
-
-    public static IEnumerable<object[]> OffCanvasCentres()
-    {
-        yield return new object[] { -5, 360 };
-        yield return new object[] { 1477, 360 };
-        yield return new object[] { 640, -5 };
-        yield return new object[] { 640, 833 };
-    }
-
-    [Theory]
-    [MemberData(nameof(OffCanvasCentres))]
-    public void ClampDrawRadius_OffCanvasCentre_IsNeverNegative(int cx, int cy)
-    {
-        // CR-01: an off-canvas centre must never produce a negative radius.
-        var r = CircleEncoding.ClampDrawRadius(cx, cy, distance: 50);
-
-        Assert.True(r >= 0);
-        Assert.Equal(0, r);
-    }
-
-    [Fact]
-    public void ClampDrawRadius_OffCanvasCentre_ProducesNoLegalCircle()
-    {
-        // CR-01, reproduced live against the database in 01-VERIFICATION.md: on the pre-fix
-        // code, ClampDrawRadius(-5, 360, 50) returns -5, and Normalisation silently turns the
-        // resulting inverted box into a legal-looking off-canvas square (-10,355,0,365) that
-        // both MinSizeGuard and the circle_is_a_circle CHECK accept.
-        var r = CircleEncoding.ClampDrawRadius(cx: -5, cy: 360, distance: 50);
-        Assert.Equal(0, r);
-
-        var box = CircleEncoding.FromCentreRadius(-5, 360, r);
-        var normalised = Normalisation.Normalise(FigureType.Circle, box);
-
-        Assert.False(MinSizeGuard.IsDrawable(FigureType.Circle, normalised));
+        var decoded = GeometryCodec.DecodeToBox(FigureType.Circle, encoded.X, encoded.Y, encoded.Geometry);
+        Assert.Equal(box, decoded);
     }
 }

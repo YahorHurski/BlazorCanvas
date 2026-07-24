@@ -27,21 +27,24 @@ public class DrawGestureTests
     [Theory]
     [InlineData(FigureType.Rectangle)]
     [InlineData(FigureType.Triangle)]
-    public void CornerToCorner_ClampedAtTheFarCorner(FigureType type)
+    public void CornerToCorner_FarCorner_IsReproducedUnclamped(FigureType type)
     {
+        // The draw-clamp is gone (D-59 item 6, STOR-04): both far-corner coordinates are
+        // preserved exactly, neither reduced to the canvas edge (1472, 828).
         var result = DrawGesture.Build(type, 1200, 600, 5000, 5000);
 
-        Assert.Equal(new Box(1200, 600, 1472, 828), result);
+        Assert.Equal(new Box(1200, 600, 5000, 5000), result);
     }
 
     [Theory]
     [InlineData(FigureType.Rectangle)]
     [InlineData(FigureType.Triangle)]
-    public void CornerToCorner_ClampedAtTheOrigin(FigureType type)
+    public void CornerToCorner_NegativeOrigin_IsReproducedUnclamped(FigureType type)
     {
+        // Negative coordinates are preserved exactly — nothing clamps them to 0 any more.
         var result = DrawGesture.Build(type, 100, 100, -500, -500);
 
-        Assert.Equal(new Box(0, 0, 100, 100), result);
+        Assert.Equal(new Box(-500, -500, 100, 100), result);
     }
 
     [Fact]
@@ -91,14 +94,15 @@ public class DrawGestureTests
     }
 
     [Fact]
-    public void Circle_DrawClamp_NearLeftEdge_CapsTheRadius()
+    public void Circle_NearLeftEdge_KeepsFullRadius_AndExtendsOffCanvas()
     {
-        // Known, accepted consequence of D-13 x D-29: pressing near an edge forces a tiny
-        // circle. Still square, never an oval.
+        // The circle draw-clamp is gone (D-59 item 6, STOR-04): pressing 10px from the left
+        // edge and dragging 200px out produces the full radius-200 circle, whose left edge is
+        // off-canvas — not a capped tiny circle.
         var result = DrawGesture.Build(FigureType.Circle, 10, 360, 210, 360);
 
-        Assert.Equal(new Box(0, 350, 20, 370), result);
-        Assert.Equal(result.Width, result.Height);
+        Assert.Equal(new Box(-190, 160, 210, 560), result);
+        Assert.Equal((10, 360, 200), CircleEncoding.ToCentreRadius(result));
     }
 
     [Theory]
@@ -113,11 +117,10 @@ public class DrawGestureTests
         Assert.False(MinSizeGuard.IsDrawable(type, result));
     }
 
-    // Grid points drawn from the mandated coordinate sets (D-29, D-36): far outside the canvas
-    // on all four sides, exactly on each boundary, and comfortably inside. Zipped rather than
-    // fully crossed on x/y so each single "point" is itself a legal (x, y) pair drawn from both
-    // required sets; press and cursor are then crossed against each other and against all four
-    // figure types.
+    // Grid points spanning far outside the canvas on all four sides, exactly on each boundary,
+    // and comfortably inside. Zipped rather than fully crossed on x/y so each single "point" is
+    // itself a legal (x, y) pair drawn from both required sets; press and cursor are then crossed
+    // against each other and against all four figure types.
     private static readonly (int X, int Y)[] GridPoints =
     {
         (-500, -500),
@@ -143,20 +146,40 @@ public class DrawGestureTests
 
     [Theory]
     [MemberData(nameof(InvariantGridCases))]
-    public void EveryResult_LiesEntirelyInsideTheCanvas_AndCirclesAreAlwaysSquare(
+    public void EveryResult_ReproducesTheGesture_WithNoClamp(
         FigureType type, int pressX, int pressY, int cursorX, int cursorY)
     {
         var result = DrawGesture.Build(type, pressX, pressY, cursorX, cursorY);
 
-        // A normalised line may legally have Y1 > Y2 (D-41) — use min/max, not raw X1/Y1.
-        Assert.True(0 <= Math.Min(result.X1, result.X2));
-        Assert.True(Math.Max(result.X1, result.X2) <= 1472);
-        Assert.True(0 <= Math.Min(result.Y1, result.Y2));
-        Assert.True(Math.Max(result.Y1, result.Y2) <= 828);
-
-        if (type == FigureType.Circle)
+        switch (type)
         {
-            Assert.Equal(result.Width, result.Height);
+            case FigureType.Rectangle:
+            case FigureType.Triangle:
+                // Rectangle/triangle: the result is exactly the axis-sorted press/cursor box —
+                // no clamp anywhere reshapes it.
+                var expected = new Box(
+                    Math.Min(pressX, cursorX), Math.Min(pressY, cursorY),
+                    Math.Max(pressX, cursorX), Math.Max(pressY, cursorY));
+                Assert.Equal(expected, result);
+                break;
+
+            case FigureType.Line:
+                // Line: the result is the press/cursor pair or its whole-pair swap — never the
+                // axis-sorted box (D-41's landmine).
+                var straight = new Box(pressX, pressY, cursorX, cursorY);
+                var swapped = new Box(cursorX, cursorY, pressX, pressY);
+                Assert.True(result == straight || result == swapped);
+                break;
+
+            case FigureType.Circle:
+                // Circle: width equals height equals twice the rounded press-to-cursor distance
+                // — never capped by any canvas edge.
+                var dx = (double)(cursorX - pressX);
+                var dy = (double)(cursorY - pressY);
+                var radius = (int)Math.Round(Math.Sqrt(dx * dx + dy * dy), MidpointRounding.AwayFromZero);
+                Assert.Equal(radius * 2, result.Width);
+                Assert.Equal(radius * 2, result.Height);
+                break;
         }
     }
 }

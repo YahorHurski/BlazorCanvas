@@ -43,7 +43,8 @@ public class CanvasCoordinatesTests
     [Fact]
     public void FromPage_Midpoint_RoundsAwayFromZero()
     {
-        // Matches the rounding convention already established by CircleEncoding.ClampDrawRadius.
+        // Rounds away from zero at the midpoint — the same convention used throughout the
+        // geometry core (e.g. DrawGesture's circle radius rounding).
         var (x, y) = CanvasCoordinates.FromPage(100.5, 148.5);
 
         Assert.Equal(101, x);
@@ -53,12 +54,34 @@ public class CanvasCoordinatesTests
     [Fact]
     public void FromPage_AboveTheCanvas_MapsToNegativeY_AndIsNotClamped()
     {
-        // Deliberately NOT clamped: mapping and clamping are different responsibilities.
-        // The clamp belongs to DrawGesture (Task 2). Pin this so nobody "helpfully" adds a
-        // clamp here and hides an off-canvas press.
+        // Deliberately NOT clamped: mapping and bounding are different responsibilities, and
+        // D-59 dropped the canvas-edge clamp everywhere — nothing in DrawGesture or Movement
+        // clamps any more either. Pin this so nobody "helpfully" adds a clamp here and hides an
+        // off-canvas press.
         var (x, y) = CanvasCoordinates.FromPage(0, 0);
 
         Assert.Equal(0, x);
         Assert.Equal(-48, y);
+    }
+
+    [Theory]
+    [InlineData(double.NaN, double.NaN)]
+    [InlineData(double.NaN, 48)]
+    [InlineData(0, double.NaN)]
+    [InlineData(double.PositiveInfinity, double.PositiveInfinity)]
+    [InlineData(double.PositiveInfinity, 48)]
+    [InlineData(0, double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity, double.NegativeInfinity)]
+    [InlineData(double.NegativeInfinity, 48)]
+    [InlineData(0, double.NegativeInfinity)]
+    public void FromPage_NonFiniteInput_MapsToZeroZero(double pageX, double pageY)
+    {
+        // T-10-01: with no downstream clamp left to catch it, FromPage is the last place a
+        // crafted non-finite circuit coordinate can be turned into a defined int rather than
+        // reaching an unchecked (int) cast, which is undefined for NaN/Infinity in C#.
+        var (x, y) = CanvasCoordinates.FromPage(pageX, pageY);
+
+        Assert.Equal(0, x);
+        Assert.Equal(0, y);
     }
 }
