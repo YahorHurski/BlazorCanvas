@@ -4,33 +4,68 @@
     @switch (Type)
     {
         case FigureType.Line:
-            <line x1="@Box.X1" y1="@Box.Y1" x2="@Box.X2" y2="@Box.Y2" stroke="#FFFFFF" stroke-width="2" />
-            <line x1="@Box.X1" y1="@Box.Y1" x2="@Box.X2" y2="@Box.Y2" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
+            <line x1="@X" y1="@Y" x2="@_lineX2" y2="@_lineY2" stroke="#FFFFFF" stroke-width="2" />
+            <line x1="@X" y1="@Y" x2="@_lineX2" y2="@_lineY2" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
             break;
         case FigureType.Rectangle:
-            <rect x="@Box.X1" y="@Box.Y1" width="@Box.Width" height="@Box.Height" stroke="#FFFFFF" stroke-width="2" />
-            <rect x="@Box.X1" y="@Box.Y1" width="@Box.Width" height="@Box.Height" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
+            <rect x="@X" y="@Y" width="@_width" height="@_height" stroke="#FFFFFF" stroke-width="2" />
+            <rect x="@X" y="@Y" width="@_width" height="@_height" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
             break;
         case FigureType.Circle:
-            <circle cx="@CircleCentreRadius.Cx" cy="@CircleCentreRadius.Cy" r="@CircleCentreRadius.R" stroke="#FFFFFF" stroke-width="2" />
-            <circle cx="@CircleCentreRadius.Cx" cy="@CircleCentreRadius.Cy" r="@CircleCentreRadius.R" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
+            <circle cx="@X" cy="@Y" r="@_radius" stroke="#FFFFFF" stroke-width="2" />
+            <circle cx="@X" cy="@Y" r="@_radius" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
             break;
         case FigureType.Triangle:
-            <polygon points="@TrianglePoints" stroke="#FFFFFF" stroke-width="2" />
-            <polygon points="@TrianglePoints" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
+            <polygon points="@_trianglePoints" stroke="#FFFFFF" stroke-width="2" />
+            <polygon points="@_trianglePoints" stroke="#1D4ED8" stroke-width="1" stroke-dasharray="4 4" />
             break;
     }
 </g>
 
 @code {
+    // Since D-59 a figure is an anchor (X, Y) plus geometry JSON, not a bounding box: a circle is
+    // no longer stored as an inscribed square that must be decoded through CircleEncoding — it is
+    // a centre anchor plus {r} directly. Shares ShapeRender with FigureShape so this trace can
+    // never disagree with the figure it traces.
+
     [Parameter, EditorRequired]
     public FigureType Type { get; set; }
 
     [Parameter, EditorRequired]
-    public Box Box { get; set; }
+    public int X { get; set; }
 
-    private (int Cx, int Cy, int R) CircleCentreRadius => CircleEncoding.ToCentreRadius(Box);
+    [Parameter, EditorRequired]
+    public int Y { get; set; }
 
-    private string TrianglePoints => FormattableString.Invariant(
-        $"{(Box.X1 + Box.X2) / 2.0},{Box.Y1} {Box.X1},{Box.Y2} {Box.X2},{Box.Y2}");
+    [Parameter, EditorRequired]
+    public string Geometry { get; set; } = string.Empty;
+
+    private int _lineX2;
+    private int _lineY2;
+    private int _width;
+    private int _height;
+    private int _radius;
+    private string _trianglePoints = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        switch (Type)
+        {
+            case FigureType.Line:
+                var (dx, dy) = ShapeRender.LineDelta(Geometry);
+                _lineX2 = X + dx;
+                _lineY2 = Y + dy;
+                break;
+            case FigureType.Rectangle:
+                (_width, _height) = ShapeRender.Size(Geometry);
+                break;
+            case FigureType.Circle:
+                _radius = ShapeRender.Radius(Geometry);
+                break;
+            case FigureType.Triangle:
+                (_width, _height) = ShapeRender.Size(Geometry);
+                _trianglePoints = ShapeRender.TrianglePoints(X, Y, _width, _height);
+                break;
+        }
+    }
 }

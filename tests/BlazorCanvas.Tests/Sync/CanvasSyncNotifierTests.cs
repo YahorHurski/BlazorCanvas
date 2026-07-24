@@ -14,7 +14,8 @@ namespace BlazorCanvas.Tests.Sync;
 public class CanvasSyncNotifierTests
 {
     private static readonly Guid Sender = Guid.Parse("11111111-1111-1111-1111-111111111111");
-    private static readonly SyncMessage Message = SyncMessage.Delete(42, Sender);
+    private static readonly Guid FigureId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+    private static readonly SyncMessage Message = SyncMessage.Delete(FigureId, Sender);
 
     [Fact]
     public void Publish_ForDifferentUser_DoesNotInvokeHandler()
@@ -109,75 +110,69 @@ public class CanvasSyncNotifierTests
     [Fact]
     public void Draw_CarriesTypeAndCoordinates()
     {
+        var box = new Box(10, 20, 30, 40);
+        var encoded = GeometryCodec.Encode(FigureType.Rectangle, box);
         var figure = new Figure
         {
-            Id = 12,
+            Id = FigureId,
             UserId = 1,
             Type = "rectangle",
-            X1 = 10,
-            Y1 = 20,
-            X2 = 30,
-            Y2 = 40,
+            X = encoded.X,
+            Y = encoded.Y,
+            Geometry = encoded.Geometry,
+            Z = 1m,
         };
 
         var message = SyncMessage.Draw(figure, Sender);
 
         Assert.Equal("draw", message.Kind);
         Assert.Equal(Sender, message.Sender);
-        Assert.Equal(12, message.Id);
+        Assert.Equal(FigureId, message.Id);
         Assert.Equal("rectangle", message.Type);
-        Assert.Equal(10, message.X1);
-        Assert.Equal(20, message.Y1);
-        Assert.Equal(30, message.X2);
-        Assert.Equal(40, message.Y2);
+        Assert.Equal(encoded.X, message.X);
+        Assert.Equal(encoded.Y, message.Y);
+        Assert.Equal(encoded.Geometry, message.Geometry);
     }
 
     [Fact]
     public void Move_CarriesNoType_BecauseTypeNeverChanges()
     {
-        var box = new Box(1, 2, 3, 4);
-
-        var message = SyncMessage.Move(13, box, Sender);
+        var message = SyncMessage.Move(FigureId, 1, 2, Sender);
 
         Assert.Equal("move", message.Kind);
         Assert.Equal(Sender, message.Sender);
-        Assert.Equal(13, message.Id);
+        Assert.Equal(FigureId, message.Id);
         Assert.Null(message.Type);
-        Assert.Equal(1, message.X1);
-        Assert.Equal(2, message.Y1);
-        Assert.Equal(3, message.X2);
-        Assert.Equal(4, message.Y2);
+        Assert.Equal(1, message.X);
+        Assert.Equal(2, message.Y);
+        Assert.Null(message.Geometry);
     }
 
     [Fact]
     public void Delete_CarriesOnlyTheId()
     {
-        var message = SyncMessage.Delete(14, Sender);
+        var message = SyncMessage.Delete(FigureId, Sender);
 
         Assert.Equal("delete", message.Kind);
         Assert.Equal(Sender, message.Sender);
-        Assert.Equal(14, message.Id);
+        Assert.Equal(FigureId, message.Id);
         Assert.Null(message.Type);
-        Assert.Null(message.X1);
-        Assert.Null(message.Y1);
-        Assert.Null(message.X2);
-        Assert.Null(message.Y2);
+        Assert.Null(message.X);
+        Assert.Null(message.Y);
+        Assert.Null(message.Geometry);
     }
 
     [Fact]
     public void Rollback_CarriesTheOriginalCoordinates()
     {
-        var originalBox = new Box(20, 30, 40, 50);
-
-        var message = SyncMessage.Rollback(15, originalBox, Sender);
+        var message = SyncMessage.Rollback(FigureId, 20, 30, Sender);
 
         Assert.Equal("rollback", message.Kind);
         Assert.Equal(Sender, message.Sender);
-        Assert.Equal(15, message.Id);
+        Assert.Equal(FigureId, message.Id);
         Assert.Null(message.Type);
-        Assert.Equal(20, message.X1);
-        Assert.Equal(30, message.Y1);
-        Assert.Equal(40, message.X2);
-        Assert.Equal(50, message.Y2);
+        Assert.Equal(20, message.X);
+        Assert.Equal(30, message.Y);
+        Assert.Null(message.Geometry);
     }
 }
