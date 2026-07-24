@@ -494,56 +494,21 @@
     }
 
     /// <summary>
-    /// Applies D-53's four message kinds. Only draw may create a figure; move and rollback are
-    /// update-only by D-40, so an unknown id is ignored instead of resurrected.
+    /// Delegates every D-53 message-kind rule to SyncReceiver (Task 2), which owns draw-creates-only,
+    /// move/rollback update-only (D-40), and idempotent delete. This component only reacts to the
+    /// removed-id return value to clear its own per-circuit selection.
     /// </summary>
     private void ApplyMessage(SyncMessage msg)
     {
-        switch (msg.Kind)
+        var removedId = SyncReceiver.Apply(figures, msg, userId);
+        if (removedId is not null && selectedId == removedId)
         {
-            case "draw":
-                if (!figures.Any(f => f.Id == msg.Id))
-                {
-                    figures.Add(new Figure
-                    {
-                        Id = msg.Id,
-                        UserId = userId,
-                        Type = msg.Type!,
-                        X = msg.X!.Value,
-                        Y = msg.Y!.Value,
-                        Geometry = msg.Geometry!,
-                        Z = NextLocalZ(),
-                    });
-                }
-
-                break;
-            case "move":
-            case "rollback":
-                var existing = figures.FirstOrDefault(f => f.Id == msg.Id);
-                if (existing is null)
-                {
-                    return;
-                }
-
-                existing.X = msg.X!.Value;
-                existing.Y = msg.Y!.Value;
-                break;
-            case "delete":
-                figures.RemoveAll(f => f.Id == msg.Id);
-                if (selectedId == msg.Id)
-                {
-                    selectedId = null;
-                }
-
-                break;
+            selectedId = null;
         }
     }
 
     private static Box FigureBox(Figure figure) =>
         GeometryCodec.DecodeToBox(FigureTypeNames.Parse(figure.Type), figure.X, figure.Y, figure.Geometry);
-
-    private decimal NextLocalZ() =>
-        figures.Count == 0 ? 1m : figures.Max(f => f.Z) + 1m;
 }
 
 
