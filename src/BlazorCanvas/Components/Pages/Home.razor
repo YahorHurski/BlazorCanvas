@@ -21,12 +21,12 @@
             {
                 var x = dragging && f.Id == dragFigureId ? dragCurrentAnchorX : f.X;
                 var y = dragging && f.Id == dragFigureId ? dragCurrentAnchorY : f.Y;
-                <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" X="x" Y="y" Geometry="f.Geometry" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
+                <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" X="x" Y="y" Geometry="@f.Geometry" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
             }
             @if (drawing)
             {
                 var previewGeometry = GeometryCodec.Encode(previewType, previewExtent);
-                <FigureShape Type="previewType" X="previewGeometry.X" Y="previewGeometry.Y" Geometry="previewGeometry.Geometry" Preview="true" />
+                <FigureShape Type="previewType" X="previewGeometry.X" Y="previewGeometry.Y" Geometry="@previewGeometry.Geometry" Preview="true" />
             }
             @if (selectedId is Guid selectedFigureId)
             {
@@ -35,7 +35,7 @@
                 {
                     var selectedX = dragging && selected.Id == dragFigureId ? dragCurrentAnchorX : selected.X;
                     var selectedY = dragging && selected.Id == dragFigureId ? dragCurrentAnchorY : selected.Y;
-                    <SelectionTrace Type="FigureTypeNames.Parse(selected.Type)" X="selectedX" Y="selectedY" Geometry="selected.Geometry" />
+                    <SelectionTrace Type="FigureTypeNames.Parse(selected.Type)" X="selectedX" Y="selectedY" Geometry="@selected.Geometry" />
                 }
             }
         </svg>
