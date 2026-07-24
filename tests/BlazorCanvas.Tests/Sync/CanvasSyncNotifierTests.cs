@@ -129,27 +129,23 @@ public class CanvasSyncNotifierTests
         Assert.Equal(Sender, message.Sender);
         Assert.Equal(FigureId, message.Id);
         Assert.Equal("rectangle", message.Type);
-        Assert.Equal(10, message.X1);
-        Assert.Equal(20, message.Y1);
-        Assert.Equal(30, message.X2);
-        Assert.Equal(40, message.Y2);
+        Assert.Equal(encoded.X, message.X);
+        Assert.Equal(encoded.Y, message.Y);
+        Assert.Equal(encoded.Geometry, message.Geometry);
     }
 
     [Fact]
     public void Move_CarriesNoType_BecauseTypeNeverChanges()
     {
-        var box = new Box(1, 2, 3, 4);
-
-        var message = SyncMessage.Move(FigureId, box, Sender);
+        var message = SyncMessage.Move(FigureId, 1, 2, Sender);
 
         Assert.Equal("move", message.Kind);
         Assert.Equal(Sender, message.Sender);
         Assert.Equal(FigureId, message.Id);
         Assert.Null(message.Type);
-        Assert.Equal(1, message.X1);
-        Assert.Equal(2, message.Y1);
-        Assert.Equal(3, message.X2);
-        Assert.Equal(4, message.Y2);
+        Assert.Equal(1, message.X);
+        Assert.Equal(2, message.Y);
+        Assert.Null(message.Geometry);
     }
 
     [Fact]
@@ -161,26 +157,22 @@ public class CanvasSyncNotifierTests
         Assert.Equal(Sender, message.Sender);
         Assert.Equal(FigureId, message.Id);
         Assert.Null(message.Type);
-        Assert.Null(message.X1);
-        Assert.Null(message.Y1);
-        Assert.Null(message.X2);
-        Assert.Null(message.Y2);
+        Assert.Null(message.X);
+        Assert.Null(message.Y);
+        Assert.Null(message.Geometry);
     }
 
     [Fact]
     public void Rollback_CarriesTheOriginalCoordinates()
     {
-        var originalBox = new Box(20, 30, 40, 50);
-
-        var message = SyncMessage.Rollback(FigureId, originalBox, Sender);
+        var message = SyncMessage.Rollback(FigureId, 20, 30, Sender);
 
         Assert.Equal("rollback", message.Kind);
         Assert.Equal(Sender, message.Sender);
         Assert.Equal(FigureId, message.Id);
         Assert.Null(message.Type);
-        Assert.Equal(20, message.X1);
-        Assert.Equal(30, message.Y1);
-        Assert.Equal(40, message.X2);
-        Assert.Equal(50, message.Y2);
+        Assert.Equal(20, message.X);
+        Assert.Equal(30, message.Y);
+        Assert.Null(message.Geometry);
     }
 }

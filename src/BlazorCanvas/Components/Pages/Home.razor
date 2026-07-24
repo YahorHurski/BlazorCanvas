@@ -227,7 +227,7 @@
         if (dragMoved && (_lastBroadcastTicks == 0 || now - _lastBroadcastTicks >= 50))
         {
             _lastBroadcastTicks = now;
-            Notifier.Publish(userId, SyncMessage.Move(dragFigureId!.Value, dragCurrentBox, _sender));
+            Notifier.Publish(userId, SyncMessage.Move(dragFigureId!.Value, dragCurrentAnchorX, dragCurrentAnchorY, _sender));
         }
     }
 
@@ -348,7 +348,6 @@
         var moved = dragMoved;
         var anchorX = dragCurrentAnchorX;
         var anchorY = dragCurrentAnchorY;
-        var box = dragCurrentBox;
 
         if (!figureId.HasValue || !moved)
         {
@@ -364,7 +363,7 @@
             figure.Y = anchorY;
         }
 
-        Notifier.Publish(userId, SyncMessage.Move(figureId.Value, box, _sender));
+        Notifier.Publish(userId, SyncMessage.Move(figureId.Value, anchorX, anchorY, _sender));
 
         try
         {
@@ -391,9 +390,7 @@
                 figure.Y = dragAnchorY;
             }
 
-            var rollbackBox = GeometryCodec.DecodeToBox(
-                FigureTypeNames.Parse(dragFigure!.Type), dragAnchorX, dragAnchorY, dragFigure.Geometry);
-            Notifier.Publish(userId, SyncMessage.Rollback(figureId.Value, rollbackBox, _sender));
+            Notifier.Publish(userId, SyncMessage.Rollback(figureId.Value, dragAnchorX, dragAnchorY, _sender));
             showSaveFailedModal = true;
         }
     }
@@ -462,7 +459,7 @@
         foreach (var figure in figures)
         {
             Notifier.Publish(userId, SyncMessage.Draw(figure, _sender));
-            Notifier.Publish(userId, SyncMessage.Move(figure.Id, FigureBox(figure), _sender));
+            Notifier.Publish(userId, SyncMessage.Move(figure.Id, figure.X, figure.Y, _sender));
         }
     }
 
@@ -512,9 +509,11 @@
                         Id = msg.Id,
                         UserId = userId,
                         Type = msg.Type!,
+                        X = msg.X!.Value,
+                        Y = msg.Y!.Value,
+                        Geometry = msg.Geometry!,
                         Z = NextLocalZ(),
                     });
-                    ApplyBox(figures[^1], MessageBox(msg));
                 }
 
                 break;
@@ -526,7 +525,8 @@
                     return;
                 }
 
-                ApplyBox(existing, MessageBox(msg));
+                existing.X = msg.X!.Value;
+                existing.Y = msg.Y!.Value;
                 break;
             case "delete":
                 figures.RemoveAll(f => f.Id == msg.Id);
@@ -541,17 +541,6 @@
 
     private static Box FigureBox(Figure figure) =>
         GeometryCodec.DecodeToBox(FigureTypeNames.Parse(figure.Type), figure.X, figure.Y, figure.Geometry);
-
-    private static Box MessageBox(SyncMessage msg) =>
-        new(msg.X1!.Value, msg.Y1!.Value, msg.X2!.Value, msg.Y2!.Value);
-
-    private static void ApplyBox(Figure figure, Box box)
-    {
-        var encoded = GeometryCodec.Encode(FigureTypeNames.Parse(figure.Type), box);
-        figure.X = encoded.X;
-        figure.Y = encoded.Y;
-        figure.Geometry = encoded.Geometry;
-    }
 
     private decimal NextLocalZ() =>
         figures.Count == 0 ? 1m : figures.Max(f => f.Z) + 1m;
