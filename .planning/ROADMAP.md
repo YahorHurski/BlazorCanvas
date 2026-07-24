@@ -170,7 +170,7 @@ suite is reworked to the new model and green on a clean build.
 
   6. `dotnet build BlazorCanvas.sln` is clean (0 warnings, 0 errors) and the full `dotnet test` suite
      passes.
-**Plans**: 1/6 plans executed
+**Plans**: 2/6 plans executed
 
 **Wave 1**
 
@@ -179,7 +179,7 @@ suite is reworked to the new model and green on a clean build.
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 10-02-PLAN.md — Anchor-only persistence: MoveAsync writes only x,y; drag translates the anchor;
+- [x] 10-02-PLAN.md — Anchor-only persistence: MoveAsync writes only x,y; drag translates the anchor;
       the move clamp is deleted (STOR-02, STOR-04, STOR-05) [wave 2]
 
 **Wave 3** *(blocked on Wave 2)*
@@ -215,7 +215,7 @@ suite is reworked to the new model and green on a clean build.
 | 7. Selection Lifecycle & Restyle | v1.1 | 2/2 | Complete | 2026-07-21 |
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Schema, Entity & Data-Preserving Migration | v1.11 | 6/6 | Complete    | 2026-07-23 |
-| 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 1/6 | In Progress|  |
+| 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 2/6 | In Progress|  |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 3/3 phases, 4/4 plans, 4/4 requirements — all phases verified `passed`.**

@@ -27,7 +27,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (Traceab
   is unchanged. Load query is `SELECT * FROM figures WHERE user_id = @id ORDER BY z, id`.
   *(D-59; supersedes D-22/D-39, upholds D-12/D-20/D-46.)*
 
-- [ ] **STOR-02**: A figure's shape lives in `geometry`, stored **relative to the anchor** (circle
+- [x] **STOR-02**: A figure's shape lives in `geometry`, stored **relative to the anchor** (circle
   `{r}`, rectangle/triangle `{w,h}`, line `{dx,dy}` of either sign — exact per-type JSON shapes pinned
   at plan/spec time). A drag (move) updates **only `x,y`**, for every shape; the geometry never changes
   on a move. Normalisation is re-expressed per type (rectangle → positive `{w,h}`; line → one endpoint
@@ -46,7 +46,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (Traceab
   translates the anchor only, with no bounds arithmetic; the circle draw-clamp is gone.
   *(D-24/D-29/D-36 dropped by D-59.)*
 
-- [ ] **STOR-05**: After the rewrite, all four shapes (line, rectangle, circle, triangle) still
+- [x] **STOR-05**: After the rewrite, all four shapes (line, rectangle, circle, triangle) still
   **draw, drag, and delete** and persist per-operation, behaving as in v1.1 **except** for STOR-04
   (no edge clamp). Regression guard — the three verbs (D-04) and immediate persistence (D-09) are
   preserved on the new model. *(D-04, D-09.)*
@@ -125,10 +125,10 @@ Which phases cover which requirements. Populated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | STOR-01 | Phase 9 | Complete |
-| STOR-02 | Phase 10 | Pending |
+| STOR-02 | Phase 10 | Complete |
 | STOR-03 | Phase 10 | Complete |
 | STOR-04 | Phase 10 | Complete |
-| STOR-05 | Phase 10 | Pending |
+| STOR-05 | Phase 10 | Complete |
 | MIG-01 | Phase 9 | Complete |
 | MIG-02 | Phase 9 | Complete |
 | SYNC-02 | Phase 10 | Pending |
