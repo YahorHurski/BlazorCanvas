@@ -14,6 +14,9 @@ namespace BlazorCanvas.Data;
 /// it is on its own — `userId` is always a parameter, supplied by the caller from the `user_id`
 /// cookie claim (T-03-01). It owns all three persistence verbs while geometry rules stay with
 /// the caller and the database constraints.
+///
+/// A move (<see cref="MoveAsync"/>) touches exactly two columns — `x` and `y` — for every shape
+/// (D-59). It never reads or writes `geometry`: the anchor is the only thing a drag can change.
 /// </summary>
 public sealed class FigureStore(IDbContextFactory<CanvasDbContext> factory)
 {
@@ -39,11 +42,10 @@ public sealed class FigureStore(IDbContextFactory<CanvasDbContext> factory)
     /// Phase 5: the id does not exist until the INSERT completes, so the `draw` broadcast can
     /// never be fired optimistically.
     /// </summary>
-    public async Task<Figure> InsertAsync(int userId, FigureType type, Box box)
+    public async Task<Figure> InsertAsync(int userId, FigureType type, FigureGeometry geometry)
     {
         await using var db = await factory.CreateDbContextAsync();
 
-        var encoded = GeometryCodec.Encode(type, box);
         var nextZ = ((await db.Figures
             .Where(f => f.UserId == userId)
             .MaxAsync(f => (decimal?)f.Z)) ?? 0m) + 1m;
@@ -52,9 +54,9 @@ public sealed class FigureStore(IDbContextFactory<CanvasDbContext> factory)
         {
             UserId = userId,
             Type = FigureTypeNames.ToDbValue(type),
-            X = encoded.X,
-            Y = encoded.Y,
-            Geometry = encoded.Geometry,
+            X = geometry.X,
+            Y = geometry.Y,
+            Geometry = geometry.Geometry,
             Z = nextZ,
         };
 
@@ -66,37 +68,26 @@ public sealed class FigureStore(IDbContextFactory<CanvasDbContext> factory)
 
     /// <summary>
     /// Persists the single database write made by a whole drag: one UPDATE on drop, never on
-    /// pointer-move (D-09). The affected-row count is D-10's staleness guard: 0 means the
-    /// figure is already gone, not that this call failed. The `userId` term in the filter is
-    /// the IDOR guard, so a caller can only move figures from their own canvas.
+    /// pointer-move (D-09). Sets exactly `x` and `y` — `geometry` is never read or written here,
+    /// so a move cannot drift a figure's shape (D-59). The affected-row count is D-10's staleness
+    /// guard: 0 means the figure is already gone, not that this call failed. The `userId` term in
+    /// the filter is the IDOR guard, so a caller can only move figures from their own canvas.
     /// </summary>
-    public async Task<int> UpdateAsync(int userId, Guid figureId, Box box)
+    public async Task<int> MoveAsync(int userId, Guid figureId, int x, int y)
     {
         await using var db = await factory.CreateDbContextAsync();
-        var typeValue = await db.Figures
-            .Where(f => f.Id == figureId && f.UserId == userId)
-            .Select(f => f.Type)
-            .FirstOrDefaultAsync();
-
-        if (typeValue is null)
-        {
-            return 0;
-        }
-
-        var encoded = GeometryCodec.Encode(FigureTypeNames.Parse(typeValue), box);
 
         return await db.Figures
             .Where(f => f.Id == figureId && f.UserId == userId)
             .ExecuteUpdateAsync(setters => setters
-                .SetProperty(f => f.X, encoded.X)
-                .SetProperty(f => f.Y, encoded.Y)
-                .SetProperty(f => f.Geometry, encoded.Geometry));
+                .SetProperty(f => f.X, x)
+                .SetProperty(f => f.Y, y));
     }
 
     /// <summary>
     /// Deletes one owned figure and returns the affected-row count. Delete-of-a-ghost is
     /// naturally idempotent (D-10 says only UPDATE needs the guard), so the count is returned
-    /// for symmetry with <see cref="UpdateAsync"/> and for tests rather than because the caller
+    /// for symmetry with <see cref="MoveAsync"/> and for tests rather than because the caller
     /// must branch on it.
     /// </summary>
     public async Task<int> DeleteAsync(int userId, Guid figureId)
