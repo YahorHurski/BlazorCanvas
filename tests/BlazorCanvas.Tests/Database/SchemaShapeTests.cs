@@ -4,8 +4,9 @@ namespace BlazorCanvas.Tests.Database;
 
 /// <summary>
 /// Asserts the LIVE schema — queried from PostgreSQL's own information_schema and pg_catalog,
-/// never from the EF model — is exactly the D-59 shape (D-12, D-46, D-42). The EF model is the thing under test here; asserting against it would prove
-/// nothing about what plan 01-03's migration actually did to the live database.
+/// never from the EF model — is exactly the D-59 shape (D-12, D-46, D-42). The EF model is not
+/// the thing under test here; asserting against it would prove nothing about what phase BC-09's
+/// migration actually did to the live database.
 /// </summary>
 [Collection("Database")]
 public class SchemaShapeTests
@@ -187,6 +188,41 @@ public class SchemaShapeTests
             conn);
 
         Assert.Equal(0L, (long)(await cmd.ExecuteScalarAsync())!);
+    }
+
+    [Fact]
+    public async Task Figures_HasNoCheckConstraintReferencingARetiredBoundingBoxColumn()
+    {
+        // D-59 retired x1/y1/x2/y2 entirely; no CHECK on the live table may still name one.
+        await using var conn = await OpenConnectionAsync();
+        await using var cmd = new NpgsqlCommand(
+            """
+            SELECT count(*) FROM pg_constraint
+            WHERE conrelid = 'figures'::regclass AND contype = 'c'
+              AND (pg_get_constraintdef(oid) ILIKE '%x1%'
+                OR pg_get_constraintdef(oid) ILIKE '%y1%'
+                OR pg_get_constraintdef(oid) ILIKE '%x2%'
+                OR pg_get_constraintdef(oid) ILIKE '%y2%')
+            """,
+            conn);
+
+        Assert.Equal(0L, (long)(await cmd.ExecuteScalarAsync())!);
+    }
+
+    [Fact]
+    public async Task FiguresGeometryAndZ_AreNotNull()
+    {
+        await using var conn = await OpenConnectionAsync();
+        var nullability = await QueryStringsAsync(
+            conn,
+            """
+            SELECT column_name || ':' || is_nullable
+            FROM information_schema.columns
+            WHERE table_schema='public' AND table_name='figures' AND column_name IN ('geometry','z')
+            ORDER BY column_name
+            """);
+
+        Assert.Equal(new[] { "geometry:NO", "z:NO" }, nullability);
     }
 
     [Fact]

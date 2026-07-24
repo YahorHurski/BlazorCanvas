@@ -69,7 +69,7 @@ public class GuardMirrorsChecksTests
         // D-46: the four literals FigureTypeNames.ToDbValue produces are exactly the four the
         // figures_type_is_known CHECK accepts. WellFormed is legal for every type, so a
         // rejection here can only mean the literal itself was refused.
-        var attempt = await _fixture.TryInsertFigureAsync(type, WellFormed);
+        var attempt = await _fixture.TryInsertFigureAsync(type, """{"w":10,"h":10}""");
 
         Assert.True(
             attempt.Succeeded,
