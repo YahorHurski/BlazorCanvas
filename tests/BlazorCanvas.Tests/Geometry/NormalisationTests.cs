@@ -143,6 +143,51 @@ public class NormalisationTests
             Assert.True(result.Y1 <= result.Y2, $"{type}: {input} -> {result}");
         }
     }
+
+    [Fact]
+    public void Landmine_UpAndRightDiagonal_StoresAnchorAtFirstEndpointWithNegativeDy()
+    {
+        // TEST-02 end-to-end: drive the up-and-right diagonal all the way from the gesture
+        // (press then release) through DrawGesture.Build and GeometryCodec.Encode, and assert
+        // the exact stored anchor + geometry (D-41, D-59). Press at (0,100), release at (100,0).
+        var box = DrawGesture.Build(FigureType.Line, pressX: 0, pressY: 100, cursorX: 100, cursorY: 0);
+        var encoded = GeometryCodec.Encode(FigureType.Line, box);
+
+        Assert.Equal(0, encoded.X);
+        Assert.Equal(100, encoded.Y);
+        Assert.Equal("""{"dx":100,"dy":-100}""", encoded.Geometry);
+
+        // Must NOT be the axis-sorted opposite diagonal: anchor (0,0) with a positive dy.
+        Assert.False(encoded.X == 0 && encoded.Y == 0, "stored anchor must not be the axis-sorted (0,0) origin");
+        Assert.NotEqual("""{"dx":100,"dy":100}""", encoded.Geometry);
+    }
+
+    [Fact]
+    public void Landmine_MirrorGesture_ReleasedFirstThenPressed_NormalisesToSameStoredForm()
+    {
+        // The same diagonal drawn the other way — press at (100,0), release at (0,100) — must
+        // normalise to the identical stored anchor + geometry as the up-and-right gesture above.
+        var box = DrawGesture.Build(FigureType.Line, pressX: 100, pressY: 0, cursorX: 0, cursorY: 100);
+        var encoded = GeometryCodec.Encode(FigureType.Line, box);
+
+        Assert.Equal(0, encoded.X);
+        Assert.Equal(100, encoded.Y);
+        Assert.Equal("""{"dx":100,"dy":-100}""", encoded.Geometry);
+    }
+
+    [Fact]
+    public void Landmine_DownAndRightDiagonal_StoresPositiveDy_DistinctFromUpAndRightForm()
+    {
+        // A down-and-right diagonal — press at (0,0), release at (100,100) — is the legitimately
+        // DIFFERENT diagonal. If a sign error flipped either direction, this case and the
+        // up-and-right case above would collide on the same stored form.
+        var box = DrawGesture.Build(FigureType.Line, pressX: 0, pressY: 0, cursorX: 100, cursorY: 100);
+        var encoded = GeometryCodec.Encode(FigureType.Line, box);
+
+        Assert.Equal(0, encoded.X);
+        Assert.Equal(0, encoded.Y);
+        Assert.Equal("""{"dx":100,"dy":100}""", encoded.Geometry);
+    }
 }
 
 public class FigureTypeNamesTests

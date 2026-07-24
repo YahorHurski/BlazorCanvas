@@ -13,6 +13,11 @@ public sealed class GeometryCodecTests
         { FigureType.Line, new Box(40, 0, 40, 80) },
         { FigureType.Line, new Box(0, 0, 100, 50) },
         { FigureType.Line, new Box(0, 100, 100, 0) },
+        // STOR-04: no canvas-edge clamp — these anchors and extents are legal off-canvas cases.
+        { FigureType.Rectangle, new Box(-50, -30, 20, 40) }, // negative anchor
+        { FigureType.Rectangle, new Box(1500, 10, 1600, 60) }, // anchor past 1472 on x
+        { FigureType.Rectangle, new Box(10, 900, 60, 960) }, // anchor past 828 on y
+        { FigureType.Line, new Box(1400, 800, 1600, 900) }, // delta carries the line off-canvas
     };
 
     [Theory]
@@ -65,5 +70,19 @@ public sealed class GeometryCodecTests
         Assert.Equal(0, encoded.Y);
         Assert.Equal("""{"dx":100,"dy":50}""", encoded.Geometry);
         Assert.Equal(new Box(0, 0, 100, 50), GeometryCodec.DecodeToBox(FigureType.Line, encoded.X, encoded.Y, encoded.Geometry));
+    }
+
+    [Theory]
+    [MemberData(nameof(RoundTripCases))]
+    public void SerialisedGeometry_ContainsNoDecimalPointOrExponent_EveryMemberIsAnInteger(FigureType type, Box box)
+    {
+        // D-20: coordinates (and every geometry member) are integers. A decimal point or an
+        // exponent character in the serialised JSON would mean a member silently stopped being
+        // an integer.
+        var encoded = GeometryCodec.Encode(type, box);
+
+        Assert.DoesNotContain('.', encoded.Geometry);
+        Assert.DoesNotContain('e', encoded.Geometry);
+        Assert.DoesNotContain('E', encoded.Geometry);
     }
 }
