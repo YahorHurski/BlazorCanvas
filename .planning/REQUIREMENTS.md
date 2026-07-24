@@ -65,7 +65,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (Traceab
 
 ### Sync (SYNC)
 
-- [ ] **SYNC-02**: Live cross-tab sync works on the new model — the D-53 broadcast payload carries
+- [x] **SYNC-02**: Live cross-tab sync works on the new model — the D-53 broadcast payload carries
   **anchor + geometry** with a `uuid` id (`draw`: anchor + `type` + `geometry`; `move`/`rollback`:
   anchor only). Semantics are unchanged: `draw` is the only kind that may create a figure, `move` is
   UPDATE-only (unknown figure ignored), mid-drag discards all incoming (D-54), and the 50 ms
@@ -131,7 +131,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | STOR-05 | Phase 10 | Complete |
 | MIG-01 | Phase 9 | Complete |
 | MIG-02 | Phase 9 | Complete |
-| SYNC-02 | Phase 10 | Pending |
+| SYNC-02 | Phase 10 | Complete |
 | TEST-02 | Phase 10 | Complete |
 
 **Coverage:**

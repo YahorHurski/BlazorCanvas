@@ -5,15 +5,15 @@ milestone_name: Storage model rewrite (anchor + geometry JSON)
 current_phase: 10
 current_phase_name: geometry-draw-drag-sync-rework-no-edge-clamp-regression
 status: executing
-stopped_at: Completed 10-02-PLAN.md
-last_updated: "2026-07-24T08:15:46.954Z"
+stopped_at: Completed 10-03-PLAN.md
+last_updated: "2026-07-24T08:25:38.090Z"
 last_activity: 2026-07-24
 last_activity_desc: Phase BC-10 execution started
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 12
-  completed_plans: 8
+  completed_plans: 9
   percent: 50
 ---
 
@@ -39,7 +39,7 @@ no longer holds once v1.11 ships and the backlog must be revised before it opens
 ## Current Position
 
 Phase: BC-10 (geometry-draw-drag-sync-rework-no-edge-clamp-regression) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Executing Phase BC-10
 Last activity: 2026-07-24 — Phase BC-10 execution started
 requirements are mapped with 100% coverage, REQUIREMENTS.md traceability filled in.
@@ -99,6 +99,7 @@ requirements are mapped with 100% coverage, REQUIREMENTS.md traceability filled 
 | Phase BC-08 P01 | 15min | 2 tasks | 3 files |
 | Phase 10 P01 | 8min | 3 tasks | 10 files |
 | Phase 10 P02 | 20min | 3 tasks | 3 files |
+| Phase 10 P03 | 15min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -176,6 +177,9 @@ closing success criterion, not a separate phase.
 - [Phase BC-10 P02]: FigureStore.MoveAsync(userId, id, int x, int y) replaces UpdateAsync — the signature structurally excludes a geometry write (PA-3); a drag now touches exactly x,y for every shape (D-59)
 - [Phase BC-10 P02]: Home.razor's drag state is an integer anchor pair plus a read-only dragFigure reference (PA-8); dragCurrentBox is an explicitly-commented interim bridge DERIVED from the anchor + untouched geometry for the still-box-shaped renderer/broadcast until 10-03/10-04
 - [Phase BC-10 P02]: PostgreSQL's jsonb column canonicalises stored JSON key order/spacing once at INSERT time, not on every read — byte-identical-geometry test assertions must capture their baseline via a reload, not the in-memory insert result
+- [Phase BC-10 P03]: SyncMessage reshaped to (Kind, Sender, Id, Type, X, Y, Geometry); draw carries type+anchor+geometry, move/rollback carry only the anchor, delete carries only the id (D-53 amended by D-59)
+- [Phase BC-10 P03]: Extracted SyncReceiver (static, UI-free) owning the D-40 receiver rules — draw-creates-only, move/rollback-update-only, idempotent delete — now unit-tested without a component-test harness
+- [Phase BC-10 P03]: Home.razor's receive path had to be updated inline in Task 1 (ahead of the plan's Task 3 boundary) to keep the build clean after SyncMessage's shape changed; Task 3 then cleanly replaced it with delegation to SyncReceiver as planned
 
 ### Pending Todos
 
@@ -209,8 +213,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-24T08:15:46.944Z
-Stopped at: Completed 10-02-PLAN.md
+Last session: 2026-07-24T08:25:38.079Z
+Stopped at: Completed 10-03-PLAN.md
 captured D-59's five plan-time decisions. Committed db63895 + 0a3878f on branch v1.11.
 Resume file: None
 
