@@ -5,6 +5,10 @@
     width: 100%;
     background: #DCE0E5;
     box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
 }
 
 .toolbar-left {
