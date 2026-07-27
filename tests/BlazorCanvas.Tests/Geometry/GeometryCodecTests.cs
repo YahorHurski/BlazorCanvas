@@ -15,9 +15,9 @@ public sealed class GeometryCodecTests
         { FigureType.Line, new Box(0, 100, 100, 0) },
         // STOR-04: no canvas-edge clamp — these anchors and extents are legal off-canvas cases.
         { FigureType.Rectangle, new Box(-50, -30, 20, 40) }, // negative anchor
-        { FigureType.Rectangle, new Box(1500, 10, 1600, 60) }, // anchor past 1472 on x
-        { FigureType.Rectangle, new Box(10, 900, 60, 960) }, // anchor past 828 on y
-        { FigureType.Line, new Box(1400, 800, 1600, 900) }, // delta carries the line off-canvas
+        { FigureType.Rectangle, new Box(5800, 10, 5900, 60) }, // anchor past 5760 on x
+        { FigureType.Rectangle, new Box(10, 2700, 60, 2760) }, // anchor past 2634 on y
+        { FigureType.Line, new Box(5700, 2600, 5900, 2700) }, // delta carries the line off-canvas
     };
 
     [Theory]

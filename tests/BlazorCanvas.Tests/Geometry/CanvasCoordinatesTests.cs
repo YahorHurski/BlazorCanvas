@@ -25,10 +25,10 @@ public class CanvasCoordinatesTests
     [Fact]
     public void FromPage_InclusiveFarCorner_MapsToWidthHeight()
     {
-        var (x, y) = CanvasCoordinates.FromPage(1472, 876);
+        var (x, y) = CanvasCoordinates.FromPage(5760, 2682);
 
-        Assert.Equal(1472, x);
-        Assert.Equal(828, y);
+        Assert.Equal(5760, x);
+        Assert.Equal(2634, y);
     }
 
     [Fact]
