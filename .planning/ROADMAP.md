@@ -119,7 +119,7 @@ mapping (D-43) holds unchanged at any scroll position. Deliberately small and se
 `CanvasBounds` constants, `Home.razor.css` layout, and one test-suite update — a single tightly-coupled
 phase.
 
-- [ ] **Phase 11: Canvas Enlargement to 5760×2634**
+- [x] **Phase 11: Canvas Enlargement to 5760×2634** (completed 2026-07-27)
       Grows `CanvasBounds` and the SVG surface to 5760×2634, fixes the toolbar in place with a 48px
       canvas offset, and updates the suite's hard-coded 1472×828 bounds assertion and stale edge
       comments — the full milestone in one coherent change.
@@ -180,7 +180,7 @@ stays pinned in place and every coordinate stays pixel-accurate.
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Schema, Entity & Data-Preserving Migration | v1.11 | 6/6 | Complete | 2026-07-23 |
 | 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 6/6 | Complete | 2026-07-24 |
-| 11. Canvas Enlargement to 5760×2634 | v1.12 | 2/2 | In Progress|  |
+| 11. Canvas Enlargement to 5760×2634 | v1.12 | 2/2 | Complete    | 2026-07-27 |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 3/3 phases, 4/4 plans, 4/4 requirements — all phases verified `passed`.**
