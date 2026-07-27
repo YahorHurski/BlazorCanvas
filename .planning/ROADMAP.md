@@ -149,7 +149,13 @@ stays pinned in place and every coordinate stays pixel-accurate.
   5. `dotnet build BlazorCanvas.sln` is clean (0 warnings, 0 errors) and the full `dotnet test` suite
      passes, including the bounds assertion renamed and re-pinned to 5760×2634 and stale
      "past the canvas edge (1472,828)" comments corrected.
-**Plans**: TBD
+**Plans**: 2 plans
+  - [ ] 11-01-PLAN.md — Grow CanvasBounds to 5760×2634, fix the toolbar (position: fixed) with a 48px
+    canvas offset (PageY−48 preserved, no JS interop), and re-pin the test suite to the enlarged bounds
+    (CANV-04, CANV-05, TEST-03) — wave 1, autonomous
+  - [ ] 11-02-PLAN.md — Human-verify the five success criteria in a browser: first-screen top-left,
+    native scroll with the toolbar staying fixed, figure-under-pointer accuracy while scrolled, all four
+    shapes draw/drag/delete and persist (wave 2, blocking checkpoint)
 **UI hint**: yes
 
 ## Progress
@@ -166,7 +172,7 @@ stays pinned in place and every coordinate stays pixel-accurate.
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Schema, Entity & Data-Preserving Migration | v1.11 | 6/6 | Complete | 2026-07-23 |
 | 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 6/6 | Complete | 2026-07-24 |
-| 11. Canvas Enlargement to 5760×2634 | v1.12 | 0/TBD | Not started | - |
+| 11. Canvas Enlargement to 5760×2634 | v1.12 | 0/2 | Not started | - |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 3/3 phases, 4/4 plans, 4/4 requirements — all phases verified `passed`.**
