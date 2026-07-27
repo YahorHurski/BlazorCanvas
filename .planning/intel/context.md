@@ -11,6 +11,12 @@ costs, and the failure modes the log explicitly warns about. Normative content l
 > swap-pair) and 3 (`PageX/PageY`) still apply. The "four integers / inscribed square" descriptions
 > below are **historical** — see D-59. Read on for history, not for the live model.
 
+> ⚠️ **v1.12 AMENDMENTS (2026-07-27).** Superseded here (authority: `docs/DECISIONS.md`): **canvas is
+> 5760×2634** (a 3×3 grid of 1920×878 cells; was 1472×828) — pure grow-only change, no migration, no
+> scaling; **D-43** toolbar is now `position: fixed` with a 48px canvas offset (−48 mapping preserved,
+> no JS interop); **D-18** native browser scroll is now the navigation mechanism (not a pan feature —
+> D-04 intact). Any "1472×828" below is historical.
+
 > ⚠️ **v1.1 AMENDMENTS (2026-07-20).** Superseded here (authority: `docs/DECISIONS.md`): **canvas
 > is 1472×828** (was 1280×720); **the "no JavaScript" constraint below is REMOVED** — it was never
 > the real motivation (MVP simplicity was), and D-06/18/33/37/57 are re-worded. Selection is now a

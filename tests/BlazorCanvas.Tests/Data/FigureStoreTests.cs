@@ -267,8 +267,8 @@ public class FigureStoreTests
     [Theory]
     [InlineData(-500, 300)] // negative x
     [InlineData(300, -500)] // negative y
-    [InlineData(2000, 300)] // x past 1472
-    [InlineData(300, 1200)] // y past 828
+    [InlineData(5900, 300)] // x past 5760
+    [InlineData(300, 2700)] // y past 2634
     public async Task MoveAsync_OffCanvasAnchor_PersistsUnchanged(int x, int y)
     {
         var store = CreateStore();

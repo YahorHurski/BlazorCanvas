@@ -32,7 +32,7 @@ supersedes `D-22`), and `D-53` (the sync message contract).**
 | D-14 | One fixed style | Locked (values in D-38, D-58) |
 | **D-15** | Delete | ⚠️ **Delete *key* superseded by D-33** (toolbar button) |
 | **D-16** | Toolbar | ⚠️ **Superseded** — six buttons, not four (D-30, D-33) |
-| D-17…D-21 | Login · canvas 1:1 · **1472×828** · integers · triangle | Locked (⚠️ D-18/D-19 amended in v1.1: size + motivation) |
+| D-17…D-21 | Login · canvas 1:1 · **5760×2634** · integers · triangle | Locked (⚠️ D-18/D-19 amended in v1.12: size 5760×2634 + scroll-nav; v1.1: size + motivation) |
 | **D-22** | **Geometry storage** | 🛑 **v1.11: SUPERSEDED by D-59** (anchor + `geometry jsonb`; circle = `{r}`). *(v1.0/v1.1 was: four-int bbox, circle = inscribed square. Kept for history.)* |
 | **D-23** | Guards | ⚠️ Its "one shared guard" claim is **retracted by D-50** |
 | D-24 | Figures stop at the edge | 🛑 **v1.11: DROPPED** (no edge clamp; figures may leave the canvas — D-59) |
@@ -499,8 +499,17 @@ but it is a whole second page and second form for an app that has no real accoun
 
 ## D-18 — Canvas: fixed size, 1:1
 
-**Status:** Locked — ⚠️ **v1.1: motivation corrected** (fixed size is for MVP simplicity, not
-"no JavaScript"; that rule is lifted). Size is now 1472 × 828 (D-19).
+**Status:** Locked — ⚠️ **v1.12: native scroll is now the navigation mechanism** (size 5760 × 2634,
+D-19; not a pan feature — D-04 intact) · ⚠️ **v1.1: motivation corrected** (fixed size is for MVP
+simplicity, not "no JavaScript"; that rule is lifted).
+
+> ⚠️ **v1.12 (2026-07-27) — SCROLL IS NOW THE NAVIGATION MECHANISM.** With the canvas enlarged to
+> 5760 × 2634 (D-19) it is deliberately larger than any browser window, so the "Accepted cost" below
+> — *the page scrolls; a figure near the edge is off-screen until scrolled to* — is now the intended
+> way to reach the rest of the surface. **This is still not a pan feature (D-04 intact):** it is the
+> browser's own scrollbars over a fixed logical space, no viewBox camera, no JS interop. The toolbar
+> is `position: fixed` (D-43) so it stays visible while scrolling; `PageX`/`PageY` already include
+> scroll, so the mapping below is unchanged.
 
 The canvas is a **fixed-size rectangle** (exact dimensions: D-19). One canvas unit = one CSS
 pixel, on every screen. It does **not** scale to the browser window.
@@ -581,25 +590,37 @@ schema is identical either way. Nothing built for D-18 would be thrown away.
 
 ---
 
-## D-19 — Canvas dimensions: 1472 × 828
+## D-19 — Canvas dimensions: 5760 × 2634
 
-**Status:** Locked — ⚠️ **amended in v1.1** (was 1280 × 720; enlarged, user-approved)
+**Status:** Locked — ⚠️ **amended in v1.12** (1472 × 828 → **5760 × 2634**, user-approved,
+2026-07-27) · ⚠️ **amended in v1.1** (1280 × 720 → 1472 × 828)
 
-The fixed canvas (D-18) is **1472 × 828** logical units — which, at 1:1, are literal CSS
-pixels. 16:9 (92×16 by 92×9), matching the shape of most monitors. Sized to fit a maximized
-browser window on a 1920 × 1080 monitor — toolbar and browser chrome included — with no
-scrolling.
+> ⚠️ **v1.12 (2026-07-27) — ENLARGED to 5760 × 2634.** The fixed canvas grew from 1472 × 828 to
+> **5760 × 2634** — a **3×3 grid of 1920×878 cells** — so it feels borderless. This is the
+> anticipated **grow-only** change (the rule below), exercised on purpose: `0..1472 × 0..828` is a
+> strict subset of `0..5760 × 0..2634`, so every existing figure stayed legal and kept its exact
+> position (now in the top-left cell). **No migration; no scaling** — one canvas unit is still one CSS
+> pixel, so circles stay round even though 5760×2634 is intentionally **not** 16:9 (~2.19:1). The rest
+> of the surface is reached by native browser scroll (D-18, now the actual navigation mechanism) with
+> the toolbar `position: fixed` (D-43); the `PageX` / `PageY − 48` mapping is unchanged, **no JS
+> interop introduced.** Zoom/pan (a viewBox "camera") is explicitly deferred to a later milestone as a
+> pure additive upgrade.
 
-**Enlarging was safe; shrinking would not be.** `0..1280 × 0..720` is a strict subset of
-`0..1472 × 0..828`, so every figure stored under the old size stayed legal and kept its exact
-position (it now sits in the top-left region of the larger canvas). No migration was needed.
+The fixed canvas (D-18) is **5760 × 2634** logical units — which, at 1:1, are literal CSS
+pixels. *(Pre-v1.12 it was 1472 × 828, sized to fit a maximized 1920 × 1080 window; pre-v1.1,
+1280 × 720.)*
+
+**Enlarging is safe; shrinking is not.** Each earlier size is a strict subset of the next
+(`0..1280 × 0..720` ⊂ `0..1472 × 0..828` ⊂ `0..5760 × 0..2634`), so every figure stored under an
+older size stayed legal and kept its exact position. No migration was ever needed.
 **Shrinking the canvas is still forbidden** — it would push existing figures off the surface,
 where they are unreachable and unclampable. That asymmetry is the real content of the old
 "this number must never change" rule: coordinates are only meaningful relative to the size, so
 the size may grow but must never shrink.
 
-*(v1.0 value, for history: 1280 × 720. The old "accepted cost" — a 1366×768 laptop scrolling
-slightly — is obsolete; the new size targets 1080p specifically.)*
+*(Size history: v1.0 1280 × 720 → v1.1 1472 × 828 → v1.12 5760 × 2634. The v1.1-era "accepted
+cost" of targeting a single 1080p window is superseded — v1.12's surface is deliberately larger
+than any window and navigated by scroll.)*
 
 ---
 
@@ -1389,13 +1410,24 @@ schema would mean destroying the container.
 
 ## D-43 — Page layout: a 48px toolbar, no canvas border
 
-**Status:** Locked — this is the constant every coordinate in the app flows through
+**Status:** Locked — this is the constant every coordinate in the app flows through — ⚠️ **amended in
+v1.12** (toolbar `position: fixed`; the −48 invariant preserved via a 48px canvas offset)
+
+> ⚠️ **v1.12 (2026-07-27) — TOOLBAR IS NOW `position: fixed`.** So the toolbar stays visible while the
+> enlarged 5760 × 2634 canvas (D-19) is scrolled (D-18), it is taken out of document flow
+> (`position: fixed; top: 0; left: 0; z-index: 10` — below the 100/101 save-failed modal layers).
+> Because a fixed toolbar no longer occupies the 48px it used to, the **canvas carries a compensating
+> 48px top offset** (`padding-top: 48px` on the canvas area) so that its top edge still sits at
+> document y = 48. **The mapping `canvasX = PageX`, `canvasY = PageY − 48` is therefore unchanged at
+> any scroll position** — `PageY` is document-relative and already includes scroll, so `CanvasCoordinates.FromPage`
+> is untouched and **no JS interop is introduced.** The −48 constant is preserved, not removed.
 
 - Page margin **0**.
-- **Toolbar: exactly 48px tall**, at the top.
+- **Toolbar: exactly 48px tall**, at the top *(v1.12: `position: fixed` — see banner above)*.
 - **Canvas immediately below**, at document position **(0, 48)**. Anchored top-left — *not*
   centred (D-18: `margin: auto` would reintroduce an unknown offset that depends on window
-  width, which the server cannot know).
+  width, which the server cannot know). *(v1.12: the 48px gap is now held by a canvas top offset
+  compensating for the fixed toolbar, not by the toolbar occupying flow.)*
 - **No CSS border on the SVG.** The canvas edge is visible from the contrast between the white
   canvas (D-38) and the page background.
 
@@ -1774,7 +1806,7 @@ behave *differently*: a drag commits on leave, a draw cancels. One rule beats tw
 | Figure fill | **white** (D-38) |
 | **Selected** figure indicator | **~1px blue + white dashed trace on the figure's own outline**, drawn topmost, `pointer-events: none` (D-31) — *(v1.0 was: red, 2px outline)* |
 | Page background | **light grey** (D-55) |
-| Canvas | **white, 1472 × 828, no border** (D-19, D-38, D-43) — *(v1.0 was: 1280 × 720)* |
+| Canvas | **white, 5760 × 2634, no border** (D-19, D-38, D-43) — *(v1.1 was: 1472 × 828; v1.0: 1280 × 720)* |
 | Toolbar | **48px tall** (D-43) |
 
 A **2px** stroke (not 1px) is deliberate for *figure* outlines: D-32 declined the invisible
@@ -2157,9 +2189,9 @@ drawing anything to a deliberate size would be pure guesswork every single time.
 | Q-07 | Geometry columns | **D-22 (REVISED)** — four coordinates always; circle = **its inscribed square**. *(The original "centre + rim point" answer was reversed — see D-22.)* |
 | Q-08 | Shape selection | **D-16 → superseded by D-30 + D-33** — a **six**-button toolbar |
 | Q-09 | Login flow | **D-17** — one form, unknown username creates the account |
-| Q-10 | Canvas sizing | **D-18 / D-19** — fixed 1472×828 at 1:1 *(v1.1; was 1280×720)* |
+| Q-10 | Canvas sizing | **D-18 / D-19** — fixed 5760×2634 at 1:1 *(v1.12; was 1472×828 in v1.1, 1280×720 in v1.0)* |
 | Q-11 | Triangle geometry | **D-21** — derived from a drag, apex top-centre |
-| Q-12 | Canvas dimensions | **D-19** — 1472×828 *(v1.1; was 1280×720)* |
+| Q-12 | Canvas dimensions | **D-19** — 5760×2634 *(v1.12; was 1472×828 in v1.1, 1280×720 in v1.0)* |
 | Q-13 | Figures off the canvas edge | **D-24** — they stop at the edge |
 | Q-14 | Drawing off the canvas edge | **D-29** — also stops at the edge |
 | Q-15 | How does the app tell "select a figure" from "draw a new one"? | **D-30** — a **pointer tool** in the toolbar |
@@ -2170,7 +2202,7 @@ drawing anything to a deliberate size would be pure guesswork every single time.
 # Summary — what is being built
 
 A Blazor Server web app (.NET 10) where a user draws simple geometric figures on a fixed
-1472×828 canvas rendered as SVG *(v1.1; was 1280×720)*. Each user has exactly one canvas.
+5760×2634 canvas rendered as SVG *(v1.12; was 1472×828 in v1.1, 1280×720 in v1.0)*. Each user has exactly one canvas.
 Figures can be **drawn, dragged and deleted** — nothing else.
 
 **The stack:** Blazor Server (InteractiveServer) · SVG · PostgreSQL via EF Core/Npgsql ·

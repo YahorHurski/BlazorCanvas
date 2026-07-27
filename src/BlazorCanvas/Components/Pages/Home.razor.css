@@ -5,6 +5,7 @@
 .canvas-area {
     background: #DCE0E5;
     min-height: calc(100vh - 48px);
+    padding-top: 48px;
 }
 
 /* This is not cosmetic - an SVG is inline by default, and inline elements sit on a text

@@ -30,10 +30,10 @@ public class DrawGestureTests
     public void CornerToCorner_FarCorner_IsReproducedUnclamped(FigureType type)
     {
         // The draw-clamp is gone (D-59 item 6, STOR-04): both far-corner coordinates are
-        // preserved exactly, neither reduced to the canvas edge (1472, 828).
-        var result = DrawGesture.Build(type, 1200, 600, 5000, 5000);
+        // preserved exactly, neither reduced to the canvas edge (5760, 2634).
+        var result = DrawGesture.Build(type, 1200, 600, 6000, 3000);
 
-        Assert.Equal(new Box(1200, 600, 5000, 5000), result);
+        Assert.Equal(new Box(1200, 600, 6000, 3000), result);
     }
 
     [Theory]
@@ -127,8 +127,8 @@ public class DrawGestureTests
         (0, 0),
         (5, 5),
         (640, 360),
-        (1467, 823),
-        (1472, 828),
+        (5755, 2629),
+        (5760, 2634),
         (5000, 5000),
     };
 

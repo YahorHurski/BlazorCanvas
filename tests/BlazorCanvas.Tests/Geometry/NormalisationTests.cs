@@ -222,9 +222,9 @@ public class FigureTypeNamesTests
 public class CanvasBoundsTests
 {
     [Fact]
-    public void Bounds_AreTheFixed1472x828Canvas()
+    public void Bounds_AreTheFixed5760x2634Canvas()
     {
-        Assert.Equal(1472, CanvasBounds.Width);
-        Assert.Equal(828, CanvasBounds.Height);
+        Assert.Equal(5760, CanvasBounds.Width);
+        Assert.Equal(2634, CanvasBounds.Height);
     }
 }

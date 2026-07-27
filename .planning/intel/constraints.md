@@ -150,8 +150,8 @@ source: docs/DECISIONS.md (D-24/D-29/D-36 DROPPED by D-59)
 **v1.11 drops the canvas-edge clamp entirely.** Figures may be dragged off-canvas (accepted risk:
 currently unrecoverable — no pan/undo — taken because the roadmap intends to remove canvas bounds
 later). Drag now **translates the anchor (`x, y`) only**, with no bounds arithmetic; the circle
-draw-clamp goes away with it. The canvas keeps its **1472 × 828** size (D-19) as a visual surface,
-but nothing is clamped to it.
+draw-clamp goes away with it. The canvas keeps its size (D-19) as a visual surface, but nothing is
+clamped to it. *(v1.12: that size grew to **5760 × 2634** — a 3×3 grid of 1920×878 cells.)*
 
 **Retained ordering (without the clamp):** render → broadcast — never broadcast a raw position mid-drag
 before the local re-render (the sync semantics of D-47/D-54 are unchanged).
@@ -260,8 +260,8 @@ source: docs/DECISIONS.md (D-58, D-38, D-55, D-19, D-43)
 | Figure fill | **white** (makes the interior clickable — SVG does not register clicks inside an unfilled shape) |
 | Selected figure indicator | **~1px blue+white dashed trace on the figure's own outline, topmost, `pointer-events:none`** *(v1.1; was red 2px)* |
 | Page background | **light grey** (the only thing that makes the borderless canvas edge visible) |
-| Canvas | white, **1472 × 828** *(v1.1; was 1280 × 720)*, **no border** |
-| Toolbar | **48px** tall, six buttons: `[pointer] [line] [rectangle] [circle] [triangle] [delete]`, logout right-aligned |
+| Canvas | white, **5760 × 2634** *(v1.12; was 1472 × 828 in v1.1, 1280 × 720 in v1.0)*, **no border** |
+| Toolbar | **48px** tall *(v1.12: `position: fixed`)*, six buttons: `[pointer] [line] [rectangle] [circle] [triangle] [delete]`, logout right-aligned |
 
 - 2px (not 1px) is deliberate: the stroke is the only click target a line has (D-32 declined a
   widened hit-area).

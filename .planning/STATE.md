@@ -2,32 +2,34 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: Canvas enlargement
-status: planned
-last_updated: "2026-07-27T10:44:44.000Z"
+status: Awaiting next milestone
+stopped_at: Milestone v1.12 completed, archived, and tagged
+last_updated: "2026-07-27T14:43:04.952Z"
 last_activity: 2026-07-27
+last_activity_desc: Milestone v1.12 completed and archived
 progress:
   total_phases: 1
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 0
-  percent: 0
+  completed_plans: 2
+  percent: 100
+current_phase: 11
+current_phase_name: canvas-enlargement-to-5760-2634
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-27 — v1.12 opened)
+See: .planning/PROJECT.md (updated 2026-07-27 — after v1.12 milestone close)
 
 **Core value:** The canvas is always the truth, everywhere at once — what you draw persists instantly,
 and every other tab shows it happening live, including a figure gliding in real time as you drag it.
 
-**Current focus:** Milestone v1.12 — canvas enlargement. Roadmap is now written (Phase 11, 3/3
-requirements mapped). A single, self-contained change: the fixed canvas grows from 1472×828 to
-**5760×2634** (a 3×3 grid of 1920×878 cells) — pure growth (D-19), no scaling, no zoom/pan, no JS
-interop. First screen on load is the top-left cell (existing figures unmoved, no migration); the rest
-is reached by native browser scroll (D-18); the toolbar becomes `position: fixed` with the canvas
-offset 48px below it, preserving the `PageX` / `PageY − 48` mapping (D-43).
+**Current focus:** No milestone open. **v1.12 (Canvas enlargement) shipped 2026-07-27** — canvas
+enlarged to 5760×2634 (3×3 cells), native-scroll navigation, fixed toolbar; tagged
+`v1.12-canvas-enlargement`; D-19/D-43/D-18 amendments logged in `docs/DECISIONS.md`. Next step:
+`/gsd-new-milestone`.
 
 **Next milestone v1.2** (new figures + dynamic toolbar) is scoped in
 `.planning/backlog/v1.2-figures-and-toolbar.md`, sequenced **after** v1.12 — its 4-int-bbox premise
@@ -35,18 +37,16 @@ no longer holds now that v1.11 has shipped, so the backlog must be revised befor
 
 ## Current Position
 
-Phase: 11 of 11 (Canvas Enlargement to 5760×2634)
-Plan: 11-01, 11-02 (2 plans, 2 waves) — verified by plan-checker, ready to execute
-Status: Planned — plan-checker VERIFICATION PASSED (no blockers/warnings)
-Last activity: 2026-07-27 — Phase 11 planned: 2 plans across 2 waves (11-01 constants+CSS+tests,
-autonomous; 11-02 human-verify checkpoint over the 5 success criteria), all 3 requirements covered,
-spec-less probe edges resolved (5 authored + 2 flagged N/A), committed on branch v1.12 (58a7e5b).
+Phase: Milestone v1.12 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-27 — Milestone v1.12 completed and archived
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 33
+- Total plans completed: 35
 - Average duration: —
 - Total execution time: —
 
@@ -63,6 +63,7 @@ spec-less probe edges resolved (5 authored + 2 flagged N/A), committed on branch
 | BC-08 | 1 | - | - |
 | BC-09 | 6 | - | - |
 | BC-10 | 6 | - | - |
+| BC-11 | 2 | - | - |
 
 **Recent Trend:**
 
@@ -101,6 +102,7 @@ spec-less probe edges resolved (5 authored + 2 flagged N/A), committed on branch
 | Phase 10 P03 | 15min | 3 tasks | 5 files |
 | Phase 10 P04 | 20min | 2 tasks | 6 files |
 | Phase 10 P05 | 25min | 3 tasks | 8 files |
+| Phase BC-11 P01 | 12min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -112,15 +114,15 @@ re-litigate, re-ask, or "improve" them.
 
 The ones most likely to be violated by accident:
 
-- **D-19 (v1.12, pending amendment at ship):** canvas grows **1472×828 → 5760×2634** (a 3×3 grid of
+- **D-19 (v1.12, amended — logged 2026-07-27):** canvas grew **1472×828 → 5760×2634** (a 3×3 grid of
   1920×878 cells) — pure growth, size may never shrink. Existing figures stay valid, unmoved, no
   migration.
 
-- **D-43 (v1.12, pending amendment at ship):** the toolbar becomes `position: fixed`; the canvas
+- **D-43 (v1.12, amended — logged 2026-07-27):** the toolbar is now `position: fixed`; the canvas
   carries a 48px top offset so the `canvasX = PageX`, `canvasY = PageY − 48` mapping is preserved
   unchanged at any scroll position. Landmine still applies: `PageX`/`PageY`, never `OffsetX`/`OffsetY`.
 
-- **D-18 (v1.12, pending amendment at ship):** native browser scroll becomes the actual navigation
+- **D-18 (v1.12, amended — logged 2026-07-27):** native browser scroll is now the actual navigation
   mechanism for reaching the rest of the enlarged canvas — previously an "accepted cost", now used on
   purpose. **D-04 is untouched: this is explicitly not a pan feature.** No JS interop is introduced.
 
@@ -146,9 +148,9 @@ The ones most likely to be violated by accident:
   in `docs/DECISIONS.md`). It changed no code and is simply not *needed* for anything built so far.
   *(v1.12 does not need it either — `PageX`/`PageY` already include scroll.)*
 
-**v1.12 amendments (pending, to be logged in `docs/DECISIONS.md` at ship):** D-19 (size), D-43
-(toolbar fixed; −48 invariant preserved), D-18 (scroll is now the navigation mechanism). D-04
-untouched.
+**v1.12 amendments (logged in `docs/DECISIONS.md` at milestone close, 2026-07-27):** D-19 (size 1472×828
+→ 5760×2634), D-43 (toolbar `position: fixed`; −48 invariant preserved), D-18 (scroll is now the
+navigation mechanism) — inline `⚠️ v1.12` banners added, mirrored in PROJECT.md + intel. D-04 untouched.
 
 **v1.11 amendments to the locked set (user-approved, 2026-07-23)** — recorded in `docs/DECISIONS.md`
 as new **D-59** plus inline `⚠️ v1.11` banners, mirrored in PROJECT.md + intel:
@@ -176,27 +178,11 @@ Constraints. Intent untouched.
 lives in each phase's `*-SUMMARY.md` under `key-decisions`, preserved in
 `.planning/milestones/v1.0-ROADMAP.md` / `v1.1-ROADMAP.md` / `v1.11-ROADMAP.md` and in git history.
 
-**Roadmap decisions (v1.12, this session):** All 3 requirements (CANV-04, CANV-05, TEST-03) are kept
-in a **single phase (Phase 11)** rather than split — they touch the same two `CanvasBounds` constants,
-the same `Home.razor.css` layout change (toolbar `position: fixed` + canvas offset), and one
-test-suite update, with no genuine dependency forcing separation. This matches the milestone's
-deliberately small, self-contained scope; standard granularity does not mandate padding a 3-requirement
-milestone into multiple phases.
-
-- [Phase BC-06]: Bound the Home.razor SVG dimensions to CanvasBounds instead of repeating numeric literals, keeping rendered size and clamp size from drifting. — This preserves D-18/D-19/D-36 as one source of truth after the canvas resize.
-- [Phase BC-08]: Retired the application-authored JavaScript prohibition; future JavaScript or interop requires a separate affirmative decision.
-- [Phase BC-08]: Reconciled CONSTRAINT-env and the D-11 rejection rationale with the ADR while preserving MVP and behavioural decisions.
-- [Phase BC-10 P01]: MinSizeGuard's line/rectangle/triangle arms rewritten to read Box.Width/Height directly (the {dx,dy}/{w,h} pairs GeometryCodec serialises) instead of raw X1/X2/Y1/Y2 comparisons
-- [Phase BC-10 P02]: FigureStore.MoveAsync(userId, id, int x, int y) replaces UpdateAsync — the signature structurally excludes a geometry write (PA-3); a drag now touches exactly x,y for every shape (D-59)
-- [Phase BC-10 P02]: Home.razor's drag state is an integer anchor pair plus a read-only dragFigure reference (PA-8); dragCurrentBox is an explicitly-commented interim bridge DERIVED from the anchor + untouched geometry for the still-box-shaped renderer/broadcast until 10-03/10-04
-- [Phase BC-10 P02]: PostgreSQL's jsonb column canonicalises stored JSON key order/spacing once at INSERT time, not on every read — byte-identical-geometry test assertions must capture their baseline via a reload, not the in-memory insert result
-- [Phase BC-10 P03]: SyncMessage reshaped to (Kind, Sender, Id, Type, X, Y, Geometry); draw carries type+anchor+geometry, move/rollback carry only the anchor, delete carries only the id (D-53 amended by D-59)
-- [Phase BC-10 P03]: Extracted SyncReceiver (static, UI-free) owning the D-40 receiver rules — draw-creates-only, move/rollback-update-only, idempotent delete — now unit-tested without a component-test harness
-- [Phase BC-10 P03]: Home.razor's receive path had to be updated inline in Task 1 (ahead of the plan's Task 3 boundary) to keep the build clean after SyncMessage's shape changed; Task 3 then cleanly replaced it with delegation to SyncReceiver as planned
-- [Phase BC-10 P04]: GeometryCodec's BoxGeometry/CircleGeometry/LineGeometry widened from private to internal so ShapeRender reads the w/h/r/dx/dy JSON member names off the codec directly, never re-deriving them
-- [Phase BC-10 P04]: FigureShape and SelectionTrace share ShapeRender for triangle points and circle centre/radius; the 10-02 interim bridge (dragCurrentBox, dragFigure, FigureBox) is deleted from Home.razor — the renderer now takes anchor+geometry directly
-- [Phase BC-10 P05]: GuardMirrorsChecksTests.cs's TryInsertFigureAsync call site fixed inline in Task 2 (Rule 3) to keep the build green ahead of Task 3's rename to TypeWhitelistAndPersistenceTests
-- [Phase BC-10 P05]: TryInsertFigureAsync(FigureType, string geometry) fixes the anchor at (0,0) rather than parameterising it — D-59 left no CHECK on geometry content, so only the type literal matters to its one caller
+**Per-phase implementation decisions (v1.1/v1.11/v1.12):** cleared at milestone close. The full log
+lives in each phase's `*-SUMMARY.md` under `key-decisions`, preserved in
+`.planning/milestones/v1.1-ROADMAP.md` / `v1.11-ROADMAP.md` / `v1.12-phases/` and in git history.
+(v1.12's sole roadmap decision — keeping all 3 requirements in one tightly-coupled phase rather than
+padding a split — is recorded in `.planning/milestones/v1.12-ROADMAP.md`.)
 
 ### Pending Todos
 
@@ -231,11 +217,11 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-27T10:44:44.000Z
-Stopped at: Phase 11 planned — 2 plans (11-01, 11-02), plan-checker VERIFICATION PASSED, committed on
-branch v1.12. Ready to execute.
+Last session: 2026-07-27
+Stopped at: Milestone v1.12 completed, archived, and tagged (`v1.12-canvas-enlargement`)
+branch v1.12-Execution. No milestone open.
 Resume file: None
 
 ## Operator Next Steps
 
-- Execute Phase 11 (Canvas Enlargement to 5760×2634) with `/gsd-execute-phase 11`.
+- Start the next milestone with /gsd-new-milestone

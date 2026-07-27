@@ -7,7 +7,7 @@ namespace BlazorCanvas.Geometry;
 /// </summary>
 public static class CanvasBounds
 {
-    public const int Width = 1472;
+    public const int Width = 5760;
 
-    public const int Height = 828;
+    public const int Height = 2634;
 }
