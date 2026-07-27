@@ -10,10 +10,12 @@ namespace BlazorCanvas.Tests.Database;
 /// PostgreSQL container (D-27 — this development machine publishes it on host port 5433
 /// instead of the D-27-documented 5432, because a native postgresql-x64-18 Windows service
 /// permanently occupies 5432; see 01-03-SUMMARY.md's deviation record), applies pending
-/// migrations once on startup, and provides helpers that INSERT raw values through the
-/// DbContext while deliberately bypassing <see cref="MinSizeGuard"/> and
-/// <see cref="Normalisation"/> — the whole point of this test suite is that PostgreSQL itself
-/// is the thing being exercised, not the C# guard.
+/// migrations once on startup, and provides a raw-insert helper that hands PostgreSQL an
+/// anchor and a geometry JSON string DIRECTLY, bypassing <see cref="MinSizeGuard"/>,
+/// <see cref="Normalisation"/> and <see cref="GeometryCodec"/> entirely — the whole point of
+/// this test suite is that PostgreSQL itself is the thing being exercised, not the C# guard.
+/// D-59 removed the geometry CHECK constraints this fixture used to help probe; the only
+/// constraint remaining on <c>figures</c> is the <c>type</c> whitelist (D-46, D-59 item 9).
 ///
 /// If PostgreSQL is unreachable, <see cref="InitializeAsync"/> throws rather than letting the
 /// suite silently skip — a skipped database suite is exactly how "the database refuses illegal
@@ -75,15 +77,16 @@ public class DatabaseFixture : IAsyncLifetime
     }
 
     /// <summary>
-    /// Attempts to INSERT one figure with the given RAW type literal and coordinates, through a
-    /// brand-new DbContext inside its own transaction that is always rolled back — so the
-    /// suite never accumulates rows regardless of whether the INSERT succeeds. This bypasses
-    /// <see cref="MinSizeGuard"/> and <see cref="Normalisation"/> entirely: the type literal
-    /// and coordinates are passed exactly as given, so the rejection under test (if any) is
-    /// PostgreSQL's, not the app's.
+    /// Attempts to INSERT one figure with the given RAW type literal, anchor and geometry JSON
+    /// string, through a brand-new DbContext inside its own transaction that is always rolled
+    /// back — so the suite never accumulates rows regardless of whether the INSERT succeeds.
+    /// Values are passed exactly as given, with no re-encoding through
+    /// <see cref="GeometryCodec"/> and no pass through <see cref="MinSizeGuard"/> or
+    /// <see cref="Normalisation"/> — so a test here can hand PostgreSQL a value the C# path
+    /// would never produce, which is the whole reason this helper exists.
     /// </summary>
     public async Task<InsertAttempt> TryInsertRawFigureAsync(
-        string typeLiteral, int x1, int y1, int x2, int y2)
+        string typeLiteral, int x, int y, string geometry)
     {
         await using var context = CreateContext();
         await using var transaction = await context.Database.BeginTransactionAsync();
@@ -94,10 +97,10 @@ public class DatabaseFixture : IAsyncLifetime
         {
             UserId = userId,
             Type = typeLiteral,
-            X1 = x1,
-            Y1 = y1,
-            X2 = x2,
-            Y2 = y2,
+            X = x,
+            Y = y,
+            Geometry = geometry,
+            Z = 1m,
         });
 
         try
@@ -113,9 +116,13 @@ public class DatabaseFixture : IAsyncLifetime
         // The transaction is never committed above, so disposing it here rolls back either way.
     }
 
-    /// <summary>Convenience overload for the FigureType/Box pairing used by GuardMirrorsChecksTests.</summary>
-    public Task<InsertAttempt> TryInsertFigureAsync(FigureType type, Box box) =>
-        TryInsertRawFigureAsync(FigureTypeNames.ToDbValue(type), box.X1, box.Y1, box.X2, box.Y2);
+    /// <summary>
+    /// Convenience overload for the type-whitelist round-trip test in
+    /// TypeWhitelistAndPersistenceTests: only the type literal matters there, so the anchor is
+    /// a fixed (0,0) and the geometry a fixed well-formed literal.
+    /// </summary>
+    public Task<InsertAttempt> TryInsertFigureAsync(FigureType type, string geometry) =>
+        TryInsertRawFigureAsync(FigureTypeNames.ToDbValue(type), 0, 0, geometry);
 }
 
 /// <summary>The outcome of one INSERT attempt against the live database.</summary>

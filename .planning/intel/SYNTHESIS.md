@@ -5,6 +5,15 @@ Entry point for downstream consumers (`gsd-roadmapper`). Produced by `gsd-doc-sy
 Mode: **new** (net-new bootstrap — no pre-existing `.planning/` context).
 Precedence: `ADR > SPEC > PRD > DOC` (unused — single-document ingest).
 
+> 🛑 **v1.11 AMENDMENTS (2026-07-23) — STORAGE MODEL REWRITE.** Authoritative: `docs/DECISIONS.md`
+> **D-59** (+ inline `⚠️ v1.11` banners) and `.planning/PROJECT.md`. `figures` storage becomes an
+> **anchor (`x,y`) + `geometry jsonb`** model (circle = `{r}`), `id` `integer` → **`uuid`**, order by
+> **`numeric z`** (`ORDER BY z, id`, index `(user_id, z)`). The **canvas-edge clamp is DROPPED**
+> (D-24/D-29/D-36 — figures may leave the canvas); **no DB CHECK on `geometry`** (server is sole
+> writer); `type text` + whitelist CHECK **kept** (D-46); D-53 payload → anchor + geometry. Existing
+> figures preserved by a hand-written backfill. **No new user-facing feature** — storage change +
+> code churn. **This supersedes the "four integers / inscribed square / clamp" statements below.**
+
 > ⚠️ **v1.1 AMENDMENTS (2026-07-20) — this v1.0-synthesized intel is partly superseded.**
 > Authoritative now: `docs/DECISIONS.md` (inline `⚠️ v1.1` notes) and `.planning/PROJECT.md`.
 > Changed: **canvas 1280×720 → 1472×828** (size may GROW, never SHRINK); **selection indicator =
@@ -58,13 +67,16 @@ Requirement IDs: `REQ-login`, `REQ-session`, `REQ-logout`, `REQ-one-canvas-per-u
 The source document's own "READ THIS FIRST" index names three things to trust over everything else.
 All three are extracted verbatim into `constraints.md`:
 
-1. **`THE SCHEMA`** — the canonical DDL. Two tables (`users`, `figures`), four integer coordinates,
-   three per-type CHECK constraints, one index, one `COMMENT ON TABLE`. Supersedes D-12's sketch.
-2. **`D-22` (revised)** — geometry storage. Every figure is four integers that are **always its
-   bounding box**; a **circle is stored as its inscribed square**. The earlier "centre + rim point"
-   encoding was REVERSED and is dead.
+1. **`THE SCHEMA`** — the canonical DDL. *(v1.11, D-59)* Two tables (`users`, `figures`); a figure is
+   an **anchor `x,y` + `geometry jsonb`**, a **`uuid`** id, a **`numeric z`** layer order, `type text`
+   + whitelist CHECK, index `(user_id, z)`. **No geometry CHECKs** (server is sole writer). *(v1.0/v1.1
+   was: four integer coordinates + three per-type CHECKs + `ix_figures_user_id`.)*
+2. **`D-59`** *(v1.11, supersedes `D-22`)* — geometry storage. A figure = anchor + `geometry` (circle
+   `{r}`, rectangle `{w,h}`, line `{dx,dy}`); **drag updates only the anchor**. *(Pre-v1.11: four
+   integers = the bounding box, circle = inscribed square — now historical.)*
 3. **`D-53`** — the canonical broadcast message contract. Kinds: `draw`, `move`, `delete`,
-   `rollback`. `move` is UPDATE-ONLY. No `drop` kind.
+   `rollback`. `move` is UPDATE-ONLY. No `drop` kind. *(v1.11: payload → anchor + geometry, `id` uuid;
+   semantics unchanged.)*
 
 ---
 

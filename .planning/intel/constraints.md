@@ -4,6 +4,15 @@ Extracted from the single ADR set `docs/DECISIONS.md`. These are the executable/
 artifacts: schema, contracts, formulas, and fixed constants. Where a constraint has a canonical
 form in the source, it is reproduced verbatim.
 
+> 🛑 **v1.11 AMENDMENTS (2026-07-23) — STORAGE MODEL REWRITE (authority: `docs/DECISIONS.md` D-59).**
+> `figures` storage becomes an **anchor (`x,y`) + `geometry jsonb`** model with a **`uuid`** id and a
+> **`numeric z`** layer order (load `ORDER BY z, id`; index `(user_id, z)`). **CONSTRAINT-schema**,
+> **-geometry**, **-normalisation**, **-clamp** and **-messages** below are updated/superseded
+> accordingly: the **edge-clamp is REMOVED** (figures may leave the canvas), the three geometry CHECKs
+> are gone (**no DB CHECK on `geometry`** — the server is the sole writer), `type text` + whitelist
+> CHECK is **kept**, and the sync payload carries anchor + geometry. Existing figures are preserved by
+> a hand-written backfill. This documentation amendment records a design change to be built in v1.11.
+
 > ⚠️ **v1.1 AMENDMENTS (2026-07-20).** Superseding facts (authority: `docs/DECISIONS.md`): canvas
 > **W=1472, H=828** and valid domain **`0..1472 × 0..828`** (was 1280×720 / `0..1280 × 0..720`) —
 > the formula is unchanged, only the constants; **selected-figure indicator = ~1px blue+white dashed
@@ -13,163 +22,165 @@ form in the source, it is reproduced verbatim.
 
 ---
 
-## CONSTRAINT-schema — The canonical DDL
+## CONSTRAINT-schema — The canonical DDL *(v1.11: anchor + geometry JSON — D-59)*
 type: schema
-source: docs/DECISIONS.md → section "THE SCHEMA (canonical — assembled from D-12, D-22, D-39, D-41, D-46, D-44, D-50)"
-status: **AUTHORITATIVE.** Supersedes D-12's illustrative sketch (which still shows the dropped
-`created_at` column). Implement from this, never from D-12.
+source: docs/DECISIONS.md → section "THE SCHEMA (canonical — v1.11: anchor + geometry JSON; see D-59)"
+status: **AUTHORITATIVE.** v1.11 replaced the four-integer bbox schema with the anchor+geometry model
+(D-59). Supersedes D-12's illustrative sketch. Implement from this, never from D-12 or the pre-v1.11
+schema (kept at the bottom for the migration's reference).
 
 ```sql
-CREATE TABLE users (
+CREATE TABLE users (            -- UNCHANGED across v1.11
     id       integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     username text NOT NULL UNIQUE,   -- stored LOWERCASED (D-44), trimmed, never empty
     password text NOT NULL           -- PLAINTEXT. Throwaway project only. (D-08)
 );
 
 CREATE TABLE figures (
-    id      integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,  -- also the z-order (D-39)
-    user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    type    text    NOT NULL CHECK (type IN ('line','rectangle','circle','triangle')),
-    x1 integer NOT NULL,
-    y1 integer NOT NULL,
-    x2 integer NOT NULL,
-    y2 integer NOT NULL,
-
-    -- circle: stored as the square it is inscribed in (D-22)
-    CONSTRAINT circle_is_a_circle CHECK (
-        type <> 'circle' OR (x2 - x1 = y2 - y1 AND x2 > x1 AND (x2 - x1) % 2 = 0)),
-
-    -- rectangle / triangle: a real box, normalised, no zero width or height (D-23, D-41)
-    CONSTRAINT box_is_a_box CHECK (
-        type NOT IN ('rectangle','triangle') OR (x2 > x1 AND y2 > y1)),
-
-    -- line: normalised left-to-right; may run either way vertically; never zero-length
-    CONSTRAINT line_is_a_line CHECK (
-        type <> 'line' OR (x2 >= x1 AND (x2 > x1 OR y2 <> y1)))
+    id       uuid    NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,  -- order carried by z, not id (D-59)
+    user_id  integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type     text    NOT NULL CHECK (type IN ('line','rectangle','circle','triangle')),  -- whitelist kept (D-46)
+    x        integer NOT NULL,        -- anchor X (D-20: integer)
+    y        integer NOT NULL,        -- anchor Y
+    geometry jsonb   NOT NULL,        -- shape RELATIVE to the anchor: circle {r}, rectangle {w,h}, ...
+    z        numeric NOT NULL         -- layer order; NO UNIQUE; fractional (insert-between = midpoint)
+    -- no created_at (D-46); no DB CHECK on geometry — the server is the sole writer (D-09 / D-59)
 );
 
-CREATE INDEX ix_figures_user_id ON figures(user_id);   -- every page load filters on this
-
-COMMENT ON TABLE figures IS
-  'x1,y1,x2,y2 are ALWAYS the figure''s bounding box. A CIRCLE is stored as the square it is '
-  'inscribed in: r = (x2-x1)/2, cx = x1+r, cy = y1+r. It is DRAWN centre-out (press centre, '
-  'drag for radius) but STORED as a square — interaction and storage are different things. '
-  'A LINE is the segment between the two points and may run diagonally in either vertical '
-  'direction; it is normalised by swapping the whole point pair, never by sorting axes.';
+CREATE INDEX ix_figures_user_id_z ON figures(user_id, z);   -- serves the load filter AND the ORDER BY z
 ```
 
 - **Two tables only. No `canvases` table** — "the canvas" is just the set of figures belonging to
-  a user (D-12).
-- **No `created_at`** (D-46) — the sequential `id` is the z-order (D-39).
-- **`type` must be `text`** (D-46) — the CHECKs are written as `type <> 'circle'`; a PG enum or an
-  int-mapped C# enum would silently invalidate them.
-- **No canvas-bounds CHECK constraints** (D-36) — D-24/D-29 already guarantee figures live inside
-  the canvas.
-- **Load query:** `SELECT * FROM figures WHERE user_id = @id ORDER BY id` — the `ORDER BY` is what
-  reconstructs z-order after F5 (D-39).
-- **EF Core must be told about all of this explicitly** (D-42): CHECK constraints via
-  `HasCheckConstraint` in `OnModelCreating`, plus the `COMMENT ON TABLE`. EF will not emit them on
-  its own, and every geometric guarantee rests on them.
+  a user (D-12, upheld). `users` is unchanged.
+- **A figure = anchor (`x, y`) + `geometry jsonb`** (D-59). Drag updates only `x, y`, for every shape.
+- **No `created_at`** (D-46) — order is carried by the `numeric z` column (D-59).
+- **`id` is a `uuid`** (D-59, was integer) — order is `z`, so the id no longer encodes creation order.
+- **`z` is `numeric`, NO `UNIQUE`** — fractional layer order; load `ORDER BY z, id`.
+- **`type` stays `text` + whitelist CHECK** (D-46, Variant 1) — the DB keeps rejecting unknown types.
+- **No DB CHECK on `geometry`** (D-59) — the server is the sole writer (D-09); the app is the guarantor
+  of geometry well-formedness (an explicit trust boundary). The three v1.0/v1.1 geometry CHECKs
+  (`circle_is_a_circle`, `box_is_a_box`, `line_is_a_line`) are **removed**.
+- **No canvas-bounds CHECK constraints** — there is no edge clamp at all now (D-24/D-29/D-36 dropped).
+- **Load query:** `SELECT * FROM figures WHERE user_id = @id ORDER BY z, id`.
+- **EF Core** (D-42): map `geometry` to `jsonb`, keep the `type` whitelist CHECK and the composite
+  index via `OnModelCreating`, rewrite the table `COMMENT`; **remove** the three geometry CHECKs.
+- **Migration:** hand-written backfill `x1,y1,x2,y2 → x,y,geometry` per type, tested against the
+  immutable fixture `tests/.../Fixtures/v1.1-pre-rewrite.sql` + MANIFEST.
+
+<details><summary>Pre-v1.11 schema (historical — four-integer bounding box, D-22; migration reference)</summary>
+
+```sql
+CREATE TABLE figures (
+    id      integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,  -- was also the z-order (D-39)
+    user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type    text    NOT NULL CHECK (type IN ('line','rectangle','circle','triangle')),
+    x1 integer NOT NULL, y1 integer NOT NULL, x2 integer NOT NULL, y2 integer NOT NULL,
+    CONSTRAINT circle_is_a_circle CHECK (type <> 'circle' OR (x2 - x1 = y2 - y1 AND x2 > x1 AND (x2 - x1) % 2 = 0)),
+    CONSTRAINT box_is_a_box CHECK (type NOT IN ('rectangle','triangle') OR (x2 > x1 AND y2 > y1)),
+    CONSTRAINT line_is_a_line CHECK (type <> 'line' OR (x2 >= x1 AND (x2 > x1 OR y2 <> y1)))
+);
+CREATE INDEX ix_figures_user_id ON figures(user_id);
+-- Load: SELECT * FROM figures WHERE user_id = @id ORDER BY id
+```
+
+</details>
 
 ---
 
-## CONSTRAINT-geometry — Storage encoding
+## CONSTRAINT-geometry — Storage encoding *(v1.11: anchor + geometry JSON — D-59)*
 type: schema / invariant
-source: docs/DECISIONS.md (D-22 revised, D-20, D-13)
+source: docs/DECISIONS.md (D-59; supersedes D-22) · D-20, D-13
 
-**Every figure is exactly four integers `x1, y1, x2, y2`, all non-null, and for every shape those
-four numbers ARE its bounding box.**
+**A figure = an anchor (`x, y`, integers) + a `geometry jsonb` holding the shape's form RELATIVE to
+the anchor.** Dragging updates **only `x, y`**, for every shape; the form never changes on a move.
 
-| Shape | (x1, y1) | (x2, y2) |
+| Shape | anchor `(x, y)` | `geometry` (relative to anchor) |
 |---|---|---|
-| Line | one endpoint | the other endpoint |
-| Rectangle | one corner | the opposite corner |
-| Triangle | one corner of its box | the opposite corner |
-| Circle | top-left of the inscribed square `(cx − r, cy − r)` | bottom-right `(cx + r, cy + r)` |
+| Circle | centre (or a fixed reference — pinned at plan time) | `{r}` — a single scalar; an oval is unrepresentable |
+| Rectangle / triangle | min corner | `{w, h}` — positive extents |
+| Line | one endpoint | `{dx, dy}` — either sign; **swap the whole point pair on normalise, never sort axes** |
 
-Circle recovery on read: `r = (x2 − x1) / 2`, `cx = x1 + r`, `cy = y1 + r`.
-Invariant: a move is a uniform translation; `d` cancels algebraically, so the radius is exactly
-preserved across any number of drags (integers ⇒ no float drift).
-Machine-checked by `circle_is_a_circle`: square · positive · even side.
+Exact per-type JSON shape (esp. the **line**) is pinned at plan/spec time (D-59, "Left for plan time").
+**No DB CHECK on `geometry`** — the server is the sole writer (D-09) and validates by construction.
 
----
-
-## CONSTRAINT-normalisation — Canonical order on write
-type: invariant
-source: docs/DECISIONS.md (D-41)
-
-Applied **once, before the INSERT**, in **exactly one place** in the app.
-
-- **Rectangle / triangle / circle** → sort the axes independently (`x1 = min(x1,x2)`, etc.).
-- **Line** → **swap the WHOLE POINT PAIR** (if `x1 > x2`, or if `x1 == x2` and `y1 > y2`).
-  **NEVER sort a line's axes independently** — (0,100)→(100,0) would become (0,0)→(100,100), the
-  opposite diagonal.
-
-Post-condition: `x1 ≤ x2` for every shape; `y1 ≤ y2` for rectangle/triangle/circle but **not** for
-a line. This is exactly why the clamp keeps its min/max bounding-box computation.
+> Pre-v1.11 (historical, D-22): every figure was four integers `x1,y1,x2,y2` that were always the
+> bounding box; a circle was its inscribed square (`r = (x2−x1)/2`), machine-checked by
+> `circle_is_a_circle`. Superseded by the anchor+geometry model above.
 
 ---
 
-## CONSTRAINT-min-size-guard — Per-type draw rejection
+## CONSTRAINT-normalisation — Canonical order on write *(v1.11: re-expressed for anchor+geometry — D-59)*
 type: invariant
-source: docs/DECISIONS.md (D-50, retracting D-23's shared guard)
+source: docs/DECISIONS.md (D-41, re-expressed by D-59)
+
+Applied **once, before the INSERT**, in **exactly one place** in the app. Re-expressed for the
+anchor+geometry model:
+
+- **Rectangle / triangle** → anchor = min corner, geometry = **positive `{w, h}`** ("sort the axes"
+  becomes "positive extents").
+- **Line** → anchor = one endpoint, geometry = `{dx, dy}` of either sign. **Swap the WHOLE POINT
+  PAIR, never sort a line's axes independently** — (0,100)→(100,0) sorted per-axis becomes
+  (0,0)→(100,100), the opposite diagonal. **This landmine carries over unchanged from D-41.**
+
+*(Pre-v1.11: normalisation sorted the four bbox integers for rectangle/triangle/circle and swapped
+the point pair for lines. The line landmine is identical.)*
+
+---
+
+## CONSTRAINT-min-size-guard — Per-type draw rejection *(v1.11: code-side only — D-59)*
+type: invariant
+source: docs/DECISIONS.md (D-50; D-23 #1 kept code-side by D-59)
 
 | Shape | Rejected when |
 |---|---|
 | Line | both endpoints identical (zero length). **Horizontal and vertical lines are legal.** |
 | Rectangle / triangle / circle | width **or** height is zero (circle: radius zero) |
 
-Mirrors the CHECK constraints exactly, so **the app can never write a row the database would
-refuse.** A rejected draw fails **silently** — no message, no error.
+**v1.11:** this is now **purely a code-side guard** (`MinSizeGuard` in the commit path, on C#
+primitives before geometry is serialised) — the mirrored database CHECKs are gone (no DB CHECK on
+`geometry`, D-59; only the `type` whitelist remains). It rejects only **strictly zero-size** draws (a
+permanent invisible, unselectable poison row). A rejected draw fails **silently** — no message, no error.
 
 ---
 
-## CONSTRAINT-clamp — The clamp formula, inclusive bounds
+## CONSTRAINT-clamp — 🛑 REMOVED in v1.11 (no canvas-edge clamp — D-59)
 type: invariant / nfr
-source: docs/DECISIONS.md (D-36; operative spec for D-24 and D-29)
+source: docs/DECISIONS.md (D-24/D-29/D-36 DROPPED by D-59)
 
-`W = 1472`, `H = 828` *(v1.1; was 1280 × 720)*. **Bounds are INCLUSIVE: valid domain `0..1472 × 0..828`.**
+**v1.11 drops the canvas-edge clamp entirely.** Figures may be dragged off-canvas (accepted risk:
+currently unrecoverable — no pan/undo — taken because the roadmap intends to remove canvas bounds
+later). Drag now **translates the anchor (`x, y`) only**, with no bounds arithmetic; the circle
+draw-clamp goes away with it. The canvas keeps its **1472 × 828** size (D-19) as a visual surface,
+but nothing is clamped to it.
 
-Move clamp:
-```
-bx1 = min(x1,x2)   by1 = min(y1,y2)
-bx2 = max(x1,x2)   by2 = max(y1,y2)
+**Retained ordering (without the clamp):** render → broadcast — never broadcast a raw position mid-drag
+before the local re-render (the sync semantics of D-47/D-54 are unchanged).
 
-dx' = clamp(dx, −bx1, W − bx2)      clamp(v, lo, hi) = min(max(v, lo), hi)
-dy' = clamp(dy, −by1, H − by2)
-
-translate uniformly:  x1 += dx'  y1 += dy'  x2 += dx'  y2 += dy'
-```
-- **Clamp the movement DELTA, then translate all four uniformly.** Never clamp `x2`/`y2`
-  independently of `x1`/`y1` — that resizes instead of moving (and under the inscribed-square
-  encoding it now fails loudly by violating the circle CHECK).
-- **Per-axis independence is required:** `dx'` never reads `y`. A figure pinned to the right edge
-  must still slide up and down.
-- **Ordering: clamp → render → broadcast.** Never broadcast a raw, unclamped position.
-
-Circle draw-clamp (**the one genuinely type-specific rule in the app**):
-```
-r = min( round(distance), cx, cy, W − cx, H − cy )
-```
-Known consequence: **pressing near an edge forces a tiny circle** (press at (10,360), drag 200 px
-right → r caps at 10). Inherent to D-13 × D-29; would exist under any encoding.
+> Pre-v1.11 (historical, D-36): the move clamped the movement delta against the inclusive domain
+> `0..1472 × 0..828` and translated all four bbox columns uniformly (per-axis independent, "slides
+> along the wall"); the circle draw-clamp `r = min(round(distance), cx, cy, W−cx, H−cy)` forced a
+> tiny circle near an edge. All removed in v1.11.
 
 ---
 
-## CONSTRAINT-messages — The broadcast message contract (canonical)
+## CONSTRAINT-messages — The broadcast message contract (canonical) *(v1.11: anchor+geometry payload — D-59)*
 type: protocol
-source: docs/DECISIONS.md (D-53)
+source: docs/DECISIONS.md (D-53, payload amended by D-59)
 status: **AUTHORITATIVE.** Supersedes the partial/inconsistent descriptions in D-11, D-22, D-40.
+**All semantics unchanged in v1.11 — only the payload shape changed** (bbox → anchor + geometry, `id` is a `uuid`).
 
 `sender` is a **per-circuit GUID**, generated once when a tab's canvas component initialises. It
 exists solely for the echo filter: a tab ignores any message whose `sender` equals its own.
 
-| Kind | Payload | Receiver's action |
+| Kind | Payload *(v1.11)* | Receiver's action |
 |---|---|---|
-| `draw` | `{ kind, sender, id, type, x1, y1, x2, y2 }` | Insert or update by `id`. **The only kind that may create a figure.** Sent *after* the INSERT (the `id` does not exist until then — D-39). |
-| `move` | `{ kind, sender, id, x1, y1, x2, y2 }` | **UPDATE ONLY — never insert.** Unknown figure → **ignore the message entirely.** (Kills the resurrection bug — D-40.) |
+| `draw` | `{ kind, sender, id, type, x, y, geometry }` | Insert or update by `id`. **The only kind that may create a figure.** Sent *after* the INSERT. |
+| `move` | `{ kind, sender, id, x, y }` | **UPDATE ONLY — never insert.** Unknown figure → **ignore the message entirely.** (Kills the resurrection bug — D-40.) Carries only the anchor — the form never changes on a move (D-59). |
 | `delete` | `{ kind, sender, id }` | Remove by `id`. Idempotent — deleting an unknown figure is a silent no-op. |
-| `rollback` | `{ kind, sender, id, x1, y1, x2, y2 }` | Restore the figure to the given coordinates. Sent when a save fails after all retries (D-52). Applied **update-only**, like `move`. |
+| `rollback` | `{ kind, sender, id, x, y }` | Restore the figure to the given anchor. Sent when a save fails after all retries (D-52). Applied **update-only**, like `move`. |
+
+*(Pre-v1.11: `draw`/`move`/`rollback` carried `x1,y1,x2,y2` and `id` was an integer. Exact serialised
+shape of `geometry` in the `draw` payload is pinned at plan time.)*
 
 - **No `drop` kind.** A drag's final position is simply the last `move` (guaranteed sent by D-47's
   trailing edge), followed by silence.
@@ -193,7 +204,7 @@ source: docs/DECISIONS.md (D-11, as amended by D-36/D-40/D-47/D-53/D-54)
 5. Idempotent apply keyed by figure Id — **`move` is UPDATE-ONLY** (D-40)
 6. Throttle drag broadcasts: 50 ms, trailing edge guaranteed (D-47)
 7. Key notifier events by `user_id` (D-51)
-8. Clamp → render → broadcast, in that order (D-36)
+8. Render → broadcast, in that order *(v1.11: the clamp step is gone — D-59; pre-v1.11 this was clamp → render → broadcast, D-36)*
 9. A zero-row UPDATE broadcasts a `delete` (D-40)
 
 ---

@@ -1,5 +1,38 @@
 # Milestones
 
+## v1.11 Storage model rewrite (anchor + geometry JSON) (Shipped: 2026-07-24)
+
+**Phases completed:** 2 phases, 12 plans, 29 tasks
+
+**Delivered:** Replaced the four-integer bounding-box storage with the anchor (`x,y`) + `geometry jsonb`
+model (D-59) — `uuid` id, `numeric z` order — preserving every existing figure via a tested migration
+and removing the canvas-edge clamp. No new user-facing feature.
+
+**Verification:** Both phases verified `passed`; milestone audit passed (9/9 requirements: STOR-01…05,
+MIG-01/02, SYNC-02, TEST-02). `dotnet build` clean (0/0); 416/416 tests passing. Git range
+`28bd5f6`→`985a5c9` (51 commits); 40 source/test files changed (+4,654/−817). Tag: `v1.11`.
+
+**Accepted caveats (non-blocking):** pre-rewrite pixel comparison permanently unverifiable (pre-rewrite
+data destroyed by a deliberate DB reset; coordinate-level equivalence covered by `ShapeRenderTests`);
+D-54 mid-drag blanket discard code-present but not live-exercised (needs two simultaneous pointers);
+off-canvas figures are an accepted, currently-unrecoverable state.
+
+**Key accomplishments:**
+
+- Box values now round-trip through D-59 anchor coordinates and compact per-type geometry JSON.
+- The immutable v1.1 SQL fixture is restored and every row has D-59 expected migration values.
+- The app project now compiles on Guid figures stored as anchor coordinates plus geometry JSON.
+- The real EF migration rewrites figures to uuid anchor+geometry storage and verifies the live Postgres catalog.
+- The existing xUnit suite is green on the migrated Guid anchor+geometry schema.
+- The real migration preserves all 795 immutable fixture figures against the D-59 manifest.
+- DrawGesture reproduces pointer coordinates exactly with no canvas-edge clamp, MinSizeGuard now reads the exact {dx,dy}/{w,h}/{r} primitives GeometryCodec serialises, and CanvasCoordinates.FromPage is total over every double.
+- FigureStore.MoveAsync sets exactly x and y under the user-scoped filter (no geometry parameter exists to carry one), Home.razor's drag adds the raw pointer delta to the figure's anchor with zero bounds arithmetic, Movement.cs and its clamp tests are gone, and the store suite proves geometry survives byte-identical across any move for all four shapes.
+- SyncMessage reshaped from a box to anchor+geometry (D-53 amended by D-59); the D-40 receiver rules — draw-creates-only, move/rollback-update-only, idempotent delete — extracted into a new UI-free SyncReceiver and unit-tested for the first time; Home.razor's receive path now delegates entirely to it.
+- The renderer moves onto the storage model: a new ShapeRender helper turns anchor+geometry into the exact SVG coordinates the retired bounding-box renderer produced, FigureShape and SelectionTrace share it instead of each carrying their own triangle-points formatter and CircleEncoding call, and Home.razor's last box-shaped bridge from 10-02 is deleted.
+- The suite is finished with TEST-02: the D-41 line landmine is now proven end to end into stored geometry, the database helpers and schema assertions speak anchor+geometry natively with no bounding-box re-encoding, and the CHECK-mirroring test class is retired to what it still proves after D-59 deleted the CHECKs it used to mirror.
+
+---
+
 ## v1.1 Canvas resize · selection UX · no-JS removal (Shipped: 2026-07-21)
 
 **Phases completed:** 3 phases, 4 plans, 9 tasks

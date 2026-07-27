@@ -19,22 +19,23 @@
         <svg class="@CanvasSurfaceClass" width="@CanvasBounds.Width" height="@CanvasBounds.Height" @onpointerdown="OnPointerDown" @onpointermove="OnPointerMove" @onpointerup="OnPointerUp" @onpointerleave="OnPointerLeave">
             @foreach (var f in figures)
             {
-                var box = dragging && f.Id == dragFigureId ? dragCurrentBox : new Box(f.X1, f.Y1, f.X2, f.Y2);
-                <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" Box="box" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
+                var x = dragging && f.Id == dragFigureId ? dragCurrentAnchorX : f.X;
+                var y = dragging && f.Id == dragFigureId ? dragCurrentAnchorY : f.Y;
+                <FigureShape @key="f.Id" Type="FigureTypeNames.Parse(f.Type)" X="x" Y="y" Geometry="@f.Geometry" Selectable="@(armedTool == Tool.Pointer)" OnPointerDown="e => HandleFigurePointerDown(f.Id, e)" />
             }
             @if (drawing)
             {
-                <FigureShape Type="previewType" Box="previewBox" Preview="true" />
+                var previewGeometry = GeometryCodec.Encode(previewType, previewExtent);
+                <FigureShape Type="previewType" X="previewGeometry.X" Y="previewGeometry.Y" Geometry="@previewGeometry.Geometry" Preview="true" />
             }
-            @if (selectedId is int selectedFigureId)
+            @if (selectedId is Guid selectedFigureId)
             {
                 var selected = figures.FirstOrDefault(f => f.Id == selectedFigureId);
                 if (selected is not null)
                 {
-                    var selectedBox = dragging && selected.Id == dragFigureId
-                        ? dragCurrentBox
-                        : new Box(selected.X1, selected.Y1, selected.X2, selected.Y2);
-                    <SelectionTrace Type="FigureTypeNames.Parse(selected.Type)" Box="selectedBox" />
+                    var selectedX = dragging && selected.Id == dragFigureId ? dragCurrentAnchorX : selected.X;
+                    var selectedY = dragging && selected.Id == dragFigureId ? dragCurrentAnchorY : selected.Y;
+                    <SelectionTrace Type="FigureTypeNames.Parse(selected.Type)" X="selectedX" Y="selectedY" Geometry="@selected.Geometry" />
                 }
             }
         </svg>
@@ -63,25 +64,33 @@
 
     private List<Figure> figures = new();
     private bool drawing;
-    private int? selectedId;
+    private Guid? selectedId;
     private bool showSaveFailedModal;
     private bool dragging;
-    private int? dragFigureId;
+    private Guid? dragFigureId;
     private readonly Guid _sender = Guid.NewGuid();
     private IDisposable? _subscription;
     private long _lastBroadcastTicks;
 
-    // The figure's box at press time. It is assigned exactly once per drag and retained until the
-    // drag commits, so Phase 5 can use it as D-52's rollback source if a save later fails.
-    private Box dragOriginalBox;
-    private Box dragCurrentBox;
+    // The figure's own anchor at press time. Assigned exactly once per drag and retained until the
+    // drag commits, so it is D-52's rollback source if a save later fails. A drag now touches only
+    // this anchor pair — the renderer reads the dragged figure's own untouched Geometry directly
+    // out of the figures loop, never re-derived (STOR-02, D-59).
+    private int dragAnchorX;
+    private int dragAnchorY;
+    private int dragCurrentAnchorX;
+    private int dragCurrentAnchorY;
     private int dragPressX;
     private int dragPressY;
     private bool dragMoved;
     private FigureType previewType;
     private int pressX;
     private int pressY;
-    private Box previewBox;
+
+    // The live draw gesture's extent, read by MinSizeGuard before CommitAsync encodes it (STOR-03
+    // guard-before-serialisation order). Named "extent", not "box": Box is a transient shape a
+    // gesture or render produces, never the storage model since D-59.
+    private Box previewExtent;
 
     // The shape-armed class drives the crosshair cursor rule in Home.razor.css. Dragging adds a
     // second state class for the grab/grabbing affordance without changing shape-tool behaviour.
@@ -138,11 +147,11 @@
         pressX = point.X;
         pressY = point.Y;
         previewType = type.Value;
-        previewBox = DrawGesture.Build(previewType, pressX, pressY, pressX, pressY);
+        previewExtent = DrawGesture.Build(previewType, pressX, pressY, pressX, pressY);
         drawing = true;
     }
 
-    private void HandleFigurePointerDown(int figureId, PointerEventArgs e)
+    private void HandleFigurePointerDown(Guid figureId, PointerEventArgs e)
     {
         if (e.Button != 0)
         {
@@ -158,8 +167,10 @@
         }
 
         dragFigureId = figureId;
-        dragOriginalBox = new Box(figure.X1, figure.Y1, figure.X2, figure.Y2);
-        dragCurrentBox = dragOriginalBox;
+        dragAnchorX = figure.X;
+        dragAnchorY = figure.Y;
+        dragCurrentAnchorX = dragAnchorX;
+        dragCurrentAnchorY = dragAnchorY;
 
         var point = CanvasCoordinates.FromPage(e.PageX, e.PageY);
         dragPressX = point.X;
@@ -196,13 +207,17 @@
             dragMoved = Math.Sqrt((double)(dx * dx + dy * dy)) >= 3;
         }
 
-        dragCurrentBox = Movement.ClampMove(dragOriginalBox, dx, dy);
+        // No bounds arithmetic of any kind (STOR-04, D-24/D-29/D-36 dropped): the anchor is the
+        // press-time anchor plus the raw pointer delta. Geometry never changes on a move, so the
+        // renderer keeps reading the figure's own stored Geometry directly — nothing to derive here.
+        dragCurrentAnchorX = dragAnchorX + dx;
+        dragCurrentAnchorY = dragAnchorY + dy;
 
         var now = Environment.TickCount64;
         if (dragMoved && (_lastBroadcastTicks == 0 || now - _lastBroadcastTicks >= 50))
         {
             _lastBroadcastTicks = now;
-            Notifier.Publish(userId, SyncMessage.Move(dragFigureId!.Value, dragCurrentBox, _sender));
+            Notifier.Publish(userId, SyncMessage.Move(dragFigureId!.Value, dragCurrentAnchorX, dragCurrentAnchorY, _sender));
         }
     }
 
@@ -242,7 +257,7 @@
         }
 
         var point = CanvasCoordinates.FromPage(e.PageX, e.PageY);
-        previewBox = DrawGesture.Build(previewType, pressX, pressY, point.X, point.Y);
+        previewExtent = DrawGesture.Build(previewType, pressX, pressY, point.X, point.Y);
     }
 
     private async Task OnPointerUp(PointerEventArgs e)
@@ -284,16 +299,17 @@
     {
         drawing = false;
         var type = previewType;
-        var box = previewBox;
+        var extent = previewExtent;
 
-        if (!MinSizeGuard.IsDrawable(type, box))
+        if (!MinSizeGuard.IsDrawable(type, extent))
         {
             return;
         }
 
         try
         {
-            var figure = await Figures.InsertAsync(userId, type, box);
+            var geometry = GeometryCodec.Encode(type, extent);
+            var figure = await Figures.InsertAsync(userId, type, geometry);
             figures.Add(figure);
             selectedId = figure.Id;
             Notifier.Publish(userId, SyncMessage.Draw(figure, _sender));
@@ -320,7 +336,8 @@
         dragging = false;
         var figureId = dragFigureId;
         var moved = dragMoved;
-        var box = dragCurrentBox;
+        var anchorX = dragCurrentAnchorX;
+        var anchorY = dragCurrentAnchorY;
 
         if (!figureId.HasValue || !moved)
         {
@@ -330,17 +347,17 @@
         var figure = figures.FirstOrDefault(f => f.Id == figureId.Value);
         if (figure is not null)
         {
-            figure.X1 = box.X1;
-            figure.Y1 = box.Y1;
-            figure.X2 = box.X2;
-            figure.Y2 = box.Y2;
+            // Assign the anchor only — never touch Geometry, or a drag would drift a figure's
+            // shape (STOR-02, D-59).
+            figure.X = anchorX;
+            figure.Y = anchorY;
         }
 
-        Notifier.Publish(userId, SyncMessage.Move(figureId.Value, box, _sender));
+        Notifier.Publish(userId, SyncMessage.Move(figureId.Value, anchorX, anchorY, _sender));
 
         try
         {
-            var affected = await Figures.UpdateAsync(userId, figureId.Value, box);
+            var affected = await Figures.MoveAsync(userId, figureId.Value, anchorX, anchorY);
             if (affected == 0)
             {
                 figures.RemoveAll(f => f.Id == figureId.Value);
@@ -359,13 +376,11 @@
             // circuit alive (D-45) while restoring every screen to the database's original position.
             if (figure is not null)
             {
-                figure.X1 = dragOriginalBox.X1;
-                figure.Y1 = dragOriginalBox.Y1;
-                figure.X2 = dragOriginalBox.X2;
-                figure.Y2 = dragOriginalBox.Y2;
+                figure.X = dragAnchorX;
+                figure.Y = dragAnchorY;
             }
 
-            Notifier.Publish(userId, SyncMessage.Rollback(figureId.Value, dragOriginalBox, _sender));
+            Notifier.Publish(userId, SyncMessage.Rollback(figureId.Value, dragAnchorX, dragAnchorY, _sender));
             showSaveFailedModal = true;
         }
     }
@@ -422,7 +437,7 @@
     /// other tab converge too, including tabs that missed the earlier rollback while showing an
     /// optimistic final drag position.
     /// </summary>
-    private void BroadcastReloadedSnapshot(HashSet<int> beforeReloadIds)
+    private void BroadcastReloadedSnapshot(HashSet<Guid> beforeReloadIds)
     {
         var afterReloadIds = figures.Select(f => f.Id).ToHashSet();
 
@@ -434,7 +449,7 @@
         foreach (var figure in figures)
         {
             Notifier.Publish(userId, SyncMessage.Draw(figure, _sender));
-            Notifier.Publish(userId, SyncMessage.Move(figure.Id, new Box(figure.X1, figure.Y1, figure.X2, figure.Y2), _sender));
+            Notifier.Publish(userId, SyncMessage.Move(figure.Id, figure.X, figure.Y, _sender));
         }
     }
 
@@ -469,50 +484,16 @@
     }
 
     /// <summary>
-    /// Applies D-53's four message kinds. Only draw may create a figure; move and rollback are
-    /// update-only by D-40, so an unknown id is ignored instead of resurrected.
+    /// Delegates every D-53 message-kind rule to SyncReceiver (Task 2), which owns draw-creates-only,
+    /// move/rollback update-only (D-40), and idempotent delete. This component only reacts to the
+    /// removed-id return value to clear its own per-circuit selection.
     /// </summary>
     private void ApplyMessage(SyncMessage msg)
     {
-        switch (msg.Kind)
+        var removedId = SyncReceiver.Apply(figures, msg, userId);
+        if (removedId is not null && selectedId == removedId)
         {
-            case "draw":
-                if (!figures.Any(f => f.Id == msg.Id))
-                {
-                    figures.Add(new Figure
-                    {
-                        Id = msg.Id,
-                        UserId = userId,
-                        Type = msg.Type!,
-                        X1 = msg.X1!.Value,
-                        Y1 = msg.Y1!.Value,
-                        X2 = msg.X2!.Value,
-                        Y2 = msg.Y2!.Value,
-                    });
-                }
-
-                break;
-            case "move":
-            case "rollback":
-                var existing = figures.FirstOrDefault(f => f.Id == msg.Id);
-                if (existing is null)
-                {
-                    return;
-                }
-
-                existing.X1 = msg.X1!.Value;
-                existing.Y1 = msg.Y1!.Value;
-                existing.X2 = msg.X2!.Value;
-                existing.Y2 = msg.Y2!.Value;
-                break;
-            case "delete":
-                figures.RemoveAll(f => f.Id == msg.Id);
-                if (selectedId == msg.Id)
-                {
-                    selectedId = null;
-                }
-
-                break;
+            selectedId = null;
         }
     }
 }

@@ -1,24 +1,33 @@
 namespace BlazorCanvas.Geometry;
 
 /// <summary>
-/// The per-type minimum-size guard (D-50). Each arm is a literal C# transcription of the
-/// matching database CHECK constraint, so the app can never construct a figure the database
-/// would refuse. Takes a NORMALISED box. D-23's single shared guard is retracted: one shared
-/// rule either lets a zero-height rectangle through or rejects a legal horizontal line.
+/// The per-type minimum-size guard (D-50). Since D-59 the server is the sole guarantor of
+/// geometry well-formedness — no database CHECK mirrors this any more (D-59 item 9). Each arm
+/// reads the exact C# integer <see cref="GeometryCodec"/> will serialise into <c>geometry</c>,
+/// before any JSON is produced: the line's <c>{dx,dy}</c> pair, the rectangle/triangle
+/// <c>{w,h}</c> pair, and the circle's <c>{r}</c>. Rejected only when a gesture's extent is
+/// strictly zero, never merely small (D-59 item 7, D-32). Takes a NORMALISED box. A rejection is
+/// silent — no dialog, toast, hint, or log line (D-50).
 /// </summary>
 public static class MinSizeGuard
 {
     public static bool IsDrawable(FigureType type, Box b) => type switch
     {
-        // Mirrors line_is_a_line. Rejected only when both endpoints are identical.
-        // Horizontal and vertical lines are legal.
-        FigureType.Line => b.X2 >= b.X1 && (b.X2 > b.X1 || b.Y2 != b.Y1),
+        // Rejected only when both endpoints are the identical point — i.e. the {dx,dy} pair the
+        // codec would emit is {0,0}. Horizontal (dy zero) and vertical (dx zero) lines stay
+        // legal. dx >= 0 is guaranteed upstream by Normalisation and is not re-checked here.
+        FigureType.Line => b.Width != 0 || b.Height != 0,
 
-        // Mirrors box_is_a_box. Zero width or zero height is rejected.
-        FigureType.Rectangle or FigureType.Triangle => b.X2 > b.X1 && b.Y2 > b.Y1,
+        // Rejected when the {w,h} pair the codec would emit has a zero-or-negative member.
+        FigureType.Rectangle or FigureType.Triangle => b.Width > 0 && b.Height > 0,
 
-        // Mirrors circle_is_a_circle: square, positive, even side.
-        FigureType.Circle => b.Width == b.Height && b.X2 > b.X1 && b.Width % 2 == 0,
+        // Rejected when the integer radius {r} is zero or negative. Read through
+        // CircleEncoding.ToCentreRadius so the guard and GeometryCodec.Encode's {r} can never
+        // disagree (T-10-02) — a naive width-greater-than-zero rule would let a width-1 box
+        // through as {"r":0}, an invisible, unselectable poison row. The retired square-ness and
+        // even-side terms mirrored the circle_is_a_circle CHECK that D-59 deleted (D-59 item 9);
+        // a circle is well-formed by construction via CircleEncoding.FromCentreRadius now.
+        FigureType.Circle => CircleEncoding.ToCentreRadius(b).R > 0,
 
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown figure type.")
     };

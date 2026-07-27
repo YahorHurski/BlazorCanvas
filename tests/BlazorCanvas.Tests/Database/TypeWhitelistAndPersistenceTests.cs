@@ -7,78 +7,22 @@ using Npgsql;
 namespace BlazorCanvas.Tests.Database;
 
 /// <summary>
-/// The decisive test of the phase. D-50 says the per-type min-size guard mirrors the three
-/// CHECK constraints EXACTLY, so the app can never write a row the database would refuse. Plan
-/// 01-02 built the guard; plan 01-03 built the CHECKs; this is the only place the two halves
-/// are run against each other over a shared matrix. If they disagree, <c>CONSTRAINT-schema</c>
-/// — the DDL — is authoritative over both, and the defect is in the guard or the DbContext,
-/// never here.
+/// Formerly "the decisive test of the phase" (Phase 1): D-50's per-type min-size guard was run
+/// against three database CHECK constraints over a shared matrix. D-59 deleted those CHECKs, and
+/// STOR-03 moved the per-type guard proof entirely code-side, into
+/// <see cref="Geometry.MinSizeGuard"/> — see <c>MinSizeGuardTests</c>. What survives here, and
+/// what this file actually proves:
+/// (1) the four literals <see cref="FigureTypeNames.ToDbValue"/> produces are exactly the four
+/// the retained <c>figures_type_is_known</c> CHECK accepts (D-46), and
+/// (2) figures written through the DbContext survive a full Docker Compose container teardown of
+/// the NAMED volume (D-27) — the only place in the suite proving volume persistence.
 /// </summary>
 [Collection("Database")]
-public class GuardMirrorsChecksTests
+public class TypeWhitelistAndPersistenceTests
 {
     private readonly DatabaseFixture _fixture;
 
-    public GuardMirrorsChecksTests(DatabaseFixture fixture) => _fixture = fixture;
-
-    // Eight boundary-probing boxes, crossed with all four FigureType members below (32 cases —
-    // over the 24-case / 6-shape minimum). The SAME box tested against DIFFERENT types is
-    // deliberate: it is what proves the guard is per-type (D-50), not shared (D-23, retracted).
-    public static readonly Box WellFormed = new(0, 0, 10, 10); // square, even side, positive both dims
-    public static readonly Box ZeroHeight = new(10, 10, 90, 10); // legal (horizontal) line, illegal box/circle
-    public static readonly Box ZeroWidth = new(10, 10, 10, 90); // legal (vertical) line, illegal box/circle
-    public static readonly Box ZeroArea = new(10, 10, 10, 10); // illegal for every type
-    public static readonly Box OddSquare = new(0, 0, 9, 9); // illegal circle only (odd side)
-    public static readonly Box NonSquare = new(0, 0, 10, 8); // illegal circle only (not square)
-    public static readonly Box Unnormalised = new(10, 10, 0, 0); // x2 < x1 — illegal for every type
-    public static readonly Box DiagonalUpRight = new(0, 100, 100, 0); // legal line, illegal box/circle (y2 < y1)
-
-    public static IEnumerable<object[]> Matrix()
-    {
-        var boxes = new (Box Box, string Label)[]
-        {
-            (WellFormed, "well-formed"),
-            (ZeroHeight, "zero-height"),
-            (ZeroWidth, "zero-width"),
-            (ZeroArea, "zero-area"),
-            (OddSquare, "odd-sided square"),
-            (NonSquare, "non-square"),
-            (Unnormalised, "unnormalised (x2 < x1)"),
-            (DiagonalUpRight, "up-and-right diagonal (y2 < y1)"),
-        };
-
-        foreach (var type in Enum.GetValues<FigureType>())
-        {
-            foreach (var (box, label) in boxes)
-            {
-                yield return new object[] { type, box, label };
-            }
-        }
-    }
-
-    [Theory]
-    [MemberData(nameof(Matrix))]
-    public async Task GuardVerdict_MatchesDatabaseVerdict(FigureType type, Box box, string label)
-    {
-        var guardSaysDrawable = MinSizeGuard.IsDrawable(type, box);
-        var attempt = await _fixture.TryInsertFigureAsync(type, box);
-
-        Assert.True(
-            guardSaysDrawable == attempt.Succeeded,
-            $"D-50 disagreement: type={type}, box={box} ({label}). " +
-            $"MinSizeGuard.IsDrawable => {guardSaysDrawable}; database INSERT => " +
-            $"{(attempt.Succeeded ? "succeeded" : $"rejected ({attempt.Error?.ConstraintName})")}. " +
-            "Resolve in favour of CONSTRAINT-schema — the DDL is authoritative over both.");
-    }
-
-    [Fact]
-    public void HorizontalLine_AndZeroHeightRectangle_SameBoxOppositeVerdicts()
-    {
-        // The decisive pair (D-50 vs D-23, retracted): a SHARED guard cannot accept the line
-        // while also rejecting the rectangle for the exact same box.
-        Assert.True(MinSizeGuard.IsDrawable(FigureType.Line, ZeroHeight));
-        Assert.False(MinSizeGuard.IsDrawable(FigureType.Rectangle, ZeroHeight));
-    }
+    public TypeWhitelistAndPersistenceTests(DatabaseFixture fixture) => _fixture = fixture;
 
     [Theory]
     [InlineData(FigureType.Line)]
@@ -88,9 +32,10 @@ public class GuardMirrorsChecksTests
     public async Task TypeLiteral_RoundTrips_AgainstFiguresTypeIsKnown(FigureType type)
     {
         // D-46: the four literals FigureTypeNames.ToDbValue produces are exactly the four the
-        // figures_type_is_known CHECK accepts. WellFormed is legal for every type, so a
-        // rejection here can only mean the literal itself was refused.
-        var attempt = await _fixture.TryInsertFigureAsync(type, WellFormed);
+        // figures_type_is_known CHECK accepts. The geometry content is irrelevant — D-59 left no
+        // CHECK on geometry — so a rejection here can only mean the type literal itself was
+        // refused.
+        var attempt = await _fixture.TryInsertFigureAsync(type, """{"w":10,"h":10}""");
 
         Assert.True(
             attempt.Succeeded,
@@ -99,7 +44,7 @@ public class GuardMirrorsChecksTests
     }
 
     /// <summary>
-    /// ROADMAP success criterion 1, re-proven with real EF-written data (D-27, D-39): figures
+    /// ROADMAP success criterion 1, re-proven with real EF-written data (D-27, D-59): figures
     /// written through the DbContext survive a full container teardown of the NAMED volume.
     /// Plan 01-01 proved the volume holds with a scratch table; this proves it holds for the
     /// real <c>figures</c> table. The container down/up is a shell action; the surrounding
@@ -110,16 +55,16 @@ public class GuardMirrorsChecksTests
     {
         var repoRoot = FindRepoRoot();
         int userId;
-        var insertedIds = new List<int>();
+        var insertedIds = new List<Guid>();
 
         await using (var context = _fixture.CreateContext())
         {
             userId = await DatabaseFixture.CreateTestUserAsync(context);
             var figures = new[]
             {
-                new Figure { UserId = userId, Type = "rectangle", X1 = 10, Y1 = 10, X2 = 20, Y2 = 20 },
-                new Figure { UserId = userId, Type = "rectangle", X1 = 30, Y1 = 30, X2 = 40, Y2 = 40 },
-                new Figure { UserId = userId, Type = "rectangle", X1 = 50, Y1 = 50, X2 = 60, Y2 = 60 },
+                CreateFigure(userId, new Box(10, 10, 20, 20), 1m),
+                CreateFigure(userId, new Box(30, 30, 40, 40), 2m),
+                CreateFigure(userId, new Box(50, 50, 60, 60), 3m),
             };
             context.Figures.AddRange(figures);
             await context.SaveChangesAsync();
@@ -127,9 +72,7 @@ public class GuardMirrorsChecksTests
         }
 
         Assert.Equal(3, insertedIds.Count);
-        Assert.True(
-            insertedIds[0] < insertedIds[1] && insertedIds[1] < insertedIds[2],
-            "Expected ids to be assigned in insertion order (D-39 — the sequential id is the z-order).");
+        Assert.All(insertedIds, id => Assert.NotEqual(Guid.Empty, id));
 
         // The shell action: tear the container down WITHOUT -v (the named volume surviving is
         // exactly the property under test — CONSTRAINT-env, T-BC01-13), then bring it back up.
@@ -141,7 +84,8 @@ public class GuardMirrorsChecksTests
         await using var verifyContext = _fixture.CreateContext();
         var survivingIds = await verifyContext.Figures
             .Where(f => f.UserId == userId)
-            .OrderBy(f => f.Id)
+            .OrderBy(f => f.Z)
+            .ThenBy(f => f.Id)
             .Select(f => f.Id)
             .ToListAsync();
 
@@ -155,6 +99,20 @@ public class GuardMirrorsChecksTests
             verifyContext.Users.Remove(user);
             await verifyContext.SaveChangesAsync();
         }
+    }
+
+    private static Figure CreateFigure(int userId, Box box, decimal z)
+    {
+        var encoded = GeometryCodec.Encode(FigureType.Rectangle, box);
+        return new Figure
+        {
+            UserId = userId,
+            Type = "rectangle",
+            X = encoded.X,
+            Y = encoded.Y,
+            Geometry = encoded.Geometry,
+            Z = z,
+        };
     }
 
     private static string FindRepoRoot()

@@ -1,10 +1,22 @@
 # Decisions (LOCKED)
 
-Synthesized from a single ADR set: `docs/DECISIONS.md` (58 decisions, D-01…D-58).
-Classification: ADR / locked: true / precedence 0 (manifest-declared).
+Synthesized from a single ADR set: `docs/DECISIONS.md` (58 decisions, D-01…D-58; **59 with v1.11's
+D-59**). Classification: ADR / locked: true / precedence 0 (manifest-declared).
 
 **Every decision below is CURRENT.** Superseded/reversed text has been excluded — see
 "Superseded history" at the end for what was dropped and why, so it is never re-introduced.
+
+> 🛑 **v1.11 AMENDMENTS (2026-07-23) — STORAGE MODEL REWRITE. Authority: `docs/DECISIONS.md` (D-59 +
+> inline `⚠️ v1.11` banners).** The four-integer bounding-box storage is replaced by an **anchor
+> (`x,y`) + `geometry jsonb`** model — new **D-59**, the authoritative storage entry. Summary:
+> **D-22 SUPERSEDED** (circle → `{r}`); **D-39 SUPERSEDED** (`id` `integer` → `uuid`; order by
+> `numeric z`, load `ORDER BY z, id`); **D-24/D-29/D-36 DROPPED** (no canvas-edge clamp — figures
+> may leave the canvas); **D-53 AMENDED** (payload → anchor + geometry, `id` uuid; semantics
+> unchanged); **D-46 AMENDED** (`created_at` stays dropped, `type text` + CHECK whitelist kept);
+> **D-23 AMENDED** (degenerate guard kept code-side; "never clamp" moot); **D-41 RE-EXPRESSED**
+> (line swap-pair landmine carries over). **D-20/D-12/D-03 UPHELD.** Existing figures preserved via
+> a hand-written backfill. This mirror carries D-59 below + short markers on affected entries;
+> `docs/DECISIONS.md` is the source of truth.
 
 > ⚠️ **v1.1 AMENDMENTS (2026-07-20) — for the authoritative amended text, read `docs/DECISIONS.md`
 > (it carries inline `⚠️ v1.1` notes on each changed decision).** This mirror has been spot-corrected
@@ -17,8 +29,8 @@ Classification: ADR / locked: true / precedence 0 (manifest-declared).
 > corrected to MVP simplicity. Next: **v1.2** (new figures + dynamic toolbar) in `.planning/backlog/`.
 
 **The three authoritative artifacts** (per the source document's own "READ THIS FIRST"):
-`THE SCHEMA` (canonical DDL), `D-22` (geometry storage), `D-53` (broadcast message contract).
-All three are extracted into `constraints.md`.
+`THE SCHEMA` (canonical DDL — v1.11 anchor+geometry), `D-59` (geometry storage — v1.11, supersedes
+`D-22`), `D-53` (broadcast message contract). All three are extracted into `constraints.md`.
 
 ---
 
@@ -196,7 +208,8 @@ Accepted cost: every triangle is isosceles and points upward. Right-angled and d
 triangles are not possible.
 
 ### D-22 — Geometry storage: four coordinates, always. Circle = its inscribed square. (REVISED)
-source: docs/DECISIONS.md (D-22, revised) · Locked — **AUTHORITATIVE**
+> 🛑 **v1.11: SUPERSEDED by D-59** (anchor + `geometry jsonb`; circle = `{r}`). Historical below.
+source: docs/DECISIONS.md (D-22, revised) · **superseded by D-59 (v1.11)** — historical
 **Every figure is exactly four integers — `x1, y1, x2, y2`, all non-null. For every shape these
 four numbers ARE its bounding box.**
 - Line: `(x1,y1)` one endpoint, `(x2,y2)` the other
@@ -224,7 +237,9 @@ Accepted cost: the convention must be learned by anyone reading the table — mi
 `COMMENT ON TABLE` (D-42).
 
 ### D-41 — Normalise on write — but NOT the same way for every shape
-source: docs/DECISIONS.md (D-41) · Locked
+> ⚠️ **v1.11: RE-EXPRESSED for anchor+geometry (D-59)** — rectangle → positive `{w,h}`; line → one
+> endpoint + `{dx,dy}`, **swap the whole point pair, never sort axes** (the landmine carries over).
+source: docs/DECISIONS.md (D-41) · Locked (re-expressed by D-59 in v1.11)
 Coordinates are put into canonical order **once, before the INSERT**, in **exactly one place**.
 - **Rectangle / triangle / circle → sort the axes independently** (`x1 = min(x1,x2)`, etc.). Safe:
   a box is a box. (A circle is already canonical by construction.)
@@ -237,19 +252,22 @@ circle — **but not for a line**, whose `y` may run either way. This is why D-3
 min/max bounding-box computation (still fully generic, but it cannot be dropped).
 
 ### D-24 — Figures stop at the canvas edge
-source: docs/DECISIONS.md (D-24) · Locked
+> 🛑 **v1.11: DROPPED** (no edge clamp; figures may leave the canvas — D-59). Historical.
+source: docs/DECISIONS.md (D-24) · **dropped in v1.11** — historical
 A figure cannot be dragged beyond the canvas boundary. It stops, and **slides along the edge**
 rather than sticking. Clamp is applied live on every pointer-move; the clamped position is what
 persists on release. Formula in D-36. **This decision is what forced the reversal of D-22.**
 
 ### D-29 — Drawing also stops at the canvas edge
-source: docs/DECISIONS.md (D-29) · Locked
+> 🛑 **v1.11: DROPPED** with D-24 (no draw-time edge clamp — D-59). Historical.
+source: docs/DECISIONS.md (D-29) · **dropped in v1.11** — historical
 While drawing, dragging past the boundary does not grow the shape — the corner clamps to the
 edge while the cursor keeps moving. Gives the app **one rule: figures live entirely inside the
 canvas, always.** Nothing created out of bounds, nothing moved out of bounds.
 
 ### D-36 — The clamp: exact formula, bounds are inclusive
-source: docs/DECISIONS.md (D-36) · Locked — operative spec for D-24 and D-29
+> 🛑 **v1.11: DROPPED** with D-24/D-29 (no clamp — D-59; the canvas keeps its 1472×828 size). Historical.
+source: docs/DECISIONS.md (D-36) · **dropped in v1.11** — historical
 `W = 1472`, `H = 828` *(v1.1; was 1280 × 720)*. **Bounds are INCLUSIVE: the valid domain is `0..1472 × 0..828`.** SVG
 coordinates are geometric edge positions, not pixel cells — `x2 = 1472` means the right edge sits
 exactly *on* the boundary, which is the "stopped at the edge" state.
@@ -458,8 +476,11 @@ the glide stops short and the other monitor twitches at the end of every drag.
 This is a **throttle**, not a debounce (a debounce would show nothing until the drag ended).
 
 ### D-53 — The broadcast message contract (canonical)
-source: docs/DECISIONS.md (D-53) · Locked — **AUTHORITATIVE**, supersedes the partial descriptions
-in D-11, D-22 and D-40. Full contract in `constraints.md`.
+> ⚠️ **v1.11: AMENDED payload (D-59)** — `move`/`rollback` carry the anchor `x,y`; `draw` carries
+> anchor + `type` + `geometry`; the figure `id` is now a `uuid`. **All semantics unchanged** (draw
+> creates; move is UPDATE-only; move carries no `type`; no `drop` kind; mid-drag discard; 50 ms throttle).
+source: docs/DECISIONS.md (D-53) · Locked (payload amended by D-59 in v1.11) — **AUTHORITATIVE**,
+supersedes the partial descriptions in D-11, D-22 and D-40. Full contract in `constraints.md`.
 `sender` is a **per-circuit GUID**, generated once when a tab's canvas component initialises;
 it exists solely for the echo filter.
 Kinds: `draw` (insert-or-update; the only kind that may create a figure; sent *after* the INSERT
@@ -481,7 +502,8 @@ Accepted cost, stated honestly: this **breaks the free multi-device degradation*
 multi-device was never a requirement.
 
 ### D-39 — `figures.id` is a sequential integer, and it IS the z-order
-source: docs/DECISIONS.md (D-39) · Locked
+> 🛑 **v1.11: SUPERSEDED by D-59** (`id` `integer` → `uuid`; order carried by `numeric z`). Historical.
+source: docs/DECISIONS.md (D-39) · **superseded by D-59 (v1.11)** — historical
 Database-generated sequential integer. Figures load with `ORDER BY id`.
 Load-bearing: within a session "topmost = drawn last" comes free from the DOM — **after F5 it does
 not**, so creation order must be reconstructed from the database. The sequential id recovers it
@@ -528,11 +550,32 @@ figures belonging to a user. No canvas row, no canvas id, no join.
 document per user — incompatible with D-09's per-operation persistence.)
 
 ### D-46 — `type` is text + CHECK. No `created_at`.
-source: docs/DECISIONS.md (D-46) · Locked
+> ⚠️ **v1.11: AMENDED (D-59)** — `created_at` stays dropped (order is now `numeric z`); `type text` +
+> whitelist CHECK **kept** (Variant 1, most valuable through the backfill); a `figure_types` lookup
+> table rejected. The old "CHECKs are written as `type <> 'circle'`" rationale no longer applies (the
+> geometry CHECKs are gone), but the text column stands on its own.
+source: docs/DECISIONS.md (D-46) · Locked (amended by D-59 in v1.11)
 `type` is a **text** column constrained to `('line','rectangle','circle','triangle')`.
-**Not a free choice:** D-22's and D-41's CHECKs are written as `type <> 'circle'` — they assume
-text. A PostgreSQL enum or an int-mapped C# enum would silently invalidate them as written.
-**`created_at` is dropped** — D-39 made the sequential `id` the z-order, so nothing reads a timestamp.
+**`created_at` is dropped** — order is carried by the `numeric z` column (D-59), so nothing reads a timestamp.
+
+### D-59 — Storage model: anchor (x, y) + geometry JSON (supersedes D-22) *(v1.11)*
+source: docs/DECISIONS.md (D-59) · Locked — **AUTHORITATIVE storage model from v1.11 on**
+A figure = an **anchor** (`x, y`, integer columns — D-20 upheld) + a **`geometry jsonb`** column
+holding the shape's form **relative to the anchor** (circle `{r}`, rectangle `{w,h}`, …). **Drag
+updates only `x, y`, for every shape** — the form never changes on a move. Replaces D-22's four
+integers. `id` is a **`uuid`** (`gen_random_uuid()` default); layer order is a **`numeric z`** — no
+UNIQUE, fractional (insert-between = midpoint) — loaded `ORDER BY z, id`; index **`(user_id, z)`**
+replaces `ix_figures_user_id`. **No canvas-edge clamp** (D-24/D-29/D-36 dropped) — figures may leave
+the canvas (accepted risk: currently unrecoverable, no pan/undo). **No DB CHECK on `geometry`** — the
+server is the sole writer (D-09), an explicit trust boundary; **`type text` + whitelist CHECK kept**
+(D-46, Variant 1 — most valuable through the backfill). Degenerate-draw guard kept **code-side**
+(`MinSizeGuard`, D-23 #1). Normalisation re-expressed (D-41): rectangle → positive `{w,h}`; line →
+one endpoint + `{dx,dy}`, **swap the whole point pair, never sort axes**. Existing figures
+**preserved via a hand-written backfill** (`x1,y1,x2,y2 → x,y,geometry`) tested against the immutable
+fixture `tests/.../Fixtures/v1.1-pre-rewrite.sql` + MANIFEST. Left for plan time: per-type JSON shape
+(esp. line), `z` formula, uuid v4-vs-v7, `Type`-as-C#-enum, backfill mechanism.
+Rejected: keeping the bbox; a `figure_types` lookup table; dropping the `type` CHECK during the
+migration; a DB CHECK on `geometry`.
 
 ---
 
@@ -616,3 +659,8 @@ none of their content is carried into the current decisions above.
   by D-36 (the decision stands; only the reason changed).
 - **D-30** — "five toolbar buttons". **It is SIX** (D-33).
 - **D-45** — its undecided "and/or" on save failure. **Settled by D-52.**
+- **D-22 (inscribed square) & D-39 (integer id = z-order)** — **SUPERSEDED by D-59 (v1.11):** storage
+  is now anchor + `geometry jsonb`, `id` is `uuid`, order is `numeric z` (`ORDER BY z, id`). These
+  were *correct* for v1.0/v1.1 (unlike the dead rim-point encoding) — superseded by a model change,
+  not a bug. Dropped with the model: **D-24/D-29/D-36** (the canvas-edge clamp) — figures may now
+  leave the canvas.
