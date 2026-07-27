@@ -103,16 +103,24 @@ roadmapped to a later milestone as a pure additive upgrade. Total shape is inten
   migration round-trip added; the D-41 line landmine pinned end-to-end into stored geometry; clean
   build, 416/416 green — Validated in Phase BC-10 (2026-07-24)
 
+- [x] **CANV-04 / CANV-05 / TEST-03** — Canvas enlarged to 5760×2634 (3×3 grid, grow-only, no
+  migration); rest of the surface reachable by native browser scroll with the toolbar `position: fixed`
+  and the `PageY − 48` mapping preserved (no JS interop, no viewBox); test suite re-pinned to the
+  enlarged bounds — Validated in Phase BC-11: Canvas Enlargement to 5760×2634 (2026-07-27); clean
+  build, 416/416 green, human-verified in browser
+
 **All 15 v1 requirements validated — shipped in v1.0 (2026-07-17).**
 **All 4 v1.1 requirements validated — shipped in v1.1 (2026-07-21).**
 **All 9 v1.11 requirements validated — shipped in v1.11 (2026-07-24).**
 
 ### Active
 
-**v1.12 (Canvas enlargement) is OPEN** — opened 2026-07-27 (branch `v1.12`). Scope: enlarge the
-fixed canvas to 5760×2634 (3×3 cells), top-left first screen, native-scroll navigation, fixed toolbar;
-zoom/pan explicitly deferred. Requirements: `.planning/REQUIREMENTS.md`. All 59 decisions (through
-**D-59**) remain locked in `docs/DECISIONS.md`; v1.12 amends D-19/D-43/D-18 (to be logged at ship).
+**v1.12 (Canvas enlargement) — Phase 11 COMPLETE** (2026-07-27, branch `v1.12`). Its sole phase
+(BC-11) is executed and verified `passed` (5/5 must-haves; all 3 requirements CANV-04/CANV-05/TEST-03
+validated; clean build, 416/416 green, human-verified in browser). Scope delivered: canvas enlarged to
+5760×2634 (3×3 cells), top-left first screen, native-scroll navigation, fixed toolbar; zoom/pan
+explicitly deferred. All 59 decisions (through **D-59**) remain locked in `docs/DECISIONS.md`; v1.12
+amends D-19/D-43/D-18 (to be logged at milestone ship/close).
 
 **Next milestone (v1.2) is scoped but not started**, now sequenced **after v1.11**: new figure
 types (ellipse, 5-point star, hexagon, pentagon, right-angle triangle L/R, four arrows) + a dynamic
@@ -420,7 +428,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-27 — opened milestone v1.12 (Canvas enlargement): enlarge canvas to 5760×2634
-(3×3 cells), top-left first screen, native-scroll navigation, fixed toolbar; zoom/pan deferred. Amends
-D-19/D-43/D-18. (Prev: 2026-07-24 after v1.11 milestone — all 9 requirements validated; storage model
-is anchor + `geometry jsonb` (D-59).)*
+*Last updated: 2026-07-27 — v1.12 Phase 11 (BC-11) complete and verified `passed`: canvas enlarged to
+5760×2634 (3×3 cells), top-left first screen, native-scroll navigation, fixed toolbar; CANV-04/CANV-05/
+TEST-03 all validated (clean build, 416/416 green, human-verified). Amends D-19/D-43/D-18 (to log at
+milestone close). (Prev: 2026-07-27 opened milestone v1.12; 2026-07-24 after v1.11 — storage model is
+anchor + `geometry jsonb` (D-59).)*
