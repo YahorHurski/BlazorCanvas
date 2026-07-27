@@ -3,7 +3,8 @@
 ## What This Is
 
 A Blazor Server web app (.NET 10) where a user logs in and draws simple geometric figures — line,
-rectangle, circle, triangle — on a fixed 1472 × 828 SVG canvas. Each user has exactly one canvas.
+rectangle, circle, triangle — on a fixed 5760 × 2634 SVG canvas (navigated by native browser scroll,
+with a pinned toolbar). Each user has exactly one canvas.
 Figures can be **drawn, dragged and deleted**, nothing else. Every operation persists to PostgreSQL
 immediately, and the user's other open tabs mirror the canvas live — a drag *glides* on the second
 monitor in real time.
@@ -27,7 +28,8 @@ The project is done when the user can do this, in one sitting:
 This deliberately makes the hardest feature — live cross-tab sync with real-time drag glide
 (D-11, D-47, D-53, D-54) — part of the definition of success, so **no phase can quietly defer it**.
 
-## Last Milestone: v1.11 — Storage model rewrite (anchor + geometry JSON) — ✅ SHIPPED 2026-07-24
+<details>
+<summary><b>Earlier milestone: v1.11 — Storage model rewrite (anchor + geometry JSON) — ✅ SHIPPED 2026-07-24</b></summary>
 
 **Shipped:** 2026-07-24 (branch `v1.11`; opened 2026-07-23). **Added no new user-facing feature** — a
 database model change plus the downstream code churn it forced. 2 phases, 12 plans, 9/9 requirements
@@ -53,23 +55,31 @@ figures were **preserved via a tested data migration**. The canvas-edge clamp wa
 superseded, D-24/D-29/D-36 dropped, D-53/D-46/D-23 amended, D-41 re-expressed, D-20/D-12/D-03 upheld.
 Backlog: `.planning/backlog/v1.11-storage-rewrite.md`.
 
-## Current Milestone: v1.12 — Canvas enlargement
+</details>
 
-**Goal:** Enlarge the fixed canvas so it feels borderless — without adding zoom/pan.
+## Last Milestone: v1.12 — Canvas enlargement — ✅ SHIPPED 2026-07-27
 
-**Target changes:**
-- Canvas grows from 1472×828 to **5760×2634** (a 3×3 grid of 1920×878 cells) — pure growth
-  (D-19-compliant: size may grow, never shrink). Existing figures stay valid; no data migration.
+**Shipped:** 2026-07-27 (branch `v1.12-Execution`; opened same day — a single-day, single-phase
+milestone). Tag: **`v1.12-canvas-enlargement`** (the plain `v1.12` tag belongs to the parallel star5
+topology and was left untouched). 1 phase, 2 plans, 3/3 requirements validated; phase verified
+`passed`; human-approved live in a browser. Full record: `.planning/milestones/v1.12-ROADMAP.md`.
+
+**Goal (achieved):** Enlarge the fixed canvas so it feels borderless — without adding zoom/pan.
+
+**Delivered changes:**
+- Canvas grew from 1472×828 to **5760×2634** (a 3×3 grid of 1920×878 cells) — pure growth
+  (D-19-compliant: size may grow, never shrink). Existing figures stayed valid; no data migration.
 - **First screen = top-left cell** — a user's existing figures are visible on load, unmoved.
-- The rest of the canvas is reached via **native browser scroll** (D-18's already-accepted behavior;
-  explicitly *not* a pan feature, so D-04 stays intact).
-- **Toolbar → `position: fixed`** + canvas `margin-top: 48px`, so the `PageY − 48` coordinate mapping
-  is unchanged and **no JS interop is introduced**.
+- The rest of the canvas is reached via **native browser scroll** (D-18's already-accepted behavior,
+  now the actual navigation mechanism; explicitly *not* a pan feature, so D-04 stays intact).
+- **Toolbar → `position: fixed`** + canvas `padding-top: 48px`, so the `PageY − 48` coordinate mapping
+  is unchanged and **no JS interop was introduced**.
 
-**Key context:** Amends D-19 (size), D-43 (toolbar fixed; −48 invariant preserved), D-18 (scroll is
-now the navigation mechanism). D-04 untouched. Zoom/pan (a viewBox "camera") is **out of scope** —
-roadmapped to a later milestone as a pure additive upgrade. Total shape is intentionally not 16:9
-(~2.19:1); fine because v1.12 has zero scaling (circles stay round at any ratio).
+**Decisions:** amended in `docs/DECISIONS.md` (logged at close, 2026-07-27) — **D-19** (size 1472×828 →
+5760×2634), **D-43** (toolbar `position: fixed`; the −48 invariant preserved via a 48px canvas offset),
+**D-18** (native scroll is now the navigation mechanism). **D-04 untouched.** Zoom/pan (a viewBox
+"camera") is deferred to a later milestone as a pure additive upgrade. Total shape is intentionally not
+16:9 (~2.19:1); fine because v1.12 has zero scaling (circles stay round at any ratio).
 
 ## Requirements
 
@@ -115,19 +125,15 @@ roadmapped to a later milestone as a pure additive upgrade. Total shape is inten
 
 ### Active
 
-**v1.12 (Canvas enlargement) — Phase 11 COMPLETE** (2026-07-27, branch `v1.12`). Its sole phase
-(BC-11) is executed and verified `passed` (5/5 must-haves; all 3 requirements CANV-04/CANV-05/TEST-03
-validated; clean build, 416/416 green, human-verified in browser). Scope delivered: canvas enlarged to
-5760×2634 (3×3 cells), top-left first screen, native-scroll navigation, fixed toolbar; zoom/pan
-explicitly deferred. All 59 decisions (through **D-59**) remain locked in `docs/DECISIONS.md`; v1.12
-amends D-19/D-43/D-18 (to be logged at milestone ship/close).
+**No milestone is open.** v1.12 shipped 2026-07-27; all 59 decisions (through **D-59**) remain locked in
+`docs/DECISIONS.md`, with v1.12's D-19/D-43/D-18 amendments now logged there.
 
-**Next milestone (v1.2) is scoped but not started**, now sequenced **after v1.11**: new figure
+**Next milestone (v1.2) is scoped but not started**, sequenced **after v1.12**: new figure
 types (ellipse, 5-point star, hexagon, pentagon, right-angle triangle L/R, four arrows) + a dynamic
 split-button toolbar. Full plan: `.planning/backlog/v1.2-figures-and-toolbar.md`. **Its 4-int-bbox
 premise no longer holds** — after v1.11, new shapes store as `geometry jsonb`; the backlog must be
-revised before v1.2 opens. Anything not named in `docs/DECISIONS.md` is still out until added there
-**by name**.
+revised before v1.2 opens (first step of `/gsd-new-milestone`). Anything not named in
+`docs/DECISIONS.md` is still out until added there **by name**.
 
 ### Out of Scope
 
@@ -209,12 +215,15 @@ there by name.
   `uuid` id, `numeric z` — see D-59. `users` is unchanged.)*
 - **The coordinate constant**: page margin 0, toolbar exactly **48px**, canvas immediately below at
   document position (0, 48), **no CSS border on the SVG**. `canvasX = PageX`, `canvasY = PageY − 48`.
-  Every coordinate in the app flows through this. (D-43, D-18)
-- **1472 × 828 canvas** — *(v1.1; was 1280 × 720)*. **The size may GROW but must never SHRINK** —
-  enlarging keeps every stored figure valid (v1.1 did exactly this), shrinking would orphan figures
-  off the surface; stored coordinates are only meaningful relative to it. (D-19) *(v1.11: the
-  **edge-clamp is REMOVED** — D-24/D-29/D-36 dropped, D-59 — so figures may now be dragged off the
-  canvas. The 1472×828 size itself is retained.)*
+  Every coordinate in the app flows through this. (D-43, D-18) *(v1.12: the toolbar is now
+  `position: fixed` and the canvas carries a compensating 48px top offset — the (0,48) origin and the
+  `PageY − 48` mapping are unchanged, and the surface is navigated by native browser scroll.)*
+- **5760 × 2634 canvas** — *(v1.12; was 1472 × 828 in v1.1, 1280 × 720 in v1.0)*, a 3×3 grid of
+  1920×878 cells. **The size may GROW but must never SHRINK** — enlarging keeps every stored figure
+  valid (v1.1 and v1.12 both did exactly this, no migration), shrinking would orphan figures off the
+  surface; stored coordinates are only meaningful relative to it. No scaling — circles stay round.
+  (D-19) *(v1.11: the **edge-clamp is REMOVED** — D-24/D-29/D-36 dropped, D-59 — so figures may be
+  dragged off the canvas.)*
 - **Security: none, deliberately.** Passwords are stored and compared in **plaintext**. Acceptable
   ONLY because this is a throwaway learning project. Never real credentials; never deployed to the
   public internet as-is. **Do not "fix" this without an explicit new decision — it is locked.** (D-08)
@@ -272,14 +281,14 @@ re-ask, or "improve" them. Full text: `.planning/intel/decisions.md`; original: 
 | ID | Decision |
 |----|----------|
 | D-13 | **Circle draw-time geometry: centre + radius.** The press point is the centre; drag distance sets the radius. Always a true circle, never an oval. |
-| D-18 | **Fixed-size canvas, 1:1** *(v1.1: chosen for MVP simplicity — "no JavaScript" motivation removed)*. One canvas unit = one CSS pixel, on every screen. Does not scale to the window. A fixed **aspect ratio** is still mandatory geometry (else circles render as ovals). `canvasX = PageX`, `canvasY = PageY − toolbarHeight`. **LANDMINE: `PageX/PageY`, never `OffsetX/OffsetY`.** Do not centre the canvas with `margin: auto`. |
-| D-19 | **Canvas is 1472 × 828** *(v1.1; was 1280 × 720)*. The size **may grow but must never shrink** — enlarging keeps every stored figure valid (v1.1 did this, no migration); shrinking orphans figures. Coordinates are only meaningful relative to it. |
+| D-18 | **Fixed-size canvas, 1:1** *(v1.1: chosen for MVP simplicity — "no JavaScript" motivation removed)*. One canvas unit = one CSS pixel, on every screen. Does not scale to the window. A fixed **aspect ratio** is still mandatory geometry (else circles render as ovals). `canvasX = PageX`, `canvasY = PageY − toolbarHeight`. **LANDMINE: `PageX/PageY`, never `OffsetX/OffsetY`.** Do not centre the canvas with `margin: auto`. *(v1.12: native browser scroll is now the navigation mechanism over the enlarged surface — still not a pan feature, D-04 intact; no JS interop.)* |
+| D-19 | **Canvas is 5760 × 2634** *(v1.12; was 1472 × 828 in v1.1, 1280 × 720 in v1.0)* — a 3×3 grid of 1920×878 cells. The size **may grow but must never shrink** — enlarging keeps every stored figure valid (v1.1 and v1.12 both did this, no migration); shrinking orphans figures. No scaling: circles stay round at any ratio (5760×2634 is intentionally not 16:9). Coordinates are only meaningful relative to it. |
 | D-20 | **Coordinates are integers.** Beyond tidiness: integers can be compared for exact equality in a database CHECK — so geometric invariants are *enforced by the schema*, not trusted in code. |
 | D-21 | **Triangle: derived from a drag, 2 points.** Apex top-centre, base along the bottom. Accepted cost: every triangle is isosceles and points upward. |
 | D-22 | 🛑 **v1.11: SUPERSEDED by D-59** (anchor + `geometry jsonb`; circle = `{r}`). *(Historical below.)* **Geometry storage: four integers, always — and they ARE the bounding box. A circle is stored as its INSCRIBED SQUARE.** `r = (x2−x1)/2`, `cx = x1+r`, `cy = y1+r`. Drawing is unchanged (centre-out); **only storage is a square**. A move is a uniform translation, so `d` cancels **algebraically** — a circle dragged ten thousand times has a bit-identical radius. Enforced by `CHECK (type <> 'circle' OR (x2-x1 = y2-y1 AND x2 > x1 AND (x2-x1) % 2 = 0))`. **Why: generic clamping reads the raw columns — there is genuinely no type dispatch left in the move or the clamp.** *(REVISED — the original centre+rim encoding is REVERSED and dead)* |
 | D-24 | 🛑 **v1.11: DROPPED** (no edge clamp; figures may leave the canvas — D-59). **Figures stop at the canvas edge** and **slide along it** rather than sticking. Clamp applied live on every pointer-move; the clamped position is what persists. **This decision is what forced the reversal of D-22.** |
 | D-29 | **Drawing also stops at the canvas edge.** One rule for the whole app: figures live entirely inside the canvas, always. |
-| D-36 | 🛑 **v1.11: DROPPED** with D-24/D-29 (no clamp — D-59; canvas keeps its 1472×828 size). **The clamp — exact formula, INCLUSIVE bounds (`0..1472 × 0..828`** *(v1.1; was `0..1280 × 0..720`)*`).** Clamp the *delta*, then translate all four uniformly. **Per-axis independence is the point** — `dx'` never reads `y`, so a figure pinned to the right edge still slides up and down. **Ordering: clamp → render → broadcast.** The one genuinely type-specific rule: the circle draw-clamp `r = min(round(distance), cx, cy, W−cx, H−cy)` — known consequence: **pressing near an edge forces a tiny circle**. No canvas-bounds CHECKs in the DB. |
+| D-36 | 🛑 **v1.11: DROPPED** with D-24/D-29 (no clamp — D-59; the canvas size itself is retained and later grown — v1.12: 5760×2634). **The clamp — exact formula, INCLUSIVE bounds (`0..1472 × 0..828` as of v1.1** *(was `0..1280 × 0..720`)*`).** Clamp the *delta*, then translate all four uniformly. **Per-axis independence is the point** — `dx'` never reads `y`, so a figure pinned to the right edge still slides up and down. **Ordering: clamp → render → broadcast.** The one genuinely type-specific rule: the circle draw-clamp `r = min(round(distance), cx, cy, W−cx, H−cy)` — known consequence: **pressing near an edge forces a tiny circle**. No canvas-bounds CHECKs in the DB. |
 | D-41 | **Normalise on write — but NOT the same way for every shape.** Rectangle/triangle/circle → sort the axes independently. **LANDMINE — Line → swap the WHOLE POINT PAIR, never sort axes independently** ((0,100)→(100,0) would become the opposite diagonal). Consequence: `x1 ≤ x2` for every shape, but `y1 ≤ y2` **only** for rectangle/triangle/circle — which is why the clamp keeps its min/max bounding-box computation. |
 
 ### Interaction
@@ -323,9 +332,9 @@ re-ask, or "improve" them. Full text: `.planning/intel/decisions.md`; original: 
 |----|----------|
 | D-14 | **One fixed style. No colours.** No style columns in the database, no colour picker in the UI. |
 | D-38 | **White fill, black outline.** **The fill is load-bearing:** SVG does **not** register clicks inside an *unfilled* shape. Had figures been wireframes, D-30's entire rationale would have collapsed. Accepted cost: overlapping figures fully occlude each other. |
-| D-43 | **Page layout: a 48px toolbar, no canvas border.** Margin 0; toolbar exactly 48px at the top; canvas immediately below at document position (0, 48), anchored top-left. **No CSS border on the SVG** — a border shifts the interior by its own width, making the mapping `PageY − 48 − 1`: one more constant that can be silently forgotten. **`canvasX = PageX`, `canvasY = PageY − 48`.** |
+| D-43 | **Page layout: a 48px toolbar, no canvas border.** Margin 0; toolbar exactly 48px at the top; canvas immediately below at document position (0, 48), anchored top-left. **No CSS border on the SVG** — a border shifts the interior by its own width, making the mapping `PageY − 48 − 1`: one more constant that can be silently forgotten. **`canvasX = PageX`, `canvasY = PageY − 48`.** *(v1.12: toolbar is now `position: fixed` (z-index 10) so it stays visible while scrolling; the canvas carries a compensating `padding-top: 48px`, so `PageY − 48` and `FromPage` are unchanged, no JS interop.)* |
 | D-55 | **Page background: light grey.** **Not cosmetic:** D-43 gives the canvas no border, so contrast with the page is the *only* thing that makes the canvas boundary visible. On a white default, "figures stop at the edge" would look like an inexplicable bug. |
-| D-58 | **The remaining constants.** Figure outline **black, 2px**; fill **white**; **selection indicator: ~1px blue+white dashed trace on the figure's own outline, topmost** *(v1.1; was red 2px)*; page background light grey; canvas white **1472×828** *(v1.1; was 1280×720)*, no border; toolbar 48px. 2px (not 1px) is deliberate for figure outlines — the stroke is the only click target a line has. **The Delete button is greyed out and unclickable when nothing is selected.** **Passwords must be non-empty.** Docker Compose: Postgres **17**, port **5432**, db **`canvas`**, **`postgres`/`postgres`**, **named volume**. *(Port amended in BC-01, user-approved: host **5433** → container 5432; a native `postgresql-x64-18` service owns 5432 on this machine. Intent untouched — see Constraints.)* |
+| D-58 | **The remaining constants.** Figure outline **black, 2px**; fill **white**; **selection indicator: ~1px blue+white dashed trace on the figure's own outline, topmost** *(v1.1; was red 2px)*; page background light grey; canvas white **5760×2634** *(v1.12; was 1472×828 in v1.1, 1280×720 in v1.0)*, no border; toolbar 48px *(v1.12: `position: fixed`)*. 2px (not 1px) is deliberate for figure outlines — the stroke is the only click target a line has. **The Delete button is greyed out and unclickable when nothing is selected.** **Passwords must be non-empty.** Docker Compose: Postgres **17**, port **5432**, db **`canvas`**, **`postgres`/`postgres`**, **named volume**. *(Port amended in BC-01, user-approved: host **5433** → container 5432; a native `postgresql-x64-18` service owns 5432 on this machine. Intent untouched — see Constraints.)* |
 
 ### Dead versions — never re-introduce
 D-05 (all four shapes share one draw gesture) · D-07 ("no HTTP code to write") · D-11 ("idempotent
@@ -354,6 +363,27 @@ integration audit re-confirmed it in `Home.razor`'s `HandleRemoteMessage`. The r
 filter was never built.
 
 ## Current State
+
+**v1.12 shipped 2026-07-27** (a single-day, single-phase milestone). The fixed canvas is now
+**5760×2634** (a 3×3 grid of 1920×878 cells), grown from 1472×828 as a pure, grow-only change — no
+scaling, no migration; existing figures stay valid and unmoved in the top-left cell. The rest of the
+surface is reached by native browser scroll; the toolbar is `position: fixed` with a compensating 48px
+canvas offset, so the `PageY − 48` mapping holds at any scroll position with **no JavaScript interop**.
+Zoom/pan (a viewBox "camera") is deferred to a later milestone.
+
+- **Delivered:** 1 phase (BC-11), 2 plans, 3 tasks; all 3 requirements (CANV-04, CANV-05, TEST-03)
+  validated; phase verified `passed`; a human approved all five success criteria live in a browser.
+- **Footprint:** 8 source/test files changed (+23/−18) — deliberately tiny (two `CanvasBounds`
+  constants, two CSS rules, five re-pinned test files).
+- **Gates:** `dotnet build BlazorCanvas.sln` clean (0 warnings, 0 errors); 416/416 tests passing.
+- **Decisions:** D-19 (size), D-43 (toolbar `position: fixed`, −48 preserved), D-18 (scroll is now
+  navigation) amended in `docs/DECISIONS.md` at close. D-04 untouched.
+- **Archived:** `.planning/milestones/v1.12-ROADMAP.md`, `v1.12-REQUIREMENTS.md`, and phase artifacts
+  under `v1.12-phases/`. No milestone audit was run (small, fully verified, artifact audit clear).
+- **New tech debt:** none.
+
+<details>
+<summary><b>Earlier milestones — v1.11 / v1.1 / v1.0</b></summary>
 
 **v1.11 shipped 2026-07-24** (opened 2026-07-23 — a two-day milestone). The storage model is now an
 anchor (`x,y`) + `geometry jsonb` (D-59) — `uuid` id, `numeric z` order — replacing the four-integer
@@ -405,8 +435,10 @@ trace (v1.0 milestone audit) and by live human verification on two real screens 
   None blocks a requirement. WR-01 and WR-08 are locked-by-design (D-36, D-08), not debt.
 - **Superseded by v1.1** (canvas 1472×828 · selection UX + restyle · permissive JavaScript policy).
 
+</details>
+
 **Next up: milestone v1.2** (new figure types + dynamic split-button toolbar), scoped in
-`.planning/backlog/v1.2-figures-and-toolbar.md` and sequenced after v1.11. Its 4-int-bbox premise no
+`.planning/backlog/v1.2-figures-and-toolbar.md` and sequenced after v1.12. Its 4-int-bbox premise no
 longer holds now that v1.11 has shipped — new shapes store as `geometry jsonb`, exactly what v1.11
 enables — so the backlog must be revised as the first step when v1.2 opens (`/gsd-new-milestone`).
 
@@ -428,8 +460,9 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-27 — v1.12 Phase 11 (BC-11) complete and verified `passed`: canvas enlarged to
-5760×2634 (3×3 cells), top-left first screen, native-scroll navigation, fixed toolbar; CANV-04/CANV-05/
-TEST-03 all validated (clean build, 416/416 green, human-verified). Amends D-19/D-43/D-18 (to log at
-milestone close). (Prev: 2026-07-27 opened milestone v1.12; 2026-07-24 after v1.11 — storage model is
-anchor + `geometry jsonb` (D-59).)*
+*Last updated: 2026-07-27 — after **v1.12 milestone close**. Canvas enlarged to 5760×2634 (3×3 cells),
+top-left first screen, native-scroll navigation, fixed toolbar; CANV-04/CANV-05/TEST-03 all validated
+(clean build, 416/416 green, human-verified). D-19/D-43/D-18 amendments logged in `docs/DECISIONS.md`;
+milestone archived to `.planning/milestones/v1.12-*`; tagged `v1.12-canvas-enlargement`. (Prev:
+2026-07-27 Phase 11 complete; 2026-07-24 after v1.11 — storage model is anchor + `geometry jsonb`
+(D-59).)*

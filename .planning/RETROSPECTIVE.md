@@ -286,6 +286,63 @@
 
 ---
 
+## Milestone: v1.12 — Canvas enlargement
+
+**Shipped:** 2026-07-27
+**Phases:** 1 (BC-11) | **Plans:** 2
+
+### What Was Built
+
+The fixed canvas grew from 1472×828 to **5760×2634** (a 3×3 grid of 1920×878 cells) as a pure,
+grow-only change — no scaling, no data migration; existing figures stay valid and unmoved in the
+top-left cell. The toolbar became `position: fixed` (z-index 10, below the save-failed modal) with a
+compensating 48px canvas `padding-top`, so the `PageY − 48` mapping and `CanvasCoordinates.FromPage`
+are untouched at any scroll position — **no JavaScript interop.** The rest of the surface is reached by
+native browser scroll (D-18, now the actual navigation mechanism, still not a pan feature). Five test
+files were re-pinned to the enlarged bounds. Footprint: 8 files, +23/−18; 416/416 green.
+
+### What Worked
+
+- **The v1.1/v1.11 investment in a single size source paid off exactly as designed.** The whole size
+  change was two constants in `CanvasBounds`; `Home.razor` bound the SVG to them already, so it needed
+  no edit. A milestone reduced to changing two numbers is the compounding return on D-18/D-19 discipline.
+- **Splitting human verification into its own blocking plan (11-02) again did its job** — the
+  visual/interactive criteria automated tests cannot prove (fixed-toolbar behavior during scroll,
+  figure-under-pointer accuracy at scroll offsets) were gated and confirmed live, not hoped.
+- **Off-canvas test fixtures were bumped genuinely past the *new* edge,** not merely past the old one —
+  a small correctness detail that keeps "off-canvas" assertions actually off-canvas under the larger bounds.
+
+### What Was Inefficient
+
+- **The `milestone.complete` auto-extractor produced a garbled second accomplishment** (it grabbed the
+  11-02 plan header instead of a one-liner), needing a manual rewrite of the MILESTONES.md entry.
+- **The ADR amendment was deferred to close by design, then had to be chased across the 119KB
+  `docs/DECISIONS.md` plus its intel mirrors and PROJECT.md** at ship — the "log it at close" note fans
+  a single size change out to ~a dozen edit sites. Cheap this time; worth a checklist if it recurs.
+
+### Patterns Established
+
+- **Fixed toolbar + compensating content offset** to preserve a coordinate invariant across a layout
+  change — a reusable move: change the layout, hold the mapping constant with an equal-and-opposite offset.
+
+### Key Lessons
+
+- **A well-placed constant turns a milestone into an edit of two numbers.** The size change touched no
+  render logic because every consumer already read `CanvasBounds`. Single-source constants are the
+  cheapest insurance a geometry app can buy — this is the third milestone to bank that return.
+- **"Log the decision at ship" is a debt, not a free deferral.** It kept the ADR clean during
+  execution but concentrated a dozen mirror-edits at close; the amendment content should travel with
+  the code change or carry an explicit close-time edit list.
+
+### Cost Observations
+
+- Model mix: execution on the standard executor/verifier profile; close-out (this session) on Opus.
+- Sessions: not tracked.
+- Notable: smallest milestone to date — 1 phase, 2 plans, 8 files. The single-phase footprint matched
+  the change; no split was forced, and none was padded in.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -295,6 +352,7 @@
 | v1.0 | 5 | 23 | Baseline — ADR-first planning from 58 locked decisions; gap-closure plans introduced after BC-01 verification |
 | v1.1 | 3 | 4 | Documentation-only phase given a full verification gate; human verification split into its own plan; milestone audit skipped |
 | v1.11 | 2 | 12 | First data-migration milestone; immutable fixture + manifest as migration oracle; milestone audit run (closing v1.1's skipped-gate habit); a live-only runtime defect caught past a fully green suite |
+| v1.12 | 1 | 2 | Smallest milestone — a single tightly-coupled phase, no split forced; size change reduced to two constants; ADR amendments logged at close |
 
 ### Cumulative Quality
 
@@ -303,6 +361,7 @@
 | v1.0 | 405 | ~2,500 | ~2,000 | 15/15 validated |
 | v1.1 | 405 | ~2,500 | ~2,000 | 4/4 validated (19/19 cumulative) |
 | v1.11 | 416 | ~2,500 | ~2,800 | 9/9 validated (28/28 cumulative) |
+| v1.12 | 416 | ~2,500 | ~2,800 | 3/3 validated (31/31 cumulative) |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -318,5 +377,7 @@
 4. **Writing the hardest thing into the definition of done prevents its deferral.** — *v1.0 (live sync);
    re-confirmed in v1.1*, where human verification was made a plan rather than a hope, and duly happened.
 5. **Investment in pure, framework-free primitives compounds.** — *v1.0 built the geometry core; v1.1
-   resized the canvas by changing constants; v1.11 re-expressed draw/guard/normalise on new primitives*
-   without the surrounding app logic fighting back.
+   resized the canvas by changing constants; v1.11 re-expressed draw/guard/normalise on new primitives;
+   v1.12 grew the canvas 4× by editing two `CanvasBounds` numbers* — each time without the surrounding
+   app logic fighting back. Three milestones now confirm single-source constants as the cheapest
+   insurance in this codebase.

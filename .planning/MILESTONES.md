@@ -1,5 +1,40 @@
 # Milestones
 
+## v1.12 Canvas enlargement (Shipped: 2026-07-27)
+
+**Phases completed:** 1 phase, 2 plans, 3 tasks
+
+**Delivered:** Enlarged the fixed canvas from 1472×828 to 5760×2634 (a 3×3 grid of 1920×878 cells) as
+a pure, grow-only size change (D-19) — existing figures stay valid, unmoved, no data migration. The
+rest of the surface is reached by native browser scroll (D-18); the toolbar is now `position: fixed`
+with a 48px canvas offset, preserving the `PageX` / `PageY − 48` mapping (D-43) with zero JavaScript
+interop.
+
+**Verification:** Phase 11 verified `passed`; a human approved all five success criteria live in a
+browser (first-screen top-left, native-scroll reachability with the toolbar staying fixed,
+figure-under-pointer accuracy at any scroll offset, all four shapes draw/drag/delete + persist).
+`dotnet build BlazorCanvas.sln` clean (0/0); 416/416 tests passing. Source footprint: 8 files changed
+(+23/−18). Tag: `v1.12-canvas-enlargement` (the plain `v1.12` tag belongs to the parallel star5
+topology — kept distinct on purpose).
+
+**Amendments logged (`docs/DECISIONS.md`):** D-19 (size 1472×828 → 5760×2634), D-43 (toolbar
+`position: fixed`, the −48 invariant preserved via a 48px canvas offset), D-18 (native browser scroll
+is now the navigation mechanism, previously an accepted cost). D-04 untouched — this is not a pan
+feature.
+
+**Key accomplishments:**
+
+- Grew `CanvasBounds.Width`/`Height` from 1472/828 to 5760/2634 via two constants — Home.razor is
+  unchanged because it already binds the SVG surface to those constants (a single size source).
+- Took the toolbar out of document flow (`position: fixed; top:0; left:0; z-index:10`, below the
+  100/101 save-failed modal layers) and gave the canvas a compensating `padding-top: 48px`, keeping
+  `canvasY = PageY − 48` correct at any scroll offset with no JS interop.
+- Re-pinned five test files to the enlarged bounds (renamed the `CanvasBounds` fact to 5760×2634,
+  bumped far-corner and off-canvas cases genuinely past the new edge) — no stale 1472/828 literals
+  remain, fixtures untouched, 416/416 green.
+
+---
+
 ## v1.11 Storage model rewrite (anchor + geometry JSON) (Shipped: 2026-07-24)
 
 **Phases completed:** 2 phases, 12 plans, 29 tasks

@@ -18,6 +18,11 @@ D-59**). Classification: ADR / locked: true / precedence 0 (manifest-declared).
 > a hand-written backfill. This mirror carries D-59 below + short markers on affected entries;
 > `docs/DECISIONS.md` is the source of truth.
 
+> ⚠️ **v1.12 AMENDMENTS (2026-07-27) — authoritative text in `docs/DECISIONS.md`.** **D-19** — canvas
+> **1472×828 → 5760×2634** (3×3 grid of 1920×878 cells; grow-only, no migration, no scaling). **D-43**
+> — toolbar now `position: fixed` with a 48px canvas offset (−48 mapping preserved, no JS interop).
+> **D-18** — native browser scroll is now the navigation mechanism (not a pan feature — D-04 intact).
+
 > ⚠️ **v1.1 AMENDMENTS (2026-07-20) — for the authoritative amended text, read `docs/DECISIONS.md`
 > (it carries inline `⚠️ v1.1` notes on each changed decision).** This mirror has been spot-corrected
 > for the concrete facts but is not the source of truth for v1.1. Summary of changes:
@@ -183,12 +188,14 @@ event target, and every drag and every selection begins *on a figure*.
 Do **not** centre the canvas with `margin: auto` — reintroduces a window-width-dependent offset
 the server cannot know.
 
-### D-19 — Canvas dimensions: 1472 × 828 *(v1.1; was 1280 × 720)*
-source: docs/DECISIONS.md (D-19) · Locked · ⚠️ amended v1.1
-1472 × 828 logical units = literal CSS pixels at 1:1. 16:9. Fits a maximized window on a 1920×1080
-monitor with no scroll.
-**The size may GROW but must never SHRINK** — enlarging keeps every stored figure valid (v1.1 did
-this, no migration); shrinking would orphan figures. Coordinates are only meaningful relative to it.
+### D-19 — Canvas dimensions: 5760 × 2634 *(v1.12; was 1472 × 828 in v1.1, 1280 × 720 in v1.0)*
+source: docs/DECISIONS.md (D-19) · Locked · ⚠️ amended v1.12 (size) · v1.1 (size)
+5760 × 2634 logical units = literal CSS pixels at 1:1 — a 3×3 grid of 1920×878 cells. No scaling
+(circles stay round; intentionally not 16:9). The rest of the surface is reached by native browser
+scroll (D-18); the toolbar is `position: fixed` (D-43).
+**The size may GROW but must never SHRINK** — enlarging keeps every stored figure valid (v1.1 and
+v1.12 both did this, no migration); shrinking would orphan figures. Coordinates are only meaningful
+relative to it.
 
 ### D-20 — Coordinates are integers
 source: docs/DECISIONS.md (D-20) · Locked
@@ -619,7 +626,7 @@ Reminder: `PageX`/`PageY`, **never** `OffsetX`/`OffsetY`.
 source: docs/DECISIONS.md (D-58) · Locked — full table in `constraints.md`
 Figure outline **black, 2px**; fill **white**; **selected** figure indicator **~1px blue+white
 dashed trace on the figure's own outline, topmost** *(v1.1; was red 2px)*; page background light
-grey; canvas white **1472×828** *(v1.1; was 1280×720)*, no border; toolbar 48px.
+grey; canvas white **5760×2634** *(v1.12; was 1472×828 in v1.1, 1280×720 in v1.0)*, no border; toolbar 48px *(v1.12: `position: fixed`)*.
 A **2px** stroke (not 1px) is deliberate — D-32 declined the widened hit-area, so the stroke itself
 is the only click target a line has.
 Behaviour: **the Delete button is greyed out and unclickable when nothing is selected.**
