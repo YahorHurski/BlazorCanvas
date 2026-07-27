@@ -5,7 +5,8 @@
 - ✅ **v1.0 MinVP** — Phases 1–5 (shipped 2026-07-17)
 - ✅ **v1.1 Canvas resize · selection UX · no-JS removal** — Phases 6–8 (shipped 2026-07-21)
 - ✅ **v1.11 Storage model rewrite (anchor + geometry JSON)** — Phases 9–10 (shipped 2026-07-24)
-- 📋 **v1.2 Figures & dynamic toolbar** — scoped, sequenced after v1.11, not started
+- 🚧 **v1.12 Canvas enlargement** — Phase 11 (in progress, opened 2026-07-27)
+- 📋 **v1.2 Figures & dynamic toolbar** — scoped, sequenced after v1.12, not started
 
 v1.0 detail: [`milestones/v1.0-ROADMAP.md`](milestones/v1.0-ROADMAP.md) ·
 [`milestones/v1.0-REQUIREMENTS.md`](milestones/v1.0-REQUIREMENTS.md) ·
@@ -105,6 +106,52 @@ D-54 mid-drag blanket discard) accepted as non-blocking environmental caveats.
 
 </details>
 
+### 🚧 v1.12 Canvas enlargement (In Progress, opened 2026-07-27)
+
+**Milestone goal:** Enlarge the fixed canvas from **1472×828 to 5760×2634** (a 3×3 grid of
+1920×878 cells) so it feels borderless — a **pure size change**, D-19-compliant (grow-only, never
+shrink). No scaling, no zoom/pan, no JS interop. The first screen on load is the **top-left cell** —
+existing figures stay exactly where they are, unmoved, no data migration. The rest of the canvas is
+reached by **native browser scroll** (D-18 — an already-accepted behavior, now the actual navigation
+mechanism; explicitly *not* a pan feature, so D-04 stays intact). The **toolbar becomes
+`position: fixed`**, with the canvas offset 48px below it, so the `PageX` / `PageY − 48` coordinate
+mapping (D-43) holds unchanged at any scroll position. Deliberately small and self-contained: two
+`CanvasBounds` constants, `Home.razor.css` layout, and one test-suite update — a single tightly-coupled
+phase.
+
+- [ ] **Phase 11: Canvas Enlargement to 5760×2634**
+      Grows `CanvasBounds` and the SVG surface to 5760×2634, fixes the toolbar in place with a 48px
+      canvas offset, and updates the suite's hard-coded 1472×828 bounds assertion and stale edge
+      comments — the full milestone in one coherent change.
+
+## Phase Details
+
+### Phase 11: Canvas Enlargement to 5760×2634
+**Goal**: The canvas grows from 1472×828 to 5760×2634 (a 3×3 grid of 1920×878 cells) as a pure,
+grow-only size change — existing figures stay valid and visible, unmoved, with no data migration —
+and the rest of the enlarged surface is reachable by ordinary browser scrolling while the toolbar
+stays pinned in place and every coordinate stays pixel-accurate.
+**Depends on**: Nothing (first phase of v1.12)
+**Requirements**: CANV-04, CANV-05, TEST-03
+**Success Criteria** (what must be TRUE):
+  1. On page load, the user sees the top-left region of the canvas (anchored at document origin under
+     the toolbar) with any existing figures visible exactly where they were before the resize —
+     unmoved, no migration needed.
+  2. The user can scroll (native browser scroll, no dedicated pan control) to reach a figure placed
+     near the far edge of the enlarged 5760×2634 surface, and the toolbar remains visible, fixed at
+     the top of the viewport, throughout the scroll.
+  3. A figure drawn or dragged while scrolled to any position lands exactly under the pointer — the
+     `PageX` / `PageY − 48` coordinate mapping holds with no drift, and no JavaScript interop is
+     introduced.
+  4. All four shapes (line, rectangle, circle, triangle) still draw, drag, and delete correctly
+     anywhere on the larger surface, each change persisting immediately, per-operation (regression
+     guard, D-09).
+  5. `dotnet build BlazorCanvas.sln` is clean (0 warnings, 0 errors) and the full `dotnet test` suite
+     passes, including the bounds assertion renamed and re-pinned to 5760×2634 and stale
+     "past the canvas edge (1472,828)" comments corrected.
+**Plans**: TBD
+**UI hint**: yes
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -119,29 +166,55 @@ D-54 mid-drag blanket discard) accepted as non-blocking environmental caveats.
 | 8. Architecture Constraint Cleanup | v1.1 | 1/1 | Complete | 2026-07-21 |
 | 9. Schema, Entity & Data-Preserving Migration | v1.11 | 6/6 | Complete | 2026-07-23 |
 | 10. Geometry, Draw, Drag & Sync Rework (No Edge Clamp) + Regression | v1.11 | 6/6 | Complete | 2026-07-24 |
+| 11. Canvas Enlargement to 5760×2634 | v1.12 | 0/TBD | Not started | - |
 
 **v1.0: 5/5 phases, 23/23 plans, 15/15 requirements — milestone audit passed.**
 **v1.1: 3/3 phases, 4/4 plans, 4/4 requirements — all phases verified `passed`.**
 **v1.11: 2/2 phases, 12/12 plans, 9/9 requirements — both phases verified `passed`; milestone audit passed.**
+**v1.12: 0/1 phases complete, 0/3 requirements validated — roadmap written, ready to plan.**
+
+## Requirement Coverage
+
+| Phase | Milestone | Requirements |
+|-------|-----------|--------------|
+| 1 | v1.0 | DATA-02, TEST-01 |
+| 2 | v1.0 | AUTH-01, AUTH-02, AUTH-03 |
+| 3 | v1.0 | DATA-01, CANV-01, CANV-02, FIG-01 |
+| 4 | v1.0 | FIG-02, FIG-03, FIG-04 |
+| 5 | v1.0 | SYNC-01, DATA-03, DATA-04 |
+| 6 | v1.1 | CANV-03 |
+| 7 | v1.1 | SEL-01, SEL-02 |
+| 8 | v1.1 | ARCH-01 |
+| 9 | v1.11 | STOR-01, MIG-01, MIG-02 |
+| 10 | v1.11 | STOR-02, STOR-03, STOR-04, STOR-05, SYNC-02, TEST-02 |
+| 11 | v1.12 | CANV-04, CANV-05, TEST-03 |
+
+**v1.0: 15/15 requirements mapped. v1.1: 4/4 requirements mapped. v1.11: 9/9 requirements mapped.
+v1.12: 3/3 requirements mapped. No orphans. No duplicates.**
 
 ## What's Next
 
-**v1.11 shipped 2026-07-24.** The storage model is now anchor (`x,y`) + `geometry jsonb` (D-59), every
-existing figure preserved via a tested migration, and the canvas-edge clamp is gone. Full detail:
-[`milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md).
+**v1.12 is open and Phase 11 is roadmapped** (single phase, 3/3 requirements mapped, 0 unmapped).
+Next step: `/gsd-plan-phase 11` — grow `CanvasBounds` to 5760×2634, fix the toolbar's CSS position,
+offset the canvas 48px below it, and update the suite's hard-coded bounds. No research phase needed
+(design is fully specified by CANV-04/CANV-05/TEST-03 and D-19/D-43/D-18).
 
-**v1.2 is scoped, sequenced next:** new figure types (ellipse, 5-point star, hexagon, pentagon,
-right-angle triangle L/R, four arrows) + a dynamic split-button toolbar. Full plan:
-`.planning/backlog/v1.2-figures-and-toolbar.md`. **Its 4-int-bbox premise no longer holds now that
-v1.11 has shipped** — new shapes store as `geometry jsonb`, exactly what v1.11 enables, so the backlog
-must be revised as the first step when v1.2 opens. Run `/gsd-new-milestone` to kick it off.
+**v1.2 is scoped, sequenced after v1.12:** new figure types (ellipse, 5-point star, hexagon,
+pentagon, right-angle triangle L/R, four arrows) + a dynamic split-button toolbar. Full plan:
+`.planning/backlog/v1.2-figures-and-toolbar.md`. **Its 4-int-bbox premise no longer holds** — after
+v1.11, new shapes store as `geometry jsonb`; the backlog must be revised before v1.2 opens.
 
 Known v1.0 tech debt (~11 low-severity items from `01-REVIEW.md`) is recorded in
 [`milestones/v1.0-MILESTONE-AUDIT.md`](milestones/v1.0-MILESTONE-AUDIT.md). None blocks a
-requirement. Neither v1.1 nor v1.11 added new tech debt.
+requirement. Neither v1.1, v1.11, nor v1.12 (so far) added new tech debt.
 
 ---
 *Roadmap created: 2026-07-14 from `docs/DECISIONS.md` (58 locked decisions) via `.planning/intel/`*
 *v1.0 archived: 2026-07-17*
 *v1.1 archived: 2026-07-21 — phases 6–8 collapsed above; full detail in `milestones/v1.1-ROADMAP.md`.*
 *v1.11 archived: 2026-07-24 — phases 9–10 collapsed above; full detail in `milestones/v1.11-ROADMAP.md`.*
+*v1.12 roadmap created: 2026-07-27 — Phase 11 derived from the 3 v1.12 requirements (CANV-04, CANV-05,
+TEST-03); a single phase, matching the milestone's small, tightly-coupled footprint (two
+`CanvasBounds` constants + `Home.razor.css` layout + one test-suite update) — no genuine dependency
+forced a split. 3/3 requirements mapped, 0 unmapped. No research phase (design fully specified by
+D-19/D-43/D-18 amendments; research intentionally skipped).*

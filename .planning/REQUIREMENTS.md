@@ -101,15 +101,18 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CANV-04 | — | Pending |
-| CANV-05 | — | Pending |
-| TEST-03 | — | Pending |
+| CANV-04 | Phase 11 | Pending |
+| CANV-05 | Phase 11 | Pending |
+| TEST-03 | Phase 11 | Pending |
 
 **Coverage:**
 
 - v1.12 requirements: 3 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 3
+- Mapped to phases: 3 (Phase 11: CANV-04, CANV-05, TEST-03)
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-27*
+*Last updated: 2026-07-27 after roadmap creation (`/gsd-new-milestone` → roadmapper) — Phase 11
+assigned (single phase; the milestone's footprint is too small and tightly-coupled to split), 3/3
+requirements mapped, 0 unmapped.*
