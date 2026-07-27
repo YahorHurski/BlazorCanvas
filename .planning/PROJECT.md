@@ -53,6 +53,24 @@ figures were **preserved via a tested data migration**. The canvas-edge clamp wa
 superseded, D-24/D-29/D-36 dropped, D-53/D-46/D-23 amended, D-41 re-expressed, D-20/D-12/D-03 upheld.
 Backlog: `.planning/backlog/v1.11-storage-rewrite.md`.
 
+## Current Milestone: v1.12 — Canvas enlargement
+
+**Goal:** Enlarge the fixed canvas so it feels borderless — without adding zoom/pan.
+
+**Target changes:**
+- Canvas grows from 1472×828 to **5760×2634** (a 3×3 grid of 1920×878 cells) — pure growth
+  (D-19-compliant: size may grow, never shrink). Existing figures stay valid; no data migration.
+- **First screen = top-left cell** — a user's existing figures are visible on load, unmoved.
+- The rest of the canvas is reached via **native browser scroll** (D-18's already-accepted behavior;
+  explicitly *not* a pan feature, so D-04 stays intact).
+- **Toolbar → `position: fixed`** + canvas `margin-top: 48px`, so the `PageY − 48` coordinate mapping
+  is unchanged and **no JS interop is introduced**.
+
+**Key context:** Amends D-19 (size), D-43 (toolbar fixed; −48 invariant preserved), D-18 (scroll is
+now the navigation mechanism). D-04 untouched. Zoom/pan (a viewBox "camera") is **out of scope** —
+roadmapped to a later milestone as a pure additive upgrade. Total shape is intentionally not 16:9
+(~2.19:1); fine because v1.12 has zero scaling (circles stay round at any ratio).
+
 ## Requirements
 
 ### Validated
@@ -91,9 +109,10 @@ Backlog: `.planning/backlog/v1.11-storage-rewrite.md`.
 
 ### Active
 
-**No milestone open.** v1.11 (storage-model rewrite) shipped 2026-07-24; its `REQUIREMENTS.md` is
-archived at `.planning/milestones/v1.11-REQUIREMENTS.md`. All 59 decisions (through **D-59**) remain
-locked in `docs/DECISIONS.md`. The next milestone is defined by `/gsd-new-milestone`.
+**v1.12 (Canvas enlargement) is OPEN** — opened 2026-07-27 (branch `v1.12`). Scope: enlarge the
+fixed canvas to 5760×2634 (3×3 cells), top-left first screen, native-scroll navigation, fixed toolbar;
+zoom/pan explicitly deferred. Requirements: `.planning/REQUIREMENTS.md`. All 59 decisions (through
+**D-59**) remain locked in `docs/DECISIONS.md`; v1.12 amends D-19/D-43/D-18 (to be logged at ship).
 
 **Next milestone (v1.2) is scoped but not started**, now sequenced **after v1.11**: new figure
 types (ellipse, 5-point star, hexagon, pentagon, right-angle triangle L/R, four arrows) + a dynamic
@@ -401,7 +420,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-24 after v1.11 milestone — all 9 requirements (STOR-01…05, MIG-01/02,
-SYNC-02, TEST-02) validated; storage model is now anchor + `geometry jsonb` (D-59), canvas-edge clamp
-removed, existing figures preserved via a tested migration. No milestone open; v1.2 is next.
-(Prev: 2026-07-23 — Phase BC-09 validated STOR-01/MIG-01/MIG-02.)*
+*Last updated: 2026-07-27 — opened milestone v1.12 (Canvas enlargement): enlarge canvas to 5760×2634
+(3×3 cells), top-left first screen, native-scroll navigation, fixed toolbar; zoom/pan deferred. Amends
+D-19/D-43/D-18. (Prev: 2026-07-24 after v1.11 milestone — all 9 requirements validated; storage model
+is anchor + `geometry jsonb` (D-59).)*

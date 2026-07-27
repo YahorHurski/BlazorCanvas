@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.11
-milestone_name: Storage model rewrite (anchor + geometry JSON)
-status: Awaiting next milestone
-stopped_at: Completed 10-05-PLAN.md
-last_updated: "2026-07-24T10:17:06.402Z"
-last_activity: 2026-07-24
-last_activity_desc: Milestone v1.11 completed and archived
+milestone: v1.12
+milestone_name: Canvas enlargement
+status: planning
+last_updated: "2026-07-27T09:52:30.996Z"
+last_activity: 2026-07-27
 progress:
-  total_phases: 2
-  completed_phases: 2
-  total_plans: 12
-  completed_plans: 12
-  percent: 100
-current_phase: 10
-current_phase_name: geometry-draw-drag-sync-rework-no-edge-clamp-regression
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -38,10 +34,10 @@ opens.
 
 ## Current Position
 
-Phase: Milestone v1.11 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-24 — Milestone v1.11 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-27 — Milestone v1.12 started
 
 ## Performance Metrics
 
